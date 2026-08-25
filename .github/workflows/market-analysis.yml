@@ -56,6 +56,7 @@ jobs:
         with:
           path: .
           node-version: '24'
+          package-manager: npm
 
       - name: Deploy to GitHub Pages
         id: deployment
