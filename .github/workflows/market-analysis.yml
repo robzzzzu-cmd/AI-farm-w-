@@ -34,7 +34,7 @@ jobs:
         run: |
           git config --global user.name "Market AI Bot"
           git config --global user.email "bot@example.com"
-          git add src/content/blog/
+          git add short-series/src/content/blog/
           git commit -m "Automated market update for $(date +'%Y-%m-%d')" || echo "No changes to commit"
           git pull --rebase origin main
           git push
@@ -54,7 +54,7 @@ jobs:
       - name: Install, build, and upload your site
         uses: withastro/action@v3
         with:
-          path: .
+          path: ./short-series
           node-version: '24'
           package-manager: npm
 
