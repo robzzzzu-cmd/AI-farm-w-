@@ -1,11 +1,12 @@
-name: Automated Market Analysis & Site Deploy
+def generate_workflow_yaml():
+    yaml_content = """name: Automated Market Analysis & Site Deploy
 
 on:
   schedule:
     - cron: '0 21 * * 1-5'
   workflow_dispatch:
   push:
-    branches: ["main"] # Rebuilds the site if you manually edit code
+    branches: ["main"]
 
 permissions:
   contents: write
@@ -36,16 +37,17 @@ jobs:
           git config --global user.email "bot@example.com"
           git add src/content/blog/
           git commit -m "Automated market update for $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git pull --rebase origin main
           git push
 
   deploy-site:
-    needs: analyze-and-publish # Waits for the AI bot to finish committing
+    needs: analyze-and-publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: main # Pulls the brand new AI-generated markdown file
+          ref: main
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -59,3 +61,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+"""
+    with open("market-analysis.yml", "w") as f:
+        f.write(yaml_content)
+
+generate_workflow_yaml()
