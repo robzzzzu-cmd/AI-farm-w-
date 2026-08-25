@@ -62,7 +62,7 @@ async function run() {
     console.log("3. Formatting output for the static website...");
     const date = new Date().toISOString().split('T')[0];
     const fileName = `market-update-${date}.md`;
-    const folderPath = './content';
+    const folderPath = './src/content/blog';
 
     if (!fs.existsSync(folderPath)){
         fs.mkdirSync(folderPath);
