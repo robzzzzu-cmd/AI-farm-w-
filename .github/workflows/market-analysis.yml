@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Node 18+ includes the native fetch API
+          node-version: '24' # Node 18+ includes the native fetch API
 
       - name: Run market analysis script
         env:
