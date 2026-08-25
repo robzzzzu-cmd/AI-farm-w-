@@ -1,11 +1,50 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const posts = await Astro.glob('../content/blog/*.md');
+posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>AI Market Farm</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background-color: #111827;
+        color: #f9fafb;
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      h1 { color: #10b981; }
+      .post {
+        background-color: #1f2937;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-top: 2rem;
+        border-left: 4px solid #10b981;
+      }
+      a {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <h1>📈 Market Movers Daily</h1>
+    <p>Automated market intelligence and breakout tracking.</p>
+
+    {posts.length === 0 ? (
+      <p>No market updates yet. The bot is resting...</p>
+    ) : (
+      posts.map(post => (
+        <div class="post">
+          <post.Content />
+        </div>
+      ))
+    )}
+  </body>
+</html>
