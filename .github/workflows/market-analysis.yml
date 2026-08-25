@@ -1,17 +1,20 @@
-name: Automated Market Analysis
+name: Automated Market Analysis & Site Deploy
 
 on:
   schedule:
     - cron: '0 21 * * 1-5'
   workflow_dispatch:
+  push:
+    branches: ["main"] # Rebuilds the site if you manually edit code
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   analyze-and-publish:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,6 +34,28 @@ jobs:
         run: |
           git config --global user.name "Market AI Bot"
           git config --global user.email "bot@example.com"
-          git add content/
-          git commit -m "Automated market update for $(date +'%Y-%m-%d')" || exit 0
+          git add src/content/blog/
+          git commit -m "Automated market update for $(date +'%Y-%m-%d')" || echo "No changes to commit"
           git push
+
+  deploy-site:
+    needs: analyze-and-publish # Waits for the AI bot to finish committing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main # Pulls the brand new AI-generated markdown file
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install, build, and upload your site
+        uses: withastro/action@v3
+        with:
+          path: .
+          node-version: 24
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
