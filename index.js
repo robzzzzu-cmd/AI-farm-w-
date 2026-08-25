@@ -31,31 +31,37 @@ async function run() {
     console.log("2. Generating content with AI...");
 
     // Using OpenRouter as an example for free/cheap LLM access (OpenAI-compatible)
-    const llmResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+   console.log("2. Generating content with AI...");
+
+    // Using Google's Gemini API endpoint directly
+    const llmResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${llmApiKey}`,
+        "x-goog-api-key": llmApiKey,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "google/gemini-flash-2.5", 
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Here are today's top gainers:\n${topGainers}` }
+        contents: [
+          {
+            parts: [
+              { text: `${systemPrompt}\n\nHere are today's top gainers:\n${topGainers}` }
+            ]
+          }
         ]
       })
     });
 
     const llmData = await llmResponse.json();
 
-    // NEW: Check if the AI returned an error instead of a valid response
-    if (!llmData.choices || !llmData.choices[0]) {
-      console.error("❌ The LLM API returned an error:");
+    // Check if Gemini returned an error instead of a valid response
+    if (!llmData.candidates || !llmData.candidates[0]) {
+      console.error("❌ The Gemini API returned an error:");
       console.error(JSON.stringify(llmData, null, 2));
-      throw new Error("Failed to get a valid response from the LLM.");
+      throw new Error("Failed to get a valid response from Gemini.");
     }
 
-    const generatedContent = llmData.choices[0].message.content;
+    // Extracting the text from Gemini's unique JSON structure
+    const generatedContent = llmData.candidates[0].content.parts[0].text;
 
     console.log("\n=== AI GENERATED UPDATE ===");
     console.log(generatedContent);
