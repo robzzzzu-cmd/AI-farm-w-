@@ -48,16 +48,10 @@ async function run() {
     const llmData = await llmResponse.json();
 
     if (!llmData.candidates || !llmData.candidates[0]) {
-      console.error("❌ The Gemini API returned an error:");
-      console.error(JSON.stringify(llmData, null, 2));
       throw new Error("Failed to get a valid response from Gemini.");
     }
 
     const generatedContent = llmData.candidates[0].content.parts[0].text;
-
-    console.log("\n=== AI GENERATED UPDATE ===");
-    console.log(generatedContent);
-    console.log("===========================\n");
 
     console.log("3. Formatting output for the static website...");
     const date = new Date().toISOString().split('T')[0];
@@ -80,7 +74,8 @@ ${generatedContent}
 
 ---
 *Disclaimer: This is an automated AI report. Not financial advice.*
-*[Your Affiliate Link Here - e.g., Trade on eToro]*
+
+🚀 **[Trade these breakouts on Binance and get a $100 Signup Bonus!](https://accounts.binance.com/register?ref=YOUR_REFERRAL_CODE)**
 `;
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
