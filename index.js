@@ -38,7 +38,7 @@ async function run() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "google/gemini-flash-1.5", 
+        model: "google/gemini-flash-2.5", 
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Here are today's top gainers:\n${topGainers}` }
