@@ -1,5 +1,4 @@
-def generate_workflow_yaml():
-    yaml_content = """name: Automated Market Analysis & Site Deploy
+name: Automated Market Analysis & Site Deploy
 
 on:
   schedule:
@@ -56,13 +55,8 @@ jobs:
         uses: withastro/action@v3
         with:
           path: .
-          node-version: 24
+          node-version: '24'
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-"""
-    with open("market-analysis.yml", "w") as f:
-        f.write(yaml_content)
-
-generate_workflow_yaml()
