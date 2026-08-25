@@ -47,6 +47,14 @@ async function run() {
     });
 
     const llmData = await llmResponse.json();
+
+    // NEW: Check if the AI returned an error instead of a valid response
+    if (!llmData.choices || !llmData.choices[0]) {
+      console.error("❌ The LLM API returned an error:");
+      console.error(JSON.stringify(llmData, null, 2));
+      throw new Error("Failed to get a valid response from the LLM.");
+    }
+
     const generatedContent = llmData.choices[0].message.content;
 
     console.log("\n=== AI GENERATED UPDATE ===");
