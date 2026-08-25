@@ -1,5 +1,8 @@
 ---
-const posts = await Astro.glob('../content/blog/*.md');
+// Fetch all AI markdown files using standard Vite globbing
+const posts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true }));
+
+// Sort them from newest to oldest
 posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 ---
 
