@@ -64,8 +64,8 @@ async function run() {
     const fileName = `market-update-${date}.md`;
     const folderPath = './src/content/blog';
 
-    if (!fs.existsSync(folderPath)){
-        fs.mkdirSync(folderPath);
+   if (!fs.existsSync(folderPath)){
+        fs.mkdirSync(folderPath, { recursive: true });
     }
 
     const markdownContent = `---
