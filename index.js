@@ -75,7 +75,7 @@ ${generatedContent}
 ---
 *Automated ML scan. Not financial advice.*
 
-🚀 **[Trade Breakouts on Hyperliquid (No ID Required)](https://app.hyperliquid.xyz/join/YOUR_HL_REF)**
+🚀 **[Swap & Trade Crypto Instantly (No ID Required)](https://changenow.io/?to=btc&link_id=YOUR_CHANGENOW_REF)**
 `;
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
