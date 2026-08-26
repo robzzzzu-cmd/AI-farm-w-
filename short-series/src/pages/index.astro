@@ -7,158 +7,414 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Terminal // Market Intelligence & Breakouts</title>
+    <title>ALPHAFEED.AI // Institutional Market Intelligence</title>
     <style>
       :root {
-        --bg-color: #0b0f19;
-        --card-bg: #111827;
-        --border-color: #1f2937;
-        --accent-green: #10b981;
-        --text-main: #f3f4f6;
-        --text-muted: #9ca3af;
+        --bg-main: #080c14;
+        --bg-card: #0f172a;
+        --bg-card-hover: #1e293b;
+        --border: #1e293b;
+        --border-highlight: #334155;
+        --green: #10b981;
+        --blue: #38bdf8;
+        --amber: #f59e0b;
+        --purple: #a855f7;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
       }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-main);
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 3rem 1.5rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
         line-height: 1.6;
+        padding-bottom: 5rem;
       }
+
+      .container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Navigation Header */
       header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 1.5rem;
-        margin-bottom: 2.5rem;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 3rem;
       }
       .logo {
-        font-weight: 800;
-        font-size: 1.25rem;
-        letter-spacing: -0.025em;
-        color: #ffffff;
+        font-weight: 900;
+        font-size: 1.35rem;
+        letter-spacing: -0.03em;
+        color: #fff;
       }
-      .logo span { color: var(--accent-green); }
+      .logo span { color: var(--green); }
+      .nav-badges {
+        display: flex;
+        gap: 0.75rem;
+      }
       .status-badge {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        background: var(--card-bg);
-        padding: 0.35rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        background: var(--bg-card);
+        padding: 0.4rem 0.85rem;
         border-radius: 9999px;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--border);
       }
       .pulse {
-        width: 8px;
-        height: 8px;
-        background-color: var(--accent-green);
+        width: 7px;
+        height: 7px;
+        background-color: var(--green);
         border-radius: 50%;
         box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
-        animation: pulse 2s infinite;
+        animation: pulse-ring 2s infinite;
       }
-      @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
         70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
         100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
       }
+
+      /* Hero Section */
       .hero {
+        text-align: left;
         margin-bottom: 3rem;
       }
-      .hero h1 {
-        font-size: 2.25rem;
-        font-weight: 800;
-        letter-spacing: -0.05em;
-        margin-bottom: 0.5rem;
-      }
-      .hero p {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-      }
-      .post {
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      }
-      .post h2, .post h1 {
-        font-size: 1.4rem;
-        margin-top: 0;
-        color: #ffffff;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 0.75rem;
+      .hero-tag {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--green);
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
         margin-bottom: 1rem;
       }
-      .post p {
-        font-size: 1.05rem;
-        color: #e5e7eb;
+      .hero h1 {
+        font-size: clamp(2rem, 4vw, 2.75rem);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.15;
+        margin-bottom: 0.75rem;
       }
-      .post hr {
+      .hero p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        max-width: 650px;
+      }
+
+      /* Slider Section */
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+      }
+      .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .slider-controls {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .slider-btn {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: all 0.2s;
+      }
+      .slider-btn:hover {
+        background: var(--border-highlight);
+        border-color: var(--green);
+      }
+
+      .slider-container {
+        display: flex;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-bottom: 1rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-highlight) transparent;
+      }
+      .slider-container::-webkit-scrollbar {
+        height: 6px;
+      }
+      .slider-container::-webkit-scrollbar-thumb {
+        background: var(--border-highlight);
+        border-radius: 3px;
+      }
+
+      .slide-card {
+        flex: 0 0 clamp(320px, 85vw, 480px);
+        scroll-snap-align: start;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.75rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+      .slide-card:hover {
+        border-color: var(--border-highlight);
+        transform: translateY(-2px);
+      }
+      .slide-card h1, .slide-card h2 {
+        font-size: 1.25rem;
+        color: #fff;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+      }
+      .slide-card p {
+        font-size: 0.95rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+      }
+      .slide-card hr {
         border: none;
-        border-top: 1px solid var(--border-color);
-        margin: 1.5rem 0;
+        border-top: 1px solid var(--border);
+        margin: 1.25rem 0;
       }
-      /* Affiliate Box Styling */
-      .post a {
-        display: block;
+      .slide-card a {
+        display: inline-block;
+        width: 100%;
         background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-        color: #ffffff;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
         text-align: center;
-        padding: 0.85rem 1rem;
+        padding: 0.75rem 1rem;
         border-radius: 8px;
         text-decoration: none;
-        font-weight: 600;
-        margin-top: 1rem;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
         transition: opacity 0.2s;
       }
-      .post a:hover {
-        opacity: 0.9;
+      .slide-card a:hover { opacity: 0.9; }
+
+      /* Multi-Affiliate Grid */
+      .affiliate-section {
+        margin-top: 4rem;
       }
-      .disclaimer {
-        font-size: 0.8rem;
-        color: var(--text-muted);
+      .affiliate-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.25rem;
+      }
+      .affiliate-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        transition: all 0.2s ease-in-out;
+      }
+      .affiliate-card:hover {
+        border-color: var(--blue);
+        background: var(--bg-card-hover);
+        transform: translateY(-3px);
+      }
+      .badge-tag {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        align-self: flex-start;
+        margin-bottom: 0.85rem;
+      }
+      .tag-binance { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+      .tag-tv { background: rgba(56, 189, 248, 0.15); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+      .tag-etoro { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+      .tag-ledger { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+      .affiliate-card h3 {
+        font-size: 1.15rem;
+        margin-bottom: 0.35rem;
+      }
+      .affiliate-card p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.25rem;
+      }
+      .aff-btn {
+        display: block;
         text-align: center;
-        margin-top: 3rem;
-        border-top: 1px solid var(--border-color);
-        padding-top: 1.5rem;
+        padding: 0.65rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--border-highlight);
+        color: #fff;
+        transition: all 0.2s;
+      }
+      .aff-btn:hover {
+        background: #fff;
+        color: #000;
+      }
+
+      footer {
+        margin-top: 5rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        border-top: 1px solid var(--border);
+        padding-top: 2rem;
       }
     </style>
   </head>
   <body>
-    <header>
-      <div class="logo">ALPHA<span>FEED</span>.AI</div>
-      <div class="status-badge">
-        <div class="pulse"></div>
-        <span>Live Engine Active</span>
-      </div>
-    </header>
-
-    <div class="hero">
-      <h1>Autonomous Market Intelligence</h1>
-      <p>Real-time algorithmic tracking of extreme volume surges, momentum runners, and market movers.</p>
-    </div>
-
-    <main>
-      {posts.length === 0 ? (
-        <div class="post">
-          <p>Initializing sequence. Waiting for the next market batch...</p>
+    <div class="container">
+      <header>
+        <div class="logo">ALPHA<span>FEED</span>.AI</div>
+        <div class="nav-badges">
+          <div class="status-badge">
+            <div class="pulse"></div>
+            <span>Auto-Scan Active</span>
+          </div>
         </div>
-      ) : (
-        posts.map(post => (
-          <article class="post">
-            <post.Content />
-          </article>
-        ))
-      )}
-    </main>
+      </header>
 
-    <div class="disclaimer">
-      <p>&copy; 2026 AlphaFeed AI. Automated reports for informational purposes only. Not financial advice.</p>
+      <section class="hero">
+        <span class="hero-tag">Algorithmic Market Flow</span>
+        <h1>Autonomous Market Intelligence</h1>
+        <p>Real-time machine-learning scans detecting extreme volume surges, momentum anomalies, and daily breakout runners.</p>
+      </section>
+
+      <!-- Interactive News Slider -->
+      <section>
+        <div class="section-header">
+          <h2 class="section-title">⚡ Live Market Dispatches</h2>
+          <div class="slider-controls">
+            <button class="slider-btn" id="slide-left" aria-label="Slide Left">&larr;</button>
+            <button class="slider-btn" id="slide-right" aria-label="Slide Right">&rarr;</button>
+          </div>
+        </div>
+
+        <div class="slider-container" id="news-slider">
+          {posts.length === 0 ? (
+            <div class="slide-card">
+              <p>Scanning markets for new breakout runners. Next batch publishing at next market close.</p>
+            </div>
+          ) : (
+            posts.map(post => (
+              <article class="slide-card">
+                <div>
+                  <post.Content />
+                </div>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
+
+      <!-- Multi-Partner Terminal & Affiliate Suite -->
+      <section class="affiliate-section">
+        <div class="section-header">
+          <h2 class="section-title">🏛️ Verified Institutional Execution Desks</h2>
+        </div>
+
+        <div class="affiliate-grid">
+          <!-- Binance Deal -->
+          <div class="affiliate-card">
+            <div>
+              <span class="badge-tag tag-binance">Crypto & Futures</span>
+              <h3>Binance Global</h3>
+              <p>Execute momentum breakout alerts with deep liquidity and institutional fees.</p>
+            </div>
+            <a href="https://accounts.binance.com/register?ref=YOUR_BINANCE_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Claim $100 Bonus &rarr;
+            </a>
+          </div>
+
+          <!-- TradingView Deal -->
+          <div class="affiliate-card">
+            <div>
+              <span class="badge-tag tag-tv">Live Charting</span>
+              <h3>TradingView Pro</h3>
+              <p>Deploy multi-timeframe volume indicators and custom breakout alerts.</p>
+            </div>
+            <a href="https://www.tradingview.com/?aff_id=YOUR_TRADINGVIEW_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Start 30-Day Free Trial &rarr;
+            </a>
+          </div>
+
+          <!-- eToro / Equities Deal -->
+          <div class="affiliate-card">
+            <div>
+              <span class="badge-tag tag-etoro">Equities & CFD</span>
+              <h3>eToro Terminal</h3>
+              <p>Trade 0% commission stocks and copy high-performing breakout portfolios.</p>
+            </div>
+            <a href="https://med.etoro.com/B1234_YOUR_ETORO_REF.aspx" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Trade Top Stocks &rarr;
+            </a>
+          </div>
+
+          <!-- Ledger Hardware Deal -->
+          <div class="affiliate-card">
+            <div>
+              <span class="badge-tag tag-ledger">Cold Storage</span>
+              <h3>Ledger Vault</h3>
+              <p>Isolate your market profits with certified military-grade hardware cold storage.</p>
+            </div>
+            <a href="https://shop.ledger.com/?r=YOUR_LEDGER_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Secure Assets &rarr;
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p>&copy; 2026 AlphaFeed AI. High-frequency automated reports. For informational and algorithmic demonstration purposes only. Not financial advice.</p>
+      </footer>
     </div>
+
+    <!-- Client-Side Slider Script -->
+    <script>
+      const slider = document.getElementById('news-slider');
+      const btnLeft = document.getElementById('slide-left');
+      const btnRight = document.getElementById('slide-right');
+
+      if (slider && btnLeft && btnRight) {
+        btnLeft.addEventListener('click', () => {
+          slider.scrollBy({ left: -400, behavior: 'smooth' });
+        });
+        btnRight.addEventListener('click', () => {
+          slider.scrollBy({ left: 400, behavior: 'smooth' });
+        });
+      }
+    </script>
   </body>
 </html>
