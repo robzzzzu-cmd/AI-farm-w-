@@ -1,10 +1,4 @@
 ---
-
-### 2. Update `short-series/src/pages/index.astro`
-Replace your `short-series/src/pages/index.astro` file with this code. It features **ChangeNOW**, **SimpleSwap**, and **TradingView**—all of which require zero upfront funds or deposits to grab your affiliate link:
-
-```astro:short-series/src/pages/index.astro
----
 const posts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true }));
 posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 ---
@@ -314,7 +308,7 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
               <h3>ChangeNOW Instant</h3>
               <p>Cross-chain crypto swaps with zero account setup and instant affiliate link generation.</p>
             </div>
-            <a href="[https://changenow.app.link/referral?link_id=1c434a8e93e8ff(https://changenow.app.link/referral?link_id=1c434a8e93e8ff)" target="_blank" rel="noopener noreferrer" class="aff-btn">
+            <a href="[https://changenow.io/?link_id=YOUR_CHANGENOW_REF](https://changenow.io/?link_id=YOUR_CHANGENOW_REF)" target="_blank" rel="noopener noreferrer" class="aff-btn">
               Swap Crypto &rarr;
             </a>
           </div>
@@ -326,7 +320,7 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
               <h3>TradingView Pro</h3>
               <p>Deploy multi-timeframe volume indicators and custom breakout alerts.</p>
             </div>
-            <a href="[https://www.tradingview.com/?aff_id=170147](https://www.tradingview.com/?aff_id=170147)" target="_blank" rel="noopener noreferrer" class="aff-btn">
+            <a href="[https://www.tradingview.com/?aff_id=YOUR_TRADINGVIEW_REF](https://www.tradingview.com/?aff_id=YOUR_TRADINGVIEW_REF)" target="_blank" rel="noopener noreferrer" class="aff-btn">
               Start Free Trial &rarr;
             </a>
           </div>
