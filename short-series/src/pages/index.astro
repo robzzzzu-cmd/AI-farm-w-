@@ -1,4 +1,10 @@
 ---
+
+### 2. Update `short-series/src/pages/index.astro`
+Replace your `short-series/src/pages/index.astro` file with this code. It features **ChangeNOW**, **SimpleSwap**, and **TradingView**—all of which require zero upfront funds or deposits to grab your affiliate link:
+
+```astro:short-series/src/pages/index.astro
+---
 const posts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true }));
 posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
 ---
@@ -18,6 +24,7 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         --green: #10b981;
         --blue: #38bdf8;
         --purple: #a855f7;
+        --amber: #f59e0b;
         --text-primary: #f8fafc;
         --text-secondary: #94a3b8;
       }
@@ -219,10 +226,9 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         align-self: flex-start;
         margin-bottom: 0.85rem;
       }
-      .tag-hl { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+      .tag-swap { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
       .tag-tv { background: rgba(56, 189, 248, 0.15); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.3); }
-      .tag-gmx { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
-      .tag-swap { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+      .tag-simpleswap { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
 
       .affiliate-card h3 { font-size: 1.15rem; margin-bottom: 0.35rem; }
       .affiliate-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
@@ -257,14 +263,14 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         <div class="logo">ALPHA<span>FEED</span>.AI</div>
         <div class="status-badge">
           <div class="pulse"></div>
-          <span>Zero-ID Web3 Feed Active</span>
+          <span>Zero-Deposit Feed Active</span>
         </div>
       </header>
 
       <section class="hero">
-        <span class="hero-tag">Decentralized Intelligence</span>
+        <span class="hero-tag">Instant Access Intelligence</span>
         <h1>Autonomous Market Flow</h1>
-        <p>Real-time algorithmic tracking of volume surges and market breakouts with zero registration required.</p>
+        <p>Real-time algorithmic tracking of volume surges and market breakouts with zero registration barriers.</p>
       </section>
 
       <!-- Slider Section -->
@@ -294,22 +300,22 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         </div>
       </section>
 
-      <!-- Web3 & Charting Affiliate Grid -->
+      <!-- Zero-Deposit Affiliate Grid -->
       <section class="affiliate-section">
         <div class="section-header">
-          <h2 class="section-title">🛡️ Verified Decentralized Execution Desks</h2>
+          <h2 class="section-title">🏛️ Verified Instant Execution Desks</h2>
         </div>
 
         <div class="affiliate-grid">
-          <!-- Hyperliquid (Zero-ID Perpetuals) -->
+          <!-- ChangeNOW (Instant Swaps, Free Link) -->
           <div class="affiliate-card">
             <div>
-              <span class="badge-tag tag-hl">DeFi Perps</span>
-              <h3>Hyperliquid DEX</h3>
-              <p>Trade high-volume momentum alerts with zero KYC or personal data required.</p>
+              <span class="badge-tag tag-swap">No Deposit Required</span>
+              <h3>ChangeNOW Instant</h3>
+              <p>Cross-chain crypto swaps with zero account setup and instant affiliate link generation.</p>
             </div>
-            <a href="https://app.hyperliquid.xyz/join/YOUR_HL_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Connect Wallet & Trade &rarr;
+            <a href="[https://changenow.app.link/referral?link_id=1c434a8e93e8ff(https://changenow.app.link/referral?link_id=1c434a8e93e8ff)" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Swap Crypto &rarr;
             </a>
           </div>
 
@@ -320,32 +326,20 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
               <h3>TradingView Pro</h3>
               <p>Deploy multi-timeframe volume indicators and custom breakout alerts.</p>
             </div>
-            <a href="https://www.tradingview.com/?aff_id=YOUR_TRADINGVIEW_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+            <a href="[https://www.tradingview.com/?aff_id=170147](https://www.tradingview.com/?aff_id=170147)" target="_blank" rel="noopener noreferrer" class="aff-btn">
               Start Free Trial &rarr;
             </a>
           </div>
 
-          <!-- GMX (DeFi Liquidity) -->
+          <!-- SimpleSwap (No Deposit Required) -->
           <div class="affiliate-card">
             <div>
-              <span class="badge-tag tag-gmx">Decentralized Spot</span>
-              <h3>GMX Protocol</h3>
-              <p>Zero-KYC spot and leverage trading with automated weekly fee rewards in ETH.</p>
+              <span class="badge-tag tag-simpleswap">Zero-Balance Setup</span>
+              <h3>SimpleSwap</h3>
+              <p>Instant crypto exchanges across 1,500+ assets with free affiliate onboarding.</p>
             </div>
-            <a href="https://app.gmx.io/#/?ref=YOUR_GMX_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Open GMX Terminal &rarr;
-            </a>
-          </div>
-
-          <!-- ChangeNOW (Anonymous Swaps) -->
-          <div class="affiliate-card">
-            <div>
-              <span class="badge-tag tag-swap">No-Account Swaps</span>
-              <h3>ChangeNOW</h3>
-              <p>Swap crypto instantly without registration forms or account locks.</p>
-            </div>
-            <a href="https://changenow.io/?to=btc&ref=YOUR_CHANGENOW_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Swap Securely &rarr;
+            <a href="[https://simpleswap.io/?ref=YOUR_SIMPLESWAP_REF](https://simpleswap.io/?ref=YOUR_SIMPLESWAP_REF)" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Launch Exchange &rarr;
             </a>
           </div>
         </div>
