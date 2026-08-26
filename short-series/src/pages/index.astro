@@ -7,7 +7,7 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ALPHAFEED.AI // Institutional Market Intelligence</title>
+    <title>ALPHAFEED.AI // Decentralized Market Intelligence</title>
     <style>
       :root {
         --bg-main: #080c14;
@@ -17,7 +17,6 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         --border-highlight: #334155;
         --green: #10b981;
         --blue: #38bdf8;
-        --amber: #f59e0b;
         --purple: #a855f7;
         --text-primary: #f8fafc;
         --text-secondary: #94a3b8;
@@ -38,7 +37,6 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         padding: 0 1.5rem;
       }
 
-      /* Navigation Header */
       header {
         display: flex;
         justify-content: space-between;
@@ -54,10 +52,6 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         color: #fff;
       }
       .logo span { color: var(--green); }
-      .nav-badges {
-        display: flex;
-        gap: 0.75rem;
-      }
       .status-badge {
         display: flex;
         align-items: center;
@@ -75,7 +69,6 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         height: 7px;
         background-color: var(--green);
         border-radius: 50%;
-        box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
         animation: pulse-ring 2s infinite;
       }
       @keyframes pulse-ring {
@@ -84,7 +77,6 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
       }
 
-      /* Hero Section */
       .hero {
         text-align: left;
         margin-bottom: 3rem;
@@ -115,7 +107,6 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         max-width: 650px;
       }
 
-      /* Slider Section */
       .section-header {
         display: flex;
         justify-content: space-between;
@@ -125,7 +116,6 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
       .section-title {
         font-size: 1.25rem;
         font-weight: 700;
-        letter-spacing: -0.02em;
       }
       .slider-controls {
         display: flex;
@@ -157,16 +147,7 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         scroll-snap-type: x mandatory;
         padding-bottom: 1rem;
         scrollbar-width: thin;
-        scrollbar-color: var(--border-highlight) transparent;
       }
-      .slider-container::-webkit-scrollbar {
-        height: 6px;
-      }
-      .slider-container::-webkit-scrollbar-thumb {
-        background: var(--border-highlight);
-        border-radius: 3px;
-      }
-
       .slide-card {
         flex: 0 0 clamp(320px, 85vw, 480px);
         scroll-snap-align: start;
@@ -177,18 +158,11 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        position: relative;
-        transition: transform 0.2s, border-color 0.2s;
-      }
-      .slide-card:hover {
-        border-color: var(--border-highlight);
-        transform: translateY(-2px);
       }
       .slide-card h1, .slide-card h2 {
         font-size: 1.25rem;
         color: #fff;
         margin-bottom: 0.75rem;
-        line-height: 1.3;
       }
       .slide-card p {
         font-size: 0.95rem;
@@ -211,12 +185,8 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         padding: 0.75rem 1rem;
         border-radius: 8px;
         text-decoration: none;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-        transition: opacity 0.2s;
       }
-      .slide-card a:hover { opacity: 0.9; }
 
-      /* Multi-Affiliate Grid */
       .affiliate-section {
         margin-top: 4rem;
       }
@@ -234,38 +204,28 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        position: relative;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.2s;
       }
       .affiliate-card:hover {
         border-color: var(--blue);
-        background: var(--bg-card-hover);
         transform: translateY(-3px);
       }
       .badge-tag {
         font-size: 0.7rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
         padding: 0.2rem 0.5rem;
         border-radius: 4px;
         align-self: flex-start;
         margin-bottom: 0.85rem;
       }
-      .tag-binance { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+      .tag-hl { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
       .tag-tv { background: rgba(56, 189, 248, 0.15); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.3); }
-      .tag-etoro { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
-      .tag-ledger { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+      .tag-gmx { background: rgba(168, 85, 247, 0.15); color: var(--purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+      .tag-swap { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
 
-      .affiliate-card h3 {
-        font-size: 1.15rem;
-        margin-bottom: 0.35rem;
-      }
-      .affiliate-card p {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.25rem;
-      }
+      .affiliate-card h3 { font-size: 1.15rem; margin-bottom: 0.35rem; }
+      .affiliate-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
       .aff-btn {
         display: block;
         text-align: center;
@@ -279,10 +239,7 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         color: #fff;
         transition: all 0.2s;
       }
-      .aff-btn:hover {
-        background: #fff;
-        color: #000;
-      }
+      .aff-btn:hover { background: #fff; color: #000; }
 
       footer {
         margin-top: 5rem;
@@ -298,21 +255,19 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
     <div class="container">
       <header>
         <div class="logo">ALPHA<span>FEED</span>.AI</div>
-        <div class="nav-badges">
-          <div class="status-badge">
-            <div class="pulse"></div>
-            <span>Auto-Scan Active</span>
-          </div>
+        <div class="status-badge">
+          <div class="pulse"></div>
+          <span>Zero-ID Web3 Feed Active</span>
         </div>
       </header>
 
       <section class="hero">
-        <span class="hero-tag">Algorithmic Market Flow</span>
-        <h1>Autonomous Market Intelligence</h1>
-        <p>Real-time machine-learning scans detecting extreme volume surges, momentum anomalies, and daily breakout runners.</p>
+        <span class="hero-tag">Decentralized Intelligence</span>
+        <h1>Autonomous Market Flow</h1>
+        <p>Real-time algorithmic tracking of volume surges and market breakouts with zero registration required.</p>
       </section>
 
-      <!-- Interactive News Slider -->
+      <!-- Slider Section -->
       <section>
         <div class="section-header">
           <h2 class="section-title">⚡ Live Market Dispatches</h2>
@@ -325,7 +280,7 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         <div class="slider-container" id="news-slider">
           {posts.length === 0 ? (
             <div class="slide-card">
-              <p>Scanning markets for new breakout runners. Next batch publishing at next market close.</p>
+              <p>Scanning markets for new breakout runners...</p>
             </div>
           ) : (
             posts.map(post => (
@@ -339,69 +294,68 @@ posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontma
         </div>
       </section>
 
-      <!-- Multi-Partner Terminal & Affiliate Suite -->
+      <!-- Web3 & Charting Affiliate Grid -->
       <section class="affiliate-section">
         <div class="section-header">
-          <h2 class="section-title">🏛️ Verified Institutional Execution Desks</h2>
+          <h2 class="section-title">🛡️ Verified Decentralized Execution Desks</h2>
         </div>
 
         <div class="affiliate-grid">
-          <!-- Binance Deal -->
+          <!-- Hyperliquid (Zero-ID Perpetuals) -->
           <div class="affiliate-card">
             <div>
-              <span class="badge-tag tag-binance">Crypto & Futures</span>
-              <h3>Binance Global</h3>
-              <p>Execute momentum breakout alerts with deep liquidity and institutional fees.</p>
+              <span class="badge-tag tag-hl">DeFi Perps</span>
+              <h3>Hyperliquid DEX</h3>
+              <p>Trade high-volume momentum alerts with zero KYC or personal data required.</p>
             </div>
-            <a href="https://accounts.binance.com/register?ref=YOUR_BINANCE_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Claim $100 Bonus &rarr;
+            <a href="https://app.hyperliquid.xyz/join/YOUR_HL_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Connect Wallet & Trade &rarr;
             </a>
           </div>
 
-          <!-- TradingView Deal -->
+          <!-- TradingView (Kept as requested) -->
           <div class="affiliate-card">
             <div>
               <span class="badge-tag tag-tv">Live Charting</span>
               <h3>TradingView Pro</h3>
               <p>Deploy multi-timeframe volume indicators and custom breakout alerts.</p>
             </div>
-            <a href="https://www.tradingview.com/TradingOpportunity?aff_id=170147" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Start 30-Day Free Trial &rarr;
+            <a href="https://www.tradingview.com/?aff_id=YOUR_TRADINGVIEW_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Start Free Trial &rarr;
             </a>
           </div>
 
-          <!-- eToro / Equities Deal -->
+          <!-- GMX (DeFi Liquidity) -->
           <div class="affiliate-card">
             <div>
-              <span class="badge-tag tag-etoro">Equities & CFD</span>
-              <h3>eToro Terminal</h3>
-              <p>Trade 0% commission stocks and copy high-performing breakout portfolios.</p>
+              <span class="badge-tag tag-gmx">Decentralized Spot</span>
+              <h3>GMX Protocol</h3>
+              <p>Zero-KYC spot and leverage trading with automated weekly fee rewards in ETH.</p>
             </div>
-            <a href="https://med.etoro.com/B1234_YOUR_ETORO_REF.aspx" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Trade Top Stocks &rarr;
+            <a href="https://app.gmx.io/#/?ref=YOUR_GMX_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Open GMX Terminal &rarr;
             </a>
           </div>
 
-          <!-- Ledger Hardware Deal -->
+          <!-- ChangeNOW (Anonymous Swaps) -->
           <div class="affiliate-card">
             <div>
-              <span class="badge-tag tag-ledger">Cold Storage</span>
-              <h3>Ledger Vault</h3>
-              <p>Isolate your market profits with certified military-grade hardware cold storage.</p>
+              <span class="badge-tag tag-swap">No-Account Swaps</span>
+              <h3>ChangeNOW</h3>
+              <p>Swap crypto instantly without registration forms or account locks.</p>
             </div>
-            <a href="https://shop.ledger.com/?r=YOUR_LEDGER_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Secure Assets &rarr;
+            <a href="https://changenow.io/?to=btc&ref=YOUR_CHANGENOW_REF" target="_blank" rel="noopener noreferrer" class="aff-btn">
+              Swap Securely &rarr;
             </a>
           </div>
         </div>
       </section>
 
       <footer>
-        <p>&copy; 2026 AlphaFeed AI. High-frequency automated reports. For informational and algorithmic demonstration purposes only. Not financial advice.</p>
+        <p>&copy; 2026 AlphaFeed AI. Fully decentralized algorithmic feeds. Not financial advice.</p>
       </footer>
     </div>
 
-    <!-- Client-Side Slider Script -->
     <script>
       const slider = document.getElementById('news-slider');
       const btnLeft = document.getElementById('slide-left');
