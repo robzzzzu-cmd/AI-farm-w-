@@ -62,20 +62,21 @@ async function run() {
         fs.mkdirSync(folderPath, { recursive: true });
     }
 
+    // Polished Markdown structure to match the new UI
     const markdownContent = `---
-title: Market Movers for ${date}
+title: Breakout Alert - ${date}
 date: ${date}
-tags: [finance, stocks, market-update]
+tags: [finance, stocks, breakouts]
 ---
 
-# Top Market Gainers - ${date}
+## ⚡ Market Movers // ${date}
 
 ${generatedContent}
 
 ---
-*Disclaimer: This is an automated AI report. Not financial advice.*
+*Automated ML scan. Not financial advice.*
 
-🚀 **[Trade these breakouts on Binance and get a $100 Signup Bonus!](https://accounts.binance.com/register?ref=YOUR_REFERRAL_CODE)**
+🚀 **[Trade Breakouts on Binance ($100 Bonus)](https://accounts.binance.com/register?ref=YOUR_BINANCE_REF)**
 `;
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
