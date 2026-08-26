@@ -62,7 +62,6 @@ async function run() {
         fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    // Polished Markdown structure to match the new UI
     const markdownContent = `---
 title: Breakout Alert - ${date}
 date: ${date}
@@ -76,7 +75,7 @@ ${generatedContent}
 ---
 *Automated ML scan. Not financial advice.*
 
-🚀 **[Trade Breakouts on Binance ($100 Bonus)](https://accounts.binance.com/register?ref=YOUR_BINANCE_REF)**
+🚀 **[Trade Breakouts on Hyperliquid (No ID Required)](https://app.hyperliquid.xyz/join/YOUR_HL_REF)**
 `;
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
