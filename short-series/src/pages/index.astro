@@ -29,7 +29,7 @@ const secondaryPosts = posts.slice(1);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trade Opportunities // Financial Intelligence & Signals</title>
+    <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,26 +49,26 @@ const secondaryPosts = posts.slice(1);
         --text-secondary: #475569;
         --text-muted: #94a3b8;
         --brand-accent: #2563eb;
-        --gain-color: #059669;
-        --gain-bg: rgba(5, 150, 105, 0.1);
-        --loss-color: #dc2626;
-        --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        --gain-color: #15803d;
+        --gain-bg: rgba(21, 128, 61, 0.08);
+        --loss-color: #b91c1c;
+        --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       }
 
       html[data-theme="dark"] {
-        --bg-page: #080b11;
-        --bg-surface: #0e1420;
-        --bg-surface-elevated: #141c2c;
-        --border-subtle: #1e293b;
-        --border-strong: #334155;
-        --text-primary: #f8fafc;
+        --bg-page: #0b0e14;
+        --bg-surface: #111622;
+        --bg-surface-elevated: #161d2d;
+        --border-subtle: #1e2638;
+        --border-strong: #2d374d;
+        --text-primary: #f1f5f9;
         --text-secondary: #94a3b8;
         --text-muted: #64748b;
         --brand-accent: #3b82f6;
-        --gain-color: #10b981;
-        --gain-bg: rgba(16, 185, 129, 0.12);
-        --loss-color: #f43f5e;
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        --gain-color: #22c55e;
+        --gain-bg: rgba(34, 197, 94, 0.1);
+        --loss-color: #ef4444;
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
       }
 
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -86,20 +86,18 @@ const secondaryPosts = posts.slice(1);
         padding: 0 1.25rem;
       }
 
-      /* Navigation */
       .top-nav {
         position: sticky;
         top: 0;
         z-index: 100;
         background: var(--bg-page);
         border-bottom: 1px solid var(--border-subtle);
-        backdrop-filter: blur(12px);
       }
       .nav-inner {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        height: 60px;
+        height: 58px;
       }
       .brand-group {
         display: flex;
@@ -111,16 +109,16 @@ const secondaryPosts = posts.slice(1);
         align-items: center;
         gap: 0.5rem;
         font-weight: 800;
-        font-size: 1.15rem;
-        letter-spacing: -0.03em;
+        font-size: 1.1rem;
+        letter-spacing: -0.02em;
         text-decoration: none;
         color: var(--text-primary);
       }
       .logo-glyph {
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
         background: var(--brand-accent);
-        border-radius: 4px;
+        border-radius: 3px;
       }
       .nav-links {
         display: flex;
@@ -129,7 +127,7 @@ const secondaryPosts = posts.slice(1);
       }
       .nav-links a {
         text-decoration: none;
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         font-weight: 500;
         color: var(--text-secondary);
       }
@@ -139,35 +137,24 @@ const secondaryPosts = posts.slice(1);
         align-items: center;
         gap: 0.75rem;
       }
-      .search-box {
-        position: relative;
-        display: flex;
-        align-items: center;
-      }
       .search-input {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         color: var(--text-primary);
         font-family: inherit;
         font-size: 0.8125rem;
-        padding: 0.4rem 0.75rem 0.4rem 2rem;
+        padding: 0.35rem 0.75rem;
         border-radius: 6px;
         outline: none;
         width: 180px;
       }
-      .search-icon {
-        position: absolute;
-        left: 0.65rem;
-        width: 12px;
-        height: 12px;
-        stroke: var(--text-muted);
-      }
+      .search-input:focus { border-color: var(--brand-accent); }
       .theme-btn {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         color: var(--text-secondary);
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         border-radius: 6px;
         cursor: pointer;
         display: flex;
@@ -175,7 +162,6 @@ const secondaryPosts = posts.slice(1);
         justify-content: center;
       }
 
-      /* Ticker Strip */
       .ticker-strip {
         background: var(--bg-surface);
         border-bottom: 1px solid var(--border-subtle);
@@ -197,12 +183,11 @@ const secondaryPosts = posts.slice(1);
       .ticker-symbol { font-weight: 600; color: var(--text-primary); }
       .ticker-pos { color: var(--gain-color); }
 
-      /* Ad Placements */
       .ad-leaderboard {
         margin: 1.5rem auto 0.5rem auto;
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
+        border-radius: 6px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -219,7 +204,6 @@ const secondaryPosts = posts.slice(1);
         margin-bottom: 0.5rem;
       }
 
-      /* Hero Section */
       .hero-section {
         padding: 1.75rem 0 1.5rem 0;
         display: flex;
@@ -229,35 +213,48 @@ const secondaryPosts = posts.slice(1);
         margin-bottom: 2rem;
       }
       .hero-left h1 {
-        font-size: 1.75rem;
+        font-size: 1.65rem;
         font-weight: 800;
-        letter-spacing: -0.03em;
-        margin-bottom: 0.35rem;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
       }
-      .hero-left p { font-size: 0.9375rem; color: var(--text-secondary); }
-      .system-badge {
+      .hero-left p { font-size: 0.9rem; color: var(--text-secondary); }
+      
+      /* Pure institutional glowing/fading scanning badge */
+      .scanning-badge {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.5rem;
         font-size: 0.75rem;
-        font-weight: 600;
+        font-weight: 700;
         font-family: var(--font-mono);
-        color: var(--gain-color);
-        background: var(--gain-bg);
-        border: 1px solid var(--gain-color);
-        padding: 0.25rem 0.6rem;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        padding: 0.3rem 0.65rem;
         border-radius: 4px;
       }
-      .pulse-dot {
-        width: 6px;
-        height: 6px;
-        background: var(--gain-color);
+      .scanning-dot {
+        width: 7px;
+        height: 7px;
+        background-color: var(--gain-color);
         border-radius: 50%;
+        animation: pulseFade 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulseFade {
+        0%, 100% {
+          opacity: 1;
+          box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
+        }
+        50% {
+          opacity: 0.2;
+          box-shadow: 0 0 0 rgba(34, 197, 94, 0);
+        }
       }
 
-      /* Content Layout */
       .section-label {
-        font-size: 0.8125rem;
+        font-size: 0.78125rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -267,16 +264,15 @@ const secondaryPosts = posts.slice(1);
       .grid-main {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        gap: 1.75rem;
-        margin-bottom: 3rem;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
       }
 
-      /* Cards */
       .card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1.5rem;
+        border-radius: 6px;
+        padding: 1.35rem;
         box-shadow: var(--card-shadow);
       }
       .card-meta {
@@ -299,31 +295,30 @@ const secondaryPosts = posts.slice(1);
       }
       .pill-gain { background: var(--gain-bg); color: var(--gain-color); border-color: transparent; }
       .card-title {
-        font-size: 1.2rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.75rem;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.65rem;
       }
       .card-body {
-        font-size: 0.9375rem;
+        font-size: 0.9rem;
         color: var(--text-secondary);
-        line-height: 1.6;
+        line-height: 1.55;
         margin-bottom: 1.25rem;
       }
       .card-action-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
         width: 100%;
         background: var(--brand-accent);
         color: #ffffff;
         text-decoration: none;
         font-weight: 600;
-        font-size: 0.875rem;
-        padding: 0.65rem 1rem;
-        border-radius: 6px;
-        margin-top: 1rem;
+        font-size: 0.8125rem;
+        padding: 0.6rem 0.85rem;
+        border-radius: 5px;
+        margin-top: 0.75rem;
         transition: opacity 0.15s;
       }
       .card-action-btn:hover { opacity: 0.9; }
@@ -333,7 +328,7 @@ const secondaryPosts = posts.slice(1);
         flex-wrap: wrap;
         gap: 0.4rem;
         margin-top: 1rem;
-        padding-top: 1rem;
+        padding-top: 0.75rem;
         border-top: 1px solid var(--border-subtle);
       }
       .ticker-pill {
@@ -342,65 +337,62 @@ const secondaryPosts = posts.slice(1);
         font-weight: 600;
         color: var(--brand-accent);
         background: var(--bg-surface-elevated);
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
+        padding: 0.15rem 0.45rem;
+        border-radius: 3px;
         border: 1px solid var(--border-subtle);
       }
 
-      /* Stream Items */
-      .stream-list { display: flex; flex-direction: column; gap: 0.85rem; }
+      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; }
       .stream-item {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1rem 1.15rem;
+        border-radius: 6px;
+        padding: 0.9rem 1rem;
       }
-      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; }
+      .stream-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); }
 
-      /* Table */
       .table-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
+        border-radius: 6px;
         overflow-x: auto;
-        margin-bottom: 3rem;
+        margin-bottom: 2.5rem;
       }
       .data-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         text-align: left;
       }
       .data-table th {
         background: var(--bg-surface-elevated);
         color: var(--text-muted);
-        font-size: 0.75rem;
+        font-size: 0.725rem;
         font-weight: 600;
         text-transform: uppercase;
-        padding: 0.75rem 1.25rem;
+        padding: 0.65rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
       }
       .data-table td {
-        padding: 0.85rem 1.25rem;
+        padding: 0.75rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
       }
       .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
 
-      /* Tools Grid */
       .tools-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.25rem;
+        gap: 1rem;
         margin-bottom: 3.5rem;
       }
       .tool-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1.25rem;
+        border-radius: 6px;
+        padding: 1.15rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -410,38 +402,93 @@ const secondaryPosts = posts.slice(1);
         font-weight: 700;
         text-transform: uppercase;
         color: var(--brand-accent);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.35rem;
       }
-      .tool-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
-      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
+      .tool-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem; }
       .tool-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.8125rem;
+        font-size: 0.78125rem;
         font-weight: 600;
         text-decoration: none;
         color: var(--text-primary);
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
-        padding: 0.5rem 0.85rem;
-        border-radius: 6px;
+        padding: 0.45rem 0.75rem;
+        border-radius: 4px;
       }
       .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
 
-      /* Footer */
       footer {
         border-top: 1px solid var(--border-subtle);
-        padding: 2.5rem 0;
-        font-size: 0.8125rem;
+        padding: 2rem 0;
+        font-size: 0.78125rem;
         color: var(--text-muted);
       }
-      .disclaimer { font-size: 0.75rem; margin-top: 0.5rem; }
+      .footer-links {
+        display: flex;
+        gap: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+      }
+      .footer-links a:hover { color: var(--text-primary); }
+      .disclaimer { font-size: 0.725rem; }
+
+      /* Cookie Consent Banner */
+      .cookie-banner {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        max-width: 420px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-strong);
+        border-radius: 8px;
+        padding: 1.25rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        z-index: 9999;
+        display: none;
+      }
+      .cookie-text {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+        margin-bottom: 1rem;
+      }
+      .cookie-btns {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .cookie-accept {
+        background: var(--brand-accent);
+        color: #fff;
+        border: none;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.4rem 0.85rem;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .cookie-decline {
+        background: var(--bg-surface-elevated);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-subtle);
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.4rem 0.85rem;
+        border-radius: 4px;
+        cursor: pointer;
+      }
 
       @media (max-width: 860px) {
         .grid-main { grid-template-columns: 1fr; }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
+        .cookie-banner { bottom: 0.5rem; right: 0.5rem; left: 0.5rem; max-width: none; }
       }
     </style>
   </head>
@@ -460,15 +507,9 @@ const secondaryPosts = posts.slice(1);
           </ul>
         </div>
         <div class="nav-actions">
-          <div class="search-box">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers / intel..." />
-          </div>
+          <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers / intel..." />
           <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
           </button>
@@ -486,13 +527,13 @@ const secondaryPosts = posts.slice(1);
     </div>
 
     <div class="app-wrapper">
-      <!-- Top Leaderboard A-ADS Unit Slot -->
+      <!-- Top Leaderboard A-ADS Unit -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
         <div id="frame" style="width: 100%; margin: auto; position: relative;">
           <iframe 
             data-aa="2453491" 
-            src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=0e1420" 
+            src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=111622" 
             style="border: 0; padding: 0; width: 100%; max-width: 728px; height: 90px; overflow: hidden; display: block; margin: auto;"
             loading="lazy">
           </iframe>
@@ -505,9 +546,10 @@ const secondaryPosts = posts.slice(1);
           <p>Autonomous technical tracking of volume anomalies, momentum leaders, and actionable opportunities.</p>
         </div>
         <div class="hero-right">
-          <div class="system-badge">
-            <div class="pulse-dot"></div>
-            SCANNER ENGINE ACTIVE
+          <!-- Refined SCANNING badge with fading green dot -->
+          <div class="scanning-badge">
+            <div class="scanning-dot"></div>
+            <span>SCANNING</span>
           </div>
         </div>
       </header>
@@ -536,8 +578,7 @@ const secondaryPosts = posts.slice(1);
                 </div>
               )}
 
-              <!-- Primary Referral CTA -->
-              <a href={featuredPost.frontmatter.refUrl || "https://changenow.io/?link_id=1c434a8e93e8ff"} 
+              <a href={featuredPost.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
                  target="_blank" 
                  rel="noopener noreferrer" 
                  class="card-action-btn">
@@ -558,7 +599,7 @@ const secondaryPosts = posts.slice(1);
                 <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
                   <post.Content />
                 </div>
-                <a href={post.frontmatter.refUrl || "https://changenow.io/?link_id=1c434a8e93e8ff"} 
+                <a href={post.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
                    target="_blank" 
                    rel="noopener noreferrer" 
                    style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
@@ -601,7 +642,7 @@ const secondaryPosts = posts.slice(1);
         </div>
       </section>
 
-      <!-- Trading Platforms & Tools -->
+      <!-- Trading Platforms & Tools with your exact affiliate IDs -->
       <section id="tools">
         <div class="section-label">03 // Analytical Tools & Liquidity</div>
         <div class="tools-grid">
@@ -622,7 +663,7 @@ const secondaryPosts = posts.slice(1);
               <h3 class="tool-name">ChangeNOW</h3>
               <p class="tool-desc">Cross-chain crypto spot settlement with instant routing.</p>
             </div>
-            <a href="https://changenow.io/?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
+            <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
               Access Liquidity &rarr;
             </a>
           </div>
@@ -631,7 +672,7 @@ const secondaryPosts = posts.slice(1);
             <div>
               <span class="tool-badge">Asset Swaps</span>
               <h3 class="tool-name">SimpleSwap</h3>
-              <p class="tool-desc">Frictionless asset routing across 1,500+ pairs.</p>
+              <p class="tool-desc">Frictionless asset routing across 1,500+ spot pairs.</p>
             </div>
             <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
               Launch Exchange &rarr;
@@ -640,15 +681,32 @@ const secondaryPosts = posts.slice(1);
         </div>
       </section>
 
+      <!-- Footer with Legal Suite Links -->
       <footer>
+        <div class="footer-links">
+          <a href="terms">Terms of Service</a>
+          <a href="privacy">Privacy Policy</a>
+        </div>
         <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
         <p class="disclaimer">
-          Market information is synthesized algorithmically for informational purposes only and does not constitute financial advice.
+          Market information is synthesized algorithmically for informational purposes only and does not constitute investment or financial advice. Trade Opportunities participates in affiliate programs and may earn commissions through featured links.
         </p>
       </footer>
     </div>
 
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner">
+      <div class="cookie-text">
+        Trade Opportunities uses cookies to analyze technical traffic, ensure platform security, and serve contextual market advertisements. Review our <a href="privacy" style="color: var(--brand-accent);">Privacy Policy</a> for details.
+      </div>
+      <div class="cookie-btns">
+        <button id="accept-cookies" class="cookie-accept">Accept All</button>
+        <button id="decline-cookies" class="cookie-decline">Essential Only</button>
+      </div>
+    </div>
+
     <script>
+      // Theme Toggle Logic
       const themeToggleBtn = document.getElementById('theme-toggle');
       const rootHtml = document.documentElement;
       const savedTheme = localStorage.getItem('to_theme') || 'dark';
@@ -663,6 +721,7 @@ const secondaryPosts = posts.slice(1);
         });
       }
 
+      // Live Client Filter
       const filterInput = document.getElementById('filter-input') as HTMLInputElement | null;
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -674,6 +733,25 @@ const secondaryPosts = posts.slice(1);
           });
         });
       }
+
+      // Cookie Consent Handler
+      const cookieBanner = document.getElementById('cookie-banner');
+      const acceptBtn = document.getElementById('accept-cookies');
+      const declineBtn = document.getElementById('decline-cookies');
+
+      if (!localStorage.getItem('to_cookie_consent')) {
+        if (cookieBanner) cookieBanner.style.display = 'block';
+      }
+
+      acceptBtn?.addEventListener('click', () => {
+        localStorage.setItem('to_cookie_consent', 'accepted');
+        if (cookieBanner) cookieBanner.style.display = 'none';
+      });
+
+      declineBtn?.addEventListener('click', () => {
+        localStorage.setItem('to_cookie_consent', 'essential');
+        if (cookieBanner) cookieBanner.style.display = 'none';
+      });
     </script>
   </body>
 </html>
