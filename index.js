@@ -5,28 +5,34 @@ async function run() {
   const llmApiKey = process.env.LLM_API_KEY;
 
   if (!alphaVantageKey || !llmApiKey) {
-    console.error("Missing API keys. Please check GitHub Secrets.");
+    console.error("Missing API keys. Please verify GitHub Repository Secrets.");
     process.exit(1);
   }
 
   try {
-    console.log("1. Fetching market data from Alpha Vantage...");
+    console.log("1. Fetching real-time market data from Alpha Vantage...");
     
     const avUrl = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${alphaVantageKey}`;
     const avResponse = await fetch(avUrl);
     const marketData = await avResponse.json();
 
-    if (!marketData.top_gainers) {
-      throw new Error(`Alpha Vantage API error: ${JSON.stringify(marketData)}`);
+    if (!marketData.top_gainers || marketData.top_gainers.length === 0) {
+      throw new Error(`Alpha Vantage API error or empty payload: ${JSON.stringify(marketData)}`);
     }
 
-    const topGainers = marketData.top_gainers.slice(0, 3).map(stock => 
-      `${stock.ticker}: +${stock.change_percentage} (Volume: ${stock.volume})`
+    const topGainers = marketData.top_gainers.slice(0, 4);
+    const leadStock = topGainers[0];
+    const tickersList = topGainers.map(s => s.ticker).join(', ');
+    
+    const stockDataSummary = topGainers.map(stock => 
+      `Ticker: ${stock.ticker} | Price: $${parseFloat(stock.price).toFixed(2)} | Change: +${parseFloat(stock.change_percentage).toFixed(2)}% | Volume: ${Number(stock.volume).toLocaleString()}`
     ).join("\n");
 
-    const systemPrompt = "You are a financial copywriter. Write a punchy, 2-sentence push notification update based on these top gaining stocks.";
-    
-    console.log("2. Generating content with AI...");
+    const systemPrompt = `You are a senior equity research analyst at Trade Opportunities, a professional financial intelligence terminal. 
+Analyze the provided high-momentum assets. Write an institutional, data-driven 2 to 3 sentence market summary explaining the price action, liquidity expansion, and risk considerations. 
+Maintain a rigorous, analytical tone similar to Bloomberg or Reuters. Do NOT use promotional hype, excessive adjectives, or exclamation marks. Focus on market structure, volume conviction, and technical momentum.`;
+
+    console.log("2. Synthesizing market intelligence with LLM...");
 
     const llmResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent", {
       method: "POST",
@@ -38,7 +44,7 @@ async function run() {
         contents: [
           {
             parts: [
-              { text: `${systemPrompt}\n\nHere are today's top gainers:\n${topGainers}` }
+              { text: `${systemPrompt}\n\nMarket Data Feed:\n${stockDataSummary}` }
             ]
           }
         ]
@@ -48,41 +54,37 @@ async function run() {
     const llmData = await llmResponse.json();
 
     if (!llmData.candidates || !llmData.candidates[0]) {
-      throw new Error("Failed to get a valid response from Gemini.");
+      throw new Error(`Gemini synthesis failed: ${JSON.stringify(llmData)}`);
     }
 
-    const generatedContent = llmData.candidates[0].content.parts[0].text;
+    const generatedContent = llmData.candidates[0].content.parts[0].text.trim();
 
-    console.log("3. Formatting output for the static website...");
+    console.log("3. Writing structured dispatch file...");
     const date = new Date().toISOString().split('T')[0];
     const fileName = `market-update-${date}.md`;
     const folderPath = './short-series/src/content/blog';
 
     if (!fs.existsSync(folderPath)){
-        fs.mkdirSync(folderPath, { recursive: true });
+      fs.mkdirSync(folderPath, { recursive: true });
     }
 
     const markdownContent = `---
-title: Breakout Alert - ${date}
-date: ${date}
-tags: [finance, stocks, breakouts]
+title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
+date: "${date}"
+category: "Equities Momentum"
+leadTicker: "${leadStock.ticker}"
+leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
+tickers: [${topGainers.map(s => `"${s.ticker}"`).join(', ')}]
 ---
-
-## ⚡ Market Movers // ${date}
 
 ${generatedContent}
-
----
-*Automated ML scan. Not financial advice.*
-
-🚀 **[Swap & Trade Crypto Instantly (No ID Required)](https://changenow.io/?to=btc&link_id=YOUR_CHANGENOW_REF)**
 `;
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
-    console.log(`✅ Successfully saved ${fileName}`);
+    console.log(`Successfully generated and stored ${fileName}`);
 
   } catch (error) {
-    console.error("Workflow failed:", error.message);
+    console.error("Pipeline failure:", error.message);
     process.exit(1);
   }
 }
