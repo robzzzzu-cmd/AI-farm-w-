@@ -200,29 +200,15 @@ const secondaryPosts = posts.slice(1);
       /* Ad Placements */
       .ad-leaderboard {
         margin: 1.5rem auto 0.5rem auto;
-        min-height: 90px;
-        background: var(--bg-surface-elevated);
-        border: 1px dashed var(--border-strong);
-        border-radius: 6px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 0.5rem;
-      }
-      .ad-sidebar {
-        min-height: 250px;
-        background: var(--bg-surface-elevated);
-        border: 1px dashed var(--border-strong);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
         border-radius: 8px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding: 1rem;
-        margin-top: 1rem;
+        padding: 0.75rem;
       }
       .ad-label {
         font-size: 0.625rem;
@@ -230,7 +216,7 @@ const secondaryPosts = posts.slice(1);
         text-transform: uppercase;
         color: var(--text-muted);
         letter-spacing: 0.05em;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.5rem;
       }
 
       /* Hero Section */
@@ -500,12 +486,16 @@ const secondaryPosts = posts.slice(1);
     </div>
 
     <div class="app-wrapper">
-      <!-- Top Leaderboard Ad Slot -->
+      <!-- Top Leaderboard A-ADS Unit Slot -->
       <div class="ad-leaderboard">
-        <span class="ad-label">Advertisement Placement</span>
-        <div id="ad-slot-header" style="font-size: 0.75rem; color: var(--text-muted);">
-          <!-- Drop ad network script (e.g. A-ADS 728x90 or AdSense) here -->
-          Available Inventory Slot (728x90)
+        <span class="ad-label">Sponsored Intelligence</span>
+        <div id="frame" style="width: 100%; margin: auto; position: relative;">
+          <iframe 
+            data-aa="2453491" 
+            src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=0e1420" 
+            style="border: 0; padding: 0; width: 100%; max-width: 728px; height: 90px; overflow: hidden; display: block; margin: auto;"
+            loading="lazy">
+          </iframe>
         </div>
       </div>
 
@@ -547,7 +537,7 @@ const secondaryPosts = posts.slice(1);
               )}
 
               <!-- Primary Referral CTA -->
-              <a href={featuredPost.frontmatter.refUrl || "https://changenow.io/?link_id=YOUR_CHANGENOW_REF"} 
+              <a href={featuredPost.frontmatter.refUrl || "https://changenow.io/?link_id=1c434a8e93e8ff"} 
                  target="_blank" 
                  rel="noopener noreferrer" 
                  class="card-action-btn">
@@ -568,7 +558,7 @@ const secondaryPosts = posts.slice(1);
                 <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
                   <post.Content />
                 </div>
-                <a href={post.frontmatter.refUrl || "https://changenow.io/?link_id=YOUR_CHANGENOW_REF"} 
+                <a href={post.frontmatter.refUrl || "https://changenow.io/?link_id=1c434a8e93e8ff"} 
                    target="_blank" 
                    rel="noopener noreferrer" 
                    style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
@@ -576,15 +566,6 @@ const secondaryPosts = posts.slice(1);
                 </a>
               </article>
             ))}
-
-            <!-- Sidebar Ad Slot -->
-            <div class="ad-sidebar">
-              <span class="ad-label">Partner Promotion</span>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">
-                <!-- Drop ad network script (300x250) here -->
-                Available Inventory Slot (300x250)
-              </div>
-            </div>
           </div>
         </div>
       </section>
