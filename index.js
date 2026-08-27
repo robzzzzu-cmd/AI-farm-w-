@@ -10,7 +10,7 @@ async function run() {
   }
 
   try {
-    console.log("1. Fetching real-time market data from Alpha Vantage...");
+    console.log("1. Fetching market data from Alpha Vantage...");
     
     const avUrl = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${alphaVantageKey}`;
     const avResponse = await fetch(avUrl);
@@ -22,17 +22,16 @@ async function run() {
 
     const topGainers = marketData.top_gainers.slice(0, 4);
     const leadStock = topGainers[0];
-    const tickersList = topGainers.map(s => s.ticker).join(', ');
     
     const stockDataSummary = topGainers.map(stock => 
       `Ticker: ${stock.ticker} | Price: $${parseFloat(stock.price).toFixed(2)} | Change: +${parseFloat(stock.change_percentage).toFixed(2)}% | Volume: ${Number(stock.volume).toLocaleString()}`
     ).join("\n");
 
-    const systemPrompt = `You are a senior equity research analyst at Trade Opportunities, a professional financial intelligence terminal. 
-Analyze the provided high-momentum assets. Write an institutional, data-driven 2 to 3 sentence market summary explaining the price action, liquidity expansion, and risk considerations. 
-Maintain a rigorous, analytical tone similar to Bloomberg or Reuters. Do NOT use promotional hype, excessive adjectives, or exclamation marks. Focus on market structure, volume conviction, and technical momentum.`;
+    const systemPrompt = `You are a senior equity research analyst at Trade Opportunities. 
+Analyze the provided high-momentum assets. Write an institutional, data-driven 2-3 sentence market summary explaining the price action, liquidity expansion, and risk considerations. 
+Maintain a rigorous, analytical tone. Do NOT use promotional hype. Focus on volume conviction and price expansion.`;
 
-    console.log("2. Synthesizing market intelligence with LLM...");
+    console.log("2. Synthesizing market intelligence...");
 
     const llmResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent", {
       method: "POST",
@@ -75,6 +74,8 @@ category: "Equities Momentum"
 leadTicker: "${leadStock.ticker}"
 leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
 tickers: [${topGainers.map(s => `"${s.ticker}"`).join(', ')}]
+refUrl: "https://changenow.io/?link_id=1c434a8e93e8ff"
+refLabel: "Execute Spot Order on ChangeNOW"
 ---
 
 ${generatedContent}
