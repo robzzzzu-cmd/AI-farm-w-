@@ -7,9 +7,10 @@ interface MarkdownPost {
     leadTicker?: string;
     leadGain?: string;
     tickers?: string[];
+    refUrl?: string;
+    refLabel?: string;
   };
   Content: any;
-  rawContent?: () => string;
 }
 
 const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
@@ -28,8 +29,7 @@ const secondaryPosts = posts.slice(1);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Trade Opportunities — Institutional market intelligence, volume breakout detection, and asset momentum signals." />
-    <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
+    <title>Trade Opportunities // Financial Intelligence & Signals</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,7 +40,6 @@ const secondaryPosts = posts.slice(1);
         --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         --font-mono: 'JetBrains Mono', monospace;
 
-        /* Light Theme Tokens */
         --bg-page: #f8fafc;
         --bg-surface: #ffffff;
         --bg-surface-elevated: #f1f5f9;
@@ -50,16 +49,13 @@ const secondaryPosts = posts.slice(1);
         --text-secondary: #475569;
         --text-muted: #94a3b8;
         --brand-accent: #2563eb;
-        --brand-accent-hover: #1d4ed8;
         --gain-color: #059669;
         --gain-bg: rgba(5, 150, 105, 0.1);
         --loss-color: #dc2626;
-        --loss-bg: rgba(220, 38, 38, 0.1);
-        --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+        --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
       }
 
       html[data-theme="dark"] {
-        /* Dark Theme Tokens */
         --bg-page: #080b11;
         --bg-surface: #0e1420;
         --bg-surface-elevated: #141c2c;
@@ -69,12 +65,10 @@ const secondaryPosts = posts.slice(1);
         --text-secondary: #94a3b8;
         --text-muted: #64748b;
         --brand-accent: #3b82f6;
-        --brand-accent-hover: #60a5fa;
         --gain-color: #10b981;
         --gain-bg: rgba(16, 185, 129, 0.12);
         --loss-color: #f43f5e;
-        --loss-bg: rgba(244, 63, 94, 0.12);
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
       }
 
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,7 +78,6 @@ const secondaryPosts = posts.slice(1);
         color: var(--text-primary);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
-        transition: background-color 0.2s ease, color 0.2s ease;
       }
 
       .app-wrapper {
@@ -93,7 +86,7 @@ const secondaryPosts = posts.slice(1);
         padding: 0 1.25rem;
       }
 
-      /* Sticky Top Navigation Bar */
+      /* Navigation */
       .top-nav {
         position: sticky;
         top: 0;
@@ -128,7 +121,6 @@ const secondaryPosts = posts.slice(1);
         height: 18px;
         background: var(--brand-accent);
         border-radius: 4px;
-        display: inline-block;
       }
       .nav-links {
         display: flex;
@@ -140,11 +132,8 @@ const secondaryPosts = posts.slice(1);
         font-size: 0.875rem;
         font-weight: 500;
         color: var(--text-secondary);
-        transition: color 0.15s;
       }
-      .nav-links a:hover, .nav-links a.active {
-        color: var(--text-primary);
-      }
+      .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
       .nav-actions {
         display: flex;
         align-items: center;
@@ -165,11 +154,6 @@ const secondaryPosts = posts.slice(1);
         border-radius: 6px;
         outline: none;
         width: 180px;
-        transition: all 0.15s ease;
-      }
-      .search-input:focus {
-        border-color: var(--brand-accent);
-        width: 220px;
       }
       .search-icon {
         position: absolute;
@@ -189,11 +173,6 @@ const secondaryPosts = posts.slice(1);
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.15s;
-      }
-      .theme-btn:hover {
-        border-color: var(--border-strong);
-        color: var(--text-primary);
       }
 
       /* Ticker Strip */
@@ -214,18 +193,49 @@ const secondaryPosts = posts.slice(1);
         max-width: 1240px;
         margin: 0 auto;
       }
-      .ticker-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
+      .ticker-item { display: flex; align-items: center; gap: 0.5rem; }
       .ticker-symbol { font-weight: 600; color: var(--text-primary); }
-      .ticker-val { color: var(--text-secondary); }
       .ticker-pos { color: var(--gain-color); }
 
-      /* Hero Header */
+      /* Ad Placements */
+      .ad-leaderboard {
+        margin: 1.5rem auto 0.5rem auto;
+        min-height: 90px;
+        background: var(--bg-surface-elevated);
+        border: 1px dashed var(--border-strong);
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0.5rem;
+      }
+      .ad-sidebar {
+        min-height: 250px;
+        background: var(--bg-surface-elevated);
+        border: 1px dashed var(--border-strong);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+      .ad-label {
+        font-size: 0.625rem;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+      }
+
+      /* Hero Section */
       .hero-section {
-        padding: 2.25rem 0 1.75rem 0;
+        padding: 1.75rem 0 1.5rem 0;
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
@@ -236,13 +246,9 @@ const secondaryPosts = posts.slice(1);
         font-size: 1.75rem;
         font-weight: 800;
         letter-spacing: -0.03em;
-        line-height: 1.2;
         margin-bottom: 0.35rem;
       }
-      .hero-left p {
-        font-size: 0.9375rem;
-        color: var(--text-secondary);
-      }
+      .hero-left p { font-size: 0.9375rem; color: var(--text-secondary); }
       .system-badge {
         display: inline-flex;
         align-items: center;
@@ -261,15 +267,9 @@ const secondaryPosts = posts.slice(1);
         height: 6px;
         background: var(--gain-color);
         border-radius: 50%;
-        animation: pulse 2s infinite;
-      }
-      @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.4; }
-        100% { opacity: 1; }
       }
 
-      /* Layout Grids */
+      /* Content Layout */
       .section-label {
         font-size: 0.8125rem;
         font-weight: 700;
@@ -277,9 +277,6 @@ const secondaryPosts = posts.slice(1);
         letter-spacing: 0.05em;
         color: var(--text-muted);
         margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
       }
       .grid-main {
         display: grid;
@@ -288,22 +285,13 @@ const secondaryPosts = posts.slice(1);
         margin-bottom: 3rem;
       }
 
-      /* Dispatch Cards */
+      /* Cards */
       .card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 8px;
         padding: 1.5rem;
         box-shadow: var(--card-shadow);
-        transition: border-color 0.15s ease;
-      }
-      .card:hover {
-        border-color: var(--border-strong);
-      }
-      .card-lead {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
       }
       .card-meta {
         display: flex;
@@ -323,18 +311,12 @@ const secondaryPosts = posts.slice(1);
         border: 1px solid var(--border-subtle);
         color: var(--text-secondary);
       }
-      .pill-gain {
-        background: var(--gain-bg);
-        color: var(--gain-color);
-        border-color: transparent;
-      }
+      .pill-gain { background: var(--gain-bg); color: var(--gain-color); border-color: transparent; }
       .card-title {
         font-size: 1.2rem;
         font-weight: 700;
         letter-spacing: -0.02em;
-        line-height: 1.35;
         margin-bottom: 0.75rem;
-        color: var(--text-primary);
       }
       .card-body {
         font-size: 0.9375rem;
@@ -342,6 +324,24 @@ const secondaryPosts = posts.slice(1);
         line-height: 1.6;
         margin-bottom: 1.25rem;
       }
+      .card-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        background: var(--brand-accent);
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.65rem 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        transition: opacity 0.15s;
+      }
+      .card-action-btn:hover { opacity: 0.9; }
+
       .ticker-tags {
         display: flex;
         flex-wrap: wrap;
@@ -361,39 +361,23 @@ const secondaryPosts = posts.slice(1);
         border: 1px solid var(--border-subtle);
       }
 
-      /* Secondary Stream List */
-      .stream-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.85rem;
-      }
+      /* Stream Items */
+      .stream-list { display: flex; flex-direction: column; gap: 0.85rem; }
       .stream-item {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 8px;
         padding: 1rem 1.15rem;
-        transition: border-color 0.15s ease;
       }
-      .stream-item:hover { border-color: var(--border-strong); }
-      .stream-title {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-primary);
-        line-height: 1.4;
-        margin-bottom: 0.35rem;
-      }
-      .stream-date {
-        font-size: 0.6875rem;
-        font-family: var(--font-mono);
-        color: var(--text-muted);
-      }
+      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; }
+      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); }
 
-      /* Market Movers Table */
+      /* Table */
       .table-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 8px;
-        overflow: hidden;
+        overflow-x: auto;
         margin-bottom: 3rem;
       }
       .data-table {
@@ -408,7 +392,6 @@ const secondaryPosts = posts.slice(1);
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
         padding: 0.75rem 1.25rem;
         border-bottom: 1px solid var(--border-subtle);
       }
@@ -416,13 +399,11 @@ const secondaryPosts = posts.slice(1);
         padding: 0.85rem 1.25rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
-        font-variant-numeric: tabular-nums;
       }
-      .data-table tr:last-child td { border-bottom: none; }
       .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
 
-      /* Trading Tools & Execution Desks */
+      /* Tools Grid */
       .tools-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -437,11 +418,6 @@ const secondaryPosts = posts.slice(1);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: all 0.15s ease;
-      }
-      .tool-card:hover {
-        border-color: var(--brand-accent);
-        transform: translateY(-2px);
       }
       .tool-badge {
         font-size: 0.6875rem;
@@ -449,20 +425,9 @@ const secondaryPosts = posts.slice(1);
         text-transform: uppercase;
         color: var(--brand-accent);
         margin-bottom: 0.5rem;
-        display: inline-block;
       }
-      .tool-name {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.35rem;
-      }
-      .tool-desc {
-        font-size: 0.8125rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.25rem;
-        line-height: 1.4;
-      }
+      .tool-name { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
+      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
       .tool-btn {
         display: inline-flex;
         align-items: center;
@@ -475,47 +440,26 @@ const secondaryPosts = posts.slice(1);
         border: 1px solid var(--border-subtle);
         padding: 0.5rem 0.85rem;
         border-radius: 6px;
-        transition: all 0.15s;
       }
-      .tool-btn:hover {
-        background: var(--brand-accent);
-        border-color: var(--brand-accent);
-        color: #ffffff;
-      }
+      .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
 
-      /* Footer & Legal */
+      /* Footer */
       footer {
         border-top: 1px solid var(--border-subtle);
         padding: 2.5rem 0;
         font-size: 0.8125rem;
         color: var(--text-muted);
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
       }
-      .footer-inner {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .disclaimer {
-        font-size: 0.75rem;
-        line-height: 1.5;
-        color: var(--text-muted);
-      }
+      .disclaimer { font-size: 0.75rem; margin-top: 0.5rem; }
 
-      /* Mobile Optimizations */
       @media (max-width: 860px) {
         .grid-main { grid-template-columns: 1fr; }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
-        .search-input { width: 140px; }
-        .search-input:focus { width: 160px; }
       }
     </style>
   </head>
   <body>
-    <!-- Navigation -->
     <nav class="top-nav">
       <div class="app-wrapper nav-inner">
         <div class="brand-group">
@@ -538,7 +482,7 @@ const secondaryPosts = posts.slice(1);
             <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers / intel..." />
           </div>
           <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">
-            <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
           </button>
@@ -546,19 +490,25 @@ const secondaryPosts = posts.slice(1);
       </div>
     </nav>
 
-    <!-- Real-time Index Strip -->
     <div class="ticker-strip">
       <div class="ticker-items">
-        <div class="ticker-item"><span class="ticker-symbol">S&P 500</span><span class="ticker-val">5,842.10</span><span class="ticker-pos">+0.48%</span></div>
-        <div class="ticker-item"><span class="ticker-symbol">NASDAQ</span><span class="ticker-val">18,518.61</span><span class="ticker-pos">+0.82%</span></div>
-        <div class="ticker-item"><span class="ticker-symbol">BTC/USD</span><span class="ticker-val">$64,280</span><span class="ticker-pos">+1.45%</span></div>
-        <div class="ticker-item"><span class="ticker-symbol">ETH/USD</span><span class="ticker-val">$2,640</span><span class="ticker-pos">+2.10%</span></div>
-        <div class="ticker-item"><span class="ticker-symbol">VIX</span><span class="ticker-val">15.22</span><span class="ticker-val" style="color: var(--loss-color);">-3.12%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">S&P 500</span><span class="ticker-pos">+0.48%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">NASDAQ</span><span class="ticker-pos">+0.82%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">BTC/USD</span><span class="ticker-pos">+1.45%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">ETH/USD</span><span class="ticker-pos">+2.10%</span></div>
       </div>
     </div>
 
     <div class="app-wrapper">
-      <!-- Hero Header -->
+      <!-- Top Leaderboard Ad Slot -->
+      <div class="ad-leaderboard">
+        <span class="ad-label">Advertisement Placement</span>
+        <div id="ad-slot-header" style="font-size: 0.75rem; color: var(--text-muted);">
+          <!-- Drop ad network script (e.g. A-ADS 728x90 or AdSense) here -->
+          Available Inventory Slot (728x90)
+        </div>
+      </div>
+
       <header class="hero-section">
         <div class="hero-left">
           <h1>Market Intelligence, Without The Noise</h1>
@@ -572,31 +522,37 @@ const secondaryPosts = posts.slice(1);
         </div>
       </header>
 
-      <!-- Live Dispatches & Story Stream -->
+      <!-- Live Dispatches -->
       <section id="intelligence">
         <div class="section-label">01 // Live Intelligence Stream</div>
         <div class="grid-main">
           
-          <!-- Lead Story -->
           {featuredPost ? (
-            <article class="card card-lead dispatch-card">
-              <div>
-                <div class="card-meta">
-                  <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
-                  <span class="card-date" style="font-family: var(--font-mono);">{featuredPost.frontmatter.date}</span>
-                </div>
-                <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
-                <div class="card-body">
-                  <featuredPost.Content />
-                </div>
+            <article class="card dispatch-card">
+              <div class="card-meta">
+                <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
+                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.date}</span>
               </div>
+              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
+              <div class="card-body">
+                <featuredPost.Content />
+              </div>
+              
               {featuredPost.frontmatter.tickers && (
                 <div class="ticker-tags">
-                  {featuredPost.frontmatter.tickers.map(t => (
+                  {featuredPost.frontmatter.tickers.map((t: string) => (
                     <span class="ticker-pill">${t}</span>
                   ))}
                 </div>
               )}
+
+              <!-- Primary Referral CTA -->
+              <a href={featuredPost.frontmatter.refUrl || "https://changenow.io/?link_id=YOUR_CHANGENOW_REF"} 
+                 target="_blank" 
+                 rel="noopener noreferrer" 
+                 class="card-action-btn">
+                {featuredPost.frontmatter.refLabel || "Execute Spot Order on ChangeNOW"} &rarr;
+              </a>
             </article>
           ) : (
             <div class="card">
@@ -604,24 +560,31 @@ const secondaryPosts = posts.slice(1);
             </div>
           )}
 
-          <!-- Archive / Secondary Stream -->
           <div class="stream-list">
-            {secondaryPosts.length > 0 ? (
-              secondaryPosts.map(post => (
-                <article class="stream-item dispatch-card">
-                  <div class="stream-date">{post.frontmatter.date}</div>
-                  <h3 class="stream-title">{post.frontmatter.title}</h3>
-                  <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
-                    <post.Content />
-                  </div>
-                </article>
-              ))
-            ) : (
-              <div class="stream-item">
-                <div class="stream-title" style="color: var(--text-muted);">Historical Archive</div>
-                <p style="font-size: 0.75rem; color: var(--text-muted);">Subsequent updates will automatically archive here.</p>
+            {secondaryPosts.map(post => (
+              <article class="stream-item dispatch-card">
+                <div class="stream-date">{post.frontmatter.date}</div>
+                <h3 class="stream-title">{post.frontmatter.title}</h3>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
+                  <post.Content />
+                </div>
+                <a href={post.frontmatter.refUrl || "https://changenow.io/?link_id=YOUR_CHANGENOW_REF"} 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
+                  {post.frontmatter.refLabel || "Access Order Terminal"} &rarr;
+                </a>
+              </article>
+            ))}
+
+            <!-- Sidebar Ad Slot -->
+            <div class="ad-sidebar">
+              <span class="ad-label">Partner Promotion</span>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">
+                <!-- Drop ad network script (300x250) here -->
+                Available Inventory Slot (300x250)
               </div>
-            )}
+            </div>
           </div>
         </div>
       </section>
@@ -636,47 +599,36 @@ const secondaryPosts = posts.slice(1);
                 <th>Asset</th>
                 <th>Classification</th>
                 <th>Signal Type</th>
-                <th>Volume Profile</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="table-symbol">{featuredPost?.frontmatter?.leadTicker || 'NVDA'}</td>
+                <td class="table-symbol">{featuredPost?.frontmatter?.leadTicker || 'KLXER'}</td>
                 <td>High Relative Volume</td>
                 <td><span class="pill pill-gain">Expansion</span></td>
-                <td>Heavy Institutional</td>
-                <td class="table-gain">{featuredPost?.frontmatter?.leadGain || '+4.8%'}</td>
+                <td class="table-gain">{featuredPost?.frontmatter?.leadGain || '+269.3%'}</td>
               </tr>
               <tr>
-                <td class="table-symbol">BTC</td>
-                <td>Layer 1 Liquidity</td>
+                <td class="table-symbol">CRE</td>
+                <td>Volume Expansion</td>
                 <td><span class="pill pill-gain">Breakout</span></td>
-                <td>Above 20-Day Mean</td>
-                <td class="table-gain">+2.41%</td>
-              </tr>
-              <tr>
-                <td class="table-symbol">SPY</td>
-                <td>Benchmark Index</td>
-                <td><span class="pill">Consolidation</span></td>
-                <td>Neutral</td>
-                <td class="table-gain">+0.48%</td>
+                <td class="table-gain">+162.9%</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- Trading Platforms & Tools (Refined Institutional Suite) -->
+      <!-- Trading Platforms & Tools -->
       <section id="tools">
-        <div class="section-label">03 // Execution Terminals & Analytical Tools</div>
+        <div class="section-label">03 // Analytical Tools & Liquidity</div>
         <div class="tools-grid">
-          
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Charting & Analytics</span>
+              <span class="tool-badge">Charting</span>
               <h3 class="tool-name">TradingView</h3>
-              <p class="tool-desc">Institutional-grade multi-timeframe charting, technical indicator suites, and custom momentum screening.</p>
+              <p class="tool-desc">Multi-timeframe charting and volume profiling suites.</p>
             </div>
             <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="tool-btn">
               Open Workspace &rarr;
@@ -685,9 +637,9 @@ const secondaryPosts = posts.slice(1);
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Non-Custodial Liquidity</span>
+              <span class="tool-badge">Non-Custodial</span>
               <h3 class="tool-name">ChangeNOW</h3>
-              <p class="tool-desc">Instant digital asset liquidity router. Execute cross-chain spot settlement without custody hurdles.</p>
+              <p class="tool-desc">Cross-chain crypto spot settlement with instant routing.</p>
             </div>
             <a href="https://changenow.io/?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
               Access Liquidity &rarr;
@@ -696,39 +648,29 @@ const secondaryPosts = posts.slice(1);
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Asset Settlement</span>
+              <span class="tool-badge">Asset Swaps</span>
               <h3 class="tool-name">SimpleSwap</h3>
-              <p class="tool-desc">Frictionless crypto asset exchange routing across 1,500+ spot market pairs with direct wallet settlement.</p>
+              <p class="tool-desc">Frictionless asset routing across 1,500+ pairs.</p>
             </div>
             <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
               Launch Exchange &rarr;
             </a>
           </div>
-
         </div>
       </section>
 
-      <!-- Footer -->
       <footer>
-        <div class="footer-inner">
-          <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
-          <div style="font-family: var(--font-mono); font-size: 0.75rem;">VERSION 2.4.0 // STABLE</div>
-        </div>
+        <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
         <p class="disclaimer">
-          Market information is synthesized algorithmically for informational purposes only and does not constitute financial, investment, or trading advice. Past performance is not indicative of future returns.
+          Market information is synthesized algorithmically for informational purposes only and does not constitute financial advice.
         </p>
       </footer>
     </div>
 
-    <!-- Client-Side Controls: Theme & Dynamic Search -->
     <script>
-      // 1. Theme Toggle with LocalStorage & OS Preference
       const themeToggleBtn = document.getElementById('theme-toggle');
       const rootHtml = document.documentElement;
-
-      const savedTheme = localStorage.getItem('to_theme') || 
-        (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      
+      const savedTheme = localStorage.getItem('to_theme') || 'dark';
       rootHtml.setAttribute('data-theme', savedTheme);
 
       if (themeToggleBtn) {
@@ -740,13 +682,11 @@ const secondaryPosts = posts.slice(1);
         });
       }
 
-      // 2. Client-side Live Filtering
       const filterInput = document.getElementById('filter-input') as HTMLInputElement | null;
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
           const query = (e.target as HTMLInputElement).value.toLowerCase();
           const cards = document.querySelectorAll('.dispatch-card');
-          
           cards.forEach((card) => {
             const text = (card as HTMLElement).innerText.toLowerCase();
             (card as HTMLElement).style.display = text.includes(query) ? '' : 'none';
