@@ -1,360 +1,756 @@
 ---
-const posts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true }));
-posts.sort((a, b) => new Date(b.frontmatter.date).valueOf() - new Date(a.frontmatter.date).valueOf());
+interface MarkdownPost {
+  frontmatter: {
+    title?: string;
+    date?: string;
+    category?: string;
+    leadTicker?: string;
+    leadGain?: string;
+    tickers?: string[];
+  };
+  Content: any;
+  rawContent?: () => string;
+}
+
+const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
+const posts = rawPosts.sort((a, b) => {
+  const dateA = new Date(a.frontmatter.date || 0).valueOf();
+  const dateB = new Date(b.frontmatter.date || 0).valueOf();
+  return dateB - dateA;
+});
+
+const featuredPost = posts[0];
+const secondaryPosts = posts.slice(1);
 ---
 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ALPHAFEED.AI // Decentralized Market Intelligence</title>
-    <style>
+    <meta name="description" content="Trade Opportunities — Institutional market intelligence, volume breakout detection, and asset momentum signals." />
+    <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style is:inline>
       :root {
-        --bg-main: #080c14;
-        --bg-card: #0f172a;
-        --bg-card-hover: #1e293b;
-        --border: #1e293b;
-        --border-highlight: #334155;
-        --green: #10b981;
-        --blue: #38bdf8;
-        --purple: #a855f7;
-        --amber: #f59e0b;
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+
+        /* Light Theme Tokens */
+        --bg-page: #f8fafc;
+        --bg-surface: #ffffff;
+        --bg-surface-elevated: #f1f5f9;
+        --border-subtle: #e2e8f0;
+        --border-strong: #cbd5e1;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --brand-accent: #2563eb;
+        --brand-accent-hover: #1d4ed8;
+        --gain-color: #059669;
+        --gain-bg: rgba(5, 150, 105, 0.1);
+        --loss-color: #dc2626;
+        --loss-bg: rgba(220, 38, 38, 0.1);
+        --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      }
+
+      html[data-theme="dark"] {
+        /* Dark Theme Tokens */
+        --bg-page: #080b11;
+        --bg-surface: #0e1420;
+        --bg-surface-elevated: #141c2c;
+        --border-subtle: #1e293b;
+        --border-strong: #334155;
         --text-primary: #f8fafc;
         --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --brand-accent: #3b82f6;
+        --brand-accent-hover: #60a5fa;
+        --gain-color: #10b981;
+        --gain-bg: rgba(16, 185, 129, 0.12);
+        --loss-color: #f43f5e;
+        --loss-bg: rgba(244, 63, 94, 0.12);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
       }
 
       * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
-        background-color: var(--bg-main);
+        font-family: var(--font-sans);
+        background-color: var(--bg-page);
         color: var(--text-primary);
-        line-height: 1.6;
-        padding-bottom: 5rem;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        transition: background-color 0.2s ease, color 0.2s ease;
       }
 
-      .container {
-        max-width: 1080px;
+      .app-wrapper {
+        max-width: 1240px;
         margin: 0 auto;
-        padding: 0 1.5rem;
+        padding: 0 1.25rem;
       }
 
-      header {
+      /* Sticky Top Navigation Bar */
+      .top-nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--bg-page);
+        border-bottom: 1px solid var(--border-subtle);
+        backdrop-filter: blur(12px);
+      }
+      .nav-inner {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1.5rem 0;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 3rem;
+        height: 60px;
+      }
+      .brand-group {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
       }
       .logo {
-        font-weight: 900;
-        font-size: 1.35rem;
-        letter-spacing: -0.03em;
-        color: #fff;
-      }
-      .logo span { color: var(--green); }
-      .status-badge {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.8rem;
+        font-weight: 800;
+        font-size: 1.15rem;
+        letter-spacing: -0.03em;
+        text-decoration: none;
+        color: var(--text-primary);
+      }
+      .logo-glyph {
+        width: 18px;
+        height: 18px;
+        background: var(--brand-accent);
+        border-radius: 4px;
+        display: inline-block;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1.25rem;
+        list-style: none;
+      }
+      .nav-links a {
+        text-decoration: none;
+        font-size: 0.875rem;
         font-weight: 500;
         color: var(--text-secondary);
-        background: var(--bg-card);
-        padding: 0.4rem 0.85rem;
-        border-radius: 9999px;
-        border: 1px solid var(--border);
+        transition: color 0.15s;
       }
-      .pulse {
-        width: 7px;
-        height: 7px;
-        background-color: var(--green);
-        border-radius: 50%;
-        animation: pulse-ring 2s infinite;
-      }
-      @keyframes pulse-ring {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-        70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-      }
-
-      .hero {
-        text-align: left;
-        margin-bottom: 3rem;
-      }
-      .hero-tag {
-        display: inline-block;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--green);
-        background: rgba(16, 185, 129, 0.1);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        padding: 0.25rem 0.6rem;
-        border-radius: 4px;
-        margin-bottom: 1rem;
-      }
-      .hero h1 {
-        font-size: clamp(2rem, 4vw, 2.75rem);
-        font-weight: 900;
-        letter-spacing: -0.04em;
-        line-height: 1.15;
-        margin-bottom: 0.75rem;
-      }
-      .hero p {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-        max-width: 650px;
-      }
-
-      .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.25rem;
-      }
-      .section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-      }
-      .slider-controls {
-        display: flex;
-        gap: 0.5rem;
-      }
-      .slider-btn {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
+      .nav-links a:hover, .nav-links a.active {
         color: var(--text-primary);
-        width: 38px;
-        height: 38px;
-        border-radius: 8px;
+      }
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .search-input {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.8125rem;
+        padding: 0.4rem 0.75rem 0.4rem 2rem;
+        border-radius: 6px;
+        outline: none;
+        width: 180px;
+        transition: all 0.15s ease;
+      }
+      .search-input:focus {
+        border-color: var(--brand-accent);
+        width: 220px;
+      }
+      .search-icon {
+        position: absolute;
+        left: 0.65rem;
+        width: 12px;
+        height: 12px;
+        stroke: var(--text-muted);
+      }
+      .theme-btn {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        font-size: 1.1rem;
-        transition: all 0.2s;
+        transition: all 0.15s;
       }
-      .slider-btn:hover {
-        background: var(--border-highlight);
-        border-color: var(--green);
+      .theme-btn:hover {
+        border-color: var(--border-strong);
+        color: var(--text-primary);
       }
 
-      .slider-container {
-        display: flex;
-        gap: 1.5rem;
+      /* Ticker Strip */
+      .ticker-strip {
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.75rem;
+        font-family: var(--font-mono);
         overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        padding-bottom: 1rem;
-        scrollbar-width: thin;
+        white-space: nowrap;
+        scrollbar-width: none;
       }
-      .slide-card {
-        flex: 0 0 clamp(320px, 85vw, 480px);
-        scroll-snap-align: start;
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 1.75rem;
+      .ticker-strip::-webkit-scrollbar { display: none; }
+      .ticker-items {
+        display: flex;
+        gap: 2rem;
+        padding: 0.45rem 1.25rem;
+        max-width: 1240px;
+        margin: 0 auto;
+      }
+      .ticker-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .ticker-symbol { font-weight: 600; color: var(--text-primary); }
+      .ticker-val { color: var(--text-secondary); }
+      .ticker-pos { color: var(--gain-color); }
+
+      /* Hero Header */
+      .hero-section {
+        padding: 2.25rem 0 1.75rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 2rem;
+      }
+      .hero-left h1 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        margin-bottom: 0.35rem;
+      }
+      .hero-left p {
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+      }
+      .system-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: var(--font-mono);
+        color: var(--gain-color);
+        background: var(--gain-bg);
+        border: 1px solid var(--gain-color);
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+      }
+      .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--gain-color);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.4; }
+        100% { opacity: 1; }
+      }
+
+      /* Layout Grids */
+      .section-label {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .grid-main {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.75rem;
+        margin-bottom: 3rem;
+      }
+
+      /* Dispatch Cards */
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: var(--card-shadow);
+        transition: border-color 0.15s ease;
+      }
+      .card:hover {
+        border-color: var(--border-strong);
+      }
+      .card-lead {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
       }
-      .slide-card h1, .slide-card h2 {
-        font-size: 1.25rem;
-        color: #fff;
+      .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
         margin-bottom: 0.75rem;
       }
-      .slide-card p {
-        font-size: 0.95rem;
-        color: #cbd5e1;
-        margin-bottom: 1rem;
-      }
-      .slide-card hr {
-        border: none;
-        border-top: 1px solid var(--border);
-        margin: 1.25rem 0;
-      }
-      .slide-card a {
-        display: inline-block;
-        width: 100%;
-        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-        color: #fff;
+      .pill {
+        font-size: 0.6875rem;
         font-weight: 700;
-        font-size: 0.9rem;
-        text-align: center;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
+        text-transform: uppercase;
+        padding: 0.15rem 0.45rem;
+        border-radius: 3px;
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+      }
+      .pill-gain {
+        background: var(--gain-bg);
+        color: var(--gain-color);
+        border-color: transparent;
+      }
+      .card-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.35;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+      }
+      .card-body {
+        font-size: 0.9375rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+      }
+      .ticker-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-subtle);
+      }
+      .ticker-pill {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--brand-accent);
+        background: var(--bg-surface-elevated);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--border-subtle);
       }
 
-      .affiliate-section {
-        margin-top: 4rem;
+      /* Secondary Stream List */
+      .stream-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
       }
-      .affiliate-grid {
+      .stream-item {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1rem 1.15rem;
+        transition: border-color 0.15s ease;
+      }
+      .stream-item:hover { border-color: var(--border-strong); }
+      .stream-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        line-height: 1.4;
+        margin-bottom: 0.35rem;
+      }
+      .stream-date {
+        font-size: 0.6875rem;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+      }
+
+      /* Market Movers Table */
+      .table-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 3rem;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+        text-align: left;
+      }
+      .data-table th {
+        background: var(--bg-surface-elevated);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .data-table td {
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        font-variant-numeric: tabular-nums;
+      }
+      .data-table tr:last-child td { border-bottom: none; }
+      .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+      .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
+
+      /* Trading Tools & Execution Desks */
+      .tools-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1.25rem;
-        margin-top: 1.25rem;
+        margin-bottom: 3.5rem;
       }
-      .affiliate-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1.5rem;
+      .tool-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1.25rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: all 0.2s;
+        transition: all 0.15s ease;
       }
-      .affiliate-card:hover {
-        border-color: var(--blue);
-        transform: translateY(-3px);
+      .tool-card:hover {
+        border-color: var(--brand-accent);
+        transform: translateY(-2px);
       }
-      .badge-tag {
-        font-size: 0.7rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
-        align-self: flex-start;
-        margin-bottom: 0.85rem;
-      }
-      .tag-swap { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
-      .tag-tv { background: rgba(56, 189, 248, 0.15); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.3); }
-      .tag-simpleswap { background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
-
-      .affiliate-card h3 { font-size: 1.15rem; margin-bottom: 0.35rem; }
-      .affiliate-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem; }
-      .aff-btn {
-        display: block;
-        text-align: center;
-        padding: 0.65rem 1rem;
-        border-radius: 6px;
-        font-size: 0.85rem;
+      .tool-badge {
+        font-size: 0.6875rem;
         font-weight: 700;
-        text-decoration: none;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid var(--border-highlight);
-        color: #fff;
-        transition: all 0.2s;
+        text-transform: uppercase;
+        color: var(--brand-accent);
+        margin-bottom: 0.5rem;
+        display: inline-block;
       }
-      .aff-btn:hover { background: #fff; color: #000; }
-
-      footer {
-        margin-top: 5rem;
-        text-align: center;
-        font-size: 0.8rem;
+      .tool-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.35rem;
+      }
+      .tool-desc {
+        font-size: 0.8125rem;
         color: var(--text-secondary);
-        border-top: 1px solid var(--border);
-        padding-top: 2rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.4;
+      }
+      .tool-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--text-primary);
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        padding: 0.5rem 0.85rem;
+        border-radius: 6px;
+        transition: all 0.15s;
+      }
+      .tool-btn:hover {
+        background: var(--brand-accent);
+        border-color: var(--brand-accent);
+        color: #ffffff;
+      }
+
+      /* Footer & Legal */
+      footer {
+        border-top: 1px solid var(--border-subtle);
+        padding: 2.5rem 0;
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .footer-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .disclaimer {
+        font-size: 0.75rem;
+        line-height: 1.5;
+        color: var(--text-muted);
+      }
+
+      /* Mobile Optimizations */
+      @media (max-width: 860px) {
+        .grid-main { grid-template-columns: 1fr; }
+        .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .nav-links { display: none; }
+        .search-input { width: 140px; }
+        .search-input:focus { width: 160px; }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <header>
-        <div class="logo">ALPHA<span>FEED</span>.AI</div>
-        <div class="status-badge">
-          <div class="pulse"></div>
-          <span>Zero-Deposit Feed Active</span>
+    <!-- Navigation -->
+    <nav class="top-nav">
+      <div class="app-wrapper nav-inner">
+        <div class="brand-group">
+          <a href="#" class="logo">
+            <span class="logo-glyph"></span>
+            TRADE OPPORTUNITIES
+          </a>
+          <ul class="nav-links">
+            <li><a href="#intelligence" class="active">Intelligence</a></li>
+            <li><a href="#movers">Market Movers</a></li>
+            <li><a href="#tools">Platforms & Tools</a></li>
+          </ul>
+        </div>
+        <div class="nav-actions">
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers / intel..." />
+          </div>
+          <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">
+            <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Real-time Index Strip -->
+    <div class="ticker-strip">
+      <div class="ticker-items">
+        <div class="ticker-item"><span class="ticker-symbol">S&P 500</span><span class="ticker-val">5,842.10</span><span class="ticker-pos">+0.48%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">NASDAQ</span><span class="ticker-val">18,518.61</span><span class="ticker-pos">+0.82%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">BTC/USD</span><span class="ticker-val">$64,280</span><span class="ticker-pos">+1.45%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">ETH/USD</span><span class="ticker-val">$2,640</span><span class="ticker-pos">+2.10%</span></div>
+        <div class="ticker-item"><span class="ticker-symbol">VIX</span><span class="ticker-val">15.22</span><span class="ticker-val" style="color: var(--loss-color);">-3.12%</span></div>
+      </div>
+    </div>
+
+    <div class="app-wrapper">
+      <!-- Hero Header -->
+      <header class="hero-section">
+        <div class="hero-left">
+          <h1>Market Intelligence, Without The Noise</h1>
+          <p>Autonomous technical tracking of volume anomalies, momentum leaders, and actionable opportunities.</p>
+        </div>
+        <div class="hero-right">
+          <div class="system-badge">
+            <div class="pulse-dot"></div>
+            SCANNER ENGINE ACTIVE
+          </div>
         </div>
       </header>
 
-      <section class="hero">
-        <span class="hero-tag">Instant Access Intelligence</span>
-        <h1>Autonomous Market Flow</h1>
-        <p>Real-time algorithmic tracking of volume surges and market breakouts with zero registration barriers.</p>
-      </section>
-
-      <!-- Slider Section -->
-      <section>
-        <div class="section-header">
-          <h2 class="section-title">⚡ Live Market Dispatches</h2>
-          <div class="slider-controls">
-            <button class="slider-btn" id="slide-left" aria-label="Slide Left">&larr;</button>
-            <button class="slider-btn" id="slide-right" aria-label="Slide Right">&rarr;</button>
-          </div>
-        </div>
-
-        <div class="slider-container" id="news-slider">
-          {posts.length === 0 ? (
-            <div class="slide-card">
-              <p>Scanning markets for new breakout runners...</p>
-            </div>
-          ) : (
-            posts.map(post => (
-              <article class="slide-card">
-                <div>
-                  <post.Content />
+      <!-- Live Dispatches & Story Stream -->
+      <section id="intelligence">
+        <div class="section-label">01 // Live Intelligence Stream</div>
+        <div class="grid-main">
+          
+          <!-- Lead Story -->
+          {featuredPost ? (
+            <article class="card card-lead dispatch-card">
+              <div>
+                <div class="card-meta">
+                  <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
+                  <span class="card-date" style="font-family: var(--font-mono);">{featuredPost.frontmatter.date}</span>
                 </div>
-              </article>
-            ))
+                <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
+                <div class="card-body">
+                  <featuredPost.Content />
+                </div>
+              </div>
+              {featuredPost.frontmatter.tickers && (
+                <div class="ticker-tags">
+                  {featuredPost.frontmatter.tickers.map(t => (
+                    <span class="ticker-pill">${t}</span>
+                  ))}
+                </div>
+              )}
+            </article>
+          ) : (
+            <div class="card">
+              <p style="color: var(--text-secondary);">Initializing scan sequence. Next batch will populate at market close.</p>
+            </div>
           )}
+
+          <!-- Archive / Secondary Stream -->
+          <div class="stream-list">
+            {secondaryPosts.length > 0 ? (
+              secondaryPosts.map(post => (
+                <article class="stream-item dispatch-card">
+                  <div class="stream-date">{post.frontmatter.date}</div>
+                  <h3 class="stream-title">{post.frontmatter.title}</h3>
+                  <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
+                    <post.Content />
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div class="stream-item">
+                <div class="stream-title" style="color: var(--text-muted);">Historical Archive</div>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Subsequent updates will automatically archive here.</p>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
-      <!-- Zero-Deposit Affiliate Grid -->
-      <section class="affiliate-section">
-        <div class="section-header">
-          <h2 class="section-title">🏛️ Verified Instant Execution Desks</h2>
+      <!-- Market Movers Section -->
+      <section id="movers">
+        <div class="section-label">02 // Monitored Breakouts</div>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Classification</th>
+                <th>Signal Type</th>
+                <th>Volume Profile</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="table-symbol">{featuredPost?.frontmatter?.leadTicker || 'NVDA'}</td>
+                <td>High Relative Volume</td>
+                <td><span class="pill pill-gain">Expansion</span></td>
+                <td>Heavy Institutional</td>
+                <td class="table-gain">{featuredPost?.frontmatter?.leadGain || '+4.8%'}</td>
+              </tr>
+              <tr>
+                <td class="table-symbol">BTC</td>
+                <td>Layer 1 Liquidity</td>
+                <td><span class="pill pill-gain">Breakout</span></td>
+                <td>Above 20-Day Mean</td>
+                <td class="table-gain">+2.41%</td>
+              </tr>
+              <tr>
+                <td class="table-symbol">SPY</td>
+                <td>Benchmark Index</td>
+                <td><span class="pill">Consolidation</span></td>
+                <td>Neutral</td>
+                <td class="table-gain">+0.48%</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </section>
 
-        <div class="affiliate-grid">
-          <!-- ChangeNOW (Instant Swaps, Free Link) -->
-          <div class="affiliate-card">
+      <!-- Trading Platforms & Tools (Refined Institutional Suite) -->
+      <section id="tools">
+        <div class="section-label">03 // Execution Terminals & Analytical Tools</div>
+        <div class="tools-grid">
+          
+          <div class="tool-card">
             <div>
-              <span class="badge-tag tag-swap">No Deposit Required</span>
-              <h3>ChangeNOW Instant</h3>
-              <p>Cross-chain crypto swaps with zero account setup and instant affiliate link generation.</p>
+              <span class="tool-badge">Charting & Analytics</span>
+              <h3 class="tool-name">TradingView</h3>
+              <p class="tool-desc">Institutional-grade multi-timeframe charting, technical indicator suites, and custom momentum screening.</p>
             </div>
-            <a href="[https://changenow.app.link/referral?link_id=1c434a8e93e8ff](https://changenow.app.link/referral?link_id=1c434a8e93e8ff)" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Swap Crypto &rarr;
+            <a href="https://www.tradingview.com/?aff_id=YOUR_TRADINGVIEW_REF" target="_blank" rel="noopener noreferrer" class="tool-btn">
+              Open Workspace &rarr;
             </a>
           </div>
 
-          <!-- TradingView (Kept as requested) -->
-          <div class="affiliate-card">
+          <div class="tool-card">
             <div>
-              <span class="badge-tag tag-tv">Live Charting</span>
-              <h3>TradingView Pro</h3>
-              <p>Deploy multi-timeframe volume indicators and custom breakout alerts.</p>
+              <span class="tool-badge">Non-Custodial Liquidity</span>
+              <h3 class="tool-name">ChangeNOW</h3>
+              <p class="tool-desc">Instant digital asset liquidity router. Execute cross-chain spot settlement without custody hurdles.</p>
             </div>
-            <a href="[https://www.tradingview.com/?aff_id=170147](https://www.tradingview.com/?aff_id=170147)" target="_blank" rel="noopener noreferrer" class="aff-btn">
-              Start Free Trial &rarr;
+            <a href="https://changenow.io/?link_id=YOUR_CHANGENOW_REF" target="_blank" rel="noopener noreferrer" class="tool-btn">
+              Access Liquidity &rarr;
             </a>
           </div>
 
-          <!-- SimpleSwap (No Deposit Required) -->
-          <div class="affiliate-card">
+          <div class="tool-card">
             <div>
-              <span class="badge-tag tag-simpleswap">Zero-Balance Setup</span>
-              <h3>SimpleSwap</h3>
-              <p>Instant crypto exchanges across 1,500+ assets with free affiliate onboarding.</p>
+              <span class="tool-badge">Asset Settlement</span>
+              <h3 class="tool-name">SimpleSwap</h3>
+              <p class="tool-desc">Frictionless crypto asset exchange routing across 1,500+ spot market pairs with direct wallet settlement.</p>
             </div>
-            <a href="[https://simpleswap.io/?ref=566becc568f4](https://simpleswap.io/?ref=566becc568f4)" target="_blank" rel="noopener noreferrer" class="aff-btn">
+            <a href="https://simpleswap.io/?ref=YOUR_SIMPLESWAP_REF" target="_blank" rel="noopener noreferrer" class="tool-btn">
               Launch Exchange &rarr;
             </a>
           </div>
+
         </div>
       </section>
 
+      <!-- Footer -->
       <footer>
-        <p>&copy; 2026 AlphaFeed AI. Fully decentralized algorithmic feeds. Not financial advice.</p>
+        <div class="footer-inner">
+          <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem;">VERSION 2.4.0 // STABLE</div>
+        </div>
+        <p class="disclaimer">
+          Market information is synthesized algorithmically for informational purposes only and does not constitute financial, investment, or trading advice. Past performance is not indicative of future returns.
+        </p>
       </footer>
     </div>
 
+    <!-- Client-Side Controls: Theme & Dynamic Search -->
     <script>
-      const slider = document.getElementById('news-slider');
-      const btnLeft = document.getElementById('slide-left');
-      const btnRight = document.getElementById('slide-right');
+      // 1. Theme Toggle with LocalStorage & OS Preference
+      const themeToggleBtn = document.getElementById('theme-toggle');
+      const rootHtml = document.documentElement;
 
-      if (slider && btnLeft && btnRight) {
-        btnLeft.addEventListener('click', () => {
-          slider.scrollBy({ left: -400, behavior: 'smooth' });
+      const savedTheme = localStorage.getItem('to_theme') || 
+        (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      
+      rootHtml.setAttribute('data-theme', savedTheme);
+
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+          const currentTheme = rootHtml.getAttribute('data-theme');
+          const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          rootHtml.setAttribute('data-theme', nextTheme);
+          localStorage.setItem('to_theme', nextTheme);
         });
-        btnRight.addEventListener('click', () => {
-          slider.scrollBy({ left: 400, behavior: 'smooth' });
+      }
+
+      // 2. Client-side Live Filtering
+      const filterInput = document.getElementById('filter-input') as HTMLInputElement | null;
+      if (filterInput) {
+        filterInput.addEventListener('input', (e) => {
+          const query = (e.target as HTMLInputElement).value.toLowerCase();
+          const cards = document.querySelectorAll('.dispatch-card');
+          
+          cards.forEach((card) => {
+            const text = (card as HTMLElement).innerText.toLowerCase();
+            (card as HTMLElement).style.display = text.includes(query) ? '' : 'none';
+          });
         });
       }
     </script>
