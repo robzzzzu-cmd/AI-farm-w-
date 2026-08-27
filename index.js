@@ -17,7 +17,7 @@ async function run() {
     const marketData = await avResponse.json();
 
     if (!marketData.top_gainers || marketData.top_gainers.length === 0) {
-      throw new Error(`Alpha Vantage API error or empty payload: ${JSON.stringify(marketData)}`);
+      throw new Error(`Alpha Vantage API error: ${JSON.stringify(marketData)}`);
     }
 
     const topGainers = marketData.top_gainers.slice(0, 4);
@@ -27,9 +27,9 @@ async function run() {
       `Ticker: ${stock.ticker} | Price: $${parseFloat(stock.price).toFixed(2)} | Change: +${parseFloat(stock.change_percentage).toFixed(2)}% | Volume: ${Number(stock.volume).toLocaleString()}`
     ).join("\n");
 
-    const systemPrompt = `You are a senior equity research analyst at Trade Opportunities. 
-Analyze the provided high-momentum assets. Write an institutional, data-driven 2-3 sentence market summary explaining the price action, liquidity expansion, and risk considerations. 
-Maintain a rigorous, analytical tone. Do NOT use promotional hype. Focus on volume conviction and price expansion.`;
+    const systemPrompt = `You are a senior quantitative equity analyst at Trade Opportunities. 
+Analyze the provided high-momentum assets. Write an institutional, data-driven 2-3 sentence market summary explaining the price action, liquidity expansion, and risk factors. 
+Maintain a rigorous, analytical tone. Do NOT use promotional hype or sensationalist phrasing. Focus on technical structure and volume conviction.`;
 
     console.log("2. Synthesizing market intelligence...");
 
@@ -74,7 +74,7 @@ category: "Equities Momentum"
 leadTicker: "${leadStock.ticker}"
 leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
 tickers: [${topGainers.map(s => `"${s.ticker}"`).join(', ')}]
-refUrl: "https://changenow.io/?link_id=1c434a8e93e8ff"
+refUrl: "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"
 refLabel: "Execute Spot Order on ChangeNOW"
 ---
 
