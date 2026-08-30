@@ -1,62 +1,746 @@
 ---
+interface StockItem {
+  ticker: string;
+  price: string;
+  change_amount?: string;
+  change_percentage: string;
+  volume: string;
+}
+
+interface MarkdownPost {
+  frontmatter: {
+    title?: string;
+    date?: string;
+    displayDate?: string;
+    category?: string;
+    leadTicker?: string;
+    leadGain?: string;
+    tickers?: string[];
+    gainers?: StockItem[];
+    losers?: StockItem[];
+    active?: StockItem[];
+    refUrl?: string;
+    refLabel?: string;
+  };
+  Content: any;
+}
+
+const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
+const posts = rawPosts.sort((a, b) => {
+  const dateA = new Date(a.frontmatter.date || 0).valueOf();
+  const dateB = new Date(b.frontmatter.date || 0).valueOf();
+  return dateB - dateA;
+});
+
+const featuredPost = posts[0];
+const secondaryPosts = posts.slice(1, 5);
+
+const displayGainers = featuredPost?.frontmatter?.gainers || [];
+const displayLosers = featuredPost?.frontmatter?.losers || [];
 ---
+
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Terms of Service // Trade Opportunities</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
+
+<!-- INSERT BITMEDIA VERIFICATION TAG HERE -->
+  <meta name="bitmedia-verification" content="<meta name="bitmedia-site-verification" content="07522f1ef9d6b60ae5363fe10b37f8c5" />" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style is:inline>
       :root {
-        --bg-page: #f8fafc;
-        --bg-surface: #ffffff;
-        --border-subtle: #e2e8f0;
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --brand-accent: #2563eb;
-      }
-      html[data-theme="dark"] {
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
         --bg-page: #0b0e14;
         --bg-surface: #111622;
+        --bg-surface-elevated: #161d2d;
         --border-subtle: #1e2638;
+        --border-strong: #2d374d;
         --text-primary: #f1f5f9;
         --text-secondary: #94a3b8;
+        --text-muted: #64748b;
         --brand-accent: #3b82f6;
+        --gain-color: #22c55e;
+        --gain-bg: rgba(34, 197, 94, 0.1);
+        --loss-color: #ef4444;
+        --loss-bg: rgba(239, 68, 68, 0.1);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
       }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: var(--font-sans);
         background-color: var(--bg-page);
         color: var(--text-primary);
-        line-height: 1.6;
-        padding: 3rem 1.5rem;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
       }
-      .container { max-width: 800px; margin: 0 auto; }
-      h1 { font-size: 1.85rem; margin-bottom: 0.5rem; }
-      h2 { font-size: 1.2rem; margin-top: 1.75rem; margin-bottom: 0.5rem; }
-      p { font-size: 0.925rem; color: var(--text-secondary); margin-bottom: 1rem; }
-      a { color: var(--brand-accent); text-decoration: none; }
-      a:hover { text-decoration: underline; }
-      .back-link { display: inline-block; margin-bottom: 2rem; font-size: 0.85rem; font-weight: 600; }
+
+      .app-wrapper {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+      }
+
+      .top-nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--bg-page);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .nav-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 58px;
+      }
+      .brand-group {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 800;
+        font-size: 1.1rem;
+        letter-spacing: -0.02em;
+        text-decoration: none;
+        color: var(--text-primary);
+      }
+      .logo-glyph {
+        width: 14px;
+        height: 14px;
+        background: var(--brand-accent);
+        border-radius: 3px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 1.25rem;
+        list-style: none;
+      }
+      .nav-links a {
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+      .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .search-input {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.8125rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        outline: none;
+        width: 180px;
+      }
+      .search-input:focus { border-color: var(--brand-accent); }
+
+      .ad-leaderboard {
+        margin: 1.5rem auto 0.5rem auto;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0.75rem;
+      }
+      .ad-label {
+        font-size: 0.625rem;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+      }
+
+      .hero-section {
+        padding: 1.75rem 0 1.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 2rem;
+      }
+      .hero-left h1 {
+        font-size: 1.65rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+      }
+      .hero-left p { font-size: 0.9rem; color: var(--text-secondary); }
+      
+      .scanning-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        padding: 0.3rem 0.65rem;
+        border-radius: 4px;
+      }
+      .scanning-dot {
+        width: 7px;
+        height: 7px;
+        background-color: var(--gain-color);
+        border-radius: 50%;
+        animation: pulseFade 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      @keyframes pulseFade {
+        0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(34, 197, 94, 0.7); }
+        50% { opacity: 0.2; box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+      }
+
+      .section-label {
+        font-size: 0.78125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+      }
+      .grid-main {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 1.35rem;
+        box-shadow: var(--card-shadow);
+      }
+      .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+      }
+      .pill {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 0.15rem 0.45rem;
+        border-radius: 3px;
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+      }
+      .pill-gain { background: var(--gain-bg); color: var(--gain-color); border-color: transparent; }
+      .pill-loss { background: var(--loss-bg); color: var(--loss-color); border-color: transparent; }
+      
+      .card-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.65rem;
+      }
+      .card-body {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.55;
+        margin-bottom: 1.25rem;
+      }
+      .card-body a {
+        color: var(--brand-accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .card-body a:hover {
+        text-decoration: underline;
+      }
+      .card-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        background: var(--brand-accent);
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.8125rem;
+        padding: 0.6rem 0.85rem;
+        border-radius: 5px;
+        margin-top: 0.75rem;
+        transition: opacity 0.15s;
+      }
+      .card-action-btn:hover { opacity: 0.9; }
+
+      .ticker-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-subtle);
+      }
+      .ticker-pill {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--brand-accent);
+        background: var(--bg-surface-elevated);
+        padding: 0.15rem 0.45rem;
+        border-radius: 3px;
+        border: 1px solid var(--border-subtle);
+        text-decoration: none;
+      }
+
+      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; }
+      .stream-item {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 0.9rem 1rem;
+      }
+      .stream-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); }
+
+      .table-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        overflow-x: auto;
+        margin-bottom: 2.5rem;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+        text-align: left;
+      }
+      .data-table th {
+        background: var(--bg-surface-elevated);
+        color: var(--text-muted);
+        font-size: 0.725rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 0.65rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .data-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+      }
+      .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+      .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
+      .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
+
+      .tv-card-container {
+        height: 380px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .swap-and-ads-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        margin-bottom: 3.5rem;
+      }
+      .tool-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 1.15rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .tool-badge {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--brand-accent);
+        margin-bottom: 0.35rem;
+      }
+      .tool-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem; }
+      .tool-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78125rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--text-primary);
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        padding: 0.45rem 0.75rem;
+        border-radius: 4px;
+      }
+      .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
+
+      .newsletter-box {
+        background: linear-gradient(180deg, var(--bg-surface-elevated) 0%, var(--bg-surface) 100%);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .newsletter-input-group {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .newsletter-input {
+        background: var(--bg-page);
+        border: 1px solid var(--border-strong);
+        color: var(--text-primary);
+        font-size: 0.8125rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        outline: none;
+      }
+
+      footer {
+        border-top: 1px solid var(--border-subtle);
+        padding: 2rem 0;
+        font-size: 0.78125rem;
+        color: var(--text-muted);
+      }
+      .footer-links {
+        display: flex;
+        gap: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .footer-links a { color: var(--text-secondary); text-decoration: none; }
+      .footer-links a:hover { color: var(--text-primary); }
+
+      @media (max-width: 860px) {
+        .grid-main, .swap-and-ads-grid { grid-template-columns: 1fr; }
+        .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .nav-links { display: none; }
+        .newsletter-box { flex-direction: column; align-items: flex-start; }
+      }
     </style>
   </head>
   <body>
-    <div class="container">
-      <a href="../" class="back-link">&larr; Return to Terminal</a>
-      <h1>Terms of Service</h1>
-      <p>Last updated: August 2026</p>
+    <nav class="top-nav">
+      <div class="app-wrapper nav-inner">
+        <div class="brand-group">
+          <a href="#" class="logo">
+            <span class="logo-glyph"></span>
+            TRADE OPPORTUNITIES
+          </a>
+          <ul class="nav-links">
+            <li><a href="#intelligence" class="active">Intelligence</a></li>
+            <li><a href="#movers">Market Movers</a></li>
+            <li><a href="#terminal">Order Terminal</a></li>
+            <li><a href="#tools">Platforms</a></li>
+          </ul>
+        </div>
+        <div class="nav-actions">
+          <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers..." />
+        </div>
+      </div>
+    </nav>
 
-      <h2>1. Non-Advisory Nature of Service</h2>
-      <p>Trade Opportunities publishes algorithmic market dispatches synthesized from public equities and liquidity data. The content provided on this platform is for informational and educational purposes only and does not constitute financial, investment, legal, or tax advice.</p>
+    <div class="app-wrapper">
+      <!-- Sponsored Leaderboard (A-ADS) -->
+      <div class="ad-leaderboard">
+        <span class="ad-label">Sponsored Intelligence</span>
+        <div style="width: 100%; margin: auto; position: relative;">
+          <iframe 
+            data-aa="2453491" 
+            src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=111622" 
+            style="border: 0; padding: 0; width: 100%; max-width: 728px; height: 90px; overflow: hidden; display: block; margin: auto;"
+            loading="lazy">
+          </iframe>
+        </div>
+      </div>
 
-      <h2>2. Risk Disclosure</h2>
-      <p>Trading financial assets, equities, and digital assets carries substantial risk of capital loss. Past momentum metrics do not guarantee future performance. You assume sole responsibility for any investment or trading decisions made.</p>
+      <header class="hero-section">
+        <div class="hero-left">
+          <h1>Market Intelligence Feed</h1>
+          <p>Automated quantitative tracking of high-momentum equity breakouts and volume divergences.</p>
+        </div>
+        <div class="hero-right">
+          <div class="scanning-badge">
+            <div class="scanning-dot"></div>
+            <span>LIVE SCAN</span>
+          </div>
+        </div>
+      </header>
 
-      <h2>3. Third-Party & Affiliate Disclosures</h2>
-      <p>Trade Opportunities contains links to third-party tools, exchanges, and charting platforms. We may receive affiliate compensation when users register or execute transactions through these links at no extra cost to the user.</p>
+      <!-- Section 01: Dispatches -->
+      <section id="intelligence">
+        <div class="section-label">01 // Recent Dispatches</div>
+        <div class="grid-main">
+          {featuredPost ? (
+            <article class="card dispatch-card">
+              <div class="card-meta">
+                <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
+                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
+              </div>
+              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
+              <div class="card-body">
+                <featuredPost.Content />
+              </div>
+              
+              {featuredPost.frontmatter.tickers && (
+                <div class="ticker-tags">
+                  {featuredPost.frontmatter.tickers.map((t: string) => (
+                    <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
+                      ${t}
+                    </a>
+                  ))}
+                </div>
+              )}
 
-      <h2>4. Limitation of Liability</h2>
-      <p>In no event shall Trade Opportunities or its operators be held liable for any direct, indirect, incidental, or consequential damages resulting from data errors, pipeline downtime, or trading losses.</p>
+              <a href={featuredPost.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
+                 target="_blank" 
+                 rel="noopener noreferrer" 
+                 class="card-action-btn">
+                {featuredPost.frontmatter.refLabel || "Execute Spot Order on ChangeNOW"} &rarr;
+              </a>
+            </article>
+          ) : (
+            <div class="card">
+              <p style="color: var(--text-secondary);">Initializing scan sequence. Next batch will populate at US market open.</p>
+            </div>
+          )}
+
+          <div class="stream-list">
+            {secondaryPosts.map(post => (
+              <article class="stream-item dispatch-card">
+                <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
+                <h3 class="stream-title">{post.frontmatter.title}</h3>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
+                  <post.Content />
+                </div>
+                <a href={post.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
+                  {post.frontmatter.refLabel || "Access Order Terminal"} &rarr;
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 02: Dynamic Breakouts Table -->
+      <section id="movers">
+        <div class="section-label">02 // Monitored Breakouts (Alpha Vantage Feed)</div>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Asset</th>
+                <th>Price</th>
+                <th>Change (%)</th>
+                <th>Session Volume</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayGainers.length > 0 ? (
+                <>
+                  {displayGainers.map((stock: StockItem) => (
+                    <tr>
+                      <td class="table-symbol">${stock.ticker}</td>
+                      <td>${parseFloat(stock.price).toFixed(2)}</td>
+                      <td class="table-gain">+{parseFloat(stock.change_percentage).toFixed(2)}%</td>
+                      <td>{Number(stock.volume).toLocaleString()}</td>
+                      <td>
+                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
+                          Analyze Chart &rarr;
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                  {displayLosers.slice(0, 2).map((stock: StockItem) => (
+                    <tr>
+                      <td class="table-symbol">${stock.ticker}</td>
+                      <td>${parseFloat(stock.price).toFixed(2)}</td>
+                      <td class="table-loss">{parseFloat(stock.change_percentage).toFixed(2)}%</td>
+                      <td>{Number(stock.volume).toLocaleString()}</td>
+                      <td>
+                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
+                          Analyze Chart &rarr;
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </>
+              ) : (
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                    Market feed synchronizes at US opening bell (14:30 UTC).
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 03: Live Interactive Swap Terminal & Coinzilla Native Card -->
+      <section id="terminal" style="margin-bottom: 2.5rem;">
+        <div class="section-label">03 // Instant Execution & Liquidity Hub</div>
+        <div class="swap-and-ads-grid">
+          
+          <!-- Live ChangeNOW Embedded Swap Widget -->
+          <div class="card" style="padding: 1rem;">
+            <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">
+              Instant Non-Custodial Swap Terminal
+            </div>
+            <iframe
+              id="changenow-widget"
+              src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=111622&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=3b82f6&to=eth"
+              style="height: 356px; width: 100%; border: none; border-radius: 6px;"
+              loading="lazy">
+            </iframe>
+          </div>
+
+          <!-- Coinzilla / Native Sponsored Ad Unit -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div class="ad-label" style="text-align: left;">High-Yield Sponsored Partner</div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem;">Institutional Market Liquidity</h3>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
+                Access tier-1 deep-book crypto futures, low latency routing, and institutional execution spreads with partner rebates.
+              </p>
+              
+              <!-- Coinzilla / Direct Ad Zone -->
+              <div style="background: var(--bg-surface-elevated); border: 1px dashed var(--border-subtle); border-radius: 6px; height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem;">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                  [ Sponsored Network Banner Zone // 300x250 ]
+                </span>
+              </div>
+            </div>
+
+            <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn" style="margin-top: 1rem; width: 100%;">
+              Explore SimpleSwap Routing &rarr;
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Revenue Add-on: Daily Intel Dispatch Subscriptions -->
+      <div class="newsletter-box">
+        <div>
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Daily Momentum Alerts</h3>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Receive high-volume breakout scans directly before market open.</p>
+        </div>
+        <form action="https://tradeopportunities.substack.com" method="get" target="_blank" class="newsletter-input-group">
+          <input type="email" placeholder="institutional@trader.com" class="newsletter-input" required />
+          <button type="submit" class="tool-btn" style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;">
+            Subscribe Free
+          </button>
+        </form>
+      </div>
+
+      <!-- Section 04: Platforms & Tools -->
+      <section id="tools">
+        <div class="section-label">04 // Analytical Tools & Liquidity</div>
+        <div class="tools-grid">
+          
+          <div class="tool-card">
+            <div>
+              <span class="tool-badge">Charting</span>
+              <h3 class="tool-name">TradingView</h3>
+              <p class="tool-desc">Multi-timeframe charting and volume profiling suites.</p>
+            </div>
+            <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="tool-btn">
+              Open Workspace &rarr;
+            </a>
+          </div>
+
+          <div class="tool-card">
+            <div>
+              <span class="tool-badge">Non-Custodial</span>
+              <h3 class="tool-name">ChangeNOW</h3>
+              <p class="tool-desc">Cross-chain crypto spot settlement with instant routing.</p>
+            </div>
+            <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
+              Access Liquidity &rarr;
+            </a>
+          </div>
+
+          <div class="tool-card">
+            <div>
+              <span class="tool-badge">Asset Swaps</span>
+              <h3 class="tool-name">SimpleSwap</h3>
+              <p class="tool-desc">Frictionless asset routing across 1,500+ spot pairs.</p>
+            </div>
+            <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
+              Launch Exchange &rarr;
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <div class="footer-links">
+          <a href="terms">Terms of Service</a>
+          <a href="privacy">Privacy Policy</a>
+        </div>
+        <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
+        <p style="margin-top: 0.5rem; font-size: 0.725rem;">
+          Market information is synthesized algorithmically for informational purposes only and does not constitute investment or financial advice. Trade Opportunities participates in affiliate programs and may earn commissions through featured links.
+        </p>
+      </footer>
     </div>
+
+    <!-- Client-Side Search Filter -->
+    <script is:inline>
+      const filterInput = document.getElementById('filter-input');
+      if (filterInput) {
+        filterInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase();
+          const cards = document.querySelectorAll('.dispatch-card');
+          cards.forEach((card) => {
+            const text = card.innerText.toLowerCase();
+            card.style.display = text.includes(query) ? '' : 'none';
+          });
+        });
+      }
+    </script>
   </body>
 </html>
