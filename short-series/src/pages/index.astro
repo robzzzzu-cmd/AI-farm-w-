@@ -1,12 +1,24 @@
 ---
+interface StockItem {
+  ticker: string;
+  price: string;
+  change_amount?: string;
+  change_percentage: string;
+  volume: string;
+}
+
 interface MarkdownPost {
   frontmatter: {
     title?: string;
     date?: string;
+    displayDate?: string;
     category?: string;
     leadTicker?: string;
     leadGain?: string;
     tickers?: string[];
+    gainers?: StockItem[];
+    losers?: StockItem[];
+    active?: StockItem[];
     refUrl?: string;
     refLabel?: string;
   };
@@ -21,7 +33,9 @@ const posts = rawPosts.sort((a, b) => {
 });
 
 const featuredPost = posts[0];
-const secondaryPosts = posts.slice(1);
+const secondaryPosts = posts.slice(1, 5);
+const monitoredGainers = featuredPost?.frontmatter?.gainers || [];
+const monitoredLosers = featuredPost?.frontmatter?.losers || [];
 ---
 
 <!DOCTYPE html>
@@ -39,23 +53,6 @@ const secondaryPosts = posts.slice(1);
       :root {
         --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         --font-mono: 'JetBrains Mono', monospace;
-
-        --bg-page: #f8fafc;
-        --bg-surface: #ffffff;
-        --bg-surface-elevated: #f1f5f9;
-        --border-subtle: #e2e8f0;
-        --border-strong: #cbd5e1;
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --text-muted: #94a3b8;
-        --brand-accent: #2563eb;
-        --gain-color: #15803d;
-        --gain-bg: rgba(21, 128, 61, 0.08);
-        --loss-color: #b91c1c;
-        --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      }
-
-      html[data-theme="dark"] {
         --bg-page: #0b0e14;
         --bg-surface: #111622;
         --bg-surface-elevated: #161d2d;
@@ -68,6 +65,7 @@ const secondaryPosts = posts.slice(1);
         --gain-color: #22c55e;
         --gain-bg: rgba(34, 197, 94, 0.1);
         --loss-color: #ef4444;
+        --loss-bg: rgba(239, 68, 68, 0.1);
         --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
       }
 
@@ -149,39 +147,6 @@ const secondaryPosts = posts.slice(1);
         width: 180px;
       }
       .search-input:focus { border-color: var(--brand-accent); }
-      .theme-btn {
-        background: var(--bg-surface);
-        border: 1px solid var(--border-subtle);
-        color: var(--text-secondary);
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .ticker-strip {
-        background: var(--bg-surface);
-        border-bottom: 1px solid var(--border-subtle);
-        font-size: 0.75rem;
-        font-family: var(--font-mono);
-        overflow-x: auto;
-        white-space: nowrap;
-        scrollbar-width: none;
-      }
-      .ticker-strip::-webkit-scrollbar { display: none; }
-      .ticker-items {
-        display: flex;
-        gap: 2rem;
-        padding: 0.45rem 1.25rem;
-        max-width: 1240px;
-        margin: 0 auto;
-      }
-      .ticker-item { display: flex; align-items: center; gap: 0.5rem; }
-      .ticker-symbol { font-weight: 600; color: var(--text-primary); }
-      .ticker-pos { color: var(--gain-color); }
 
       .ad-leaderboard {
         margin: 1.5rem auto 0.5rem auto;
@@ -220,7 +185,6 @@ const secondaryPosts = posts.slice(1);
       }
       .hero-left p { font-size: 0.9rem; color: var(--text-secondary); }
       
-      /* Pure institutional glowing/fading scanning badge */
       .scanning-badge {
         display: inline-flex;
         align-items: center;
@@ -243,14 +207,8 @@ const secondaryPosts = posts.slice(1);
         animation: pulseFade 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
       }
       @keyframes pulseFade {
-        0%, 100% {
-          opacity: 1;
-          box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
-        }
-        50% {
-          opacity: 0.2;
-          box-shadow: 0 0 0 rgba(34, 197, 94, 0);
-        }
+        0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(34, 197, 94, 0.7); }
+        50% { opacity: 0.2; box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
       }
 
       .section-label {
@@ -294,6 +252,8 @@ const secondaryPosts = posts.slice(1);
         color: var(--text-secondary);
       }
       .pill-gain { background: var(--gain-bg); color: var(--gain-color); border-color: transparent; }
+      .pill-loss { background: var(--loss-bg); color: var(--loss-color); border-color: transparent; }
+      
       .card-title {
         font-size: 1.15rem;
         font-weight: 700;
@@ -381,6 +341,7 @@ const secondaryPosts = posts.slice(1);
       }
       .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
+      .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
 
       .tools-grid {
         display: grid;
@@ -432,63 +393,13 @@ const secondaryPosts = posts.slice(1);
         gap: 1.25rem;
         margin-bottom: 0.75rem;
       }
-      .footer-links a {
-        color: var(--text-secondary);
-        text-decoration: none;
-      }
+      .footer-links a { color: var(--text-secondary); text-decoration: none; }
       .footer-links a:hover { color: var(--text-primary); }
-      .disclaimer { font-size: 0.725rem; }
-
-      /* Cookie Consent Banner */
-      .cookie-banner {
-        position: fixed;
-        bottom: 1.5rem;
-        right: 1.5rem;
-        max-width: 420px;
-        background: var(--bg-surface);
-        border: 1px solid var(--border-strong);
-        border-radius: 8px;
-        padding: 1.25rem;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        z-index: 9999;
-        display: none;
-      }
-      .cookie-text {
-        font-size: 0.8125rem;
-        color: var(--text-secondary);
-        line-height: 1.4;
-        margin-bottom: 1rem;
-      }
-      .cookie-btns {
-        display: flex;
-        gap: 0.5rem;
-      }
-      .cookie-accept {
-        background: var(--brand-accent);
-        color: #fff;
-        border: none;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.4rem 0.85rem;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-      .cookie-decline {
-        background: var(--bg-surface-elevated);
-        color: var(--text-secondary);
-        border: 1px solid var(--border-subtle);
-        font-size: 0.75rem;
-        font-weight: 500;
-        padding: 0.4rem 0.85rem;
-        border-radius: 4px;
-        cursor: pointer;
-      }
 
       @media (max-width: 860px) {
         .grid-main { grid-template-columns: 1fr; }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
-        .cookie-banner { bottom: 0.5rem; right: 0.5rem; left: 0.5rem; max-width: none; }
       }
     </style>
   </head>
@@ -503,34 +414,21 @@ const secondaryPosts = posts.slice(1);
           <ul class="nav-links">
             <li><a href="#intelligence" class="active">Intelligence</a></li>
             <li><a href="#movers">Market Movers</a></li>
-            <li><a href="#tools">Platforms & Tools</a></li>
+            <li><a href="#technical-gauge">Technicals</a></li>
+            <li><a href="#tools">Platforms</a></li>
           </ul>
         </div>
         <div class="nav-actions">
-          <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers / intel..." />
-          <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          </button>
+          <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers..." />
         </div>
       </div>
     </nav>
 
-    <div class="ticker-strip">
-      <div class="ticker-items">
-        <div class="ticker-item"><span class="ticker-symbol">S&P 500</span><span class="ticker-pos">+0.48%</span></div>
-        <div class="ticker-item"><span class="ticker-symbol">NASDAQ</span><span class="ticker-pos">+0.82%</span></div>
-        <div class="ticker-item"><span class="ticker-symbol">BTC/USD</span><span class="ticker-pos">+1.45%</span></div>
-        <div class="ticker-item"><span class="ticker-symbol">ETH/USD</span><span class="ticker-pos">+2.10%</span></div>
-      </div>
-    </div>
-
     <div class="app-wrapper">
-      <!-- Top Leaderboard A-ADS Unit -->
+      <!-- Sponsored Leaderboard -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
-        <div id="frame" style="width: 100%; margin: auto; position: relative;">
+        <div style="width: 100%; margin: auto; position: relative;">
           <iframe 
             data-aa="2453491" 
             src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=111622" 
@@ -542,28 +440,26 @@ const secondaryPosts = posts.slice(1);
 
       <header class="hero-section">
         <div class="hero-left">
-          <h1>Market Intelligence, Without The Noise</h1>
-          <p>Autonomous technical tracking of volume anomalies, momentum leaders, and actionable opportunities.</p>
+          <h1>Market Intelligence Feed</h1>
+          <p>Automated quantitative tracking of high-momentum equity breakouts and volume divergences.</p>
         </div>
         <div class="hero-right">
-          <!-- Refined SCANNING badge with fading green dot -->
           <div class="scanning-badge">
             <div class="scanning-dot"></div>
-            <span>SCANNING</span>
+            <span>LIVE SCAN</span>
           </div>
         </div>
       </header>
 
-      <!-- Live Dispatches -->
+      <!-- Section 01: Dispatches -->
       <section id="intelligence">
-        <div class="section-label">01 // Live Intelligence Stream</div>
+        <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
-          
           {featuredPost ? (
             <article class="card dispatch-card">
               <div class="card-meta">
                 <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
-                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.date}</span>
+                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
               </div>
               <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
               <div class="card-body">
@@ -578,150 +474,152 @@ const secondaryPosts = posts.slice(1);
                 </div>
               )}
 
-              <a href={featuredPost.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
+              <a href={featuredPost.frontmatter.refUrl || `https://www.tradingview.com/symbols/${featuredPost.frontmatter.leadTicker}/?aff_id=170147`} 
                  target="_blank" 
                  rel="noopener noreferrer" 
                  class="card-action-btn">
-                {featuredPost.frontmatter.refLabel || "Execute Spot Order on ChangeNOW"} &rarr;
+                {featuredPost.frontmatter.refLabel || "Open Chart Analysis"} &rarr;
               </a>
             </article>
           ) : (
             <div class="card">
-              <p style="color: var(--text-secondary);">Initializing scan sequence. Next batch will populate at market close.</p>
+              <p style="color: var(--text-secondary);">Initializing scan sequence. Next batch will populate at market open.</p>
             </div>
           )}
 
           <div class="stream-list">
             {secondaryPosts.map(post => (
               <article class="stream-item dispatch-card">
-                <div class="stream-date">{post.frontmatter.date}</div>
+                <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
                 <h3 class="stream-title">{post.frontmatter.title}</h3>
                 <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
                   <post.Content />
                 </div>
-                <a href={post.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
-                  {post.frontmatter.refLabel || "Access Order Terminal"} &rarr;
-                </a>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <!-- Market Movers Section -->
+      <!-- Section 02: Dynamic Breakouts Table -->
       <section id="movers">
-        <div class="section-label">02 // Monitored Breakouts</div>
+        <div class="section-label">02 // Active Market Movers (Live Alpha Vantage Feed)</div>
         <div class="table-card">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Asset</th>
-                <th>Classification</th>
-                <th>Signal Type</th>
-                <th>Status</th>
+                <th>Ticker</th>
+                <th>Price</th>
+                <th>Change (%)</th>
+                <th>Session Volume</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="table-symbol">{featuredPost?.frontmatter?.leadTicker || 'KLXER'}</td>
-                <td>High Relative Volume</td>
-                <td><span class="pill pill-gain">Expansion</span></td>
-                <td class="table-gain">{featuredPost?.frontmatter?.leadGain || '+269.3%'}</td>
-              </tr>
-              <tr>
-                <td class="table-symbol">CRE</td>
-                <td>Volume Expansion</td>
-                <td><span class="pill pill-gain">Breakout</span></td>
-                <td class="table-gain">+162.9%</td>
-              </tr>
+              {monitoredGainers.map((stock: StockItem) => (
+                <tr>
+                  <td class="table-symbol">${stock.ticker}</td>
+                  <td>${parseFloat(stock.price).toFixed(2)}</td>
+                  <td class="table-gain">+{parseFloat(stock.change_percentage).toFixed(2)}%</td>
+                  <td>{Number(stock.volume).toLocaleString()}</td>
+                  <td>
+                    <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
+                      Analyze &rarr;
+                    </a>
+                  </td>
+                </tr>
+              ))}
+              {monitoredLosers.slice(0, 2).map((stock: StockItem) => (
+                <tr>
+                  <td class="table-symbol">${stock.ticker}</td>
+                  <td>${parseFloat(stock.price).toFixed(2)}</td>
+                  <td class="table-loss">{parseFloat(stock.change_percentage).toFixed(2)}%</td>
+                  <td>{Number(stock.volume).toLocaleString()}</td>
+                  <td>
+                    <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
+                      Analyze &rarr;
+                    </a>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </section>
 
-      <!-- Trading Platforms & Tools with your exact affiliate IDs -->
+      <!-- Section 03: Free Zero-Token Technical Gauge -->
+      <section id="technical-gauge" style="margin-bottom: 2.5rem;">
+        <div class="section-label">03 // Broad Market Momentum Gauges</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;">
+          <div class="card" style="padding: 0.5rem; height: 380px;">
+            <iframe
+              src="https://s.tradingview.com/embedwidget/?symbol=NASDAQ:QQQ&interval=1D&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=111622&theme=dark&style=1&timezone=Etc%2FUTC&locale=en"
+              style="width: 100%; height: 100%; border: none; border-radius: 4px;"
+              loading="lazy">
+            </iframe>
+          </div>
+          <div class="card" style="padding: 0.5rem; height: 380px;">
+            <iframe
+              src="https://s.tradingview.com/embedwidget/?symbol=AMEX:SPY&interval=1D&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=111622&theme=dark&style=1&timezone=Etc%2FUTC&locale=en"
+              style="width: 100%; height: 100%; border: none; border-radius: 4px;"
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 04: Platforms & Tools (High CPA Monetization) -->
       <section id="tools">
-        <div class="section-label">03 // Analytical Tools & Liquidity</div>
+        <div class="section-label">04 // Analytical Workstations & Liquidity</div>
         <div class="tools-grid">
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Charting</span>
-              <h3 class="tool-name">TradingView</h3>
-              <p class="tool-desc">Multi-timeframe charting and volume profiling suites.</p>
+              <span class="tool-badge">Institutional Charting</span>
+              <h3 class="tool-name">TradingView Pro</h3>
+              <p class="tool-desc">Multi-timeframe volume profiles, automated pattern recognition, and Pine Script indicators.</p>
             </div>
             <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Open Workspace &rarr;
+              Open Workstation &rarr;
             </a>
           </div>
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Non-Custodial</span>
+              <span class="tool-badge">Funded Accounts</span>
+              <h3 class="tool-name">Proprietary Trading</h3>
+              <p class="tool-desc">Trade institutional capital allocations with up to 90% profit splits across equity and index futures.</p>
+            </div>
+            <a href="https://ftmo.com/?aff_id=YOUR_ID" target="_blank" rel="noopener noreferrer" class="tool-btn">
+              View Evaluations &rarr;
+            </a>
+          </div>
+
+          <div class="tool-card">
+            <div>
+              <span class="tool-badge">Non-Custodial Swaps</span>
               <h3 class="tool-name">ChangeNOW</h3>
-              <p class="tool-desc">Cross-chain crypto spot settlement with instant routing.</p>
+              <p class="tool-desc">Frictionless cross-chain spot asset settlements without registration limits.</p>
             </div>
             <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Access Liquidity &rarr;
-            </a>
-          </div>
-
-          <div class="tool-card">
-            <div>
-              <span class="tool-badge">Asset Swaps</span>
-              <h3 class="tool-name">SimpleSwap</h3>
-              <p class="tool-desc">Frictionless asset routing across 1,500+ spot pairs.</p>
-            </div>
-            <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Launch Exchange &rarr;
+              Execute Orders &rarr;
             </a>
           </div>
         </div>
       </section>
 
-      <!-- Footer with Legal Suite Links -->
       <footer>
         <div class="footer-links">
           <a href="terms">Terms of Service</a>
           <a href="privacy">Privacy Policy</a>
         </div>
         <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
-        <p class="disclaimer">
-          Market information is synthesized algorithmically for informational purposes only and does not constitute investment or financial advice. Trade Opportunities participates in affiliate programs and may earn commissions through featured links.
+        <p style="margin-top: 0.5rem; font-size: 0.725rem;">
+          Informational intelligence only. Does not constitute investment advice.
         </p>
       </footer>
     </div>
 
-    <!-- Cookie Consent Banner -->
-    <div id="cookie-banner" class="cookie-banner">
-      <div class="cookie-text">
-        Trade Opportunities uses cookies to analyze technical traffic, ensure platform security, and serve contextual market advertisements. Review our <a href="privacy" style="color: var(--brand-accent);">Privacy Policy</a> for details.
-      </div>
-      <div class="cookie-btns">
-        <button id="accept-cookies" class="cookie-accept">Accept All</button>
-        <button id="decline-cookies" class="cookie-decline">Essential Only</button>
-      </div>
-    </div>
-
     <script>
-      // Theme Toggle Logic
-      const themeToggleBtn = document.getElementById('theme-toggle');
-      const rootHtml = document.documentElement;
-      const savedTheme = localStorage.getItem('to_theme') || 'dark';
-      rootHtml.setAttribute('data-theme', savedTheme);
-
-      if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
-          const currentTheme = rootHtml.getAttribute('data-theme');
-          const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          rootHtml.setAttribute('data-theme', nextTheme);
-          localStorage.setItem('to_theme', nextTheme);
-        });
-      }
-
-      // Live Client Filter
       const filterInput = document.getElementById('filter-input') as HTMLInputElement | null;
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -733,25 +631,6 @@ const secondaryPosts = posts.slice(1);
           });
         });
       }
-
-      // Cookie Consent Handler
-      const cookieBanner = document.getElementById('cookie-banner');
-      const acceptBtn = document.getElementById('accept-cookies');
-      const declineBtn = document.getElementById('decline-cookies');
-
-      if (!localStorage.getItem('to_cookie_consent')) {
-        if (cookieBanner) cookieBanner.style.display = 'block';
-      }
-
-      acceptBtn?.addEventListener('click', () => {
-        localStorage.setItem('to_cookie_consent', 'accepted');
-        if (cookieBanner) cookieBanner.style.display = 'none';
-      });
-
-      declineBtn?.addEventListener('click', () => {
-        localStorage.setItem('to_cookie_consent', 'essential');
-        if (cookieBanner) cookieBanner.style.display = 'none';
-      });
     </script>
   </body>
 </html>
