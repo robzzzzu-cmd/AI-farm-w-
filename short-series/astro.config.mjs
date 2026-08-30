@@ -1,8 +1,15 @@
+// short-series/astro.config.mjs
+// @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// https://astro.build/config
 export default defineConfig({
   site: 'https://tradeopportunities.trade',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      changefreq: 'daily',
+      priority: 0.8,
+      lastmod: new Date(),
+    }),
+  ],
 });
