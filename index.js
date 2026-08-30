@@ -3,6 +3,7 @@ const fs = require('fs');
 async function run() {
   const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
   const llmApiKey = process.env.LLM_API_KEY;
+  const resendApiKey = process.env.RESEND_API_KEY; // Optional: Add to GitHub Secrets for zero-cost automated emails
 
   if (!alphaVantageKey || !llmApiKey) {
     console.error("Missing API keys. Please verify GitHub Repository Secrets.");
@@ -35,9 +36,11 @@ MOST ACTIVE:
 ${mostActive.map(s => `Ticker: ${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()}`).join('\n')}
     `.trim();
 
+    // Contextual Affiliate Prompt Injection
     const systemPrompt = `You are a quantitative equity analyst at Trade Opportunities.
-Review the provided market movers and write a concise 2-3 sentence technical dispatch explaining the primary momentum catalyst, liquidity flow divergence, and immediate volatility risk.
-Maintain a strict institutional tone. Do NOT use promotional hype or sensationalism.`;
+Review the provided market movers and write a concise 2-3 sentence institutional market summary explaining price action, volume expansion, and risk factors.
+CRITICAL FORMATTING INSTRUCTION: Whenever you mention a stock ticker, format it strictly as a markdown hyperlink in this exact format: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147).
+Maintain a rigorous, data-driven institutional tone. Do not include promotional filler.`;
 
     console.log("2. Synthesizing market intelligence with Gemini...");
     const llmResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${llmApiKey}`, {
@@ -68,7 +71,6 @@ Maintain a strict institutional tone. Do NOT use promotional hype or sensational
     const timestamp = now.toISOString().replace(/[:.]/g, '-');
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
     
-    // Unique filename per run to avoid overwriting midday/close scans
     const fileName = `market-update-${timestamp}.md`;
     const folderPath = './short-series/src/content/blog';
 
@@ -77,7 +79,7 @@ Maintain a strict institutional tone. Do NOT use promotional hype or sensational
     }
 
     const markdownContent = `---
-title: "Momentum Scan: ${leadStock.ticker} Outperforms (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
+title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
 date: "${now.toISOString()}"
 displayDate: "${date} ${displayTime}"
 category: "Equities Momentum"
@@ -87,15 +89,39 @@ tickers: [${topGainers.map(s => `"${s.ticker}"`).join(', ')}]
 gainers: ${JSON.stringify(topGainers)}
 losers: ${JSON.stringify(topLosers)}
 active: ${JSON.stringify(mostActive)}
-refUrl: "https://www.tradingview.com/symbols/${leadStock.ticker}/?aff_id=170147"
-refLabel: "Analyze ${leadStock.ticker} Chart"
+refUrl: "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"
+refLabel: "Execute Spot Order on ChangeNOW"
 ---
 
 ${generatedContent}
 `;
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
-    console.log(`Successfully generated: ${fileName}`);
+    console.log(`Saved markdown: ${fileName}`);
+
+    // Optional: Automated Zero-Token Newsletter Broadcast
+    if (resendApiKey) {
+      console.log("4. Dispatching automated subscriber email via Resend...");
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'Intelligence <intel@tradeopportunities.trade>',
+          to: ['delivered@resend.dev'], // Or your Resend broadcast audience ID
+          subject: `Market Momentum Alert: ${leadStock.ticker} (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`,
+          html: `<div style="font-family: sans-serif; max-width: 600px; color: #111;">
+            <h2>Market Intelligence Dispatch (${displayTime})</h2>
+            <p>${generatedContent.replace(/\n/g, '<br/>')}</p>
+            <hr/>
+            <p><a href="https://tradeopportunities.trade">View live order terminal on Trade Opportunities &rarr;</a></p>
+          </div>`
+        })
+      });
+      console.log("Newsletter dispatched successfully.");
+    }
 
   } catch (error) {
     console.error("Pipeline failure:", error.message);
