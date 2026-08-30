@@ -3,7 +3,7 @@ const fs = require('fs');
 async function run() {
   const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
   const llmApiKey = process.env.LLM_API_KEY;
-  const resendApiKey = process.env.RESEND_API_KEY; // Optional: Add to GitHub Secrets for zero-cost automated emails
+  const resendApiKey = process.env.RESEND_API_KEY;
 
   if (!alphaVantageKey || !llmApiKey) {
     console.error("Missing API keys. Please verify GitHub Repository Secrets.");
@@ -36,7 +36,6 @@ MOST ACTIVE:
 ${mostActive.map(s => `Ticker: ${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()}`).join('\n')}
     `.trim();
 
-    // Contextual Affiliate Prompt Injection
     const systemPrompt = `You are a quantitative equity analyst at Trade Opportunities.
 Review the provided market movers and write a concise 2-3 sentence institutional market summary explaining price action, volume expansion, and risk factors.
 CRITICAL FORMATTING INSTRUCTION: Whenever you mention a stock ticker, format it strictly as a markdown hyperlink in this exact format: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147).
@@ -99,28 +98,56 @@ ${generatedContent}
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
     console.log(`Saved markdown: ${fileName}`);
 
-    // Optional: Automated Zero-Token Newsletter Broadcast
+    // 4. Automated Zero-Token Broadcast via Resend
     if (resendApiKey) {
-      console.log("4. Dispatching automated subscriber email via Resend...");
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
+      console.log("4. Fetching Audience and dispatching email broadcast...");
+      
+      const audienceRes = await fetch('https://api.resend.com/audiences', {
         headers: {
           'Authorization': `Bearer ${resendApiKey}`,
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: 'Intelligence <intel@tradeopportunities.trade>',
-          to: ['delivered@resend.dev'], // Or your Resend broadcast audience ID
-          subject: `Market Momentum Alert: ${leadStock.ticker} (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`,
-          html: `<div style="font-family: sans-serif; max-width: 600px; color: #111;">
-            <h2>Market Intelligence Dispatch (${displayTime})</h2>
-            <p>${generatedContent.replace(/\n/g, '<br/>')}</p>
-            <hr/>
-            <p><a href="https://tradeopportunities.trade">View live order terminal on Trade Opportunities &rarr;</a></p>
-          </div>`
-        })
+        }
       });
-      console.log("Newsletter dispatched successfully.");
+      const audienceJson = await audienceRes.json();
+      const audienceId = audienceJson.data?.[0]?.id;
+
+      if (!audienceId) {
+        console.warn("No Resend audience found. Email broadcast skipped.");
+      } else {
+        const broadcastRes = await fetch('https://api.resend.com/broadcasts', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            audience_id: audienceId,
+            from: 'Trade Opportunities <intel@tradeopportunities.trade>',
+            subject: `Market Momentum: ${leadStock.ticker} (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`,
+            html: `
+              <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #0f172a; padding: 20px;">
+                <h2 style="font-size: 18px; margin-bottom: 12px; color: #1e293b;">Market Intelligence Brief (${displayTime})</h2>
+                <div style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 24px;">
+                  ${generatedContent.replace(/\n/g, '<br/>')}
+                </div>
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-bottom: 16px;">
+                  <a href="https://tradeopportunities.trade" style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 4px;">
+                    Open Live Terminal &rarr;
+                  </a>
+                </div>
+                <p style="font-size: 11px; color: #94a3b8;">
+                  You received this because you subscribed on tradeopportunities.trade.<br/>
+                  <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color: #64748b;">Unsubscribe</a>
+                </p>
+              </div>
+            `,
+            send: true
+          })
+        });
+
+        const broadcastData = await broadcastRes.json();
+        console.log("Broadcast status:", broadcastData);
+      }
     }
 
   } catch (error) {
