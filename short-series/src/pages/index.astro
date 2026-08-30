@@ -35,7 +35,6 @@ const posts = rawPosts.sort((a, b) => {
 const featuredPost = posts[0];
 const secondaryPosts = posts.slice(1, 5);
 
-// Fallback logic so the table renders immediately before the next automated scan
 const fallbackGainers: StockItem[] = (featuredPost?.frontmatter?.tickers || ['QQQ', 'SPY', 'NVDA']).map((sym, idx) => ({
   ticker: sym,
   price: idx === 0 ? "485.50" : idx === 1 ? "562.10" : "128.30",
@@ -356,8 +355,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
 
       .tv-card-container {
-        min-height: 420px;
-        height: 420px;
+        height: 380px;
         position: relative;
         overflow: hidden;
       }
@@ -401,6 +399,31 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       }
       .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
 
+      .newsletter-box {
+        background: linear-gradient(180deg, var(--bg-surface-elevated) 0%, var(--bg-surface) 100%);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .newsletter-input-group {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .newsletter-input {
+        background: var(--bg-page);
+        border: 1px solid var(--border-strong);
+        color: var(--text-primary);
+        font-size: 0.8125rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        outline: none;
+      }
+
       footer {
         border-top: 1px solid var(--border-subtle);
         padding: 2rem 0;
@@ -419,6 +442,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         .grid-main { grid-template-columns: 1fr; }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
+        .newsletter-box { flex-direction: column; align-items: flex-start; }
       }
     </style>
   </head>
@@ -444,7 +468,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </nav>
 
     <div class="app-wrapper">
-      <!-- Sponsored Leaderboard -->
+      <!-- Sponsored Leaderboard (A-ADS) -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
         <div style="width: 100%; margin: auto; position: relative;">
@@ -493,11 +517,11 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
                 </div>
               )}
 
-              <a href={featuredPost.frontmatter.refUrl || `https://www.tradingview.com/symbols/${featuredPost.frontmatter.leadTicker}/?aff_id=170147`} 
+              <a href={featuredPost.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
                  target="_blank" 
                  rel="noopener noreferrer" 
                  class="card-action-btn">
-                {featuredPost.frontmatter.refLabel || "Open Chart Analysis"} &rarr;
+                {featuredPost.frontmatter.refLabel || "Execute Spot Order on ChangeNOW"} &rarr;
               </a>
             </article>
           ) : (
@@ -514,6 +538,12 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
                 <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
                   <post.Content />
                 </div>
+                <a href={post.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
+                  {post.frontmatter.refLabel || "Access Order Terminal"} &rarr;
+                </a>
               </article>
             ))}
           </div>
@@ -522,15 +552,15 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
 
       <!-- Section 02: Dynamic Breakouts Table -->
       <section id="movers">
-        <div class="section-label">02 // Active Market Movers (Live Feed)</div>
+        <div class="section-label">02 // Monitored Breakouts (Live Scan Feed)</div>
         <div class="table-card">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Ticker</th>
+                <th>Asset</th>
                 <th>Price</th>
                 <th>Change (%)</th>
-                <th>Session Volume</th>
+                <th>Volume</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -543,7 +573,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
                   <td>{Number(stock.volume).toLocaleString()}</td>
                   <td>
                     <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
-                      Analyze &rarr;
+                      Analyze Chart &rarr;
                     </a>
                   </td>
                 </tr>
@@ -556,7 +586,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
                   <td>{Number(stock.volume).toLocaleString()}</td>
                   <td>
                     <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
-                      Analyze &rarr;
+                      Analyze Chart &rarr;
                     </a>
                   </td>
                 </tr>
@@ -566,93 +596,81 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
-      <!-- Section 03: TradingView Verified Embeds -->
+      <!-- Section 03: TradingView Gauges (Injected safely via JS DOM) -->
       <section id="technical-gauge" style="margin-bottom: 2.5rem;">
         <div class="section-label">03 // Broad Market Momentum Gauges</div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;">
           
-          <!-- QQQ Gauge -->
           <div class="card tv-card-container">
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-              <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async is:inline>
-              {
-                "interval": "1D",
-                "width": "100%",
-                "isTransparent": true,
-                "height": "100%",
-                "symbol": "NASDAQ:QQQ",
-                "showIntervalTabs": true,
-                "displayMode": "single",
-                "locale": "en",
-                "colorTheme": "dark"
-              }
-              </script>
-            </div>
+            <div id="tv-gauge-qqq" style="height: 100%; width: 100%;"></div>
           </div>
 
-          <!-- SPY Gauge -->
           <div class="card tv-card-container">
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-              <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-              <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async is:inline>
-              {
-                "interval": "1D",
-                "width": "100%",
-                "isTransparent": true,
-                "height": "100%",
-                "symbol": "AMEX:SPY",
-                "showIntervalTabs": true,
-                "displayMode": "single",
-                "locale": "en",
-                "colorTheme": "dark"
-              }
-              </script>
-            </div>
+            <div id="tv-gauge-spy" style="height: 100%; width: 100%;"></div>
           </div>
 
         </div>
       </section>
 
-      <!-- Section 04: Monetization Grid -->
+      <!-- Revenue Add-on: Daily Intel Dispatch Subscriptions (Beehiiv / Substack monetization) -->
+      <div class="newsletter-box">
+        <div>
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Daily Momentum Alerts</h3>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Receive high-volume breakout scans directly before market open.</p>
+        </div>
+        <form action="https://tradeopportunities.substack.com" method="get" target="_blank" class="newsletter-input-group">
+          <input type="email" placeholder="institutional@trader.com" class="newsletter-input" required />
+          <button type="submit" class="tool-btn" style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;">
+            Subscribe Free
+          </button>
+        </form>
+      </div>
+
+      <!-- Section 04: Exact Original Affiliate Links -->
       <section id="tools">
-        <div class="section-label">04 // Analytical Workstations & Liquidity</div>
+        <div class="section-label">04 // Analytical Tools & Liquidity</div>
         <div class="tools-grid">
+          
+          <!-- TradingView with exact user aff_id -->
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Institutional Charting</span>
-              <h3 class="tool-name">TradingView Pro</h3>
-              <p class="tool-desc">Multi-timeframe volume profiles, automated pattern recognition, and Pine Script indicators.</p>
+              <span class="tool-badge">Charting</span>
+              <h3 class="tool-name">TradingView</h3>
+              <p class="tool-desc">Multi-timeframe charting and volume profiling suites.</p>
             </div>
             <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Open Workstation &rarr;
+              Open Workspace &rarr;
             </a>
           </div>
 
+          <!-- ChangeNOW with exact user referral link_id -->
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Funded Accounts</span>
-              <h3 class="tool-name">Proprietary Trading</h3>
-              <p class="tool-desc">Trade institutional capital allocations with up to 90% profit splits across equity and index futures.</p>
-            </div>
-            <a href="https://ftmo.com/?aff_id=YOUR_ID" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              View Evaluations &rarr;
-            </a>
-          </div>
-
-          <div class="tool-card">
-            <div>
-              <span class="tool-badge">Non-Custodial Swaps</span>
+              <span class="tool-badge">Non-Custodial</span>
               <h3 class="tool-name">ChangeNOW</h3>
-              <p class="tool-desc">Frictionless cross-chain spot asset settlements without registration limits.</p>
+              <p class="tool-desc">Cross-chain crypto spot settlement with instant routing.</p>
             </div>
             <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Execute Orders &rarr;
+              Access Liquidity &rarr;
             </a>
           </div>
+
+          <!-- SimpleSwap with exact user ref id -->
+          <div class="tool-card">
+            <div>
+              <span class="tool-badge">Asset Swaps</span>
+              <h3 class="tool-name">SimpleSwap</h3>
+              <p class="tool-desc">Frictionless asset routing across 1,500+ spot pairs.</p>
+            </div>
+            <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
+              Launch Exchange &rarr;
+            </a>
+          </div>
+
         </div>
       </section>
 
+      <!-- Footer -->
       <footer>
         <div class="footer-links">
           <a href="terms">Terms of Service</a>
@@ -660,12 +678,55 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
         <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
         <p style="margin-top: 0.5rem; font-size: 0.725rem;">
-          Informational intelligence only. Does not constitute investment advice.
+          Market information is synthesized algorithmically for informational purposes only and does not constitute investment or financial advice. Trade Opportunities participates in affiliate programs and may earn commissions through featured links.
         </p>
       </footer>
     </div>
 
+    <!-- Client-Side Safe Embeds and Filter Logic -->
     <script is:inline>
+      // 1. Dynamic TradingView Mount (bypasses Astro compilation errors)
+      function mountTVGauge(containerId, symbol) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        const widgetWrapper = document.createElement('div');
+        widgetWrapper.className = 'tradingview-widget-container';
+        widgetWrapper.style.height = '100%';
+        widgetWrapper.style.width = '100%';
+
+        const widgetInner = document.createElement('div');
+        widgetInner.className = 'tradingview-widget-container__widget';
+        widgetInner.style.height = 'calc(100% - 32px)';
+        widgetInner.style.width = '100%';
+        widgetWrapper.appendChild(widgetInner);
+
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+        script.async = true;
+        script.innerHTML = JSON.stringify({
+          interval: "1D",
+          width: "100%",
+          isTransparent: true,
+          height: "100%",
+          symbol: symbol,
+          showIntervalTabs: true,
+          displayMode: "single",
+          locale: "en",
+          colorTheme: "dark"
+        });
+
+        widgetWrapper.appendChild(script);
+        container.appendChild(widgetWrapper);
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        mountTVGauge('tv-gauge-qqq', 'NASDAQ:QQQ');
+        mountTVGauge('tv-gauge-spy', 'AMEX:SPY');
+      });
+
+      // 2. Client-side Search Filter
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
