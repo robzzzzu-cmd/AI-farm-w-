@@ -1,23 +1,58 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  pubDate?: string;
+}
+
+const {
+  title,
+  description = 'Daily automated market analysis and trade setups.',
+  pubDate,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://tradeopportunities.trade');
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  'headline': title,
+  'description': description,
+  'datePublished': pubDate || new Date().toISOString(),
+  'publisher': {
+    '@type': 'Organization',
+    'name': 'Trade Opportunities',
+    'url': 'https://tradeopportunities.trade',
+  },
+  'mainEntityOfPage': {
+    '@type': 'WebPage',
+    '@id': canonicalURL.toString(),
+  },
+};
+---
+
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalURL} />
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph Metadata -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
