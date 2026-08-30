@@ -2,9 +2,9 @@ name: Automated Market Analysis & Site Deploy
 
 on:
   schedule:
-    # 14:30 UTC: US Market Open (Opening Momentum Scan)
+    # 14:30 UTC: US Market Opening Bell Scan (Mon-Fri)
     - cron: '30 14 * * 1-5'
-    # 21:00 UTC: US Market Close (Daily Summary)
+    # 21:00 UTC: US Market Closing Bell Summary (Mon-Fri)
     - cron: '0 21 * * 1-5'
   workflow_dispatch:
   push:
@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   analyze-market:
-    # Only run data fetching on scheduled cron or manual button click
+    # Run data collection ONLY on cron schedules or manual trigger
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
@@ -38,29 +38,19 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies
-        run: |
-          if [ -f package.json ]; then npm ci || npm install; fi
-
-      - name: Run market analysis
+      - name: Run market analysis script
         env:
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-        # Runs index.ts directly via tsx, or fallback to index.js if compiled
-        run: |
-          if [ -f index.ts ]; then
-            npx --yes tsx index.ts
-          else
-            node index.js
-          fi
+        run: node index.js
 
-      - name: Commit and push new market dispatch
+      - name: Commit and push new market update
         run: |
           git config --global user.name "Market AI Bot"
           git config --global user.email "bot@tradeopportunities.trade"
           git add short-series/src/content/blog/
           if git diff --staged --quiet; then
-            echo "No new market updates to commit."
+            echo "No new changes to commit"
           else
             git commit -m "chore(intel): automated market scan [skip ci]"
             git pull --rebase origin main
@@ -68,8 +58,8 @@ jobs:
           fi
 
   deploy-site:
-    # Runs after market analysis, OR immediately on standard code pushes
     needs: analyze-market
+    # Runs after analysis, OR immediately if triggered by a code commit
     if: always() && (needs.analyze-market.result == 'success' || needs.analyze-market.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
@@ -81,7 +71,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Install, build, and upload site
+      - name: Install, build, and upload your site
         uses: withastro/action@v3
         with:
           path: ./short-series
