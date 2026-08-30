@@ -1,36 +1,34 @@
 // short-series/src/pages/rss.xml.js
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
 
 export async function GET(context) {
-  // Fetch all posts from the blog collection
-  const posts = await getCollection('blog');
+  // Directly load all markdown files in src/content/blog/
+  const postFiles = import.meta.glob('../content/blog/*.md', { eager: true });
+  
+  const items = Object.entries(postFiles).map(([filepath, post]) => {
+    // Extract filename (e.g., "market-update-2026-08-28") to construct the URL
+    const slug = filepath.split('/').pop().replace(/\.md$/, '');
+    const frontmatter = post.frontmatter || {};
 
-  // Sort descending by date
-  const sortedPosts = posts
-    .filter((post) => !post.data.draft)
-    .sort((a, b) => {
-      const dateA = new Date(a.data.pubDate || a.data.date || a.data.publishDate || 0).getTime();
-      const dateB = new Date(b.data.pubDate || b.data.date || b.data.publishDate || 0).getTime();
-      return dateB - dateA;
-    });
+    const rawDate = frontmatter.pubDate || frontmatter.date || Date.now();
+    const parsedDate = new Date(rawDate);
+
+    return {
+      title: frontmatter.title || slug.replace(/-/g, ' '),
+      pubDate: isNaN(parsedDate.getTime()) ? new Date() : parsedDate,
+      description: frontmatter.description || frontmatter.summary || 'Daily market analysis update.',
+      link: `/blog/${slug}/`,
+    };
+  });
+
+  // Sort descending by date (newest first)
+  items.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
 
   return rss({
     title: 'Trade Opportunities | Daily Market Analysis',
     description: 'Daily algorithmic market updates, technical setups, and financial research.',
     site: context.site || 'https://tradeopportunities.trade',
-    items: sortedPosts.map((post) => {
-      // Determine post slug across Astro 4 (slug) and Astro 5 (id)
-      const slug = post.slug || post.id.replace(/\.(md|mdx)$/, '');
-      const rawDate = post.data.pubDate || post.data.date || post.data.publishDate || new Date();
-
-      return {
-        title: post.data.title || 'Market Update',
-        pubDate: new Date(rawDate),
-        description: post.data.description || post.data.summary || 'Daily market opportunity update.',
-        link: `/blog/${slug}/`,
-      };
-    }),
+    items,
     customData: `<language>en-us</language>`,
   });
 }
