@@ -353,12 +353,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
       .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
 
-      .tv-card-container {
-        height: 380px;
-        position: relative;
-        overflow: hidden;
-      }
-
       .swap-and-ads-grid {
         display: grid;
         grid-template-columns: 1.2fr 1fr;
@@ -474,7 +468,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </nav>
 
     <div class="app-wrapper">
-      <!-- Sponsored Leaderboard (A-ADS) -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
         <div style="width: 100%; margin: auto; position: relative;">
@@ -500,7 +493,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </header>
 
-      <!-- Section 01: Dispatches -->
       <section id="intelligence">
         <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
@@ -558,7 +550,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
-      <!-- Section 02: Dynamic Breakouts Table -->
       <section id="movers">
         <div class="section-label">02 // Monitored Breakouts (Alpha Vantage Feed)</div>
         <div class="table-card">
@@ -614,12 +605,10 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
-      <!-- Section 03: Live Interactive Swap Terminal & Coinzilla Native Card -->
       <section id="terminal" style="margin-bottom: 2.5rem;">
         <div class="section-label">03 // Instant Execution & Liquidity Hub</div>
         <div class="swap-and-ads-grid">
           
-          <!-- Live ChangeNOW Embedded Swap Widget -->
           <div class="card" style="padding: 1rem;">
             <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">
               Instant Non-Custodial Swap Terminal
@@ -632,7 +621,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
             </iframe>
           </div>
 
-          <!-- Coinzilla / Native Sponsored Ad Unit -->
           <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div class="ad-label" style="text-align: left;">High-Yield Sponsored Partner</div>
@@ -641,11 +629,8 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
                 Access tier-1 deep-book crypto futures, low latency routing, and institutional execution spreads with partner rebates.
               </p>
               
-              <!-- Coinzilla / Direct Ad Zone -->
-              <div style="background: var(--bg-surface-elevated); border: 1px dashed var(--border-subtle); border-radius: 6px; height: 180px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem;">
-                <span style="font-size: 0.75rem; color: var(--text-muted);">
-                  [ Sponsored Network Banner Zone // 300x250 ]
-                </span>
+              <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; min-height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                <script is:inline type="text/javascript" src="//cdn.bitmedia.io/bm.js" data-bm-ad="YOUR_BITMEDIA_AD_UNIT_ID"></script>
               </div>
             </div>
 
@@ -657,7 +642,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
-      <!-- Revenue Add-on: Daily Intel Dispatch Subscriptions -->
       <div class="newsletter-box">
         <div>
           <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Daily Momentum Alerts</h3>
@@ -671,7 +655,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </form>
       </div>
 
-      <!-- Section 04: Platforms & Tools -->
       <section id="tools">
         <div class="section-label">04 // Analytical Tools & Liquidity</div>
         <div class="tools-grid">
@@ -712,7 +695,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
-      <!-- Footer -->
       <footer>
         <div class="footer-links">
           <a href="terms">Terms of Service</a>
@@ -725,7 +707,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       </footer>
     </div>
 
-    <!-- Client-Side Search Filter -->
     <script is:inline>
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
