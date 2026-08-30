@@ -1,33 +1,45 @@
 ---
+// short-series/src/layouts/Layout.astro
 interface Props {
-  title: string;
+  title?: string;
   description?: string;
-  pubDate?: string;
+  publishDate?: string | Date;
+  schemaType?: 'FinancialAnalysis' | 'NewsArticle' | 'WebSite';
+  image?: string;
 }
 
 const {
-  title,
-  description = 'Daily automated market analysis and trade setups.',
-  pubDate,
+  title = 'Trade Opportunities | Daily Market Analysis',
+  description = 'Actionable daily market analysis, algorithmic data, and financial trends.',
+  publishDate,
+  schemaType = 'WebSite',
+  image = '/favicon.svg',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://tradeopportunities.trade');
+const absoluteImageURL = new URL(image, Astro.site || 'https://tradeopportunities.trade').toString();
 
-const schema = {
+// Build JSON-LD structured data payload
+const schemaData = {
   '@context': 'https://schema.org',
-  '@type': 'NewsArticle',
-  'headline': title,
-  'description': description,
-  'datePublished': pubDate || new Date().toISOString(),
-  'publisher': {
+  '@type': schemaType,
+  headline: title,
+  description: description,
+  url: canonicalURL.toString(),
+  image: absoluteImageURL,
+  publisher: {
     '@type': 'Organization',
-    'name': 'Trade Opportunities',
-    'url': 'https://tradeopportunities.trade',
+    name: 'Trade Opportunities',
+    url: 'https://tradeopportunities.trade',
+    logo: {
+      '@type': 'ImageObject',
+      url: new URL('/favicon.svg', Astro.site || 'https://tradeopportunities.trade').toString(),
+    },
   },
-  'mainEntityOfPage': {
-    '@type': 'WebPage',
-    '@id': canonicalURL.toString(),
-  },
+  ...(publishDate && {
+    datePublished: new Date(publishDate).toISOString(),
+    dateModified: new Date(publishDate).toISOString(),
+  }),
 };
 ---
 
@@ -36,21 +48,29 @@ const schema = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <link rel="canonical" href={canonicalURL} />
-
     <title>{title}</title>
     <meta name="description" content={description} />
-
-    <!-- Open Graph Metadata -->
-    <meta property="og:type" content="website" />
+    
+    <!-- Canonical & RSS Autodiscovery -->
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" type="application/rss+xml" title="Trade Opportunities RSS Feed" href="/rss.xml" />
+    
+    <!-- Open Graph / Social Tags -->
+    <meta property="og:type" content={schemaType === 'WebSite' ? 'website' : 'article'} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={absoluteImageURL} />
 
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    <!-- Twitter Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteImageURL} />
+
+    <!-- Search Engine JSON-LD Schema Markup -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(schemaData)} />
   </head>
   <body>
     <slot />
