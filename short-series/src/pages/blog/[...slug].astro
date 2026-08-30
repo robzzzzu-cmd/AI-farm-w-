@@ -1,11 +1,12 @@
 ---
+// short-series/src/pages/blog/[...slug].astro
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
-    params: { slug: post.slug || post.id },
+    params: { slug: post.slug },
     props: { post },
   }));
 }
@@ -14,10 +15,17 @@ const { post } = Astro.props;
 const { Content } = await post.render();
 ---
 
-<Layout title={post.data.title || post.id} description={post.data.description} pubDate={post.data.pubDate}>
-  <main style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem; font-family: system-ui, sans-serif;">
-    <a href="/" style="display: inline-block; margin-bottom: 1.5rem; color: #2563eb; text-decoration: none;">← Back to Home</a>
+<Layout
+  title={`${post.data.title} | Trade Opportunities`}
+  description={post.data.description || 'Daily market research and trade setups.'}
+  publishDate={post.data.pubDate || post.data.date}
+  schemaType="FinancialAnalysis"
+>
+  <main class="post-container">
     <article>
+      <h1>{post.data.title}</h1>
+      <p class="date">Published: {new Date(post.data.pubDate || post.data.date).toLocaleDateString()}</p>
+      <hr />
       <Content />
     </article>
   </main>
