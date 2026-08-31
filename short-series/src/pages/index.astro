@@ -248,11 +248,14 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         color: var(--text-muted);
         margin-bottom: 1rem;
       }
+
+      /* Grid Setup */
       .grid-main {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 1.8fr 1.2fr;
         gap: 1.5rem;
         margin-bottom: 2.5rem;
+        align-items: start;
         width: 100%;
       }
 
@@ -264,7 +267,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         box-shadow: var(--card-shadow);
         box-sizing: border-box;
         width: 100%;
-        overflow: hidden;
       }
       .card-meta {
         display: flex;
@@ -290,32 +292,32 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         font-size: 1.2rem;
         font-weight: 700;
         letter-spacing: -0.01em;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.85rem;
         word-break: break-word;
       }
 
-      /* Collapsible Text Container with Fade Overlay */
+      /* Featured Analysis Body with Generous Preview */
       .card-body-wrapper {
         position: relative;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
       }
       .card-body {
-        font-size: 0.875rem;
+        font-size: 0.885rem;
         color: var(--text-secondary);
-        line-height: 1.6;
-        max-height: 160px;
+        line-height: 1.65;
+        max-height: 280px;
         overflow: hidden;
-        transition: max-height 0.35s ease;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .card-body.expanded {
-        max-height: 2000px;
+        max-height: 2500px;
       }
       .card-body-fade {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 60px;
+        height: 70px;
         background: linear-gradient(to bottom, rgba(17, 22, 34, 0) 0%, rgba(17, 22, 34, 1) 100%);
         pointer-events: none;
         transition: opacity 0.2s ease;
@@ -324,34 +326,61 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         opacity: 0;
       }
 
-      /* Clean Markdown Typography */
-      .card-body p { margin-bottom: 0.75rem; }
-      .card-body ul, .card-body ol { padding-left: 1.25rem; margin-bottom: 0.75rem; }
-      .card-body li { margin-bottom: 0.35rem; color: var(--text-secondary); }
-      .card-body strong { color: var(--text-primary); font-weight: 600; }
+      /* Rendered Markdown Typography */
+      .card-body p { margin-bottom: 0.9rem; }
       .card-body a { color: var(--brand-accent); text-decoration: none; font-weight: 600; }
       .card-body a:hover { text-decoration: underline; }
-      .card-body h3, .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 0.85rem 0 0.4rem 0; }
-      .card-body pre, .card-body code { font-family: var(--font-mono); font-size: 0.78rem; background: var(--bg-surface-elevated); padding: 0.15rem 0.35rem; border-radius: 3px; }
+      .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 1.25rem 0 0.5rem 0; }
+      
+      /* Embedded Markdown Tables */
+      .card-body table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        margin: 0.75rem 0 1rem 0;
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .card-body th {
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-muted);
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--border-subtle);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+      }
+      .card-body td {
+        padding: 0.55rem 0.75rem;
+        border-bottom: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+      }
+      .card-body code {
+        font-family: var(--font-mono);
+        color: var(--gain-color);
+      }
 
       .read-more-btn {
-        background: transparent;
+        background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
         color: var(--brand-accent);
         font-size: 0.78rem;
         font-weight: 600;
-        padding: 0.35rem 0.75rem;
+        padding: 0.4rem 0.85rem;
         border-radius: 4px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        margin-bottom: 1rem;
+        gap: 0.4rem;
+        margin: 0.5rem 0 1rem 0;
         transition: all 0.15s ease;
       }
       .read-more-btn:hover {
-        background: var(--bg-surface-elevated);
         border-color: var(--brand-accent);
+        color: #fff;
       }
 
       .card-action-btn {
@@ -364,9 +393,9 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         text-decoration: none;
         font-weight: 600;
         font-size: 0.8125rem;
-        padding: 0.6rem 0.85rem;
+        padding: 0.65rem 0.85rem;
         border-radius: 5px;
-        margin-top: 0.75rem;
+        margin-top: 1rem;
         transition: opacity 0.15s;
         box-sizing: border-box;
       }
@@ -376,7 +405,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         display: flex;
         flex-wrap: wrap;
         gap: 0.4rem;
-        margin-top: 1rem;
+        margin-top: 0.75rem;
         padding-top: 0.75rem;
         border-top: 1px solid var(--border-subtle);
       }
@@ -397,12 +426,20 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
-        padding: 1rem;
+        padding: 1.1rem;
         box-sizing: border-box;
         width: 100%;
       }
-      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; word-break: break-word; }
-      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.25rem; }
+      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.4rem; word-break: break-word; }
+      .stream-body {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        max-height: 120px;
+        overflow: hidden;
+      }
+      .stream-body table { display: none; }
+      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
 
       .table-card {
         background: var(--bg-surface);
@@ -520,7 +557,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         box-sizing: border-box;
       }
 
-      /* Legal & Risk Disclaimer Footer */
+      /* Legal Disclaimer Footer */
       footer {
         border-top: 1px solid var(--border-subtle);
         padding: 2.5rem 0 2rem;
@@ -608,7 +645,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </style>
   </head>
   <body>
-    <!-- Live Automated Ticker Ribbon Component -->
     <MarketTicker />
 
     <nav class="top-nav">
@@ -632,7 +668,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </nav>
 
     <div class="app-wrapper">
-      <!-- Sponsored Leaderboard (A-ADS) -->
+      <!-- Sponsored Leaderboard -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
         <div style="width: 100%; margin: auto; position: relative;">
@@ -658,49 +694,46 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </header>
 
-      <!-- Section 01: Dispatches (Dynamic Markdown with Read More Toggle) -->
+      <!-- Section 01: Dispatches (Narrative Analysis + Expandable Table) -->
       <section id="intelligence">
         <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
           {featuredPost ? (
-            <article class="card dispatch-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-              <div>
-                <div class="card-meta">
-                  <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Equities'}</span>
-                  <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
-                </div>
-                <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
-                
-                <div class="card-body-wrapper">
-                  <div class="card-body" id="featured-content">
-                    <featuredPost.Content />
-                  </div>
-                  <div class="card-body-fade" id="featured-fade"></div>
-                </div>
-
-                <button type="button" class="read-more-btn" id="toggle-read-more">
-                  <span>Read Full Analysis</span> <span>↓</span>
-                </button>
+            <article class="card dispatch-card">
+              <div class="card-meta">
+                <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Equities'}</span>
+                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
               </div>
               
-              <div>
-                {featuredPost.frontmatter.tickers && (
-                  <div class="ticker-tags">
-                    {featuredPost.frontmatter.tickers.map((t: string) => (
-                      <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
-                        ${t}
-                      </a>
-                    ))}
-                  </div>
-                )}
-
-                <a href={featuredPost.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   class="card-action-btn">
-                  {featuredPost.frontmatter.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
-                </a>
+              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
+              
+              <div class="card-body-wrapper">
+                <div class="card-body" id="featured-content">
+                  <featuredPost.Content />
+                </div>
+                <div class="card-body-fade" id="featured-fade"></div>
               </div>
+
+              <button type="button" class="read-more-btn" id="toggle-read-more">
+                <span>Read Full Analysis</span> <span>↓</span>
+              </button>
+
+              {featuredPost.frontmatter.tickers && (
+                <div class="ticker-tags">
+                  {featuredPost.frontmatter.tickers.map((t: string) => (
+                    <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
+                      ${t}
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              <a href={featuredPost.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+                 target="_blank" 
+                 rel="noopener noreferrer" 
+                 class="card-action-btn">
+                {featuredPost.frontmatter.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
+              </a>
             </article>
           ) : (
             <div class="card">
@@ -713,7 +746,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
               <article class="stream-item dispatch-card">
                 <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
                 <h3 class="stream-title">{post.frontmatter.title}</h3>
-                <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem; max-height: 70px; overflow: hidden;">
+                <div class="stream-body">
                   <post.Content />
                 </div>
                 <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
@@ -915,7 +948,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       </div>
     </div>
 
-    <!-- Scripts: Read More Toggle, Search Filter, Resend Form Handler & Cookie Consent -->
+    <!-- Scripts -->
     <script is:inline>
       // Read More Toggle Handler
       (function() {
@@ -923,8 +956,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         const contentBox = document.getElementById('featured-content');
         
         if (toggleBtn && contentBox) {
-          // Hide button if content is naturally very short
-          if (contentBox.scrollHeight <= 170) {
+          if (contentBox.scrollHeight <= 290) {
             toggleBtn.style.display = 'none';
             const fade = document.getElementById('featured-fade');
             if (fade) fade.style.display = 'none';
