@@ -19,28 +19,6 @@ async function fetchWithRetry(url, options = {}, retries = 3, backoffMs = 3000) 
   }
 }
 
-function buildMarkdownTable(title, items) {
-  if (!items || items.length === 0) return '';
-
-  let table = `### ${title}\n\n`;
-  table += `| Ticker | Last Price | 24h Change | Volume | Action |\n`;
-  table += `| :--- | :--- | :--- | :--- | :--- |\n`;
-
-  for (const s of items) {
-    const rawPrice = parseFloat(s.price);
-    const rawChange = parseFloat(s.change_percentage);
-    const price = !isNaN(rawPrice) ? `$${rawPrice.toFixed(2)}` : '$0.00';
-    const sign = rawChange > 0 ? '+' : '';
-    const change = !isNaN(rawChange) ? `${sign}${rawChange.toFixed(2)}%` : '0.00%';
-    const vol = Number(s.volume || 0).toLocaleString();
-    const link = `[Trade ${s.ticker}](https://www.tradingview.com/symbols/${s.ticker}/?aff_id=170147)`;
-
-    table += `| **$${s.ticker}** | ${price} | \`${change}\` | ${vol} | ${link} |\n`;
-  }
-
-  return table + '\n';
-}
-
 async function run() {
   const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
   const llmApiKey = process.env.LLM_API_KEY;
@@ -63,7 +41,7 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    // FILTER: Require at least 50,000 volume to eliminate phantom warrant spikes (e.g., 521 volume)
+    // Require at least 50,000 volume to eliminate phantom warrant spikes (e.g. 521 volume)
     const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
     const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
@@ -77,15 +55,14 @@ OTHER GAINERS: ${topGainers.slice(1).map((s) => `${s.ticker} (+${parseFloat(s.ch
 MOST ACTIVE VOLUME: ${mostActive.slice(0, 3).map((s) => `${s.ticker} (${Number(s.volume).toLocaleString()} vol)`).join(', ')}
     `.trim();
 
-    // STRICT, SHORT PROMPT: Eliminates code blocks, ASCII tables, and multi-page essays
     const systemPrompt = `You are a concise financial momentum analyst.
-Write a punchy, ultra-concise market dispatch under 100 words total.
-DO NOT output code blocks, markdown tables, ASCII tables, or disclaimers.
+Write a punchy, ultra-concise market intelligence dispatch under 90 words total.
+DO NOT output code blocks, markdown tables, ASCII boxes, or disclaimers.
 
 Respond with EXACTLY three short bullet points:
-- **Momentum Overview:** 1 short sentence on overall market breadth and leading volume.
-- **Key Levels for $${leadStock.ticker}:** 1 sentence noting immediate support and resistance.
-- **Risk Takeaway:** 1 short sentence on execution or volatility risk.
+* **Momentum Overview:** 1 short sentence on market breadth and leading volume flow.
+* **Key Levels for $${leadStock.ticker}:** 1 short sentence stating immediate support and resistance pivot levels.
+* **Risk Parameter:** 1 short sentence on execution or volatility risk.
 
 CRITICAL FORMATTING:
 - Every ticker MUST be linked as: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147)`;
@@ -105,8 +82,8 @@ CRITICAL FORMATTING:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 250,
-          temperature: 0.3
+          maxOutputTokens: 200,
+          temperature: 0.2
         }
       })
     });
@@ -130,10 +107,6 @@ CRITICAL FORMATTING:
       fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    const gainersTable = buildMarkdownTable('Top Momentum Gainers', topGainers);
-    const losersTable = buildMarkdownTable('Top Session Decliners', topLosers);
-    const activeTable = buildMarkdownTable('Highest Volume Liquidity Leaders', mostActive);
-
     const allTickers = Array.from(
       new Set([
         ...topGainers.map((s) => s.ticker),
@@ -142,6 +115,7 @@ CRITICAL FORMATTING:
       ])
     );
 
+    // Write ONLY the 3 concise bullet points to the body (Section 02 handles the data table)
     const markdownContent = `---
 title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
 description: "US equity market momentum scan detailing volume expansion in ${leadStock.ticker}, session gainers, decliners, and high-volume leaders."
@@ -165,12 +139,6 @@ active: ${JSON.stringify(mostActive)}
 refUrl: "https://www.tradingview.com/symbols/${leadStock.ticker}/?aff_id=170147"
 refLabel: "Analyze ${leadStock.ticker} on TradingView"
 ---
-
-${gainersTable}
-${losersTable}
-${activeTable}
-
-### Market Intelligence & Key Levels
 
 ${generatedAnalysis}
 `;
