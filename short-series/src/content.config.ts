@@ -1,3 +1,4 @@
+// short-series/src/content.config.ts
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
@@ -5,16 +6,16 @@ const blog = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
+    date: z.coerce.date().optional(),
+    pubDate: z.coerce.date().optional(),
     description: z.string().optional(),
-    pubDate: z.preprocess(
-      (val) => (val instanceof Date || typeof val === 'string' ? new Date(val) : val),
-      z.date()
-    ),
-    updatedDate: z.preprocess(
-      (val) => (val instanceof Date || typeof val === 'string' ? new Date(val) : undefined),
-      z.date().optional()
-    ),
-    heroImage: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    category: z.string().optional(),
+    leadTicker: z.string().optional(),
+    leadGain: z.string().optional(),
+    tickers: z.array(z.string()).optional(),
+    refUrl: z.string().optional(),
+    refLabel: z.string().optional(),
   }),
 });
 
