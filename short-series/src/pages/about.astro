@@ -1,0 +1,183 @@
+---
+// short-series/src/pages/about.astro
+import Layout from '../layouts/Layout.astro';
+
+const aboutSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "Quantitative Methodology & Editorial Standards",
+  "url": "https://tradeopportunities.trade/about",
+  "description": "Algorithmic architecture, volume screening criteria, and quantitative research methodology of Trade Opportunities.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
+---
+
+<Layout 
+  title="Quantitative Methodology & Editorial Standards // Trade Opportunities"
+  description="Algorithmic architecture, volume screening criteria, and quantitative research methodology."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
+  </Fragment>
+
+  <div class="about-container">
+    <header class="about-header">
+      <span class="hub-pill">E-E-A-T & Research Standards</span>
+      <h1>Quantitative Methodology & System Architecture</h1>
+      <p class="subtitle">
+        Documentation of data pipelines, statistical anomaly detection, and algorithmic execution risk protocols.
+      </p>
+    </header>
+
+    <section class="content-block">
+      <h2>1. Algorithmic Screening Architecture</h2>
+      <p>
+        Trade Opportunities deploys automated market surveillance algorithms tracking high-velocity liquidity rotations and abnormal intraday volume expansions across US equities and secondary markets.
+      </p>
+      <div class="spec-grid">
+        <div class="spec-card">
+          <span class="spec-label">Primary Ingestion</span>
+          <span class="spec-val">Alpha Vantage Tier-1 Market API</span>
+        </div>
+        <div class="spec-card">
+          <span class="spec-label">Volume Floor Filter</span>
+          <span class="spec-val">Minimum 50,000 Session Shares</span>
+        </div>
+        <div class="spec-card">
+          <span class="spec-label">Execution Cadence</span>
+          <span class="spec-val">US Open (14:30 UTC) & US Close (21:00 UTC)</span>
+        </div>
+        <div class="spec-card">
+          <span class="spec-label">Chart Validation</span>
+          <span class="spec-val">TradingView Quantitative Workspaces</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-block">
+      <h2>2. Quantitative Anomaly Detection</h2>
+      <p>
+        Market dispatches are programmatically compiled using strict volume-weighted parameters. Assets displaying triple-digit percentage changes without underlying baseline liquidity are algorithmically flagged for high slippage, execution drag, and violent mean-reversion risk.
+      </p>
+      <ul>
+        <li><strong>Liquidity Ranking:</strong> Top gainers are evaluated against active session volume to identify true institutional conviction versus sub-dollar retail illiquidity.</li>
+        <li><strong>Distribution Tracking:</strong> Session decliners and high-volume pullbacks are correlated against leading gainers to highlight macro sector rotation.</li>
+        <li><strong>Risk Disclosures:</strong> Every report is published with strict financial disclaimers and non-fiduciary educational context.</li>
+      </ul>
+    </section>
+
+    <section class="content-block">
+      <h2>3. Editorial Governance & Corrections Policy</h2>
+      <p>
+        Data feeds and API responses are verified for structural integrity before publication. In the event of market data anomalies, stock split discrepancies, or pricing lag from upstream providers, data is automatically re-indexed during the subsequent session crawl.
+      </p>
+      <p>
+        For inquiries regarding our quantitative pipeline or to report data feed anomalies, contact the desk at <code>desk@tradeopportunities.trade</code>.
+      </p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .about-container {
+    max-width: 860px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+  }
+  .about-header {
+    border-bottom: 1px solid #1e2638;
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .hub-pill {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+  }
+  .subtitle {
+    font-size: 1.05rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .content-block {
+    margin-bottom: 2.5rem;
+  }
+  h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.85rem;
+    color: #f1f5f9;
+  }
+  p {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+  }
+  ul {
+    padding-left: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  li {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+  }
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+  .spec-card {
+    background: #111622;
+    border: 1px solid #1e2638;
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .spec-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #64748b;
+    font-family: monospace;
+  }
+  .spec-val {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #38bdf8;
+  }
+  code {
+    font-family: monospace;
+    background: #161d2d;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    color: #38bdf8;
+  }
+</style>
