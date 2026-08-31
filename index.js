@@ -92,7 +92,8 @@ CRITICAL RULES:
 - Every ticker mention MUST be linked as: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147).`;
 
     console.log('2. Generating narrative synthesis with Gemini...');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${llmApiKey}`;
+    // AFTER
+const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
