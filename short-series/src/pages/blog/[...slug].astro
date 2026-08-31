@@ -6,40 +6,60 @@ import Layout from '../../layouts/Layout.astro';
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
-    params: { slug: post.id },
+    params: { slug: post.id.replace(/\.md$/, '') },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+
+// Safely parse date from frontmatter (date, displayDate, or pubDate)
+const rawDate = post.data?.date || post.data?.displayDate || post.data?.pubDate;
+const parsedDate = rawDate ? new Date(rawDate) : null;
+const isValidDate = parsedDate && !isNaN(parsedDate.getTime());
+
+const displayDate = post.data?.displayDate || (isValidDate ? parsedDate.toLocaleDateString('en-US', { dateStyle: 'long' }) : '');
+const isoDateString = isValidDate ? parsedDate.toISOString() : undefined;
 ---
 
-<Layout title={`${post.data.title} | Market Insights`} description={post.data.description}>
+<Layout title={`${post.data?.title || 'Market Update'} | Trade Opportunities`}>
   <article class="article-wrapper">
     <header class="article-header">
-      <time datetime={post.data.pubDate.toISOString()}>
-        {post.data.pubDate.toLocaleDateString('en-US', { dateStyle: 'long' })}
-      </time>
-      <h1>{post.data.title}</h1>
-      {post.data.description && <p class="lead">{post.data.description}</p>}
+      {displayDate && (
+        <time datetime={isoDateString}>{displayDate}</time>
+      )}
+      <h1>{post.data?.title}</h1>
+      {post.data?.category && <span class="pill pill-gain">{post.data.category}</span>}
     </header>
 
     <div class="risk-callout">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-      <span><strong>Important:</strong> Market commentary is algorithmic/informational only. Not financial advice.</span>
+      <span><strong>Notice:</strong> Algorithmic market tracking for informational purposes only. Not financial advice.</span>
     </div>
 
     <div class="article-body">
       <Content />
     </div>
 
+    {post.data?.tickers && (
+      <div class="ticker-tags">
+        {post.data.tickers.map((t: string) => (
+          <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
+            ${t}
+          </a>
+        ))}
+      </div>
+    )}
+
+    {post.data?.refUrl && (
+      <a href={post.data.refUrl} target="_blank" rel="noopener noreferrer" class="card-action-btn">
+        {post.data.refLabel || "Access Liquidity Terminal"} &rarr;
+      </a>
+    )}
+
     <footer class="article-footer-disclaimer">
       <p>
-        <strong>Risk Disclosure:</strong> Securities trading and algorithmic strategies carry substantial financial risk of loss. Past market behavior does not guarantee future results. Perform your own due diligence before executing any trades.
+        <strong>Risk Disclosure:</strong> Securities, equities, and crypto trading involve substantial financial risk. Past results are not indicative of future performance.
       </p>
     </footer>
   </article>
@@ -52,23 +72,28 @@ const { Content } = await render(post);
     padding: 0 1.5rem;
   }
   .article-header time {
+    display: block;
     font-size: 0.85rem;
     color: #64748b;
+    margin-bottom: 0.5rem;
   }
   .article-header h1 {
     font-size: 2rem;
-    margin: 0.5rem 0 0.75rem 0;
+    margin: 0 0 0.75rem 0;
     line-height: 1.25;
   }
-  .lead {
-    font-size: 1.15rem;
-    color: #94a3b8;
-    line-height: 1.5;
+  .pill {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    margin-bottom: 1rem;
   }
   .risk-callout {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
     background: rgba(245, 158, 11, 0.08);
     border: 1px solid rgba(245, 158, 11, 0.3);
     color: #fbbf24;
@@ -80,13 +105,46 @@ const { Content } = await render(post);
   .article-body {
     line-height: 1.7;
     color: #cbd5e1;
-    font-size: 1.05rem;
+    font-size: 1rem;
+  }
+  .ticker-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #1e2638;
+  }
+  .ticker-pill {
+    font-family: monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3b82f6;
+    background: #161d2d;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    border: 1px solid #1e2638;
+    text-decoration: none;
+  }
+  .card-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background: #3b82f6;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.65rem 1rem;
+    border-radius: 5px;
+    margin-top: 1.5rem;
   }
   .article-footer-disclaimer {
     margin-top: 3rem;
     padding: 1rem;
     border-left: 3px solid #64748b;
-    background: #0f172a;
+    background: #111622;
     font-size: 0.8rem;
     color: #94a3b8;
   }
