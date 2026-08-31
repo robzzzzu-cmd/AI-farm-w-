@@ -18,9 +18,6 @@ interface MarkdownPost {
     category?: string;
     leadTicker?: string;
     leadGain?: string;
-    overview?: string;
-    keyLevels?: string;
-    risk?: string;
     tickers?: string[];
     gainers?: StockItem[];
     losers?: StockItem[];
@@ -28,6 +25,7 @@ interface MarkdownPost {
     refUrl?: string;
     refLabel?: string;
   };
+  Content: any;
 }
 
 const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
@@ -98,6 +96,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         max-width: 1240px;
         margin: 0 auto;
         padding: 0 1.25rem;
+        box-sizing: border-box;
       }
 
       /* Navigation */
@@ -168,6 +167,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border-radius: 6px;
         outline: none;
         width: 180px;
+        box-sizing: border-box;
       }
       .search-input:focus { border-color: var(--brand-accent); }
 
@@ -183,6 +183,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         text-align: center;
         padding: 0.75rem;
         width: 100%;
+        box-sizing: border-box;
         overflow: hidden;
       }
       .ad-label {
@@ -208,6 +209,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         font-weight: 800;
         letter-spacing: -0.02em;
         margin-bottom: 0.25rem;
+        word-break: break-word;
       }
       .hero-left p { font-size: 0.9rem; color: var(--text-secondary); }
       
@@ -260,7 +262,9 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border-radius: 6px;
         padding: 1.35rem;
         box-shadow: var(--card-shadow);
+        box-sizing: border-box;
         width: 100%;
+        overflow: hidden;
       }
       .card-meta {
         display: flex;
@@ -283,40 +287,71 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .pill-gain { background: var(--gain-bg); color: var(--gain-color); border-color: transparent; }
       
       .card-title {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         font-weight: 700;
         letter-spacing: -0.01em;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
+        word-break: break-word;
       }
 
-      /* Intel Breakdown Modules */
-      .intel-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 0.85rem;
-        margin-bottom: 1.25rem;
+      /* Collapsible Text Container with Fade Overlay */
+      .card-body-wrapper {
+        position: relative;
+        margin-bottom: 0.75rem;
       }
-      .intel-row {
-        background: var(--bg-surface-elevated);
-        border: 1px solid var(--border-subtle);
-        border-radius: 6px;
-        padding: 0.75rem 0.85rem;
-      }
-      .intel-header {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.7rem;
-        font-family: var(--font-mono);
-        font-weight: 700;
-        text-transform: uppercase;
-        color: var(--brand-accent);
-        margin-bottom: 0.3rem;
-      }
-      .intel-text {
-        font-size: 0.85rem;
+      .card-body {
+        font-size: 0.875rem;
         color: var(--text-secondary);
-        line-height: 1.45;
+        line-height: 1.6;
+        max-height: 160px;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+      .card-body.expanded {
+        max-height: 2000px;
+      }
+      .card-body-fade {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(to bottom, rgba(17, 22, 34, 0) 0%, rgba(17, 22, 34, 1) 100%);
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .card-body.expanded + .card-body-fade {
+        opacity: 0;
+      }
+
+      /* Clean Markdown Typography */
+      .card-body p { margin-bottom: 0.75rem; }
+      .card-body ul, .card-body ol { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+      .card-body li { margin-bottom: 0.35rem; color: var(--text-secondary); }
+      .card-body strong { color: var(--text-primary); font-weight: 600; }
+      .card-body a { color: var(--brand-accent); text-decoration: none; font-weight: 600; }
+      .card-body a:hover { text-decoration: underline; }
+      .card-body h3, .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 0.85rem 0 0.4rem 0; }
+      .card-body pre, .card-body code { font-family: var(--font-mono); font-size: 0.78rem; background: var(--bg-surface-elevated); padding: 0.15rem 0.35rem; border-radius: 3px; }
+
+      .read-more-btn {
+        background: transparent;
+        border: 1px solid var(--border-subtle);
+        color: var(--brand-accent);
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+        transition: all 0.15s ease;
+      }
+      .read-more-btn:hover {
+        background: var(--bg-surface-elevated);
+        border-color: var(--brand-accent);
       }
 
       .card-action-btn {
@@ -333,6 +368,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border-radius: 5px;
         margin-top: 0.75rem;
         transition: opacity 0.15s;
+        box-sizing: border-box;
       }
       .card-action-btn:hover { opacity: 0.9; }
 
@@ -362,10 +398,10 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
         padding: 1rem;
+        box-sizing: border-box;
         width: 100%;
       }
-      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; }
-      .stream-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 0.65rem; }
+      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; word-break: break-word; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.25rem; }
 
       .table-card {
@@ -373,8 +409,10 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         margin-bottom: 2.5rem;
         width: 100%;
+        box-sizing: border-box;
       }
       .data-table {
         width: 100%;
@@ -426,6 +464,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        box-sizing: border-box;
         width: 100%;
       }
       .tool-badge {
@@ -449,6 +488,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border: 1px solid var(--border-subtle);
         padding: 0.45rem 0.75rem;
         border-radius: 4px;
+        box-sizing: border-box;
       }
       .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
 
@@ -462,6 +502,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         justify-content: space-between;
         align-items: center;
         gap: 1.5rem;
+        box-sizing: border-box;
         width: 100%;
       }
       .newsletter-input-group {
@@ -476,9 +517,10 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         padding: 0.5rem 0.75rem;
         border-radius: 4px;
         outline: none;
+        box-sizing: border-box;
       }
 
-      /* Legal Footer */
+      /* Legal & Risk Disclaimer Footer */
       footer {
         border-top: 1px solid var(--border-subtle);
         padding: 2.5rem 0 2rem;
@@ -494,6 +536,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         padding: 1rem;
         margin-bottom: 1.5rem;
         line-height: 1.6;
+        box-sizing: border-box;
       }
       .disclosure-box strong { color: var(--text-primary); }
       .footer-meta {
@@ -510,6 +553,39 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       }
       .footer-links a { color: var(--text-secondary); text-decoration: none; }
       .footer-links a:hover { color: var(--text-primary); }
+
+      /* Cookie Banner */
+      .cookie-banner {
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        max-width: 500px;
+        margin: 0 auto;
+        background: #0b0e14;
+        border: 1px solid #1e2638;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        z-index: 9999;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        box-sizing: border-box;
+      }
+      .cookie-banner.hidden { display: none; }
+      .cookie-content { display: flex; flex-direction: column; gap: 0.75rem; }
+      .cookie-content p { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; }
+      .cookie-content a { color: var(--brand-accent); text-decoration: underline; }
+      .cookie-actions { display: flex; gap: 0.5rem; }
+      .cookie-btn {
+        padding: 0.4rem 0.85rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: opacity 0.2s;
+      }
+      .cookie-btn.accept { background: var(--brand-accent); color: #fff; }
+      .cookie-btn.decline { background: var(--bg-surface-elevated); color: var(--text-secondary); }
 
       @media (max-width: 860px) {
         .grid-main, .swap-and-ads-grid { grid-template-columns: 1fr; }
@@ -532,6 +608,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </style>
   </head>
   <body>
+    <!-- Live Automated Ticker Ribbon Component -->
     <MarketTicker />
 
     <nav class="top-nav">
@@ -555,6 +632,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </nav>
 
     <div class="app-wrapper">
+      <!-- Sponsored Leaderboard (A-ADS) -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
         <div style="width: 100%; margin: auto; position: relative;">
@@ -580,7 +658,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </header>
 
-      <!-- Section 01: Dispatches (Structured UI Elements) -->
+      <!-- Section 01: Dispatches (Dynamic Markdown with Read More Toggle) -->
       <section id="intelligence">
         <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
@@ -593,26 +671,16 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
                 </div>
                 <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
                 
-                <div class="intel-stack">
-                  {featuredPost.frontmatter.overview && (
-                    <div class="intel-row">
-                      <div class="intel-header">✦ Momentum Catalyst</div>
-                      <p class="intel-text">{featuredPost.frontmatter.overview}</p>
-                    </div>
-                  )}
-                  {featuredPost.frontmatter.keyLevels && (
-                    <div class="intel-row">
-                      <div class="intel-header">✦ Key Support & Resistance</div>
-                      <p class="intel-text">{featuredPost.frontmatter.keyLevels}</p>
-                    </div>
-                  )}
-                  {featuredPost.frontmatter.risk && (
-                    <div class="intel-row">
-                      <div class="intel-header">✦ Risk Parameter</div>
-                      <p class="intel-text">{featuredPost.frontmatter.risk}</p>
-                    </div>
-                  )}
+                <div class="card-body-wrapper">
+                  <div class="card-body" id="featured-content">
+                    <featuredPost.Content />
+                  </div>
+                  <div class="card-body-fade" id="featured-fade"></div>
                 </div>
+
+                <button type="button" class="read-more-btn" id="toggle-read-more">
+                  <span>Read Full Analysis</span> <span>↓</span>
+                </button>
               </div>
               
               <div>
@@ -645,13 +713,13 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
               <article class="stream-item dispatch-card">
                 <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
                 <h3 class="stream-title">{post.frontmatter.title}</h3>
-                <p class="stream-desc">
-                  {post.frontmatter.overview || post.frontmatter.description}
-                </p>
+                <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem; max-height: 70px; overflow: hidden;">
+                  <post.Content />
+                </div>
                 <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                    target="_blank" 
                    rel="noopener noreferrer" 
-                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none;">
+                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
                   {post.frontmatter.refLabel || "View Chart"} &rarr;
                 </a>
               </article>
@@ -835,5 +903,108 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </footer>
     </div>
+
+    <!-- Cookie Consent Banner Component -->
+    <div id="cookie-banner" class="cookie-banner hidden">
+      <div class="cookie-content">
+        <p>We use cookies to analyze traffic, manage affiliate referrals, and maintain market synchronization. Read our <a href="/privacy">Privacy Policy</a>.</p>
+        <div class="cookie-actions">
+          <button id="accept-cookies" class="cookie-btn accept">Accept All</button>
+          <button id="decline-cookies" class="cookie-btn decline">Essential Only</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts: Read More Toggle, Search Filter, Resend Form Handler & Cookie Consent -->
+    <script is:inline>
+      // Read More Toggle Handler
+      (function() {
+        const toggleBtn = document.getElementById('toggle-read-more');
+        const contentBox = document.getElementById('featured-content');
+        
+        if (toggleBtn && contentBox) {
+          // Hide button if content is naturally very short
+          if (contentBox.scrollHeight <= 170) {
+            toggleBtn.style.display = 'none';
+            const fade = document.getElementById('featured-fade');
+            if (fade) fade.style.display = 'none';
+          }
+
+          toggleBtn.addEventListener('click', () => {
+            const isExpanded = contentBox.classList.toggle('expanded');
+            toggleBtn.innerHTML = isExpanded 
+              ? '<span>Show Less</span> <span>↑</span>' 
+              : '<span>Read Full Analysis</span> <span>↓</span>';
+          });
+        }
+      })();
+
+      // Cookie Consent Handler
+      (function () {
+        const banner = document.getElementById('cookie-banner');
+        const acceptBtn = document.getElementById('accept-cookies');
+        const declineBtn = document.getElementById('decline-cookies');
+
+        if (!localStorage.getItem('cookie_consent')) {
+          banner?.classList.remove('hidden');
+        }
+
+        acceptBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'accepted');
+          banner?.classList.add('hidden');
+        });
+
+        declineBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'declined');
+          banner?.classList.add('hidden');
+        });
+      })();
+
+      // Search Filter
+      const filterInput = document.getElementById('filter-input');
+      if (filterInput) {
+        filterInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase();
+          const cards = document.querySelectorAll('.dispatch-card');
+          cards.forEach((card) => {
+            const text = card.innerText.toLowerCase();
+            card.style.display = text.includes(query) ? '' : 'none';
+          });
+        });
+      }
+
+      // Newsletter Form Handler
+      const subscribeForm = document.getElementById('resend-subscribe-form');
+      const subscribeBtn = document.getElementById('subscribe-btn');
+      if (subscribeForm && subscribeBtn) {
+        subscribeForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const emailInput = document.getElementById('subscriber-email');
+          if (!emailInput) return;
+
+          subscribeBtn.disabled = true;
+          subscribeBtn.textContent = 'Subscribing...';
+
+          try {
+            const res = await fetch('/api/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: emailInput.value })
+            });
+
+            if (res.ok) {
+              subscribeBtn.textContent = 'Subscribed!';
+              emailInput.value = '';
+            } else {
+              subscribeBtn.textContent = 'Try Again';
+              subscribeBtn.disabled = false;
+            }
+          } catch (err) {
+            subscribeBtn.textContent = 'Error';
+            subscribeBtn.disabled = false;
+          }
+        });
+      }
+    </script>
   </body>
 </html>
