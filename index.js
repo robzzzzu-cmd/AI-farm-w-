@@ -121,7 +121,7 @@ CRITICAL RULES:
 - Return ONLY the news text.`;
 
     console.log('2. Generating news dispatch with Gemini...');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
