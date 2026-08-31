@@ -42,15 +42,12 @@ function buildCompactTable(title, items) {
 }
 
 function sanitizeAndLinkify(text, tickers) {
-  // Prevent raw < and > from breaking HTML rendering
   let cleaned = text
     .replace(/<(?![a-zA-Z/])/g, '&lt;')
     .replace(/(?<![a-zA-Z/])>/g, '&gt;');
 
-  // Sort tickers longest-first to prevent partial string replacement ($SWVLW before $SWVL)
   const sorted = [...tickers].sort((a, b) => b.length - a.length);
 
-  // Linkify every $TICKER into a TradingView affiliate markdown link
   for (const t of sorted) {
     const regex = new RegExp(`(?<!\\[)\\$${t}\\b(?!\\])`, 'g');
     cleaned = cleaned.replace(
