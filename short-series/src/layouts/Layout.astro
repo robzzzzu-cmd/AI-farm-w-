@@ -14,7 +14,7 @@ const { title, description = "Automated financial insights and quantitative mark
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -38,6 +38,17 @@ const { title, description = "Automated financial insights and quantitative mark
       <slot />
     </main>
 
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner hidden">
+      <div class="cookie-content">
+        <p>We use cookies to ensure proper analytics, security, and market feed synchronization. Review our <a href="/privacy">Privacy Policy</a>.</p>
+        <div class="cookie-actions">
+          <button id="accept-cookies" class="cookie-btn accept">Accept All</button>
+          <button id="decline-cookies" class="cookie-btn decline">Essential Only</button>
+        </div>
+      </div>
+    </div>
+
     <footer class="site-footer">
       <div class="footer-container">
         <div class="footer-disclosure">
@@ -59,6 +70,28 @@ const { title, description = "Automated financial insights and quantitative mark
         </div>
       </div>
     </footer>
+
+    <script is:inline>
+      (function () {
+        const banner = document.getElementById('cookie-banner');
+        const acceptBtn = document.getElementById('accept-cookies');
+        const declineBtn = document.getElementById('decline-cookies');
+
+        if (!localStorage.getItem('cookie_consent')) {
+          banner?.classList.remove('hidden');
+        }
+
+        acceptBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'accepted');
+          banner?.classList.add('hidden');
+        });
+
+        declineBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'declined');
+          banner?.classList.add('hidden');
+        });
+      })();
+    </script>
   </body>
 </html>
 
@@ -70,22 +103,34 @@ const { title, description = "Automated financial insights and quantitative mark
     --border-color: #1e293b;
     --accent: #38bdf8;
   }
-  body {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-text-size-adjust: 100%;
   }
   main {
     flex: 1;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
   .site-header {
     border-bottom: 1px solid var(--border-color);
     background: rgba(2, 6, 23, 0.85);
     backdrop-filter: blur(8px);
+    width: 100%;
   }
   .nav-container {
     max-width: 1100px;
@@ -93,7 +138,7 @@ const { title, description = "Automated financial insights and quantitative mark
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.25rem;
   }
   .brand-logo {
     font-weight: 800;
@@ -108,6 +153,7 @@ const { title, description = "Automated financial insights and quantitative mark
   .nav-links {
     display: flex;
     gap: 1.5rem;
+    flex-wrap: wrap;
   }
   .nav-links a {
     color: var(--text-muted);
@@ -121,12 +167,14 @@ const { title, description = "Automated financial insights and quantitative mark
   .site-footer {
     border-top: 1px solid var(--border-color);
     background: #090d16;
-    padding: 2.5rem 1.5rem;
+    padding: 2.5rem 1.25rem;
     margin-top: 3rem;
+    width: 100%;
   }
   .footer-container {
     max-width: 1100px;
     margin: 0 auto;
+    width: 100%;
   }
   .footer-disclosure {
     background: #020617;
@@ -162,6 +210,7 @@ const { title, description = "Automated financial insights and quantitative mark
     display: flex;
     gap: 0.6rem;
     align-items: center;
+    flex-wrap: wrap;
   }
   .legal-links a {
     color: #64748b;
@@ -169,5 +218,74 @@ const { title, description = "Automated financial insights and quantitative mark
   }
   .legal-links a:hover {
     color: var(--text-primary);
+  }
+
+  /* Cookie Consent Banner Styling */
+  .cookie-banner {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+    background: #0b0e14;
+    border: 1px solid #1e2638;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    z-index: 9999;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  }
+  .cookie-banner.hidden {
+    display: none;
+  }
+  .cookie-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .cookie-content p {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin: 0;
+  }
+  .cookie-content a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .cookie-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .cookie-btn {
+    padding: 0.4rem 0.85rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s;
+  }
+  .cookie-btn.accept {
+    background: #2563eb;
+    color: #fff;
+  }
+  .cookie-btn.decline {
+    background: #1e2638;
+    color: #94a3b8;
+  }
+  .cookie-btn:hover {
+    opacity: 0.9;
+  }
+
+  @media (max-width: 640px) {
+    .nav-container {
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .nav-links {
+      gap: 1rem;
+    }
   }
 </style>
