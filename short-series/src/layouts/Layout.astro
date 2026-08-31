@@ -1,13 +1,24 @@
 ---
-// src/layouts/Layout.astro
+// short-series/src/layouts/Layout.astro
 import MarketTicker from '../components/MarketTicker.astro';
 
 interface Props {
   title: string;
   description?: string;
+  canonicalURL?: string;
+  image?: string;
+  articleDate?: string;
 }
 
-const { title, description = "Automated financial insights and quantitative market analysis." } = Astro.props;
+const { 
+  title, 
+  description = "Automated financial insights and quantitative market analysis.",
+  canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://tradeopportunities.trade').href,
+  image = "https://tradeopportunities.trade/favicon.svg",
+  articleDate
+} = Astro.props;
+
+const siteUrl = Astro.site ? Astro.site.href.replace(/\/$/, '') : 'https://tradeopportunities.trade';
 ---
 
 <!doctype html>
@@ -16,18 +27,40 @@ const { title, description = "Automated financial insights and quantitative mark
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <!-- Primary SEO Meta -->
     <title>{title}</title>
+    <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={articleDate ? "article" : "website"} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+    {articleDate && <meta property="article:published_time" content={articleDate} />}
+
+    <!-- Twitter Cards -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={image} />
+
+    <!-- Additional Head Elements (JSON-LD Schemas) -->
+    <slot name="head" />
   </head>
   <body>
     <MarketTicker />
     
     <header class="site-header">
       <nav class="nav-container">
-        <a href="/" class="brand-logo">AI FARM<span>.MARKETS</span></a>
+        <a href="/" class="brand-logo">TRADE<span>.OPPORTUNITIES</span></a>
         <div class="nav-links">
           <a href="/">Home</a>
-          <a href="/category/market-analysis">Analysis</a>
+          <a href="/category/equities">Equities</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
         </div>
@@ -59,7 +92,7 @@ const { title, description = "Automated financial insights and quantitative mark
         </div>
 
         <div class="footer-meta">
-          <p>&copy; {new Date().getFullYear()} AI Farm. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Trade Opportunities. All rights reserved.</p>
           <div class="legal-links">
             <a href="/privacy">Privacy Policy</a>
             <span>&bull;</span>
