@@ -18,7 +18,16 @@ async function fetchWithRetry(url, options = {}, retries = 3, backoffMs = 3000) 
   }
 }
 
-function buildMarkdownTable(title, items, isGainers = false) {
+function markdownToEmailHtml(text) {
+  return text
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #2563eb; font-weight: 600; text-decoration: none;">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color: #0f172a;">$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/\n\n/g, '</p><p style="margin: 0 0 14px 0; font-size: 14.5px; line-height: 1.65; color: #334155;">')
+    .replace(/\n/g, '<br/>');
+}
+
+function buildMarkdownTable(title, items) {
   if (!items || items.length === 0) return '';
 
   let table = `### ${title}\n\n`;
@@ -125,9 +134,9 @@ CRITICAL FORMATTING INSTRUCTION:
       fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    const gainersTable = buildMarkdownTable('Top Momentum Gainers', topGainers, true);
-    const losersTable = buildMarkdownTable('Top Session Decliners', topLosers, false);
-    const activeTable = buildMarkdownTable('Highest Volume Liquidity Leaders', mostActive, false);
+    const gainersTable = buildMarkdownTable('Top Momentum Gainers', topGainers);
+    const losersTable = buildMarkdownTable('Top Session Decliners', topLosers);
+    const activeTable = buildMarkdownTable('Highest Volume Liquidity Leaders', mostActive);
 
     const allTickers = Array.from(
       new Set([
@@ -189,6 +198,8 @@ ${generatedAnalysis}
       if (!audienceId) {
         console.warn('No Resend audience found. Email broadcast skipped.');
       } else {
+        const emailFormattedBody = markdownToEmailHtml(generatedAnalysis);
+
         const broadcastRes = await fetch('https://api.resend.com/broadcasts', {
           method: 'POST',
           headers: {
@@ -200,20 +211,34 @@ ${generatedAnalysis}
             from: 'Trade Opportunities <intel@tradeopportunities.trade>',
             subject: `Market Momentum: ${leadStock.ticker} (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`,
             html: `
-              <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #0f172a; padding: 20px;">
-                <h2 style="font-size: 18px; margin-bottom: 12px; color: #1e293b;">Market Intelligence Brief (${displayTime})</h2>
-                <div style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 24px;">
-                  ${generatedAnalysis.replace(/\n/g, '<br/>')}
+              <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #0f172a; padding: 24px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <div style="border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
+                  <span style="font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">Quantitative Market Intelligence</span>
+                  <h2 style="font-size: 20px; margin: 4px 0 0; color: #0f172a;">${leadStock.ticker} Momentum Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)</h2>
+                  <span style="font-size: 12px; color: #64748b;">${date} &bull; ${displayTime}</span>
                 </div>
-                <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-bottom: 16px;">
-                  <a href="https://tradeopportunities.trade" style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 4px;">
-                    Open Live Terminal &rarr;
+
+                <div style="margin-bottom: 24px;">
+                  <p style="margin: 0 0 14px 0; font-size: 14.5px; line-height: 1.65; color: #334155;">
+                    ${emailFormattedBody}
+                  </p>
+                </div>
+
+                <div style="margin-bottom: 24px; text-align: center;">
+                  <a href="https://tradeopportunities.trade" style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 5px;">
+                    Open Live Terminal & View Full Scan &rarr;
                   </a>
                 </div>
-                <p style="font-size: 11px; color: #94a3b8;">
-                  You received this because you subscribed on tradeopportunities.trade.<br/>
-                  <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color: #64748b;">Unsubscribe</a>
-                </p>
+
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 24px; font-size: 11px; line-height: 1.5; color: #94a3b8;">
+                  <p style="margin: 0 0 8px 0;">
+                    <strong>Financial Disclaimer:</strong> Market commentary is generated algorithmically for informational and educational purposes only. Nothing herein constitutes investment, legal, or tax advice. Equities and digital assets carry risk of capital loss.
+                  </p>
+                  <p style="margin: 0;">
+                    You received this dispatch because you subscribed at <a href="https://tradeopportunities.trade" style="color: #64748b;">tradeopportunities.trade</a>.<br/>
+                    <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color: #64748b; text-decoration: underline;">Unsubscribe from alerts</a>
+                  </p>
+                </div>
               </div>
             `,
             send: true
