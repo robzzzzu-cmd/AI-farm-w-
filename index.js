@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -42,7 +43,7 @@ function buildCompactTable(title, items) {
 }
 
 function sanitizeAndLinkify(text, tickers) {
-  // 1. Unconditionally escape ALL angle brackets to prevent HTML tag collisions
+  // 1. Convert all angle brackets to HTML entities
   let cleaned = text
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
@@ -102,22 +103,22 @@ TOP DECLINERS (Distribution & Pullbacks):
 ${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
     `.trim();
 
-    const systemPrompt = `You are a financial news journalist and equity market strategist for Trade Opportunities.
-Write a sharp, institutional-grade market dispatch (strictly between 6 to 9 continuous sentences) analyzing today's high-momentum breakouts and order flow.
+    const systemPrompt = `You are an institutional financial news journalist for Trade Opportunities.
+Write a detailed 6 to 9 sentence equity market news report analyzing today's momentum breakouts and liquidity rotation.
 
-Key elements to integrate across the sentences:
-1. Lead with the top breakout ($${leadStock.ticker}), citing its percentage surge and massive volume.
-2. Highlight secondary rotation across other top gainers in the list.
-3. Discuss retail float turnover, institutional order routing, and liquidity surges in sub-dollar equities.
-4. Compare this action with the volume leaders and decliners.
-5. Close with disciplined execution risks, spread friction, and mean-reversion pullbacks as volume exhausts.
+Key requirements to cover:
+1. Lead with the top gainer ($${leadStock.ticker}), explaining its percentage surge and huge volume.
+2. Discuss secondary momentum across the other top gainers.
+3. Analyze retail speculative interest, order routing, and liquidity flow in sub-dollar equities.
+4. Compare the breakout action to the active volume leaders and decliners.
+5. Emphasize trade execution risks, spread slippage, and mean-reversion pullbacks as session volume exhausts.
 
-STRICT FORMATTING RULES:
-- Write continuous, flowing analytical prose (strictly 6 to 9 sentences).
-- DO NOT use markdown headings (#, ##, ####), subheadings, bullet points, or lists.
-- Mention tickers using standard dollar tags (e.g., $${leadStock.ticker}). Do NOT output markdown links or URLs.
-- Do NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
-- Return ONLY the article text. No intro, no closing remarks.`;
+CRITICAL RULES:
+- Write exactly 6 to 9 continuous, highly informative sentences.
+- DO NOT use markdown headings (#, ##, ####), subheadings, or bullet points.
+- Refer to every ticker using standard dollar notation (e.g., $${leadStock.ticker}). DO NOT write markdown links or URLs.
+- DO NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
+- Return ONLY the news text.`;
 
     console.log('2. Generating news dispatch with Gemini...');
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
@@ -134,7 +135,7 @@ STRICT FORMATTING RULES:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 1500,
+          maxOutputTokens: 2000,
           temperature: 0.25
         }
       })
@@ -153,7 +154,11 @@ STRICT FORMATTING RULES:
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
 
     const fileName = `market-update-${timestamp}.md`;
-    const folderPath = './short-series/src/content/blog';
+    
+    // Path resolution: supports running from root or inside short-series/
+    const folderPath = fs.existsSync('./src/content/blog')
+      ? './src/content/blog'
+      : './short-series/src/content/blog';
 
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
@@ -193,8 +198,8 @@ ${generatedAnalysis}
 ${compactTable}
 `;
 
-    fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
-    console.log(`Saved structured markdown: ${fileName}`);
+    fs.writeFileSync(path.join(folderPath, fileName), markdownContent);
+    console.log(`Saved structured markdown: ${fileName} into ${folderPath}`);
   } catch (error) {
     console.error('Pipeline execution error:', error.message);
     process.exit(1);
