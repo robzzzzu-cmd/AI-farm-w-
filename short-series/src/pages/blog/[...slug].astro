@@ -38,7 +38,6 @@ const currentSlug = post.id.replace(/\.md$/, '');
 const relatedPosts = allPosts
   .filter((p) => p.id.replace(/\.md$/, '') !== currentSlug)
   .sort((a, b) => {
-    // Check ticker overlap
     const aTickers = a.data?.tickers || [];
     const bTickers = b.data?.tickers || [];
     const currentTickers = post.data?.tickers || [];
@@ -68,7 +67,7 @@ const newsArticleSchema = {
   "author": {
     "@type": "Organization",
     "name": "Trade Opportunities Intelligence Desk",
-    "url": "https://tradeopportunities.trade"
+    "url": "https://tradeopportunities.trade/about"
   },
   "publisher": {
     "@type": "Organization",
@@ -98,13 +97,18 @@ const newsArticleSchema = {
         <time datetime={isoPubDate}>{displayDate}</time>
       )}
       <h1>{post.data?.title}</h1>
-      <a href={`/category/${categorySlug}`} class="pill pill-gain" title={`View all ${postCategory} updates`}>
-        {postCategory} Hub &rarr;
-      </a>
+      <div class="header-badges">
+        <a href={`/category/${categorySlug}`} class="pill pill-gain" title={`View all ${postCategory} updates`}>
+          {postCategory} Hub &rarr;
+        </a>
+        <a href="/about" class="pill pill-methodology">
+          Audited Model &rarr;
+        </a>
+      </div>
     </header>
 
     <div class="risk-callout">
-      <span><strong>Notice:</strong> Algorithmic market tracking for informational purposes only. Not financial advice.</span>
+      <span><strong>Notice:</strong> Algorithmic market tracking for informational purposes only. Sourced via Alpha Vantage & TradingView. Not financial advice.</span>
     </div>
 
     <div class="article-body">
@@ -126,6 +130,22 @@ const newsArticleSchema = {
         {post.data.refLabel || "Access Liquidity Terminal"} &rarr;
       </a>
     )}
+
+    <!-- E-E-A-T Model Attribution Card -->
+    <div class="eeat-box">
+      <div class="eeat-header">
+        <span class="eeat-badge">Verified Model</span>
+        <span class="eeat-title">Quantitative Model Architecture</span>
+      </div>
+      <p class="eeat-desc">
+        This dispatch was compiled programmatically via the <strong>Trade Opportunities Anomaly Engine</strong> utilizing tier-1 data ingestion from Alpha Vantage and verified against a 50,000 share minimum session liquidity filter. Review our complete <a href="/about">Quantitative Methodology & Verification Guidelines</a>.
+      </p>
+      <div class="eeat-sources">
+        <span>Primary Verification Sources:</span>
+        <a href="https://www.sec.gov/edgar/searchedgar/companysearch" target="_blank" rel="noopener noreferrer">SEC EDGAR ↗</a>
+        <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer">TradingView Feeds ↗</a>
+      </div>
+    </div>
 
     <!-- Internal Linking: Related Opportunities Hub -->
     {relatedPosts.length > 0 && (
@@ -172,6 +192,12 @@ const newsArticleSchema = {
     margin: 0 0 0.75rem 0;
     line-height: 1.25;
   }
+  .header-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
   .pill {
     display: inline-block;
     font-size: 0.6875rem;
@@ -179,14 +205,20 @@ const newsArticleSchema = {
     text-transform: uppercase;
     padding: 0.2rem 0.6rem;
     border-radius: 4px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .pill-gain {
     background: rgba(34, 197, 94, 0.1);
     color: #22c55e;
-    margin-bottom: 1rem;
-    text-decoration: none;
-    transition: background 0.2s;
+  }
+  .pill-methodology {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.2);
   }
   .pill:hover {
-    background: rgba(34, 197, 94, 0.2);
+    opacity: 0.85;
   }
   .risk-callout {
     background: rgba(245, 158, 11, 0.08);
@@ -234,6 +266,59 @@ const newsArticleSchema = {
     padding: 0.65rem 1rem;
     border-radius: 5px;
     margin-top: 1.5rem;
+  }
+  .eeat-box {
+    margin-top: 2rem;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 1.15rem;
+  }
+  .eeat-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .eeat-badge {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: #1e293b;
+    color: #38bdf8;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+  }
+  .eeat-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+  .eeat-desc {
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0 0 0.75rem 0;
+  }
+  .eeat-desc a {
+    color: #38bdf8;
+    text-decoration: underline;
+  }
+  .eeat-sources {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .eeat-sources a {
+    color: #94a3b8;
+    text-decoration: none;
+  }
+  .eeat-sources a:hover {
+    color: #f1f5f9;
+    text-decoration: underline;
   }
   .related-intel-section {
     margin-top: 2.5rem;
