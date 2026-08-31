@@ -43,15 +43,12 @@ function buildCompactTable(title, items) {
 }
 
 function sanitizeAndLinkify(text, tickers) {
-  // 1. Convert all angle brackets to HTML entities
   let cleaned = text
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
 
-  // 2. Sort tickers longest-first to prevent partial string matches
   const sorted = [...tickers].sort((a, b) => b.length - a.length);
 
-  // 3. Linkify every $TICKER into a TradingView affiliate link
   for (const t of sorted) {
     const regex = new RegExp(`(?<!\\[)\\$${t}\\b(?!\\])`, 'g');
     cleaned = cleaned.replace(
@@ -68,7 +65,7 @@ async function run() {
   const llmApiKey = process.env.LLM_API_KEY;
 
   if (!alphaVantageKey || !llmApiKey) {
-    console.error('Missing required API keys. Verify ALPHA_VANTAGE_API_KEY and LLM_API_KEY.');
+    console.error('Missing required API keys.');
     process.exit(1);
   }
 
@@ -78,7 +75,7 @@ async function run() {
     const marketData = await fetchWithRetry(avUrl);
 
     if (marketData.Note || marketData.Information) {
-      throw new Error(`Alpha Vantage API rate-limited: ${marketData.Note || marketData.Information}`);
+      throw new Error(`Alpha Vantage rate-limited: ${marketData.Note || marketData.Information}`);
     }
 
     if (!marketData.top_gainers || marketData.top_gainers.length === 0) {
@@ -106,22 +103,22 @@ ${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(
     const systemPrompt = `You are an institutional financial news journalist for Trade Opportunities.
 Write a detailed 6 to 9 sentence equity market news report analyzing today's momentum breakouts and liquidity rotation.
 
-Key requirements to cover:
-1. Lead with the top gainer ($${leadStock.ticker}), explaining its percentage surge and huge volume.
+Key requirements:
+1. Lead with the top gainer ($${leadStock.ticker}), explaining its percentage surge and volume.
 2. Discuss secondary momentum across the other top gainers.
 3. Analyze retail speculative interest, order routing, and liquidity flow in sub-dollar equities.
-4. Compare the breakout action to the active volume leaders and decliners.
+4. Compare breakout action to active volume leaders and decliners.
 5. Emphasize trade execution risks, spread slippage, and mean-reversion pullbacks as session volume exhausts.
 
 CRITICAL RULES:
-- Write exactly 6 to 9 continuous, highly informative sentences.
-- DO NOT use markdown headings (#, ##, ####), subheadings, or bullet points.
+- Write strictly 6 to 9 continuous, complete sentences.
+- DO NOT use markdown headings (#, ##), subheadings, or bullet points.
 - Refer to every ticker using standard dollar notation (e.g., $${leadStock.ticker}). DO NOT write markdown links or URLs.
 - DO NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
 - Return ONLY the news text.`;
 
-    console.log('2. Generating news dispatch with Gemini...');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key=${llmApiKey}`;
+    console.log('2. Generating complete news dispatch with Gemini...');
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
@@ -155,7 +152,6 @@ CRITICAL RULES:
 
     const fileName = `market-update-${timestamp}.md`;
     
-    // Path resolution: supports running from root or inside short-series/
     const folderPath = fs.existsSync('./src/content/blog')
       ? './src/content/blog'
       : './short-series/src/content/blog';
