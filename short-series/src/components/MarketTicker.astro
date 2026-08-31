@@ -8,55 +8,13 @@
     <span class="session-text" id="market-session">SYNCING...</span>
   </div>
 
-  <div class="tradingview-widget-container">
+  <div class="tradingview-widget-container" id="tv-ticker-tape-container">
     <div class="tradingview-widget-container__widget"></div>
-    <script is:inline type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-    {
-      "symbols": [
-        {
-          "proName": "FOREXCOM:SPXUSD",
-          "title": "S&P 500"
-        },
-        {
-          "proName": "FOREXCOM:NSXUSD",
-          "title": "US 100 (NASDAQ)"
-        },
-        {
-          "proName": "FOREXCOM:DJI",
-          "title": "Dow 30"
-        },
-        {
-          "proName": "INDEX:FTSE",
-          "title": "FTSE 100"
-        },
-        {
-          "proName": "INDEX:DAX",
-          "title": "DAX 40"
-        },
-        {
-          "proName": "INDEX:NKY",
-          "title": "Nikkei 225"
-        },
-        {
-          "proName": "BINANCE:BTCUSDT",
-          "title": "BTC/USDT"
-        },
-        {
-          "proName": "BINANCE:ETHUSDT",
-          "title": "ETH/USDT"
-        }
-      ],
-      "showSymbolLogo": true,
-      "isTransparent": true,
-      "displayMode": "adaptive",
-      "colorTheme": "dark",
-      "locale": "en"
-    }
-    </script>
   </div>
 </div>
 
 <script is:inline>
+  // 1. Update Market Session Status
   function updateSession() {
     const now = new Date();
     const utcHour = now.getUTCHours();
@@ -74,6 +32,36 @@
     }
   }
   updateSession();
+
+  // 2. Safely Inject TradingView Ticker Tape Widget
+  (function initTradingViewTicker() {
+    const container = document.getElementById('tv-ticker-tape-container');
+    if (!container) return;
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      "symbols": [
+        { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" },
+        { "proName": "FOREXCOM:NSXUSD", "title": "US 100 (NASDAQ)" },
+        { "proName": "FOREXCOM:DJI", "title": "Dow 30" },
+        { "proName": "INDEX:FTSE", "title": "FTSE 100" },
+        { "proName": "INDEX:DAX", "title": "DAX 40" },
+        { "proName": "INDEX:NKY", "title": "Nikkei 225" },
+        { "proName": "BINANCE:BTCUSDT", "title": "BTC/USDT" },
+        { "proName": "BINANCE:ETHUSDT", "title": "ETH/USDT" }
+      ],
+      "showSymbolLogo": true,
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "en"
+    });
+
+    container.appendChild(script);
+  })();
 </script>
 
 <style>
