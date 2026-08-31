@@ -17,8 +17,6 @@ const {
   image = "https://tradeopportunities.trade/favicon.svg",
   articleDate
 } = Astro.props;
-
-const siteUrl = Astro.site ? Astro.site.href.replace(/\/$/, '') : 'https://tradeopportunities.trade';
 ---
 
 <!doctype html>
@@ -59,8 +57,9 @@ const siteUrl = Astro.site ? Astro.site.href.replace(/\/$/, '') : 'https://trade
       <nav class="nav-container">
         <a href="/" class="brand-logo">TRADE<span>.OPPORTUNITIES</span></a>
         <div class="nav-links">
-          <a href="/">Home</a>
+          <a href="/">Terminal</a>
           <a href="/category/equities">Equities</a>
+          <a href="/about">Methodology</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
         </div>
@@ -94,6 +93,8 @@ const siteUrl = Astro.site ? Astro.site.href.replace(/\/$/, '') : 'https://trade
         <div class="footer-meta">
           <p>&copy; {new Date().getFullYear()} Trade Opportunities. All rights reserved.</p>
           <div class="legal-links">
+            <a href="/about">Methodology & E-E-A-T</a>
+            <span>&bull;</span>
             <a href="/privacy">Privacy Policy</a>
             <span>&bull;</span>
             <a href="/terms">Terms of Service</a>
