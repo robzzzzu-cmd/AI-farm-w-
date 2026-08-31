@@ -1,5 +1,5 @@
 ---
-// short-series/src/pages/blog/[...slug].astro
+// src/pages/blog/[...slug].astro
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 
@@ -15,18 +15,79 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<Layout
-  title={`${post.data.title} | Trade Opportunities`}
-  description={post.data.description || 'Daily market research and trade setups.'}
-  publishDate={post.data.pubDate || post.data.date}
-  schemaType="FinancialAnalysis"
->
-  <main class="post-container">
-    <article>
+<Layout title={`${post.data.title} | Market Insights`} description={post.data.description}>
+  <article class="article-wrapper">
+    <header class="article-header">
+      <time datetime={post.data.pubDate.toISOString()}>
+        {post.data.pubDate.toLocaleDateString('en-US', { dateStyle: 'long' })}
+      </time>
       <h1>{post.data.title}</h1>
-      <p class="date">Published: {new Date(post.data.pubDate || post.data.date).toLocaleDateString()}</p>
-      <hr />
+      {post.data.description && <p class="lead">{post.data.description}</p>}
+    </header>
+
+    <div class="risk-callout">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <span><strong>Important:</strong> Market commentary is algorithmic/informational only. Not financial advice.</span>
+    </div>
+
+    <div class="article-body">
       <Content />
-    </article>
-  </main>
+    </div>
+
+    <footer class="article-footer-disclaimer">
+      <p>
+        <strong>Risk Disclosure:</strong> Securities trading and algorithmic strategies carry substantial financial risk of loss. Past market behavior does not guarantee future results. Perform your own due diligence before executing any trades.
+      </p>
+    </footer>
+  </article>
 </Layout>
+
+<style>
+  .article-wrapper {
+    max-width: 760px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+  }
+  .article-header time {
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+  .article-header h1 {
+    font-size: 2rem;
+    margin: 0.5rem 0 0.75rem 0;
+    line-height: 1.25;
+  }
+  .lead {
+    font-size: 1.15rem;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+  .risk-callout {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin: 1.5rem 0;
+  }
+  .article-body {
+    line-height: 1.7;
+    color: #cbd5e1;
+    font-size: 1.05rem;
+  }
+  .article-footer-disclaimer {
+    margin-top: 3rem;
+    padding: 1rem;
+    border-left: 3px solid #64748b;
+    background: #0f172a;
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+</style>
