@@ -91,7 +91,7 @@ CRITICAL FORMATTING INSTRUCTION:
 - Maintain an institutional, data-driven tone. Avoid filler buzzwords, robotic meta-announcements, and disclaimers.`;
 
     console.log('2. Generating quantitative synthesis with Gemini...');
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${llmApiKey}`;
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
