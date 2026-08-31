@@ -112,7 +112,7 @@ STRICT INSTRUCTIONS:
 - Mention tickers with standard dollar tags (e.g., $FNGR, $CHAI). Do NOT write markdown links or URLs.`;
 
     console.log('2. Generating narrative synthesis with Gemini...');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${llmApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
