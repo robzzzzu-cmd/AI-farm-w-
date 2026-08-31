@@ -42,6 +42,24 @@ const secondaryPosts = posts.slice(1, 5);
 
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
+
+const canonicalURL = "https://tradeopportunities.trade/";
+const pageTitle = "Trade Opportunities // Financial Intelligence & Market Signals";
+const pageDescription = "Automated quantitative tracking of high-momentum equity breakouts, technical chart setups, and volume divergences.";
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Trade Opportunities",
+  "url": canonicalURL,
+  "description": pageDescription,
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": canonicalURL,
+    "logo": "https://tradeopportunities.trade/favicon.svg"
+  }
+};
 ---
 
 <!DOCTYPE html>
@@ -49,9 +67,19 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonicalURL} />
     <meta name="bitmedia-site-verification" content="07522f1ef9d6b60ae5363fe10b37f8c5" />
-    
+
+    <!-- Open Graph & Social Cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:image" content="https://tradeopportunities.trade/favicon.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
     <!-- High-Visibility Dynamic Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
     <link rel="alternate icon" href="/favicon.svg?v=2" />
@@ -59,6 +87,9 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Structured Data Schema for Bing & Google -->
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 
     <style is:inline>
       :root {
@@ -993,7 +1024,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         
         let targetTable = bodyContainer ? bodyContainer.querySelector('table') : null;
 
-        // If markdown has no table, display the fallback table from frontmatter
         if (!targetTable && fallbackWrapper) {
           fallbackWrapper.style.display = 'block';
           targetTable = fallbackWrapper.querySelector('table');
