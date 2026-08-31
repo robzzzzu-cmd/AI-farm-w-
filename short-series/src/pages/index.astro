@@ -1,6 +1,4 @@
 ---
-
-
 interface StockItem {
   ticker: string;
   price: string;
@@ -39,6 +37,14 @@ const secondaryPosts = posts.slice(1, 5);
 
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
+
+const majorIndices = [
+  { symbol: "S&P 500", val: "5,648.40", chg: "+0.42%", up: true },
+  { symbol: "NASDAQ", val: "17,713.62", chg: "+0.88%", up: true },
+  { symbol: "DOW", val: "41,563.08", chg: "-0.15%", up: false },
+  { symbol: "BTC/USD", val: "$63,820", chg: "+1.95%", up: true },
+  { symbol: "ETH/USD", val: "$2,740", chg: "+2.40%", up: true }
+];
 ---
 
 <!DOCTYPE html>
@@ -47,6 +53,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
+    <meta name="bitmedia-site-verification" content="07522f1ef9d6b60ae5363fe10b37f8c5" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,6 +94,51 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         padding: 0 1.25rem;
       }
 
+      /* Ticker Ribbon */
+      .ticker-ribbon {
+        background: #070a0f;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.75rem;
+        padding: 0.35rem 0;
+      }
+      .ticker-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .ticker-inner::-webkit-scrollbar { display: none; }
+      .session-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        white-space: nowrap;
+        padding-right: 1rem;
+        border-right: 1px solid var(--border-subtle);
+      }
+      .pulse-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--gain-color);
+        border-radius: 50%;
+        box-shadow: 0 0 6px var(--gain-color);
+      }
+      .indices-list {
+        display: flex;
+        gap: 1.25rem;
+        white-space: nowrap;
+        font-family: var(--font-mono);
+      }
+      .indices-item {
+        display: flex;
+        gap: 0.35rem;
+      }
+
+      /* Navigation */
       .top-nav {
         position: sticky;
         top: 0;
@@ -274,9 +326,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         text-decoration: none;
         font-weight: 600;
       }
-      .card-body a:hover {
-        text-decoration: underline;
-      }
+      .card-body a:hover { text-decoration: underline; }
       .card-action-btn {
         display: inline-flex;
         align-items: center;
@@ -426,16 +476,33 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         outline: none;
       }
 
+      /* Legal & Risk Disclaimer Footer */
       footer {
         border-top: 1px solid var(--border-subtle);
-        padding: 2rem 0;
+        padding: 2.5rem 0 2rem;
         font-size: 0.78125rem;
         color: var(--text-muted);
+      }
+      .disclosure-box {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-left: 3px solid var(--brand-accent);
+        border-radius: 4px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+      }
+      .disclosure-box strong { color: var(--text-primary); }
+      .footer-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
       .footer-links {
         display: flex;
         gap: 1.25rem;
-        margin-bottom: 0.75rem;
       }
       .footer-links a { color: var(--text-secondary); text-decoration: none; }
       .footer-links a:hover { color: var(--text-primary); }
@@ -449,10 +516,31 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </style>
   </head>
   <body>
+    <!-- Live Market Ticker Ribbon -->
+    <div class="ticker-ribbon">
+      <div class="app-wrapper ticker-inner">
+        <div class="session-indicator">
+          <div class="pulse-dot"></div>
+          <span id="market-session-status">MARKET SESSION ACTIVE</span>
+        </div>
+        <div class="indices-list">
+          {majorIndices.map(idx => (
+            <div class="indices-item">
+              <span style="color: var(--text-primary);">{idx.symbol}</span>
+              <span>{idx.val}</span>
+              <span style={`color: ${idx.up ? 'var(--gain-color)' : 'var(--loss-color)'};`}>
+                {idx.chg}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
     <nav class="top-nav">
       <div class="app-wrapper nav-inner">
         <div class="brand-group">
-          <a href="#" class="logo">
+          <a href="/" class="logo">
             <span class="logo-glyph"></span>
             TRADE OPPORTUNITIES
           </a>
@@ -470,6 +558,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </nav>
 
     <div class="app-wrapper">
+      <!-- Sponsored Leaderboard (A-ADS) -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
         <div style="width: 100%; margin: auto; position: relative;">
@@ -495,6 +584,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </header>
 
+      <!-- Section 01: Dispatches (Dynamic Markdown Content) -->
       <section id="intelligence">
         <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
@@ -552,6 +642,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
+      <!-- Section 02: Real Live Stock Percentages & Breakouts Table -->
       <section id="movers">
         <div class="section-label">02 // Monitored Breakouts (Alpha Vantage Feed)</div>
         <div class="table-card">
@@ -607,6 +698,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
+      <!-- Section 03: Live Interactive Swap Terminal & Coinzilla Native Card -->
       <section id="terminal" style="margin-bottom: 2.5rem;">
         <div class="section-label">03 // Instant Execution & Liquidity Hub</div>
         <div class="swap-and-ads-grid">
@@ -644,6 +736,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
+      <!-- Revenue Add-on: Daily Intel Dispatch Subscriptions -->
       <div class="newsletter-box">
         <div>
           <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Daily Momentum Alerts</h3>
@@ -657,6 +750,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </form>
       </div>
 
+      <!-- Section 04: Analytical Tools -->
       <section id="tools">
         <div class="section-label">04 // Analytical Tools & Liquidity</div>
         <div class="tools-grid">
@@ -697,18 +791,26 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </section>
 
+      <!-- Footer With Regulatory & Risk Disclaimers -->
       <footer>
-        <div class="footer-links">
-          <a href="terms">Terms of Service</a>
-          <a href="privacy">Privacy Policy</a>
+        <div class="disclosure-box">
+          <p>
+            <strong>Financial Risk & Regulatory Notice:</strong> The quantitative data, momentum scores, algorithmic breakout alerts, and market dispatches presented on Trade Opportunities are generated automatically and published strictly for informational and educational purposes. <strong>Nothing on this site constitutes financial, investment, legal, or tax advice.</strong> Trading equities, cryptocurrencies, options, and derivatives entails a high risk of capital loss. Historical price trends and momentum metrics are not indicative of future market performance. Always conduct independent due diligence.
+          </p>
         </div>
-        <div>&copy; 2026 Trade Opportunities. All rights reserved.</div>
-        <p style="margin-top: 0.5rem; font-size: 0.725rem;">
-          Market information is synthesized algorithmically for informational purposes only and does not constitute investment or financial advice. Trade Opportunities participates in affiliate programs and may earn commissions through featured links.
-        </p>
+
+        <div class="footer-meta">
+          <div class="footer-links">
+            <a href="/terms">Terms of Service</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/rss.xml">RSS Feed</a>
+          </div>
+          <div>&copy; 2026 Trade Opportunities. All rights reserved. Affiliate links may generate referral commissions.</div>
+        </div>
       </footer>
     </div>
 
+    <!-- Live Client-Side Search Filter & Session Clock -->
     <script is:inline>
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
@@ -721,6 +823,22 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
           });
         });
       }
+
+      function updateSessionIndicator() {
+        const statusEl = document.getElementById('market-session-status');
+        if (!statusEl) return;
+        const hour = new Date().getUTCHours();
+        if (hour >= 13 && hour < 21) {
+          statusEl.textContent = "US SESSION ACTIVE (NYSE / NASDAQ)";
+        } else if (hour >= 7 && hour < 15) {
+          statusEl.textContent = "EUROPEAN SESSION ACTIVE (LSE / DAX)";
+        } else if (hour >= 0 && hour < 8) {
+          statusEl.textContent = "ASIAN SESSION ACTIVE (TSE / HKEX)";
+        } else {
+          statusEl.textContent = "GLOBAL MARKETS CLOSED // OFF-HOURS SCAN";
+        }
+      }
+      updateSessionIndicator();
     </script>
   </body>
 </html>
