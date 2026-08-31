@@ -1,3 +1,4 @@
+// short-series/src/content.config.ts
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
@@ -16,10 +17,12 @@ const blog = defineCollection({
     description: z.string().optional(),
     date: z.coerce.date().optional(),
     pubDate: z.coerce.date().optional(),
+    updatedDate: z.coerce.date().optional(),
     displayDate: z.string().optional(),
     category: z.string().optional(),
     categories: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
+    image: z.string().optional(),
     leadTicker: z.string().optional(),
     leadGain: z.string().optional(),
     tickers: z.array(z.string()).default([]),
@@ -34,6 +37,7 @@ const blog = defineCollection({
       ...data,
       date: data.date || fallbackDate,
       pubDate: data.pubDate || fallbackDate,
+      updatedDate: data.updatedDate || fallbackDate,
     };
   })
 });
