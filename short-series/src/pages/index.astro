@@ -45,7 +45,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
     <meta name="bitmedia-site-verification" content="07522f1ef9d6b60ae5363fe10b37f8c5" />
     
@@ -73,19 +73,29 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
       }
 
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
+      *, *::before, *::after { 
+        box-sizing: border-box; 
+        margin: 0; 
+        padding: 0; 
+      }
+      html, body {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
         font-family: var(--font-sans);
         background-color: var(--bg-page);
         color: var(--text-primary);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
+        -webkit-text-size-adjust: 100%;
       }
 
       .app-wrapper {
+        width: 100%;
         max-width: 1240px;
         margin: 0 auto;
         padding: 0 1.25rem;
+        box-sizing: border-box;
       }
 
       /* Navigation */
@@ -95,17 +105,21 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         z-index: 100;
         background: var(--bg-page);
         border-bottom: 1px solid var(--border-subtle);
+        width: 100%;
       }
       .nav-inner {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        height: 58px;
+        min-height: 58px;
+        flex-wrap: wrap;
+        gap: 0.75rem;
       }
       .brand-group {
         display: flex;
         align-items: center;
         gap: 2rem;
+        flex-shrink: 0;
       }
       .logo {
         display: flex;
@@ -116,12 +130,14 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         letter-spacing: -0.02em;
         text-decoration: none;
         color: var(--text-primary);
+        white-space: nowrap;
       }
       .logo-glyph {
         width: 14px;
         height: 14px;
         background: var(--brand-accent);
         border-radius: 3px;
+        flex-shrink: 0;
       }
       .nav-links {
         display: flex;
@@ -150,6 +166,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border-radius: 6px;
         outline: none;
         width: 180px;
+        box-sizing: border-box;
       }
       .search-input:focus { border-color: var(--brand-accent); }
 
@@ -164,6 +181,9 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         justify-content: center;
         text-align: center;
         padding: 0.75rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
       }
       .ad-label {
         font-size: 0.625rem;
@@ -181,12 +201,14 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         align-items: flex-end;
         border-bottom: 1px solid var(--border-subtle);
         margin-bottom: 2rem;
+        gap: 1rem;
       }
       .hero-left h1 {
         font-size: 1.65rem;
         font-weight: 800;
         letter-spacing: -0.02em;
         margin-bottom: 0.25rem;
+        word-break: break-word;
       }
       .hero-left p { font-size: 0.9rem; color: var(--text-secondary); }
       
@@ -203,6 +225,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border: 1px solid var(--border-subtle);
         padding: 0.3rem 0.65rem;
         border-radius: 4px;
+        white-space: nowrap;
       }
       .scanning-dot {
         width: 7px;
@@ -229,6 +252,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         grid-template-columns: 2fr 1fr;
         gap: 1.5rem;
         margin-bottom: 2.5rem;
+        width: 100%;
       }
 
       .card {
@@ -237,6 +261,9 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border-radius: 6px;
         padding: 1.35rem;
         box-shadow: var(--card-shadow);
+        box-sizing: border-box;
+        width: 100%;
+        overflow: hidden;
       }
       .card-meta {
         display: flex;
@@ -264,12 +291,14 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         font-weight: 700;
         letter-spacing: -0.01em;
         margin-bottom: 0.65rem;
+        word-break: break-word;
       }
       .card-body {
         font-size: 0.9rem;
         color: var(--text-secondary);
         line-height: 1.55;
         margin-bottom: 1.25rem;
+        word-break: break-word;
       }
       .card-body a {
         color: var(--brand-accent);
@@ -291,6 +320,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border-radius: 5px;
         margin-top: 0.75rem;
         transition: opacity 0.15s;
+        box-sizing: border-box;
       }
       .card-action-btn:hover { opacity: 0.9; }
 
@@ -314,14 +344,16 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         text-decoration: none;
       }
 
-      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; }
+      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
       .stream-item {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
         padding: 0.9rem 1rem;
+        box-sizing: border-box;
+        width: 100%;
       }
-      .stream-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+      .stream-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; word-break: break-word; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); }
 
       .table-card {
@@ -329,10 +361,14 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         margin-bottom: 2.5rem;
+        width: 100%;
+        box-sizing: border-box;
       }
       .data-table {
         width: 100%;
+        min-width: 540px;
         border-collapse: collapse;
         font-size: 0.8125rem;
         text-align: left;
@@ -345,11 +381,13 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         text-transform: uppercase;
         padding: 0.65rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
+        white-space: nowrap;
       }
       .data-table td {
         padding: 0.75rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
+        white-space: nowrap;
       }
       .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
@@ -360,6 +398,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         grid-template-columns: 1.2fr 1fr;
         gap: 1.5rem;
         margin-bottom: 2.5rem;
+        width: 100%;
       }
 
       .tools-grid {
@@ -367,6 +406,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1rem;
         margin-bottom: 3.5rem;
+        width: 100%;
       }
       .tool-card {
         background: var(--bg-surface);
@@ -376,6 +416,8 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        box-sizing: border-box;
+        width: 100%;
       }
       .tool-badge {
         font-size: 0.6875rem;
@@ -398,6 +440,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border: 1px solid var(--border-subtle);
         padding: 0.45rem 0.75rem;
         border-radius: 4px;
+        box-sizing: border-box;
       }
       .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
 
@@ -411,6 +454,8 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         justify-content: space-between;
         align-items: center;
         gap: 1.5rem;
+        box-sizing: border-box;
+        width: 100%;
       }
       .newsletter-input-group {
         display: flex;
@@ -424,6 +469,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         padding: 0.5rem 0.75rem;
         border-radius: 4px;
         outline: none;
+        box-sizing: border-box;
       }
 
       /* Legal & Risk Disclaimer Footer */
@@ -432,6 +478,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         padding: 2.5rem 0 2rem;
         font-size: 0.78125rem;
         color: var(--text-muted);
+        width: 100%;
       }
       .disclosure-box {
         background: var(--bg-surface);
@@ -441,6 +488,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         padding: 1rem;
         margin-bottom: 1.5rem;
         line-height: 1.6;
+        box-sizing: border-box;
       }
       .disclosure-box strong { color: var(--text-primary); }
       .footer-meta {
@@ -453,15 +501,106 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .footer-links {
         display: flex;
         gap: 1.25rem;
+        flex-wrap: wrap;
       }
       .footer-links a { color: var(--text-secondary); text-decoration: none; }
       .footer-links a:hover { color: var(--text-primary); }
 
+      /* Global Cookie Banner */
+      .cookie-banner {
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        max-width: 500px;
+        margin: 0 auto;
+        background: #0b0e14;
+        border: 1px solid #1e2638;
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        z-index: 9999;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        box-sizing: border-box;
+      }
+      .cookie-banner.hidden {
+        display: none;
+      }
+      .cookie-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .cookie-content p {
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+      .cookie-content a {
+        color: var(--brand-accent);
+        text-decoration: underline;
+      }
+      .cookie-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .cookie-btn {
+        padding: 0.4rem 0.85rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: opacity 0.2s;
+      }
+      .cookie-btn.accept {
+        background: var(--brand-accent);
+        color: #fff;
+      }
+      .cookie-btn.decline {
+        background: var(--bg-surface-elevated);
+        color: var(--text-secondary);
+      }
+
+      /* Responsive Adaptations for iPhone 12 Mini & Small Devices */
       @media (max-width: 860px) {
         .grid-main, .swap-and-ads-grid { grid-template-columns: 1fr; }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
         .newsletter-box { flex-direction: column; align-items: flex-start; }
+      }
+
+      @media (max-width: 560px) {
+        .app-wrapper {
+          padding: 0 0.85rem;
+        }
+        .nav-inner {
+          flex-direction: column;
+          align-items: stretch;
+          padding: 0.6rem 0;
+        }
+        .brand-group {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .nav-actions {
+          width: 100%;
+        }
+        .search-input {
+          width: 100%;
+        }
+        .newsletter-box {
+          padding: 1.15rem;
+        }
+        .newsletter-input-group {
+          flex-direction: column;
+          width: 100%;
+        }
+        .newsletter-input, #subscribe-btn {
+          width: 100%;
+        }
+        .card {
+          padding: 1rem;
+        }
       }
     </style>
   </head>
@@ -642,7 +781,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
             <iframe
               id="changenow-widget"
               src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=111622&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=3b82f6&to=eth"
-              style="height: 356px; width: 100%; border: none; border-radius: 6px;"
+              style="height: 356px; width: 100%; max-width: 100%; border: none; border-radius: 6px;"
               loading="lazy">
             </iframe>
           </div>
@@ -655,7 +794,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
                 Access tier-1 deep-book crypto futures, low latency routing, and institutional execution spreads with partner rebates.
               </p>
               
-              <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; min-height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; min-height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; width: 100%;">
                 <script is:inline type="text/javascript" src="//cdn.bitmedia.io/bm.js" data-bm-ad="YOUR_BITMEDIA_AD_UNIT_ID"></script>
               </div>
             </div>
@@ -754,8 +893,41 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       </footer>
     </div>
 
-    <!-- Live Client-Side Search Filter & Resend Form Handler -->
+    <!-- Cookie Consent Banner Component -->
+    <div id="cookie-banner" class="cookie-banner hidden">
+      <div class="cookie-content">
+        <p>We use cookies to analyze traffic, manage affiliate referrals, and maintain market synchronization. Read our <a href="/privacy">Privacy Policy</a>.</p>
+        <div class="cookie-actions">
+          <button id="accept-cookies" class="cookie-btn accept">Accept All</button>
+          <button id="decline-cookies" class="cookie-btn decline">Essential Only</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Client-Side Search Filter, Resend Form Handler & Cookie Consent Script -->
     <script is:inline>
+      // Cookie Consent Handler
+      (function () {
+        const banner = document.getElementById('cookie-banner');
+        const acceptBtn = document.getElementById('accept-cookies');
+        const declineBtn = document.getElementById('decline-cookies');
+
+        if (!localStorage.getItem('cookie_consent')) {
+          banner?.classList.remove('hidden');
+        }
+
+        acceptBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'accepted');
+          banner?.classList.add('hidden');
+        });
+
+        declineBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'declined');
+          banner?.classList.add('hidden');
+        });
+      })();
+
+      // Search Filter
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -768,6 +940,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         });
       }
 
+      // Newsletter Form Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
