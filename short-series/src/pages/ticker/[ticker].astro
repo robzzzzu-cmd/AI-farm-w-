@@ -1,0 +1,439 @@
+---
+// short-series/src/pages/ticker/[ticker].astro
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog');
+  const tickerMap = new Map();
+
+  for (const post of allPosts) {
+    const mentioned = new Set([
+      ...(post.data?.tickers || []),
+      ...(post.data?.leadTicker ? [post.data.leadTicker] : []),
+      ...(post.data?.gainers?.map((g: any) => g.ticker) || []),
+      ...(post.data?.losers?.map((l: any) => l.ticker) || []),
+      ...(post.data?.active?.map((a: any) => a.ticker) || []),
+    ]);
+
+    for (const rawTicker of mentioned) {
+      if (!rawTicker || typeof rawTicker !== 'string') continue;
+      const cleanTicker = rawTicker.trim().toUpperCase().replace(/^\$/, '');
+      if (!cleanTicker) continue;
+
+      if (!tickerMap.has(cleanTicker)) {
+        tickerMap.set(cleanTicker, {
+          ticker: cleanTicker,
+          posts: [],
+          latestStats: null,
+        });
+      }
+
+      const entry = tickerMap.get(cleanTicker);
+      entry.posts.push(post);
+
+      if (!entry.latestStats) {
+        const foundItem = 
+          post.data?.gainers?.find((g: any) => g.ticker.toUpperCase() === cleanTicker) ||
+          post.data?.losers?.find((l: any) => l.ticker.toUpperCase() === cleanTicker) ||
+          post.data?.active?.find((a: any) => a.ticker.toUpperCase() === cleanTicker);
+
+        if (foundItem) {
+          entry.latestStats = foundItem;
+        }
+      }
+    }
+  }
+
+  return Array.from(tickerMap.entries()).map(([ticker, data]) => {
+    const sortedPosts = data.posts.sort((a: any, b: any) => {
+      const dateA = new Date(a.data?.pubDate || a.data?.date || 0).getTime();
+      const dateB = new Date(b.data?.pubDate || b.data?.date || 0).getTime();
+      return dateB - dateA;
+    });
+
+    return {
+      params: { ticker: ticker.toLowerCase() },
+      props: {
+        ticker,
+        posts: sortedPosts,
+        latestStats: data.latestStats
+      }
+    };
+  });
+}
+
+const { ticker, posts, latestStats } = Astro.props;
+
+const canonicalURL = new URL(`/ticker/${ticker.toLowerCase()}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
+const tvSymbolUrl = `https://www.tradingview.com/symbols/${ticker}/?aff_id=170147`;
+const latestPost = posts[0];
+const totalMentions = posts.length;
+
+const tickerSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemPage",
+  "name": `$${ticker} Stock Momentum & Liquidity Scan Hub`,
+  "description": `Quantitative breakout analysis, trading volume metrics, and algorithmic intelligence reports for $${ticker}.`,
+  "url": canonicalURL,
+  "mainEntity": {
+    "@type": "FinancialProduct",
+    "name": `$${ticker} Equity Asset`,
+    "tickerSymbol": ticker
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade"
+  }
+};
+---
+
+<Layout 
+  title={`$${ticker} Stock Breakout Analysis & Technical Profile | Trade Opportunities`}
+  description={`Quantitative tracking, volume distributions, and historical momentum intelligence scans for $${ticker}.`}
+  canonicalURL={canonicalURL}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(tickerSchema)} />
+  </Fragment>
+
+  <div class="ticker-page-wrapper">
+    <!-- Breadcrumb & Header -->
+    <header class="ticker-header">
+      <div class="breadcrumb">
+        <a href="/">Terminal</a> &rsaquo; 
+        <a href="/category/equities">Equities</a> &rsaquo; 
+        <span>${ticker}</span>
+      </div>
+
+      <div class="header-main">
+        <div class="header-left">
+          <div class="symbol-badge">${ticker}</div>
+          <div>
+            <h1>${ticker} Breakout Profile</h1>
+            <p class="header-sub">Tracked across {totalMentions} quantitative market scan(s)</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <a href={tvSymbolUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+            Trade ${ticker} on TradingView ↗
+          </a>
+          <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            Execute Spot Swap ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Ribbon -->
+      {latestStats && (
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="m-label">Last Observed Price</span>
+            <span class="m-value">${parseFloat(latestStats.price).toFixed(2)}</span>
+          </div>
+          <div class="metric-card">
+            <span class="m-label">Intraday Delta</span>
+            <span class={`m-value ${parseFloat(latestStats.change_percentage) >= 0 ? 'text-gain' : 'text-loss'}`}>
+              {parseFloat(latestStats.change_percentage) > 0 ? '+' : ''}{parseFloat(latestStats.change_percentage).toFixed(2)}%
+            </span>
+          </div>
+          <div class="metric-card">
+            <span class="m-label">Monitored Session Volume</span>
+            <span class="m-value">{Number(latestStats.volume || 0).toLocaleString()}</span>
+          </div>
+          <div class="metric-card">
+            <span class="m-label">Model Verification</span>
+            <span class="m-value text-accent">&gt; 50k Volume Floor</span>
+          </div>
+        </div>
+      )}
+    </header>
+
+    <!-- Embedded Live TradingView Chart Widget -->
+    <section class="chart-section">
+      <h2 class="section-heading">01 // Multi-Timeframe Technical Workspace</h2>
+      <div class="tv-embed-box">
+        <div class="tradingview-widget-container" style="height: 480px; width: 100%;">
+          <div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async is:inline set:html={JSON.stringify({
+            "autosize": true,
+            "symbol": `${ticker}`,
+            "interval": "D",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "enable_publishing": false,
+            "allow_symbol_change": true,
+            "support_host": "https://www.tradingview.com"
+          })}>
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <!-- Intelligence Dispatches Timeline -->
+    <section class="dispatches-section">
+      <h2 class="section-heading">02 // Market Intelligence & Anomaly Scans</h2>
+      <div class="posts-list">
+        {posts.map((post: any) => (
+          <article class="post-item">
+            <div class="post-meta">
+              <time>{post.data?.displayDate || (post.data?.date ? new Date(post.data.date).toISOString().slice(0, 10) : 'Recent')}</time>
+              <span class="pill pill-category">{post.data?.category || 'Equities'}</span>
+              {post.data?.leadTicker === ticker && (
+                <span class="pill pill-lead">Lead Runner ({post.data?.leadGain || 'Breakout'})</span>
+              )}
+            </div>
+
+            <h3 class="post-title">
+              <a href={`/blog/${post.id.replace(/\.md$/, '')}/`}>
+                {post.data?.title}
+              </a>
+            </h3>
+
+            {post.data?.description && (
+              <p class="post-desc">{post.data.description}</p>
+            )}
+
+            <div class="post-foot">
+              <a href={`/blog/${post.id.replace(/\.md$/, '')}/`} class="read-link">
+                Read Full Intelligence Dispatch &rarr;
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Primary Research Citation Footer -->
+    <div class="research-footer">
+      <p>
+        <strong>Compliance & Verification:</strong> Intraday price expansions and volume profiles for <strong>${ticker}</strong> are ingested via Alpha Vantage API and TradingView. For official corporate disclosures, prospectuses, and proxy statements, consult the <a href="https://www.sec.gov/edgar/searchedgar/companysearch" target="_blank" rel="noopener noreferrer">U.S. SEC EDGAR Database</a>.
+      </p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .ticker-page-wrapper {
+    max-width: 980px;
+    margin: 2rem auto 4rem auto;
+    padding: 0 1.25rem;
+  }
+  .breadcrumb {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 1.25rem;
+  }
+  .breadcrumb a {
+    color: #38bdf8;
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+  .ticker-header {
+    border-bottom: 1px solid #1e2638;
+    padding-bottom: 2rem;
+    margin-bottom: 2.5rem;
+  }
+  .header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .symbol-badge {
+    background: #1e2638;
+    color: #38bdf8;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    font-size: 1.75rem;
+    font-weight: 800;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+  h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.2;
+    color: #f1f5f9;
+  }
+  .header-sub {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin: 0;
+  }
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .btn:hover {
+    opacity: 0.9;
+  }
+  .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+  .btn-secondary {
+    background: #161d2d;
+    color: #38bdf8;
+    border: 1px solid #1e2638;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+  }
+  .metric-card {
+    background: #0f172a;
+    border: 1px solid #1e2638;
+    border-radius: 6px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .m-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #64748b;
+    font-family: monospace;
+  }
+  .m-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    color: #f8fafc;
+  }
+  .text-gain { color: #22c55e; }
+  .text-loss { color: #ef4444; }
+  .text-accent { color: #38bdf8; }
+
+  .section-heading {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin: 2.5rem 0 1rem 0;
+  }
+
+  .tv-embed-box {
+    background: #0b0e14;
+    border: 1px solid #1e2638;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .post-item {
+    background: #0f172a;
+    border: 1px solid #1e2638;
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .post-item:hover {
+    border-color: #38bdf8;
+  }
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+    color: #64748b;
+    font-family: monospace;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+  }
+  .pill-category {
+    background: #161d2d;
+    color: #94a3b8;
+    border: 1px solid #1e2638;
+  }
+  .pill-lead {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+  }
+  .post-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
+  .post-title a {
+    color: #f1f5f9;
+    text-decoration: none;
+  }
+  .post-title a:hover {
+    color: #38bdf8;
+  }
+  .post-desc {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0 0 0.75rem 0;
+  }
+  .read-link {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #38bdf8;
+    text-decoration: none;
+  }
+  .read-link:hover {
+    text-decoration: underline;
+  }
+
+  .research-footer {
+    margin-top: 3.5rem;
+    background: #090d16;
+    border: 1px solid #1e2638;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #94a3b8;
+  }
+  .research-footer strong {
+    color: #f1f5f9;
+  }
+  .research-footer a {
+    color: #38bdf8;
+    text-decoration: underline;
+  }
+</style>
