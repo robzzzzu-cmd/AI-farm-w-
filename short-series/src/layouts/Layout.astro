@@ -1,46 +1,13 @@
 ---
-// short-series/src/layouts/Layout.astro
+// src/layouts/Layout.astro
+import MarketTicker from '../components/MarketTicker.astro';
+
 interface Props {
-  title?: string;
+  title: string;
   description?: string;
-  publishDate?: string | Date;
-  schemaType?: 'FinancialAnalysis' | 'NewsArticle' | 'WebSite';
-  image?: string;
 }
 
-const {
-  title = 'Trade Opportunities | Daily Market Analysis',
-  description = 'Actionable daily market analysis, algorithmic data, and financial trends.',
-  publishDate,
-  schemaType = 'WebSite',
-  image = '/favicon.svg',
-} = Astro.props;
-
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://tradeopportunities.trade');
-const absoluteImageURL = new URL(image, Astro.site || 'https://tradeopportunities.trade').toString();
-
-// Build JSON-LD structured data payload
-const schemaData = {
-  '@context': 'https://schema.org',
-  '@type': schemaType,
-  headline: title,
-  description: description,
-  url: canonicalURL.toString(),
-  image: absoluteImageURL,
-  publisher: {
-    '@type': 'Organization',
-    name: 'Trade Opportunities',
-    url: 'https://tradeopportunities.trade',
-    logo: {
-      '@type': 'ImageObject',
-      url: new URL('/favicon.svg', Astro.site || 'https://tradeopportunities.trade').toString(),
-    },
-  },
-  ...(publishDate && {
-    datePublished: new Date(publishDate).toISOString(),
-    dateModified: new Date(publishDate).toISOString(),
-  }),
-};
+const { title, description = "Automated financial insights and quantitative market analysis." } = Astro.props;
 ---
 
 <!doctype html>
@@ -48,34 +15,159 @@ const schemaData = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    
-    <!-- Google Search Console HTML Tag Verification -->
-    <meta name="google-site-verification" content="b4gKaBVntaVzhwcTZk3jRMD3eVkdIzu2kd79Cv1RXV8" />
-    
-    <!-- Canonical & RSS Autodiscovery -->
-    <link rel="canonical" href={canonicalURL} />
-    <link rel="alternate" type="application/rss+xml" title="Trade Opportunities RSS Feed" href="/rss.xml" />
-    
-    <!-- Open Graph / Social Tags -->
-    <meta property="og:type" content={schemaType === 'WebSite' ? 'website' : 'article'} />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={absoluteImageURL} />
-
-    <!-- Twitter Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content={canonicalURL} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={absoluteImageURL} />
-
-    <!-- Search Engine JSON-LD Schema Markup -->
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(schemaData)} />
   </head>
   <body>
-    <slot />
+    <MarketTicker />
+    
+    <header class="site-header">
+      <nav class="nav-container">
+        <a href="/" class="brand-logo">AI FARM<span>.MARKETS</span></a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/category/market-analysis">Analysis</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-disclosure">
+          <p class="disclosure-title">Financial Risk & Regulatory Disclaimer</p>
+          <p class="disclosure-text">
+            <strong>Not Financial Advice:</strong> All content, market data, and quantitative summaries published on this website are provided strictly for educational and informational purposes only. Nothing contained herein constitutes investment, legal, or tax advice, nor should it be relied upon as a recommendation or endorsement of any security, trading strategy, or financial transaction.
+          </p>
+        </div>
+
+        <div class="footer-meta">
+          <p>&copy; {new Date().getFullYear()} AI Farm. All rights reserved.</p>
+          <div class="legal-links">
+            <a href="/privacy">Privacy Policy</a>
+            <span>&bull;</span>
+            <a href="/terms">Terms of Service</a>
+            <span>&bull;</span>
+            <a href="/rss.xml">RSS Feed</a>
+          </div>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
+
+<style>
+  :root {
+    --bg-primary: #020617;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #1e293b;
+    --accent: #38bdf8;
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  main {
+    flex: 1;
+  }
+  .site-header {
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(8px);
+  }
+  .nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+  }
+  .brand-logo {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .brand-logo span {
+    color: var(--accent);
+  }
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover {
+    color: #fff;
+  }
+  .site-footer {
+    border-top: 1px solid var(--border-color);
+    background: #090d16;
+    padding: 2.5rem 1.5rem;
+    margin-top: 3rem;
+  }
+  .footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .footer-disclosure {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .disclosure-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #e2e8f0;
+    margin: 0 0 0.4rem 0;
+  }
+  .disclosure-text {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #94a3b8;
+    margin: 0;
+  }
+  .footer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #64748b;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .legal-links {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+  .legal-links a {
+    color: #64748b;
+    text-decoration: none;
+  }
+  .legal-links a:hover {
+    color: var(--text-primary);
+  }
+</style>
