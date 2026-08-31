@@ -19,7 +19,17 @@ async function run() {
     const dateMatch = latestFile.match(/\d{4}-\d{2}-\d{2}/);
     const dateStr = dateMatch ? dateMatch[0] : new Date().toISOString().split('T')[0];
 
-    // Strip frontmatter and convert markdown formatting to clean HTML
+    // 1. Fetch the default Audience ID from Resend
+    const audiencesResponse = await resend.audiences.list();
+    const audienceList = audiencesResponse.data?.data || audiencesResponse.data || [];
+    const audienceId = audienceList[0]?.id;
+
+    if (!audienceId) {
+      console.warn('No Audience found in Resend. Create an Audience or add a contact first.');
+      return;
+    }
+
+    // 2. Strip frontmatter and render content to clean HTML
     const body = content.replace(/^---[\s\S]*?---/, '').trim();
     const htmlBody = body
       .split('\n\n')
@@ -53,8 +63,11 @@ async function run() {
       </div>
     `;
 
-    console.log(`Creating broadcast for ${latestFile}...`);
+    console.log(`Creating broadcast for ${latestFile} using Audience ID: ${audienceId}...`);
+
+    // 3. Create the Broadcast with audienceId attached
     const { data: broadcast, error: createError } = await resend.broadcasts.create({
+      audienceId: audienceId,
       name: `Market Update - ${dateStr}`,
       from: 'Trade Opportunities <newsletter@tradeopportunities.trade>',
       subject: `Market Intelligence [${dateStr}]: Daily Momentum & Key Setups`,
