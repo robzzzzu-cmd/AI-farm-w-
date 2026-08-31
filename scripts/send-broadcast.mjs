@@ -19,17 +19,36 @@ async function run() {
     const dateMatch = latestFile.match(/\d{4}-\d{2}-\d{2}/);
     const dateStr = dateMatch ? dateMatch[0] : new Date().toISOString().split('T')[0];
 
-    // 1. Fetch the default Audience ID from Resend
+    // 1. Scan all audiences to find the one with active contacts
     const audiencesResponse = await resend.audiences.list();
     const audienceList = audiencesResponse.data?.data || audiencesResponse.data || [];
-    const audienceId = audienceList[0]?.id;
 
-    if (!audienceId) {
-      console.warn('No Audience found in Resend. Create an Audience or add a contact first.');
+    let targetAudienceId = null;
+
+    for (const aud of audienceList) {
+      const contactsRes = await resend.contacts.list({ audienceId: aud.id });
+      const contacts = contactsRes.data?.data || contactsRes.data || [];
+      console.log(`Checking audience "${aud.name || aud.id}": ${contacts.length} contact(s) found.`);
+      
+      if (contacts.length > 0) {
+        targetAudienceId = aud.id;
+        break;
+      }
+    }
+
+    // Fallback to first audience if none report contacts
+    if (!targetAudienceId) {
+      targetAudienceId = audienceList[0]?.id;
+    }
+
+    if (!targetAudienceId) {
+      console.warn('No Audience found in Resend. Skipping broadcast.');
       return;
     }
 
-    // 2. Strip frontmatter and render content to clean HTML
+    console.log(`Targeting Audience ID: ${targetAudienceId}`);
+
+    // 2. Format HTML email body
     const body = content.replace(/^---[\s\S]*?---/, '').trim();
     const htmlBody = body
       .split('\n\n')
@@ -46,7 +65,7 @@ async function run() {
       .join('');
 
     const emailHtml = `
-      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:24px;border:1px solid #e5e7eb;border-radius:8px;">
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:8px;">
         <div style="border-bottom:2px solid #2563eb;padding-bottom:12px;margin-bottom:20px;">
           <h1 style="font-size:20px;margin:0;color:#2563eb;">Trade Opportunities Daily</h1>
           <p style="font-size:13px;color:#6b7280;margin:4px 0 0 0;">Market Intelligence Brief • ${dateStr}</p>
@@ -63,11 +82,10 @@ async function run() {
       </div>
     `;
 
-    console.log(`Creating broadcast for ${latestFile} using Audience ID: ${audienceId}...`);
-
-    // 3. Create the Broadcast with audienceId attached
+    // 3. Create broadcast
+    console.log(`Creating broadcast for ${latestFile}...`);
     const { data: broadcast, error: createError } = await resend.broadcasts.create({
-      audienceId: audienceId,
+      audienceId: targetAudienceId,
       name: `Market Update - ${dateStr}`,
       from: 'Trade Opportunities <newsletter@tradeopportunities.trade>',
       subject: `Market Intelligence [${dateStr}]: Daily Momentum & Key Setups`,
@@ -76,11 +94,12 @@ async function run() {
 
     if (createError) throw createError;
 
+    // 4. Send broadcast
     console.log(`Sending broadcast ID: ${broadcast.id}...`);
     const { error: sendError } = await resend.broadcasts.send(broadcast.id);
     if (sendError) throw sendError;
 
-    console.log('Daily broadcast sent successfully.');
+    console.log('Daily broadcast sent successfully to all active subscribers.');
   } catch (err) {
     console.error('Broadcast dispatch error:', err);
     process.exit(1);
