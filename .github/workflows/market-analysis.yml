@@ -15,11 +15,9 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
+  group: "market-analysis"
   cancel-in-progress: false
 
 jobs:
@@ -46,6 +44,14 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: node index.js
 
+      - name: Dispatch Daily Newsletter Broadcast
+        if: success()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          npm install resend
+          node scripts/send-broadcast.mjs
+
       - name: Send Failure Webhook Alert
         if: failure()
         env:
@@ -59,7 +65,7 @@ jobs:
                    "embeds": [{
                      "title": "Market Analysis Generation Failed",
                      "color": 15158332,
-                     "description": "The market intelligence generator failed during step execution. Possible causes: Alpha Vantage API limit (25 req/day or 5 req/min), Gemini API downtime, or invalid response payload.",
+                     "description": "The market intelligence generator failed during step execution. Possible causes: Alpha Vantage API limit, Gemini API downtime, or invalid response payload.",
                      "fields": [
                        {"name": "Repository", "value": "${{ github.repository }}", "inline": true},
                        {"name": "Trigger", "value": "${{ github.event_name }}", "inline": true},
@@ -86,28 +92,3 @@ jobs:
             git pull --rebase origin main
             git push
           fi
-
-  deploy-site:
-    needs: analyze-market
-    # Runs after analysis, OR immediately if triggered by a code commit
-    if: always() && (needs.analyze-market.result == 'success' || needs.analyze-market.result == 'skipped')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Install, build, and upload your site
-        uses: withastro/action@v3
-        with:
-          path: ./short-series
-          node-version: '22'
-          package-manager: npm
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
