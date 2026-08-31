@@ -28,6 +28,13 @@ const blog = defineCollection({
     active: z.array(stockItemSchema).optional(),
     refUrl: z.string().optional(),
     refLabel: z.string().optional()
+  }).transform((data) => {
+    const fallbackDate = data.pubDate || data.date || new Date();
+    return {
+      ...data,
+      date: data.date || fallbackDate,
+      pubDate: data.pubDate || fallbackDate,
+    };
   })
 });
 
