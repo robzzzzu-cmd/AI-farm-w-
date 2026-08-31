@@ -41,6 +41,13 @@ function buildCompactTable(title, items) {
   return table + '\n';
 }
 
+function sanitizeMarkdownText(text) {
+  // Prevent raw < and > from being interpreted as HTML tags by Astro/browser
+  return text
+    .replace(/<(?![a-zA-Z/])/g, '&lt;')
+    .replace(/(?<![a-zA-Z/])>/g, '&gt;');
+}
+
 async function run() {
   const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
   const llmApiKey = process.env.LLM_API_KEY;
@@ -79,7 +86,6 @@ MOST ACTIVE LIQUIDITY LEADERS:
 ${mostActive.slice(0, 3).map((s) => `Ticker: ${s.ticker} | Volume: ${Number(s.volume).toLocaleString()} shares | Change: ${parseFloat(s.change_percentage).toFixed(2)}%`).join('\n')}
     `.trim();
 
-    // PROMPT: Restores institutional momentum narrative
     const systemPrompt = `You are a quantitative institutional equity analyst at Trade Opportunities.
 Review the market movers feed and write a continuous 2-paragraph market intelligence dispatch matching this exact style:
 
@@ -88,12 +94,12 @@ Paragraph 2: Detail secondary rotation into active volume leaders and address ex
 
 CRITICAL RULES:
 - Write continuous, flowing analytical prose.
+- DO NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
 - DO NOT use markdown headings (#, ##), bullet points, or raw ASCII/code-block tables in your text.
 - Every ticker mention MUST be linked as: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147).`;
 
     console.log('2. Generating narrative synthesis with Gemini...');
-    // AFTER
-const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
@@ -107,7 +113,7 @@ const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemin
           }
         ],
         generationConfig: {
-          maxOutputTokens: 400,
+          maxOutputTokens: 1200,
           temperature: 0.25
         }
       })
@@ -117,7 +123,8 @@ const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemin
       throw new Error(`Gemini synthesis returned empty structure: ${JSON.stringify(llmData)}`);
     }
 
-    const generatedAnalysis = llmData.candidates[0].content.parts[0].text.trim();
+    const rawAnalysis = llmData.candidates[0].content.parts[0].text.trim();
+    const generatedAnalysis = sanitizeMarkdownText(rawAnalysis);
 
     console.log('3. Assembling structured markdown post...');
     const now = new Date();
@@ -142,7 +149,6 @@ const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemin
       ])
     );
 
-    // Assembly: Analysis FIRST, compact table at the BOTTOM
     const markdownContent = `---
 title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
 description: "Extreme upside momentum scan detailing liquidity expansion in ${leadStock.ticker} and active volume leaders."
