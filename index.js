@@ -41,11 +41,25 @@ function buildCompactTable(title, items) {
   return table + '\n';
 }
 
-function sanitizeMarkdownText(text) {
-  // Prevent raw < and > from being interpreted as HTML tags by Astro/browser
-  return text
+function sanitizeAndLinkify(text, tickers) {
+  // 1. Prevent raw < and > from breaking HTML rendering
+  let cleaned = text
     .replace(/<(?![a-zA-Z/])/g, '&lt;')
     .replace(/(?<![a-zA-Z/])>/g, '&gt;');
+
+  // 2. Sort tickers longest-first to prevent partial matches ($SWVLW before $SWVL)
+  const sorted = [...tickers].sort((a, b) => b.length - a.length);
+
+  // 3. Automatically turn every $TICKER into a TradingView affiliate markdown link
+  for (const t of sorted) {
+    const regex = new RegExp(`(?<!\\[)\\$${t}\\b(?!\\])`, 'g');
+    cleaned = cleaned.replace(
+      regex,
+      `[$${t}](https://www.tradingview.com/symbols/${t}/?aff_id=170147)`
+    );
+  }
+
+  return cleaned;
 }
 
 async function run() {
@@ -70,7 +84,7 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    // Filter out illiquid warrants with zero volume (< 50k shares)
+    // Filter out illiquid tickers (< 50k volume)
     const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
     const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
@@ -86,20 +100,19 @@ MOST ACTIVE LIQUIDITY LEADERS:
 ${mostActive.slice(0, 3).map((s) => `Ticker: ${s.ticker} | Volume: ${Number(s.volume).toLocaleString()} shares | Change: ${parseFloat(s.change_percentage).toFixed(2)}%`).join('\n')}
     `.trim();
 
-    const systemPrompt = `You are a quantitative institutional equity analyst at Trade Opportunities.
-Review the market movers feed and write a continuous 2-paragraph market intelligence dispatch matching this exact style:
+    const systemPrompt = `You are a quantitative equity market analyst at Trade Opportunities.
+Write a continuous 2-paragraph market intelligence dispatch based on the market feed below:
 
 Paragraph 1: Discuss extreme upside momentum across the tracked universe, analyzing liquidity expansion in low-priced equities led by the top gainers (cite tickers, percentage gains, and share volume in millions).
-Paragraph 2: Detail secondary rotation into active volume leaders and address execution, microstructure, or mean-reversion risk once baseline volume exhaust occurs.
+Paragraph 2: Detail secondary rotation into active volume leaders and address execution, microstructure, or mean-reversion risk once baseline volume exhausts.
 
-CRITICAL RULES:
-- Write continuous, flowing analytical prose.
-- DO NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
-- DO NOT use markdown headings (#, ##), bullet points, or raw ASCII/code-block tables in your text.
-- Every ticker mention MUST be linked as: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147).`;
+STRICT INSTRUCTIONS:
+- Return ONLY the 2 analysis paragraphs.
+- DO NOT output any introductory greetings, markdown headings (#, ##), bullet points, or concluding notes.
+- Mention tickers with standard dollar tags (e.g., $FNGR, $CHAI). Do NOT write markdown links or URLs.`;
 
     console.log('2. Generating narrative synthesis with Gemini...');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
@@ -113,8 +126,8 @@ CRITICAL RULES:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 1200,
-          temperature: 0.25
+          maxOutputTokens: 1000,
+          temperature: 0.2
         }
       })
     });
@@ -124,7 +137,6 @@ CRITICAL RULES:
     }
 
     const rawAnalysis = llmData.candidates[0].content.parts[0].text.trim();
-    const generatedAnalysis = sanitizeMarkdownText(rawAnalysis);
 
     console.log('3. Assembling structured markdown post...');
     const now = new Date();
@@ -148,6 +160,8 @@ CRITICAL RULES:
         ...mostActive.map((s) => s.ticker)
       ])
     );
+
+    const generatedAnalysis = sanitizeAndLinkify(rawAnalysis, allTickers);
 
     const markdownContent = `---
 title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
