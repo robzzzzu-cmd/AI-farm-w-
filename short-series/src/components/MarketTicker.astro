@@ -1,33 +1,58 @@
 ---
 // src/components/MarketTicker.astro
-const indices = [
-  { symbol: "S&P 500", value: "5,648.40", change: "+0.42%", up: true },
-  { symbol: "NASDAQ", value: "17,713.62", change: "+0.88%", up: true },
-  { symbol: "DOW", value: "41,563.08", change: "-0.15%", up: false },
-  { symbol: "FTSE 100", value: "8,376.63", change: "+0.23%", up: true },
-  { symbol: "DAX", value: "18,906.92", change: "+0.03%", up: true },
-  { symbol: "NIKKEI 225", value: "38,647.75", change: "+0.74%", up: true },
-];
 ---
 
-<div class="ticker-wrapper" aria-label="Market Overview">
+<div class="ticker-ribbon-container" aria-label="Live Market Overview">
   <div class="session-badge">
     <span class="pulse-dot"></span>
-    <span class="session-text" id="market-session">MARKET ACTIVE</span>
+    <span class="session-text" id="market-session">SYNCING...</span>
   </div>
 
-  <div class="ticker-track">
-    <div class="ticker-items">
-      {indices.map((item) => (
-        <div class="ticker-item">
-          <span class="symbol">{item.symbol}</span>
-          <span class="value">{item.value}</span>
-          <span class={item.up ? "change up" : "change down"}>
-            {item.change}
-          </span>
-        </div>
-      ))}
-    </div>
+  <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        {
+          "proName": "FOREXCOM:SPXUSD",
+          "title": "S&P 500"
+        },
+        {
+          "proName": "FOREXCOM:NSXUSD",
+          "title": "US 100 (NASDAQ)"
+        },
+        {
+          "proName": "FOREXCOM:DJI",
+          "title": "Dow 30"
+        },
+        {
+          "proName": "INDEX:FTSE",
+          "title": "FTSE 100"
+        },
+        {
+          "proName": "INDEX:DAX",
+          "title": "DAX 40"
+        },
+        {
+          "proName": "INDEX:NKY",
+          "title": "Nikkei 225"
+        },
+        {
+          "proName": "BINANCE:BTCUSDT",
+          "title": "BTC/USDT"
+        },
+        {
+          "proName": "BINANCE:ETHUSDT",
+          "title": "ETH/USDT"
+        }
+      ],
+      "showSymbolLogo": true,
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "en"
+    }
+    </script>
   </div>
 </div>
 
@@ -45,73 +70,52 @@ const indices = [
     } else if (utcHour >= 0 && utcHour < 8) {
       sessionEl.textContent = "ASIA SESSION";
     } else {
-      sessionEl.textContent = "MARKETS CLOSED";
+      sessionEl.textContent = "OFF-HOURS SCAN";
     }
   }
   updateSession();
 </script>
 
 <style>
-  .ticker-wrapper {
+  .ticker-ribbon-container {
     display: flex;
     align-items: center;
-    background: #0f172a;
-    border-bottom: 1px solid #1e293b;
-    color: #e2e8f0;
-    font-size: 0.825rem;
+    background: #070a0f;
+    border-bottom: 1px solid #1e2638;
+    height: 46px;
     overflow: hidden;
-    padding: 0.4rem 1rem;
-    gap: 1rem;
   }
   .session-badge {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.05em;
     color: #94a3b8;
     white-space: nowrap;
-    padding-right: 0.75rem;
-    border-right: 1px solid #334155;
+    padding: 0 1rem;
+    height: 100%;
+    border-right: 1px solid #1e2638;
+    background: #0b0e14;
+    z-index: 2;
   }
   .pulse-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 6px #10b981;
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    animation: pulse 2s infinite ease-in-out;
   }
-  .ticker-track {
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    width: 100%;
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
   }
-  .ticker-track::-webkit-scrollbar {
-    display: none;
-  }
-  .ticker-items {
-    display: flex;
-    gap: 1.5rem;
-    white-space: nowrap;
-  }
-  .ticker-item {
-    display: flex;
-    gap: 0.4rem;
-    font-family: ui-monospace, monospace;
-  }
-  .symbol {
-    font-weight: 600;
-    color: #f8fafc;
-  }
-  .value {
-    color: #cbd5e1;
-  }
-  .change.up {
-    color: #34d399;
-  }
-  .change.down {
-    color: #f87171;
+  .tradingview-widget-container {
+    flex: 1;
+    min-width: 0;
+    height: 46px;
   }
 </style>
