@@ -12,6 +12,7 @@ interface StockItem {
 interface MarkdownPost {
   frontmatter: {
     title?: string;
+    description?: string;
     date?: string;
     displayDate?: string;
     category?: string;
@@ -287,25 +288,18 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .pill-loss { background: var(--loss-bg); color: var(--loss-color); border-color: transparent; }
       
       .card-title {
-        font-size: 1.15rem;
+        font-size: 1.2rem;
         font-weight: 700;
         letter-spacing: -0.01em;
         margin-bottom: 0.65rem;
         word-break: break-word;
       }
-      .card-body {
+      .card-desc {
         font-size: 0.9rem;
         color: var(--text-secondary);
-        line-height: 1.55;
+        line-height: 1.6;
         margin-bottom: 1.25rem;
-        word-break: break-word;
       }
-      .card-body a {
-        color: var(--brand-accent);
-        text-decoration: none;
-        font-weight: 600;
-      }
-      .card-body a:hover { text-decoration: underline; }
       .card-action-btn {
         display: inline-flex;
         align-items: center;
@@ -349,12 +343,13 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
-        padding: 0.9rem 1rem;
+        padding: 1rem;
         box-sizing: border-box;
         width: 100%;
       }
-      .stream-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; word-break: break-word; }
-      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); }
+      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; word-break: break-word; }
+      .stream-desc { font-size: 0.78125rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 0.5rem; }
+      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.25rem; }
 
       .table-card {
         background: var(--bg-surface);
@@ -506,7 +501,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .footer-links a { color: var(--text-secondary); text-decoration: none; }
       .footer-links a:hover { color: var(--text-primary); }
 
-      /* Global Cookie Banner */
+      /* Cookie Banner */
       .cookie-banner {
         position: fixed;
         bottom: 1rem;
@@ -522,27 +517,11 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
         box-sizing: border-box;
       }
-      .cookie-banner.hidden {
-        display: none;
-      }
-      .cookie-content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .cookie-content p {
-        font-size: 0.8125rem;
-        color: var(--text-secondary);
-        line-height: 1.4;
-      }
-      .cookie-content a {
-        color: var(--brand-accent);
-        text-decoration: underline;
-      }
-      .cookie-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
+      .cookie-banner.hidden { display: none; }
+      .cookie-content { display: flex; flex-direction: column; gap: 0.75rem; }
+      .cookie-content p { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; }
+      .cookie-content a { color: var(--brand-accent); text-decoration: underline; }
+      .cookie-actions { display: flex; gap: 0.5rem; }
       .cookie-btn {
         padding: 0.4rem 0.85rem;
         border-radius: 4px;
@@ -552,16 +531,9 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         border: none;
         transition: opacity 0.2s;
       }
-      .cookie-btn.accept {
-        background: var(--brand-accent);
-        color: #fff;
-      }
-      .cookie-btn.decline {
-        background: var(--bg-surface-elevated);
-        color: var(--text-secondary);
-      }
+      .cookie-btn.accept { background: var(--brand-accent); color: #fff; }
+      .cookie-btn.decline { background: var(--bg-surface-elevated); color: var(--text-secondary); }
 
-      /* Responsive Adaptations for iPhone 12 Mini & Small Devices */
       @media (max-width: 860px) {
         .grid-main, .swap-and-ads-grid { grid-template-columns: 1fr; }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
@@ -570,37 +542,15 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       }
 
       @media (max-width: 560px) {
-        .app-wrapper {
-          padding: 0 0.85rem;
-        }
-        .nav-inner {
-          flex-direction: column;
-          align-items: stretch;
-          padding: 0.6rem 0;
-        }
-        .brand-group {
-          width: 100%;
-          justify-content: space-between;
-        }
-        .nav-actions {
-          width: 100%;
-        }
-        .search-input {
-          width: 100%;
-        }
-        .newsletter-box {
-          padding: 1.15rem;
-        }
-        .newsletter-input-group {
-          flex-direction: column;
-          width: 100%;
-        }
-        .newsletter-input, #subscribe-btn {
-          width: 100%;
-        }
-        .card {
-          padding: 1rem;
-        }
+        .app-wrapper { padding: 0 0.85rem; }
+        .nav-inner { flex-direction: column; align-items: stretch; padding: 0.6rem 0; }
+        .brand-group { width: 100%; justify-content: space-between; }
+        .nav-actions { width: 100%; }
+        .search-input { width: 100%; }
+        .newsletter-box { padding: 1.15rem; }
+        .newsletter-input-group { flex-direction: column; width: 100%; }
+        .newsletter-input, #subscribe-btn { width: 100%; }
+        .card { padding: 1rem; }
       }
     </style>
   </head>
@@ -655,37 +605,41 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </header>
 
-      <!-- Section 01: Dispatches (Dynamic Markdown Content) -->
+      <!-- Section 01: Dispatches (Compact Summary Cards) -->
       <section id="intelligence">
         <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
           {featuredPost ? (
-            <article class="card dispatch-card">
-              <div class="card-meta">
-                <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
-                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
-              </div>
-              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
-              <div class="card-body">
-                <featuredPost.Content />
+            <article class="card dispatch-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div class="card-meta">
+                  <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
+                  <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
+                </div>
+                <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
+                <p class="card-desc">
+                  {featuredPost.frontmatter.description || `US equity momentum scan detailing volume expansion and intraday breakout dynamics in ${featuredPost.frontmatter.leadTicker || 'key assets'}.`}
+                </p>
               </div>
               
-              {featuredPost.frontmatter.tickers && (
-                <div class="ticker-tags">
-                  {featuredPost.frontmatter.tickers.map((t: string) => (
-                    <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
-                      ${t}
-                    </a>
-                  ))}
-                </div>
-              )}
+              <div>
+                {featuredPost.frontmatter.tickers && (
+                  <div class="ticker-tags">
+                    {featuredPost.frontmatter.tickers.map((t: string) => (
+                      <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
+                        ${t}
+                      </a>
+                    ))}
+                  </div>
+                )}
 
-              <a href={featuredPost.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
-                 target="_blank" 
-                 rel="noopener noreferrer" 
-                 class="card-action-btn">
-                {featuredPost.frontmatter.refLabel || "Execute Spot Order on ChangeNOW"} &rarr;
-              </a>
+                <a href={featuredPost.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="card-action-btn">
+                  {featuredPost.frontmatter.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
+                </a>
+              </div>
             </article>
           ) : (
             <div class="card">
@@ -698,14 +652,14 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
               <article class="stream-item dispatch-card">
                 <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
                 <h3 class="stream-title">{post.frontmatter.title}</h3>
-                <div style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; margin-top: 0.35rem;">
-                  <post.Content />
-                </div>
-                <a href={post.frontmatter.refUrl || "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"} 
+                <p class="stream-desc">
+                  {post.frontmatter.description || `Breakout scan and volume activity report.`}
+                </p>
+                <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                    target="_blank" 
                    rel="noopener noreferrer" 
-                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
-                  {post.frontmatter.refLabel || "Access Order Terminal"} &rarr;
+                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none;">
+                  {post.frontmatter.refLabel || "View Chart"} &rarr;
                 </a>
               </article>
             ))}
@@ -906,7 +860,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
 
     <!-- Live Client-Side Search Filter, Resend Form Handler & Cookie Consent Script -->
     <script is:inline>
-      // Cookie Consent Handler
       (function () {
         const banner = document.getElementById('cookie-banner');
         const acceptBtn = document.getElementById('accept-cookies');
@@ -927,7 +880,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         });
       })();
 
-      // Search Filter
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -940,7 +892,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         });
       }
 
-      // Newsletter Form Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
