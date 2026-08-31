@@ -42,12 +42,15 @@ function buildCompactTable(title, items) {
 }
 
 function sanitizeAndLinkify(text, tickers) {
+  // 1. Unconditionally escape ALL angle brackets to prevent HTML tag collisions
   let cleaned = text
-    .replace(/<(?![a-zA-Z/])/g, '&lt;')
-    .replace(/(?<![a-zA-Z/])>/g, '&gt;');
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
 
+  // 2. Sort tickers longest-first to prevent partial string matches
   const sorted = [...tickers].sort((a, b) => b.length - a.length);
 
+  // 3. Linkify every $TICKER into a TradingView affiliate link
   for (const t of sorted) {
     const regex = new RegExp(`(?<!\\[)\\$${t}\\b(?!\\])`, 'g');
     cleaned = cleaned.replace(
@@ -110,7 +113,7 @@ Key elements to integrate across the sentences:
 5. Close with disciplined execution risks, spread friction, and mean-reversion pullbacks as volume exhausts.
 
 STRICT FORMATTING RULES:
-- Write continuous, flowing analytical prose (exactly 6 to 9 sentences).
+- Write continuous, flowing analytical prose (strictly 6 to 9 sentences).
 - DO NOT use markdown headings (#, ##, ####), subheadings, bullet points, or lists.
 - Mention tickers using standard dollar tags (e.g., $${leadStock.ticker}). Do NOT output markdown links or URLs.
 - Do NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
@@ -131,7 +134,7 @@ STRICT FORMATTING RULES:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 1200,
+          maxOutputTokens: 1500,
           temperature: 0.25
         }
       })
