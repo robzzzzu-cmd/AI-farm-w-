@@ -63,35 +63,36 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    const topGainers = marketData.top_gainers.slice(0, 5);
+    // FILTER: Require at least 50,000 volume to eliminate phantom warrant spikes (e.g., 521 volume)
+    const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
+    const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
     const mostActive = (marketData.most_actively_traded || []).slice(0, 5);
+
     const leadStock = topGainers[0];
 
     const stockDataSummary = `
-TOP GAINERS:
-${topGainers.map((s) => `Ticker: ${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: +${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()}`).join('\n')}
-
-TOP LOSERS:
-${topLosers.map((s) => `Ticker: ${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()}`).join('\n')}
-
-MOST ACTIVE:
-${mostActive.map((s) => `Ticker: ${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()}`).join('\n')}
+TOP GAINER: ${leadStock.ticker} (Price: $${parseFloat(leadStock.price).toFixed(2)}, Gain: +${parseFloat(leadStock.change_percentage).toFixed(2)}%, Volume: ${Number(leadStock.volume).toLocaleString()})
+OTHER GAINERS: ${topGainers.slice(1).map((s) => `${s.ticker} (+${parseFloat(s.change_percentage).toFixed(1)}%)`).join(', ')}
+MOST ACTIVE VOLUME: ${mostActive.slice(0, 3).map((s) => `${s.ticker} (${Number(s.volume).toLocaleString()} vol)`).join(', ')}
     `.trim();
 
-    const systemPrompt = `You are a quantitative institutional equity analyst at Trade Opportunities.
-Review the provided market movers feed and write a structured, high-value intelligence report.
-Include:
-1. Executive Macro & Momentum Summary (2-3 sentences analyzing breadth and aggressive order flow).
-2. Key Technical Levels & Support/Resistance zones for the lead mover (${leadStock.ticker}).
-3. Risk Parameters & Volume Distribution insights for active names.
+    // STRICT, SHORT PROMPT: Eliminates code blocks, ASCII tables, and multi-page essays
+    const systemPrompt = `You are a concise financial momentum analyst.
+Write a punchy, ultra-concise market dispatch under 100 words total.
+DO NOT output code blocks, markdown tables, ASCII tables, or disclaimers.
 
-CRITICAL FORMATTING INSTRUCTION:
-- Every mention of a ticker symbol MUST be formatted as: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147).
-- Maintain an institutional, data-driven tone. Avoid filler buzzwords, robotic meta-announcements, and disclaimers.`;
+Respond with EXACTLY three short bullet points:
+- **Momentum Overview:** 1 short sentence on overall market breadth and leading volume.
+- **Key Levels for $${leadStock.ticker}:** 1 sentence noting immediate support and resistance.
+- **Risk Takeaway:** 1 short sentence on execution or volatility risk.
 
-    console.log('2. Generating quantitative synthesis with Gemini...');
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
+CRITICAL FORMATTING:
+- Every ticker MUST be linked as: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147)`;
+
+    console.log('2. Generating concise synthesis with Gemini...');
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${llmApiKey}`;
+    
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -99,10 +100,14 @@ CRITICAL FORMATTING INSTRUCTION:
         contents: [
           {
             parts: [
-              { text: `${systemPrompt}\n\nMarket Data Feed:\n${stockDataSummary}` }
+              { text: `${systemPrompt}\n\nMarket Data:\n${stockDataSummary}` }
             ]
           }
-        ]
+        ],
+        generationConfig: {
+          maxOutputTokens: 250,
+          temperature: 0.3
+        }
       })
     });
 
@@ -157,15 +162,15 @@ tickers: [${allTickers.map((t) => `"${t}"`).join(', ')}]
 gainers: ${JSON.stringify(topGainers)}
 losers: ${JSON.stringify(topLosers)}
 active: ${JSON.stringify(mostActive)}
-refUrl: "https://changenow.app.link/referral?link_id=1c434a8e93e8ff"
-refLabel: "Execute Spot Order on ChangeNOW"
+refUrl: "https://www.tradingview.com/symbols/${leadStock.ticker}/?aff_id=170147"
+refLabel: "Analyze ${leadStock.ticker} on TradingView"
 ---
 
 ${gainersTable}
 ${losersTable}
 ${activeTable}
 
-## Institutional Market Intelligence
+### Market Intelligence & Key Levels
 
 ${generatedAnalysis}
 `;
