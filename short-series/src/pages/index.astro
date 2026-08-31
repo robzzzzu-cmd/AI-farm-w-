@@ -79,6 +79,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         margin: 0; 
         padding: 0; 
       }
+      
       html, body {
         width: 100%;
         max-width: 100vw;
@@ -249,10 +250,10 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         margin-bottom: 1rem;
       }
 
-      /* Grid Setup */
+      /* Fixed Grid to Prevent Mobile Blowout */
       .grid-main {
         display: grid;
-        grid-template-columns: 1.8fr 1.2fr;
+        grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
         gap: 1.5rem;
         margin-bottom: 2.5rem;
         align-items: start;
@@ -267,6 +268,8 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         box-shadow: var(--card-shadow);
         box-sizing: border-box;
         width: 100%;
+        min-width: 0;
+        overflow: hidden;
       }
       .card-meta {
         display: flex;
@@ -294,23 +297,28 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         letter-spacing: -0.01em;
         margin-bottom: 0.85rem;
         word-break: break-word;
+        overflow-wrap: break-word;
       }
 
-      /* Featured Analysis Body with Generous Preview */
+      /* Featured Analysis Body */
       .card-body-wrapper {
         position: relative;
         margin-bottom: 0.5rem;
+        width: 100%;
+        min-width: 0;
       }
       .card-body {
         font-size: 0.885rem;
         color: var(--text-secondary);
         line-height: 1.65;
-        max-height: 280px;
+        max-height: 250px;
         overflow: hidden;
+        word-break: break-word;
+        overflow-wrap: anywhere;
         transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .card-body.expanded {
-        max-height: 2500px;
+        max-height: 3000px;
       }
       .card-body-fade {
         position: absolute;
@@ -332,31 +340,36 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .card-body a:hover { text-decoration: underline; }
       .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 1.25rem 0 0.5rem 0; }
       
-      /* Embedded Markdown Tables */
+      /* Mobile Safe Embedded Tables */
       .card-body table {
+        display: block;
         width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
         border-collapse: collapse;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         margin: 0.75rem 0 1rem 0;
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
         border-radius: 4px;
-        overflow: hidden;
       }
       .card-body th {
         background: rgba(255, 255, 255, 0.03);
         color: var(--text-muted);
         text-align: left;
-        padding: 0.5rem 0.75rem;
+        padding: 0.5rem 0.65rem;
         border-bottom: 1px solid var(--border-subtle);
         font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.7rem;
+        font-size: 0.68rem;
+        white-space: nowrap;
       }
       .card-body td {
-        padding: 0.55rem 0.75rem;
+        padding: 0.5rem 0.65rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
+        white-space: nowrap;
       }
       .card-body code {
         font-family: var(--font-mono);
@@ -384,12 +397,13 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       }
 
       .card-action-btn {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
+        text-align: center;
         width: 100%;
         background: var(--brand-accent);
-        color: #ffffff;
+        color: #ffffff !important;
         text-decoration: none;
         font-weight: 600;
         font-size: 0.8125rem;
@@ -421,7 +435,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         text-decoration: none;
       }
 
-      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
+      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; min-width: 0; }
       .stream-item {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
@@ -429,14 +443,23 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         padding: 1.1rem;
         box-sizing: border-box;
         width: 100%;
+        min-width: 0;
       }
-      .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.4rem; word-break: break-word; }
+      .stream-title { 
+        font-size: 0.875rem; 
+        font-weight: 600; 
+        margin-bottom: 0.4rem; 
+        word-break: break-word; 
+        overflow-wrap: break-word; 
+      }
       .stream-body {
         font-size: 0.8125rem;
         color: var(--text-secondary);
         line-height: 1.5;
         max-height: 120px;
         overflow: hidden;
+        word-break: break-word;
+        overflow-wrap: anywhere;
       }
       .stream-body table { display: none; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
@@ -480,7 +503,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
 
       .swap-and-ads-grid {
         display: grid;
-        grid-template-columns: 1.2fr 1fr;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
         gap: 1.5rem;
         margin-bottom: 2.5rem;
         width: 100%;
@@ -624,8 +647,11 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
       .cookie-btn.accept { background: var(--brand-accent); color: #fff; }
       .cookie-btn.decline { background: var(--bg-surface-elevated); color: var(--text-secondary); }
 
+      /* Responsive Rules */
       @media (max-width: 860px) {
-        .grid-main, .swap-and-ads-grid { grid-template-columns: 1fr; }
+        .grid-main, .swap-and-ads-grid { 
+          grid-template-columns: minmax(0, 1fr); 
+        }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
         .newsletter-box { flex-direction: column; align-items: flex-start; }
@@ -668,7 +694,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     </nav>
 
     <div class="app-wrapper">
-      <!-- Sponsored Leaderboard -->
       <div class="ad-leaderboard">
         <span class="ad-label">Sponsored Intelligence</span>
         <div style="width: 100%; margin: auto; position: relative;">
@@ -694,7 +719,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </header>
 
-      <!-- Section 01: Dispatches (Narrative Analysis + Expandable Table) -->
+      <!-- Section 01: Dispatches -->
       <section id="intelligence">
         <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
@@ -950,13 +975,12 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
 
     <!-- Scripts -->
     <script is:inline>
-      // Read More Toggle Handler
       (function() {
         const toggleBtn = document.getElementById('toggle-read-more');
         const contentBox = document.getElementById('featured-content');
         
         if (toggleBtn && contentBox) {
-          if (contentBox.scrollHeight <= 290) {
+          if (contentBox.scrollHeight <= 260) {
             toggleBtn.style.display = 'none';
             const fade = document.getElementById('featured-fade');
             if (fade) fade.style.display = 'none';
@@ -971,7 +995,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         }
       })();
 
-      // Cookie Consent Handler
       (function () {
         const banner = document.getElementById('cookie-banner');
         const acceptBtn = document.getElementById('accept-cookies');
@@ -992,7 +1015,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         });
       })();
 
-      // Search Filter
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -1005,7 +1027,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         });
       }
 
-      // Newsletter Form Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
