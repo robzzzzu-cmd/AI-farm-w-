@@ -41,7 +41,6 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    // Require at least 50,000 volume to eliminate phantom warrant spikes (e.g. 521 volume)
     const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
     const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
@@ -52,22 +51,19 @@ async function run() {
     const stockDataSummary = `
 TOP GAINER: ${leadStock.ticker} (Price: $${parseFloat(leadStock.price).toFixed(2)}, Gain: +${parseFloat(leadStock.change_percentage).toFixed(2)}%, Volume: ${Number(leadStock.volume).toLocaleString()})
 OTHER GAINERS: ${topGainers.slice(1).map((s) => `${s.ticker} (+${parseFloat(s.change_percentage).toFixed(1)}%)`).join(', ')}
-MOST ACTIVE VOLUME: ${mostActive.slice(0, 3).map((s) => `${s.ticker} (${Number(s.volume).toLocaleString()} vol)`).join(', ')}
+MOST ACTIVE: ${mostActive.slice(0, 3).map((s) => `${s.ticker} (${Number(s.volume).toLocaleString()} vol)`).join(', ')}
     `.trim();
 
-    const systemPrompt = `You are a concise financial momentum analyst.
-Write a punchy, ultra-concise market intelligence dispatch under 90 words total.
-DO NOT output code blocks, markdown tables, ASCII boxes, or disclaimers.
+    const systemPrompt = `You are a concise equity momentum scanner.
+Analyze the lead mover (${leadStock.ticker}) and market data.
+Return ONLY a valid JSON object with EXACTLY three short strings:
+{
+  "overview": "1 concise sentence explaining the volume catalyst and market breadth.",
+  "keyLevels": "1 concise sentence stating immediate support and resistance pivot levels for $${leadStock.ticker}.",
+  "risk": "1 concise sentence on liquidity, spread, or volatility risk."
+}`;
 
-Respond with EXACTLY three short bullet points:
-* **Momentum Overview:** 1 short sentence on market breadth and leading volume flow.
-* **Key Levels for $${leadStock.ticker}:** 1 short sentence stating immediate support and resistance pivot levels.
-* **Risk Parameter:** 1 short sentence on execution or volatility risk.
-
-CRITICAL FORMATTING:
-- Every ticker MUST be linked as: [$TICKER](https://www.tradingview.com/symbols/$TICKER/?aff_id=170147)`;
-
-    console.log('2. Generating concise synthesis with Gemini...');
+    console.log('2. Generating JSON synthesis with Gemini...');
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
@@ -82,17 +78,17 @@ CRITICAL FORMATTING:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 200,
-          temperature: 0.2
+          response_mime_type: "application/json",
+          maxOutputTokens: 250,
+          temperature: 0.1
         }
       })
     });
 
-    if (!llmData.candidates || !llmData.candidates[0]?.content?.parts?.[0]?.text) {
-      throw new Error(`Gemini synthesis returned empty structure: ${JSON.stringify(llmData)}`);
-    }
+    const rawJsonText = llmData.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawJsonText) throw new Error('Empty Gemini response.');
 
-    const generatedAnalysis = llmData.candidates[0].content.parts[0].text.trim();
+    const intel = JSON.parse(rawJsonText);
 
     console.log('3. Assembling structured markdown post...');
     const now = new Date();
@@ -115,7 +111,8 @@ CRITICAL FORMATTING:
       ])
     );
 
-    // Write ONLY the 3 concise bullet points to the body (Section 02 handles the data table)
+    const escapeYaml = (str) => (str || '').replace(/"/g, '\\"');
+
     const markdownContent = `---
 title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
 description: "US equity market momentum scan detailing volume expansion in ${leadStock.ticker}, session gainers, decliners, and high-volume leaders."
@@ -123,15 +120,11 @@ date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"
 displayDate: "${date} ${displayTime}"
 category: "Equities"
-categories:
-  - Equities
-tags:
-  - Equities
-  - Momentum
-  - VolumeLeaders
-  - ${leadStock.ticker}
 leadTicker: "${leadStock.ticker}"
 leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
+overview: "${escapeYaml(intel.overview)}"
+keyLevels: "${escapeYaml(intel.keyLevels)}"
+risk: "${escapeYaml(intel.risk)}"
 tickers: [${allTickers.map((t) => `"${t}"`).join(', ')}]
 gainers: ${JSON.stringify(topGainers)}
 losers: ${JSON.stringify(topLosers)}
@@ -139,8 +132,6 @@ active: ${JSON.stringify(mostActive)}
 refUrl: "https://www.tradingview.com/symbols/${leadStock.ticker}/?aff_id=170147"
 refLabel: "Analyze ${leadStock.ticker} on TradingView"
 ---
-
-${generatedAnalysis}
 `;
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
