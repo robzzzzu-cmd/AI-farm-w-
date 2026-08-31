@@ -294,12 +294,19 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         margin-bottom: 0.65rem;
         word-break: break-word;
       }
-      .card-desc {
-        font-size: 0.9rem;
+      .card-body {
+        font-size: 0.875rem;
         color: var(--text-secondary);
         line-height: 1.6;
-        margin-bottom: 1.25rem;
+        margin: 0.75rem 0 1.25rem 0;
       }
+      .card-body p { margin-bottom: 0.6rem; }
+      .card-body ul { padding-left: 1.25rem; margin-bottom: 0.6rem; list-style-type: disc; }
+      .card-body li { margin-bottom: 0.45rem; color: var(--text-secondary); }
+      .card-body strong { color: var(--text-primary); font-weight: 600; }
+      .card-body a { color: var(--brand-accent); text-decoration: none; font-weight: 600; }
+      .card-body a:hover { text-decoration: underline; }
+
       .card-action-btn {
         display: inline-flex;
         align-items: center;
@@ -348,7 +355,6 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         width: 100%;
       }
       .stream-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; word-break: break-word; }
-      .stream-desc { font-size: 0.78125rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 0.5rem; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.25rem; }
 
       .table-card {
@@ -605,7 +611,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
         </div>
       </header>
 
-      <!-- Section 01: Dispatches (Compact Summary Cards) -->
+      <!-- Section 01: Dispatches (Render Clean Content) -->
       <section id="intelligence">
         <div class="section-label">01 // Recent Dispatches</div>
         <div class="grid-main">
@@ -613,13 +619,14 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
             <article class="card dispatch-card" style="display: flex; flex-direction: column; justify-content: space-between;">
               <div>
                 <div class="card-meta">
-                  <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Breakout'}</span>
+                  <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Equities'}</span>
                   <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
                 </div>
                 <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
-                <p class="card-desc">
-                  {featuredPost.frontmatter.description || `US equity momentum scan detailing volume expansion and intraday breakout dynamics in ${featuredPost.frontmatter.leadTicker || 'key assets'}.`}
-                </p>
+                
+                <div class="card-body">
+                  <featuredPost.Content />
+                </div>
               </div>
               
               <div>
@@ -652,9 +659,9 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
               <article class="stream-item dispatch-card">
                 <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
                 <h3 class="stream-title">{post.frontmatter.title}</h3>
-                <p class="stream-desc">
-                  {post.frontmatter.description || `Breakout scan and volume activity report.`}
-                </p>
+                <div class="card-body" style="font-size: 0.8rem; margin: 0.35rem 0 0.5rem 0;">
+                  <post.Content />
+                </div>
                 <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                    target="_blank" 
                    rel="noopener noreferrer" 
