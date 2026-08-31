@@ -1,3 +1,4 @@
+// index.js
 const fs = require('fs');
 const path = require('path');
 
@@ -177,8 +178,11 @@ title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadSt
 description: "Market intelligence report on liquidity expansion in ${leadStock.ticker} and active breakout leaders."
 date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"
+updatedDate: "${now.toISOString()}"
 displayDate: "${date} ${displayTime}"
 category: "Equities"
+categories: ["Equities", "Momentum"]
+image: "https://tradeopportunities.trade/favicon.svg"
 leadTicker: "${leadStock.ticker}"
 leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
 tickers: [${allTickers.map((t) => `"${t}"`).join(', ')}]
