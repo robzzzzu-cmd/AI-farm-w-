@@ -1,5 +1,5 @@
 ---
-// src/pages/blog/[...slug].astro
+// short-series/src/pages/blog/[...slug].astro
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 
@@ -7,30 +7,100 @@ export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
     params: { slug: post.id.replace(/\.md$/, '') },
-    props: { post },
+    props: { post, allPosts: posts },
   }));
 }
 
-const { post } = Astro.props;
+const { post, allPosts = [] } = Astro.props;
 const { Content } = await render(post);
 
-// Safely parse date from frontmatter (date, displayDate, or pubDate)
-const rawDate = post.data?.date || post.data?.displayDate || post.data?.pubDate;
-const parsedDate = rawDate ? new Date(rawDate) : null;
-const isValidDate = parsedDate && !isNaN(parsedDate.getTime());
+// Canonical and Date normalization
+const rawPubDate = post.data?.pubDate || post.data?.date;
+const rawModDate = post.data?.updatedDate || rawPubDate;
 
-const displayDate = post.data?.displayDate || (isValidDate ? parsedDate.toLocaleDateString('en-US', { dateStyle: 'long' }) : '');
-const isoDateString = isValidDate ? parsedDate.toISOString() : undefined;
+const pubDateObj = rawPubDate ? new Date(rawPubDate) : new Date();
+const modDateObj = rawModDate ? new Date(rawModDate) : pubDateObj;
+
+const isoPubDate = !isNaN(pubDateObj.getTime()) ? pubDateObj.toISOString() : new Date().toISOString();
+const isoModDate = !isNaN(modDateObj.getTime()) ? modDateObj.toISOString() : isoPubDate;
+
+const displayDate = post.data?.displayDate || pubDateObj.toLocaleDateString('en-US', { dateStyle: 'long' });
+
+const canonicalURL = new URL(`/blog/${post.id.replace(/\.md$/, '')}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
+const postImage = post.data?.image || "https://tradeopportunities.trade/favicon.svg";
+
+// Category link handling
+const postCategory = post.data?.category || 'Equities';
+const categorySlug = postCategory.toLowerCase().replace(/\s+/g, '-');
+
+// Internal Linking: Find up to 3 related posts based on matching category, tickers, or recent date
+const currentSlug = post.id.replace(/\.md$/, '');
+const relatedPosts = allPosts
+  .filter((p) => p.id.replace(/\.md$/, '') !== currentSlug)
+  .sort((a, b) => {
+    // Check ticker overlap
+    const aTickers = a.data?.tickers || [];
+    const bTickers = b.data?.tickers || [];
+    const currentTickers = post.data?.tickers || [];
+    const aMatch = aTickers.some((t: string) => currentTickers.includes(t)) ? 2 : 0;
+    const bMatch = bTickers.some((t: string) => currentTickers.includes(t)) ? 2 : 0;
+
+    const dateA = new Date(a.data?.pubDate || a.data?.date || 0).getTime();
+    const dateB = new Date(b.data?.pubDate || b.data?.date || 0).getTime();
+
+    return (bMatch + dateB) - (aMatch + dateA);
+  })
+  .slice(0, 3);
+
+// NewsArticle JSON-LD Schema
+const newsArticleSchema = {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": canonicalURL
+  },
+  "headline": post.data?.title || "Market Intelligence Report",
+  "description": post.data?.description || `Market intelligence update covering liquidity expansion in ${post.data?.leadTicker || 'momentum equities'}.`,
+  "image": [postImage],
+  "datePublished": isoPubDate,
+  "dateModified": isoModDate,
+  "author": {
+    "@type": "Organization",
+    "name": "Trade Opportunities Intelligence Desk",
+    "url": "https://tradeopportunities.trade"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
 ---
 
-<Layout title={`${post.data?.title || 'Market Update'} | Trade Opportunities`}>
+<Layout 
+  title={`${post.data?.title || 'Market Update'} | Trade Opportunities`}
+  description={post.data?.description}
+  canonicalURL={canonicalURL}
+  image={postImage}
+  articleDate={isoPubDate}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(newsArticleSchema)} />
+  </Fragment>
+
   <article class="article-wrapper">
     <header class="article-header">
       {displayDate && (
-        <time datetime={isoDateString}>{displayDate}</time>
+        <time datetime={isoPubDate}>{displayDate}</time>
       )}
       <h1>{post.data?.title}</h1>
-      {post.data?.category && <span class="pill pill-gain">{post.data.category}</span>}
+      <a href={`/category/${categorySlug}`} class="pill pill-gain" title={`View all ${postCategory} updates`}>
+        {postCategory} Hub &rarr;
+      </a>
     </header>
 
     <div class="risk-callout">
@@ -55,6 +125,26 @@ const isoDateString = isValidDate ? parsedDate.toISOString() : undefined;
       <a href={post.data.refUrl} target="_blank" rel="noopener noreferrer" class="card-action-btn">
         {post.data.refLabel || "Access Liquidity Terminal"} &rarr;
       </a>
+    )}
+
+    <!-- Internal Linking: Related Opportunities Hub -->
+    {relatedPosts.length > 0 && (
+      <section class="related-intel-section">
+        <h3 class="related-intel-title">Related Market Opportunities</h3>
+        <div class="related-intel-grid">
+          {relatedPosts.map((related) => (
+            <a href={`/blog/${related.id.replace(/\.md$/, '')}/`} class="related-card">
+              <span class="related-date">
+                {related.data?.displayDate || (related.data?.date ? new Date(related.data.date).toISOString().slice(0, 10) : 'Recent')}
+              </span>
+              <span class="related-title">{related.data?.title}</span>
+              {related.data?.leadTicker && (
+                <span class="related-lead">${related.data.leadTicker} ({related.data?.leadGain || 'Breakout'})</span>
+              )}
+            </a>
+          ))}
+        </div>
+      </section>
     )}
 
     <footer class="article-footer-disclaimer">
@@ -87,11 +177,16 @@ const isoDateString = isValidDate ? parsedDate.toISOString() : undefined;
     font-size: 0.6875rem;
     font-weight: 700;
     text-transform: uppercase;
-    padding: 0.15rem 0.45rem;
-    border-radius: 3px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
     background: rgba(34, 197, 94, 0.1);
     color: #22c55e;
     margin-bottom: 1rem;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .pill:hover {
+    background: rgba(34, 197, 94, 0.2);
   }
   .risk-callout {
     background: rgba(245, 158, 11, 0.08);
@@ -139,6 +234,54 @@ const isoDateString = isValidDate ? parsedDate.toISOString() : undefined;
     padding: 0.65rem 1rem;
     border-radius: 5px;
     margin-top: 1.5rem;
+  }
+  .related-intel-section {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #1e2638;
+  }
+  .related-intel-title {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  .related-intel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  .related-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 0.85rem;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: border-color 0.2s;
+  }
+  .related-card:hover {
+    border-color: #38bdf8;
+  }
+  .related-date {
+    font-size: 0.6875rem;
+    color: #64748b;
+    font-family: monospace;
+  }
+  .related-title {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    line-height: 1.35;
+  }
+  .related-lead {
+    font-size: 0.725rem;
+    color: #22c55e;
+    font-weight: 600;
   }
   .article-footer-disclaimer {
     margin-top: 3rem;
