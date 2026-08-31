@@ -37,14 +37,6 @@ const secondaryPosts = posts.slice(1, 5);
 
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
-
-const majorIndices = [
-  { symbol: "S&P 500", val: "5,648.40", chg: "+0.42%", up: true },
-  { symbol: "NASDAQ", val: "17,713.62", chg: "+0.88%", up: true },
-  { symbol: "DOW", val: "41,563.08", chg: "-0.15%", up: false },
-  { symbol: "BTC/USD", val: "$63,820", chg: "+1.95%", up: true },
-  { symbol: "ETH/USD", val: "$2,740", chg: "+2.40%", up: true }
-];
 ---
 
 <!DOCTYPE html>
@@ -94,48 +86,12 @@ const majorIndices = [
         padding: 0 1.25rem;
       }
 
-      /* Ticker Ribbon */
-      .ticker-ribbon {
+      /* Live Automated TradingView Ticker Tape Ribbon */
+      .ticker-ribbon-wrapper {
         background: #070a0f;
         border-bottom: 1px solid var(--border-subtle);
-        font-size: 0.75rem;
-        padding: 0.35rem 0;
-      }
-      .ticker-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1.5rem;
-        overflow-x: auto;
-        scrollbar-width: none;
-      }
-      .ticker-inner::-webkit-scrollbar { display: none; }
-      .session-indicator {
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-family: var(--font-mono);
-        font-weight: 700;
-        white-space: nowrap;
-        padding-right: 1rem;
-        border-right: 1px solid var(--border-subtle);
-      }
-      .pulse-dot {
-        width: 6px;
-        height: 6px;
-        background: var(--gain-color);
-        border-radius: 50%;
-        box-shadow: 0 0 6px var(--gain-color);
-      }
-      .indices-list {
-        display: flex;
-        gap: 1.25rem;
-        white-space: nowrap;
-        font-family: var(--font-mono);
-      }
-      .indices-item {
-        display: flex;
-        gap: 0.35rem;
+        height: 46px;
+        overflow: hidden;
       }
 
       /* Navigation */
@@ -516,24 +472,41 @@ const majorIndices = [
     </style>
   </head>
   <body>
-    <!-- Live Market Ticker Ribbon -->
-    <div class="ticker-ribbon">
-      <div class="app-wrapper ticker-inner">
-        <div class="session-indicator">
-          <div class="pulse-dot"></div>
-          <span id="market-session-status">MARKET SESSION ACTIVE</span>
-        </div>
-        <div class="indices-list">
-          {majorIndices.map(idx => (
-            <div class="indices-item">
-              <span style="color: var(--text-primary);">{idx.symbol}</span>
-              <span>{idx.val}</span>
-              <span style={`color: ${idx.up ? 'var(--gain-color)' : 'var(--loss-color)'};`}>
-                {idx.chg}
-              </span>
-            </div>
-          ))}
-        </div>
+    <!-- Live Automated TradingView Ticker Tape Ribbon -->
+    <div class="ticker-ribbon-wrapper">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            {
+              "proName": "FOREXCOM:SPXUSD",
+              "title": "S&P 500"
+            },
+            {
+              "proName": "FOREXCOM:NSXUSD",
+              "title": "US 100 (NASDAQ)"
+            },
+            {
+              "proName": "FOREXCOM:DJI",
+              "title": "Dow 30"
+            },
+            {
+              "proName": "BINANCE:BTCUSDT",
+              "title": "BTC/USDT"
+            },
+            {
+              "proName": "BINANCE:ETHUSDT",
+              "title": "ETH/USDT"
+            }
+          ],
+          "showSymbolLogo": true,
+          "isTransparent": true,
+          "displayMode": "adaptive",
+          "colorTheme": "dark",
+          "locale": "en"
+        }
+        </script>
       </div>
     </div>
 
@@ -736,15 +709,27 @@ const majorIndices = [
         </div>
       </section>
 
-      <!-- Revenue Add-on: Daily Intel Dispatch Subscriptions -->
+      <!-- Revenue Add-on: Daily Intel Dispatch Subscriptions (Resend) -->
       <div class="newsletter-box">
         <div>
           <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Daily Momentum Alerts</h3>
           <p style="font-size: 0.8125rem; color: var(--text-secondary);">Receive high-volume breakout scans directly before market open.</p>
         </div>
-        <form action="https://tradeopportunities.substack.com" method="get" target="_blank" class="newsletter-input-group">
-          <input type="email" placeholder="institutional@trader.com" class="newsletter-input" required />
-          <button type="submit" class="tool-btn" style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;">
+        <form id="resend-subscribe-form" class="newsletter-input-group">
+          <input 
+            type="email" 
+            name="email" 
+            id="subscriber-email" 
+            placeholder="institutional@trader.com" 
+            class="newsletter-input" 
+            required 
+          />
+          <button 
+            type="submit" 
+            id="subscribe-btn"
+            class="tool-btn" 
+            style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;"
+          >
             Subscribe Free
           </button>
         </form>
@@ -810,7 +795,7 @@ const majorIndices = [
       </footer>
     </div>
 
-    <!-- Live Client-Side Search Filter & Session Clock -->
+    <!-- Live Client-Side Search Filter & Resend Form Handler -->
     <script is:inline>
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
@@ -824,21 +809,37 @@ const majorIndices = [
         });
       }
 
-      function updateSessionIndicator() {
-        const statusEl = document.getElementById('market-session-status');
-        if (!statusEl) return;
-        const hour = new Date().getUTCHours();
-        if (hour >= 13 && hour < 21) {
-          statusEl.textContent = "US SESSION ACTIVE (NYSE / NASDAQ)";
-        } else if (hour >= 7 && hour < 15) {
-          statusEl.textContent = "EUROPEAN SESSION ACTIVE (LSE / DAX)";
-        } else if (hour >= 0 && hour < 8) {
-          statusEl.textContent = "ASIAN SESSION ACTIVE (TSE / HKEX)";
-        } else {
-          statusEl.textContent = "GLOBAL MARKETS CLOSED // OFF-HOURS SCAN";
-        }
+      const subscribeForm = document.getElementById('resend-subscribe-form');
+      const subscribeBtn = document.getElementById('subscribe-btn');
+      if (subscribeForm && subscribeBtn) {
+        subscribeForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const emailInput = document.getElementById('subscriber-email');
+          if (!emailInput) return;
+
+          subscribeBtn.disabled = true;
+          subscribeBtn.textContent = 'Subscribing...';
+
+          try {
+            const res = await fetch('/api/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: emailInput.value })
+            });
+
+            if (res.ok) {
+              subscribeBtn.textContent = 'Subscribed!';
+              emailInput.value = '';
+            } else {
+              subscribeBtn.textContent = 'Try Again';
+              subscribeBtn.disabled = false;
+            }
+          } catch (err) {
+            subscribeBtn.textContent = 'Error';
+            subscribeBtn.disabled = false;
+          }
+        });
       }
-      updateSessionIndicator();
     </script>
   </body>
 </html>
