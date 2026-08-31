@@ -4,36 +4,51 @@ import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog');
-  const categoryMap = new Map<string, typeof allPosts>();
 
-  allPosts.forEach((post) => {
-    const cats = post.data.categories || (post.data.category ? [post.data.category] : ['Equities']);
-    cats.forEach((cat) => {
-      const normalized = cat.toLowerCase();
-      if (!categoryMap.has(normalized)) {
-        categoryMap.set(normalized, []);
+  // Helper to extract all categories assigned to a post across legacy and new schemas
+  const getPostCategories = (post: (typeof allPosts)[number]): string[] => {
+    if (Array.isArray(post.data.categories) && post.data.categories.length > 0) {
+      return post.data.categories;
+    }
+    if (typeof post.data.category === 'string' && post.data.category.trim() !== '') {
+      return [post.data.category.trim()];
+    }
+    return ['Equities'];
+  };
+
+  const categoryMap = new Map<string, { name: string; posts: typeof allPosts }>();
+
+  for (const post of allPosts) {
+    const cats = getPostCategories(post);
+    for (const cat of cats) {
+      const slug = cat.toLowerCase().replace(/\s+/g, '-');
+      if (!categoryMap.has(slug)) {
+        categoryMap.set(slug, { name: cat, posts: [] });
       }
-      categoryMap.get(normalized)!.push(post);
-    });
-  });
+      categoryMap.get(slug)!.posts.push(post);
+    }
+  }
 
-  return Array.from(categoryMap.entries()).map(([slug, posts]) => {
-    const formattedTitle = posts[0]?.data?.categories?.find((c) => c.toLowerCase() === slug) ||
-                           posts[0]?.data?.category ||
-                           slug.toUpperCase();
+  // Ensure standard asset hubs exist even if no posts are tagged yet
+  const defaultHubs = ['equities', 'forex', 'crypto', 'commodities'];
+  for (const slug of defaultHubs) {
+    if (!categoryMap.has(slug)) {
+      const name = slug.charAt(0).toUpperCase() + slug.slice(1);
+      categoryMap.set(slug, { name, posts: [] });
+    }
+  }
 
-    return {
-      params: { category: slug },
-      props: {
-        categoryName: formattedTitle,
-        posts: posts.sort((a, b) => {
-          const dateA = a.data.pubDate?.valueOf() || a.data.date?.valueOf() || 0;
-          const dateB = b.data.pubDate?.valueOf() || b.data.date?.valueOf() || 0;
-          return dateB - dateA;
-        })
-      }
-    };
-  });
+  return Array.from(categoryMap.entries()).map(([slug, data]) => ({
+    params: { category: slug },
+    props: {
+      categoryName: data.name,
+      posts: data.posts.sort((a, b) => {
+        const dateA = new Date(a.data.pubDate || a.data.date || 0).getTime();
+        const dateB = new Date(b.data.pubDate || b.data.date || 0).getTime();
+        return dateB - dateA;
+      })
+    }
+  }));
 }
 
 const { categoryName, posts } = Astro.props;
@@ -51,39 +66,50 @@ const { categoryName, posts } = Astro.props;
       </p>
     </header>
 
-    <div class="space-y-6">
-      {posts.map((post) => (
-        <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-            <span>{post.data.displayDate || post.data.pubDate?.toISOString().split('T')[0]}</span>
-            {post.data.leadTicker && (
-              <>
-                <span>•</span>
-                <span class="font-semibold text-emerald-600 dark:text-emerald-400">
-                  Lead: ${post.data.leadTicker} ({post.data.leadGain})
-                </span>
-              </>
-            )}
-          </div>
-          <h2 class="text-xl font-bold">
-            <a href={`/blog/${post.id}`} class="hover:text-blue-600 dark:hover:text-blue-400 transition">
-              {post.data.title}
-            </a>
-          </h2>
-          {post.data.description && (
-            <p class="text-gray-600 dark:text-gray-300 mt-2 text-sm leading-relaxed">
-              {post.data.description}
-            </p>
-          )}
-          <div class="flex flex-wrap gap-2 mt-4">
-            {post.data.tags?.map((tag) => (
-              <span class="text-xs px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                #{tag}
+    {posts.length === 0 ? (
+      <p class="text-gray-500 py-8">No updates currently cataloged under {categoryName}.</p>
+    ) : (
+      <div class="space-y-6">
+        {posts.map((post) => (
+          <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+              <span>
+                {post.data.displayDate ||
+                  (post.data.pubDate || post.data.date
+                    ? new Date(post.data.pubDate || post.data.date!).toISOString().split('T')[0]
+                    : 'Recent')}
               </span>
-            ))}
-          </div>
-        </article>
-      ))}
-    </div>
+              {post.data.leadTicker && (
+                <>
+                  <span>•</span>
+                  <span class="font-semibold text-emerald-600 dark:text-emerald-400">
+                    Lead: ${post.data.leadTicker} {post.data.leadGain ? `(${post.data.leadGain})` : ''}
+                  </span>
+                </>
+              )}
+            </div>
+            <h2 class="text-xl font-bold">
+              <a href={`/blog/${post.id}`} class="hover:text-blue-600 dark:hover:text-blue-400 transition">
+                {post.data.title}
+              </a>
+            </h2>
+            {post.data.description && (
+              <p class="text-gray-600 dark:text-gray-300 mt-2 text-sm leading-relaxed">
+                {post.data.description}
+              </p>
+            )}
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2 mt-4">
+                {post.data.tags.map((tag) => (
+                  <span class="text-xs px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
   </main>
 </Layout>
