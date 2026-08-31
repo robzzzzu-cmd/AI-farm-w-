@@ -26,14 +26,18 @@ const isoModDate = !isNaN(modDateObj.getTime()) ? modDateObj.toISOString() : iso
 
 const displayDate = post.data?.displayDate || pubDateObj.toLocaleDateString('en-US', { dateStyle: 'long' });
 
-const canonicalURL = new URL(`/blog/${post.id.replace(/\.md$/, '')}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
-const postImage = post.data?.image || "https://tradeopportunities.trade/favicon.svg";
+const slug = post.id.replace(/\.md$/, '');
+const canonicalURL = new URL(`/blog/${slug}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
 
-// Category link handling
+// Dynamic Image URL
+const postImage = post.data?.image && post.data.image.startsWith('http') && !post.data.image.includes('favicon.svg')
+  ? post.data.image
+  : `https://tradeopportunities.trade/og/${slug}.svg`;
+
 const postCategory = post.data?.category || 'Equities';
 const categorySlug = postCategory.toLowerCase().replace(/\s+/g, '-');
 
-// Internal Linking: Find up to 3 related posts based on matching category, tickers, or recent date
+// Internal Linking: Find related posts
 const currentSlug = post.id.replace(/\.md$/, '');
 const relatedPosts = allPosts
   .filter((p) => p.id.replace(/\.md$/, '') !== currentSlug)
@@ -92,6 +96,16 @@ const newsArticleSchema = {
   </Fragment>
 
   <article class="article-wrapper">
+    <!-- Visual News Header Banner -->
+    <div class="article-banner-container">
+      <img 
+        src={`/og/${slug}.svg`} 
+        alt={post.data?.title || "Market Momentum Scan"} 
+        class="article-banner-img" 
+        loading="eager" 
+      />
+    </div>
+
     <header class="article-header">
       {displayDate && (
         <time datetime={isoPubDate}>{displayDate}</time>
@@ -178,8 +192,23 @@ const newsArticleSchema = {
 <style>
   .article-wrapper {
     max-width: 760px;
-    margin: 2.5rem auto;
+    margin: 2rem auto 3rem auto;
     padding: 0 1.5rem;
+  }
+  .article-banner-container {
+    width: 100%;
+    margin-bottom: 1.75rem;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #1e2638;
+    background: #0f172a;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+  .article-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 1200 / 630;
   }
   .article-header time {
     display: block;
