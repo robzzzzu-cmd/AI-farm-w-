@@ -42,15 +42,15 @@ function buildCompactTable(title, items) {
 }
 
 function sanitizeAndLinkify(text, tickers) {
-  // 1. Prevent raw < and > from breaking HTML rendering
+  // Prevent raw < and > from breaking HTML rendering
   let cleaned = text
     .replace(/<(?![a-zA-Z/])/g, '&lt;')
     .replace(/(?<![a-zA-Z/])>/g, '&gt;');
 
-  // 2. Sort tickers longest-first to prevent partial matches ($SWVLW before $SWVL)
+  // Sort tickers longest-first to prevent partial string replacement ($SWVLW before $SWVL)
   const sorted = [...tickers].sort((a, b) => b.length - a.length);
 
-  // 3. Automatically turn every $TICKER into a TradingView affiliate markdown link
+  // Linkify every $TICKER into a TradingView affiliate markdown link
   for (const t of sorted) {
     const regex = new RegExp(`(?<!\\[)\\$${t}\\b(?!\\])`, 'g');
     cleaned = cleaned.replace(
@@ -84,7 +84,6 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    // Filter out illiquid tickers (< 50k volume)
     const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
     const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
@@ -93,25 +92,34 @@ async function run() {
     const leadStock = topGainers[0];
 
     const stockDataSummary = `
-TOP GAINERS:
-${topGainers.map((s) => `Ticker: ${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Gain: +${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
+TOP GAINERS (Momentum Breakouts):
+${topGainers.map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: +${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
 
-MOST ACTIVE LIQUIDITY LEADERS:
-${mostActive.slice(0, 3).map((s) => `Ticker: ${s.ticker} | Volume: ${Number(s.volume).toLocaleString()} shares | Change: ${parseFloat(s.change_percentage).toFixed(2)}%`).join('\n')}
+MOST ACTIVELY TRADED (Liquidity Anchors):
+${mostActive.slice(0, 3).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
+
+TOP DECLINERS (Distribution & Pullbacks):
+${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
     `.trim();
 
-    const systemPrompt = `You are a quantitative equity market analyst at Trade Opportunities.
-Write a continuous 2-paragraph market intelligence dispatch based on the market feed below:
+    const systemPrompt = `You are a financial news journalist and equity market strategist for Trade Opportunities.
+Write a sharp, institutional-grade market dispatch (strictly between 6 to 9 continuous sentences) analyzing today's high-momentum breakouts and order flow.
 
-Paragraph 1: Discuss extreme upside momentum across the tracked universe, analyzing liquidity expansion in low-priced equities led by the top gainers (cite tickers, percentage gains, and share volume in millions).
-Paragraph 2: Detail secondary rotation into active volume leaders and address execution, microstructure, or mean-reversion risk once baseline volume exhausts.
+Key elements to integrate across the sentences:
+1. Lead with the top breakout ($${leadStock.ticker}), citing its percentage surge and massive volume.
+2. Highlight secondary rotation across other top gainers in the list.
+3. Discuss retail float turnover, institutional order routing, and liquidity surges in sub-dollar equities.
+4. Compare this action with the volume leaders and decliners.
+5. Close with disciplined execution risks, spread friction, and mean-reversion pullbacks as volume exhausts.
 
-STRICT INSTRUCTIONS:
-- Return ONLY the 2 analysis paragraphs.
-- DO NOT output any introductory greetings, markdown headings (#, ##), bullet points, or concluding notes.
-- Mention tickers with standard dollar tags (e.g., $FNGR, $CHAI). Do NOT write markdown links or URLs.`;
+STRICT FORMATTING RULES:
+- Write continuous, flowing analytical prose (exactly 6 to 9 sentences).
+- DO NOT use markdown headings (#, ##, ####), subheadings, bullet points, or lists.
+- Mention tickers using standard dollar tags (e.g., $${leadStock.ticker}). Do NOT output markdown links or URLs.
+- Do NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
+- Return ONLY the article text. No intro, no closing remarks.`;
 
-    console.log('2. Generating narrative synthesis with Gemini...');
+    console.log('2. Generating news dispatch with Gemini...');
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
@@ -126,8 +134,8 @@ STRICT INSTRUCTIONS:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 1000,
-          temperature: 0.2
+          maxOutputTokens: 1200,
+          temperature: 0.25
         }
       })
     });
@@ -165,7 +173,7 @@ STRICT INSTRUCTIONS:
 
     const markdownContent = `---
 title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
-description: "Extreme upside momentum scan detailing liquidity expansion in ${leadStock.ticker} and active volume leaders."
+description: "Market intelligence report on liquidity expansion in ${leadStock.ticker} and active breakout leaders."
 date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"
 displayDate: "${date} ${displayTime}"
