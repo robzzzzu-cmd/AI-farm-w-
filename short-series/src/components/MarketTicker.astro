@@ -1,0 +1,117 @@
+---
+// src/components/MarketTicker.astro
+const indices = [
+  { symbol: "S&P 500", value: "5,648.40", change: "+0.42%", up: true },
+  { symbol: "NASDAQ", value: "17,713.62", change: "+0.88%", up: true },
+  { symbol: "DOW", value: "41,563.08", change: "-0.15%", up: false },
+  { symbol: "FTSE 100", value: "8,376.63", change: "+0.23%", up: true },
+  { symbol: "DAX", value: "18,906.92", change: "+0.03%", up: true },
+  { symbol: "NIKKEI 225", value: "38,647.75", change: "+0.74%", up: true },
+];
+---
+
+<div class="ticker-wrapper" aria-label="Market Overview">
+  <div class="session-badge">
+    <span class="pulse-dot"></span>
+    <span class="session-text" id="market-session">MARKET ACTIVE</span>
+  </div>
+
+  <div class="ticker-track">
+    <div class="ticker-items">
+      {indices.map((item) => (
+        <div class="ticker-item">
+          <span class="symbol">{item.symbol}</span>
+          <span class="value">{item.value}</span>
+          <span class={item.up ? "change up" : "change down"}>
+            {item.change}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateSession() {
+    const now = new Date();
+    const utcHour = now.getUTCHours();
+    const sessionEl = document.getElementById('market-session');
+    if (!sessionEl) return;
+
+    if (utcHour >= 13 && utcHour < 21) {
+      sessionEl.textContent = "US SESSION";
+    } else if (utcHour >= 7 && utcHour < 15) {
+      sessionEl.textContent = "EU SESSION";
+    } else if (utcHour >= 0 && utcHour < 8) {
+      sessionEl.textContent = "ASIA SESSION";
+    } else {
+      sessionEl.textContent = "MARKETS CLOSED";
+    }
+  }
+  updateSession();
+</script>
+
+<style>
+  .ticker-wrapper {
+    display: flex;
+    align-items: center;
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    color: #e2e8f0;
+    font-size: 0.825rem;
+    overflow: hidden;
+    padding: 0.4rem 1rem;
+    gap: 1rem;
+  }
+  .session-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    white-space: nowrap;
+    padding-right: 0.75rem;
+    border-right: 1px solid #334155;
+  }
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+  }
+  .ticker-track {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+  }
+  .ticker-track::-webkit-scrollbar {
+    display: none;
+  }
+  .ticker-items {
+    display: flex;
+    gap: 1.5rem;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    display: flex;
+    gap: 0.4rem;
+    font-family: ui-monospace, monospace;
+  }
+  .symbol {
+    font-weight: 600;
+    color: #f8fafc;
+  }
+  .value {
+    color: #cbd5e1;
+  }
+  .change.up {
+    color: #34d399;
+  }
+  .change.down {
+    color: #f87171;
+  }
+</style>
