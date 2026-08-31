@@ -52,6 +52,10 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
     <title>Trade Opportunities // Financial Intelligence & Market Signals</title>
     <meta name="bitmedia-site-verification" content="07522f1ef9d6b60ae5363fe10b37f8c5" />
     
+    <!-- High-Visibility Dynamic Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <link rel="alternate icon" href="/favicon.svg?v=2" />
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -750,7 +754,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
               {featuredPost.frontmatter.tickers && (
                 <div class="ticker-tags">
                   {featuredPost.frontmatter.tickers.map((t: string) => (
-                    <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
+                    <a href={`/ticker/${t.toLowerCase()}/`} class="ticker-pill" title={`View ${t} Breakout Hub`}>
                       ${t}
                     </a>
                   ))}
