@@ -1,4 +1,5 @@
 ---
+// short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
 
 interface StockItem {
@@ -661,6 +662,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
             <li><a href="#movers">Market Movers</a></li>
             <li><a href="#terminal">Order Terminal</a></li>
             <li><a href="#tools">Platforms</a></li>
+            <li><a href="/about">Methodology</a></li>
           </ul>
         </div>
         <div class="nav-actions">
@@ -955,6 +957,7 @@ const displayLosers = featuredPost?.frontmatter?.losers || [];
 
         <div class="footer-meta">
           <div class="footer-links">
+            <a href="/about">Methodology & E-E-A-T</a>
             <a href="/terms">Terms of Service</a>
             <a href="/privacy">Privacy Policy</a>
             <a href="/rss.xml">RSS Feed</a>
