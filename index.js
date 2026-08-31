@@ -7,7 +7,8 @@ async function fetchWithRetry(url, options = {}, retries = 3, backoffMs = 3000) 
     try {
       const response = await fetch(url, options);
       if (!response.ok) {
-        throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP Error ${response.status}: ${response.statusText} - ${errorText}`);
       }
       return await response.json();
     } catch (error) {
@@ -16,15 +17,6 @@ async function fetchWithRetry(url, options = {}, retries = 3, backoffMs = 3000) 
       await wait(backoffMs * attempt);
     }
   }
-}
-
-function markdownToEmailHtml(text) {
-  return text
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #2563eb; font-weight: 600; text-decoration: none;">$1</a>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color: #0f172a;">$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-    .replace(/\n\n/g, '</p><p style="margin: 0 0 14px 0; font-size: 14.5px; line-height: 1.65; color: #334155;">')
-    .replace(/\n/g, '<br/>');
 }
 
 function buildMarkdownTable(title, items) {
@@ -52,7 +44,6 @@ function buildMarkdownTable(title, items) {
 async function run() {
   const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
   const llmApiKey = process.env.LLM_API_KEY;
-  const resendApiKey = process.env.RESEND_API_KEY;
 
   if (!alphaVantageKey || !llmApiKey) {
     console.error('Missing required API keys. Verify ALPHA_VANTAGE_API_KEY and LLM_API_KEY.');
@@ -100,7 +91,7 @@ CRITICAL FORMATTING INSTRUCTION:
 - Maintain an institutional, data-driven tone. Avoid filler buzzwords, robotic meta-announcements, and disclaimers.`;
 
     console.log('2. Generating quantitative synthesis with Gemini...');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${llmApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${llmApiKey}`;
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -181,74 +172,6 @@ ${generatedAnalysis}
 
     fs.writeFileSync(`${folderPath}/${fileName}`, markdownContent);
     console.log(`Saved structured markdown: ${fileName}`);
-
-    // 4. Automated Zero-Token Broadcast via Resend
-    if (resendApiKey) {
-      console.log('4. Dispatching audience email broadcast via Resend...');
-
-      const audienceRes = await fetch('https://api.resend.com/audiences', {
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      const audienceJson = await audienceRes.json();
-      const audienceId = audienceJson.data?.[0]?.id;
-
-      if (!audienceId) {
-        console.warn('No Resend audience found. Email broadcast skipped.');
-      } else {
-        const emailFormattedBody = markdownToEmailHtml(generatedAnalysis);
-
-        const broadcastRes = await fetch('https://api.resend.com/broadcasts', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            audience_id: audienceId,
-            from: 'Trade Opportunities <intel@tradeopportunities.trade>',
-            subject: `Market Momentum: ${leadStock.ticker} (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`,
-            html: `
-              <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #0f172a; padding: 24px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <div style="border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
-                  <span style="font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em;">Quantitative Market Intelligence</span>
-                  <h2 style="font-size: 20px; margin: 4px 0 0; color: #0f172a;">${leadStock.ticker} Momentum Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)</h2>
-                  <span style="font-size: 12px; color: #64748b;">${date} &bull; ${displayTime}</span>
-                </div>
-
-                <div style="margin-bottom: 24px;">
-                  <p style="margin: 0 0 14px 0; font-size: 14.5px; line-height: 1.65; color: #334155;">
-                    ${emailFormattedBody}
-                  </p>
-                </div>
-
-                <div style="margin-bottom: 24px; text-align: center;">
-                  <a href="https://tradeopportunities.trade" style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 5px;">
-                    Open Live Terminal & View Full Scan &rarr;
-                  </a>
-                </div>
-
-                <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 24px; font-size: 11px; line-height: 1.5; color: #94a3b8;">
-                  <p style="margin: 0 0 8px 0;">
-                    <strong>Financial Disclaimer:</strong> Market commentary is generated algorithmically for informational and educational purposes only. Nothing herein constitutes investment, legal, or tax advice. Equities and digital assets carry risk of capital loss.
-                  </p>
-                  <p style="margin: 0;">
-                    You received this dispatch because you subscribed at <a href="https://tradeopportunities.trade" style="color: #64748b;">tradeopportunities.trade</a>.<br/>
-                    <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color: #64748b; text-decoration: underline;">Unsubscribe from alerts</a>
-                  </p>
-                </div>
-              </div>
-            `,
-            send: true
-          })
-        });
-
-        const broadcastData = await broadcastRes.json();
-        console.log('Broadcast status:', broadcastData);
-      }
-    }
   } catch (error) {
     console.error('Pipeline execution error:', error.message);
     process.exit(1);
