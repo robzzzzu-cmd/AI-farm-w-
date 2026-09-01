@@ -119,7 +119,7 @@ CRITICAL RULES:
 - Return ONLY the news text.`;
 
     console.log('2. Generating complete news dispatch with Gemini...');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${llmApiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
       method: 'POST',
@@ -151,7 +151,8 @@ CRITICAL RULES:
     const timestamp = now.toISOString().replace(/[:.]/g, '-');
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
 
-    const fileName = `market-update-${timestamp}.md`;
+    const slug = `market-update-${timestamp}`;
+    const fileName = `${slug}.md`;
     
     const folderPath = fs.existsSync('./src/content/blog')
       ? './src/content/blog'
@@ -172,6 +173,7 @@ CRITICAL RULES:
     );
 
     const generatedAnalysis = sanitizeAndLinkify(rawAnalysis, allTickers);
+    const ogImageUrl = `https://tradeopportunities.trade/og/${slug}.svg`;
 
     const markdownContent = `---
 title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
@@ -182,7 +184,7 @@ updatedDate: "${now.toISOString()}"
 displayDate: "${date} ${displayTime}"
 category: "Equities"
 categories: ["Equities", "Momentum"]
-image: "https://tradeopportunities.trade/favicon.svg"
+image: "${ogImageUrl}"
 leadTicker: "${leadStock.ticker}"
 leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
 tickers: [${allTickers.map((t) => `"${t}"`).join(', ')}]
