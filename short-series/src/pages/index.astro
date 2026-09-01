@@ -1,5 +1,6 @@
 ---
 // short-series/src/pages/index.astro
+import { getCollection, render } from 'astro:content';
 import MarketTicker from '../components/MarketTicker.astro';
 
 interface StockItem {
@@ -10,38 +11,27 @@ interface StockItem {
   volume: string;
 }
 
-interface MarkdownPost {
-  frontmatter: {
-    title?: string;
-    description?: string;
-    date?: string;
-    displayDate?: string;
-    category?: string;
-    leadTicker?: string;
-    leadGain?: string;
-    tickers?: string[];
-    gainers?: StockItem[];
-    losers?: StockItem[];
-    active?: StockItem[];
-    refUrl?: string;
-    refLabel?: string;
-  };
-  Content: any;
-  rawContent?: () => string;
-}
-
-const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
-const posts = rawPosts.sort((a, b) => {
-  const dateA = new Date(a.frontmatter.date || 0).valueOf();
-  const dateB = new Date(b.frontmatter.date || 0).valueOf();
+const allPosts = await getCollection('blog');
+const posts = allPosts.sort((a, b) => {
+  const dateA = new Date(a.data.pubDate || a.data.date || 0).valueOf();
+  const dateB = new Date(b.data.pubDate || b.data.date || 0).valueOf();
   return dateB - dateA;
 });
 
 const featuredPost = posts[0];
 const secondaryPosts = posts.slice(1, 5);
 
-const displayGainers = featuredPost?.frontmatter?.gainers || [];
-const displayLosers = featuredPost?.frontmatter?.losers || [];
+const { Content: FeaturedContent } = featuredPost ? await render(featuredPost) : { Content: null };
+
+const renderedSecondary = await Promise.all(
+  secondaryPosts.map(async (post) => {
+    const { Content } = await render(post);
+    return { post, Content };
+  })
+);
+
+const displayGainers = (featuredPost?.data?.gainers as StockItem[]) || [];
+const displayLosers = (featuredPost?.data?.losers as StockItem[]) || [];
 
 const canonicalURL = "https://tradeopportunities.trade/";
 const pageTitle = "Trade Opportunities // Financial Intelligence & Market Signals";
@@ -739,18 +729,20 @@ const websiteSchema = {
           {featuredPost ? (
             <article class="card dispatch-card">
               <div class="card-meta">
-                <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Equities'}</span>
-                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
+                <span class="pill pill-gain">{featuredPost.data.category || 'Equities'}</span>
+                <span style="font-family: var(--font-mono);">
+                  {featuredPost.data.displayDate || (featuredPost.data.date ? new Date(featuredPost.data.date).toISOString().slice(0, 10) : '')}
+                </span>
               </div>
               
-              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
+              <h2 class="card-title">{featuredPost.data.title}</h2>
               
               <div class="card-body" id="featured-content">
-                <featuredPost.Content />
+                {FeaturedContent && <FeaturedContent />}
               </div>
 
               <!-- Dynamic Fallback Table for older posts that lacked markdown tables -->
-              {featuredPost.frontmatter.gainers && featuredPost.frontmatter.gainers.length > 0 && (
+              {displayGainers.length > 0 && (
                 <div class="fallback-table-wrapper" style="display: none;">
                   <h4>Session Top Movers & Liquidity</h4>
                   <table class="compact-table">
@@ -764,7 +756,7 @@ const websiteSchema = {
                       </tr>
                     </thead>
                     <tbody>
-                      {featuredPost.frontmatter.gainers.map((stock: StockItem) => (
+                      {displayGainers.map((stock: StockItem) => (
                         <tr>
                           <td><strong>${stock.ticker}</strong></td>
                           <td>${parseFloat(stock.price).toFixed(2)}</td>
@@ -782,9 +774,9 @@ const websiteSchema = {
                 </div>
               )}
 
-              {featuredPost.frontmatter.tickers && (
+              {featuredPost.data.tickers && featuredPost.data.tickers.length > 0 && (
                 <div class="ticker-tags">
-                  {featuredPost.frontmatter.tickers.map((t: string) => (
+                  {featuredPost.data.tickers.map((t: string) => (
                     <a href={`/ticker/${t.toLowerCase()}/`} class="ticker-pill" title={`View ${t} Breakout Hub`}>
                       ${t}
                     </a>
@@ -792,11 +784,11 @@ const websiteSchema = {
                 </div>
               )}
 
-              <a href={featuredPost.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+              <a href={featuredPost.data.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                  target="_blank" 
                  rel="noopener noreferrer" 
                  class="card-action-btn">
-                {featuredPost.frontmatter.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
+                {featuredPost.data.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
               </a>
             </article>
           ) : (
@@ -806,18 +798,20 @@ const websiteSchema = {
           )}
 
           <div class="stream-list">
-            {secondaryPosts.map(post => (
+            {renderedSecondary.map(({ post, Content }) => (
               <article class="stream-item dispatch-card">
-                <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
-                <h3 class="stream-title">{post.frontmatter.title}</h3>
-                <div class="stream-body">
-                  <post.Content />
+                <div class="stream-date">
+                  {post.data.displayDate || (post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : '')}
                 </div>
-                <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+                <h3 class="stream-title">{post.data.title}</h3>
+                <div class="stream-body">
+                  <Content />
+                </div>
+                <a href={post.data.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                    target="_blank" 
                    rel="noopener noreferrer" 
                    style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
-                  {post.frontmatter.refLabel || "View Chart"} &rarr;
+                  {post.data.refLabel || "View Chart"} &rarr;
                 </a>
               </article>
             ))}
