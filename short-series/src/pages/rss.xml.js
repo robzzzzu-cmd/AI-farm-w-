@@ -1,23 +1,26 @@
 // short-series/src/pages/rss.xml.js
 import rss from '@astrojs/rss';
+import { getCollection } from 'astro:content';
+
+export const prerender = true;
 
 export async function GET(context) {
-  const postFiles = import.meta.glob('../content/blog/*.md', { eager: true });
+  const blogPosts = await getCollection('blog');
   const siteUrl = (context.site ? context.site.href : 'https://tradeopportunities.trade').replace(/\/$/, '');
 
-  const items = Object.entries(postFiles).map(([filepath, post]) => {
-    const slug = filepath.split('/').pop().replace(/\.md$/, '');
-    const frontmatter = post.frontmatter || {};
+  const items = blogPosts.map((post) => {
+    const slug = post.id.replace(/\.md$/, '');
+    const data = post.data || {};
 
-    const rawDate = frontmatter.pubDate || frontmatter.date || Date.now();
+    const rawDate = data.pubDate || data.date || Date.now();
     const parsedDate = new Date(rawDate);
 
-    const imageUrl = frontmatter.image && frontmatter.image.startsWith('http') && !frontmatter.image.includes('favicon.svg')
-      ? frontmatter.image
+    const imageUrl = data.image && data.image.startsWith('http') && !data.image.includes('favicon.svg')
+      ? data.image
       : `${siteUrl}/og/${slug}.svg`;
 
-    const summaryText = frontmatter.description || frontmatter.summary || 'Daily algorithmic market intelligence and technical analysis report.';
-    const titleText = frontmatter.title || slug.replace(/-/g, ' ');
+    const summaryText = data.description || 'Daily algorithmic market intelligence and technical analysis report.';
+    const titleText = data.title || slug.replace(/-/g, ' ');
 
     return {
       title: titleText,
