@@ -148,10 +148,10 @@ CRITICAL RULES:
     console.log('3. Assembling structured markdown post...');
     const now = new Date();
     const date = now.toISOString().split('T')[0];
-    const timestamp = now.toISOString().replace(/[:.]/g, '-');
+    const timeParts = now.toISOString().split('T')[1].replace(/[:.]/g, '-').replace(/Z$/i, '').toLowerCase();
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
 
-    const slug = `market-update-${timestamp}`;
+    const slug = `market-update-${date}-${timeParts}`;
     const fileName = `${slug}.md`;
     
     const folderPath = fs.existsSync('./src/content/blog')
