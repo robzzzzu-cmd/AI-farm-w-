@@ -1,6 +1,8 @@
 // short-series/src/pages/og/[slug].svg.ts
 import { getCollection } from 'astro:content';
 
+export const prerender = true;
+
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
@@ -9,16 +11,32 @@ export async function getStaticPaths() {
   }));
 }
 
-export async function GET({ props }: { props: { post: any } }) {
-  const { post } = props;
-  
-  const leadTicker = post.data?.leadTicker || post.data?.tickers?.[0] || 'MARKET';
-  const leadGain = post.data?.leadGain || '+0.0%';
-  const title = post.data?.title || 'Daily Market Intelligence';
-  const dateStr = post.data?.displayDate || (post.data?.date ? new Date(post.data.date).toISOString().slice(0, 10) : 'Live Scan');
-  const category = post.data?.category || 'Equities';
+function escapeXml(unsafe: string): string {
+  return (unsafe || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
-  const cleanTitle = title.length > 58 ? title.slice(0, 55) + '...' : title;
+export async function GET({ params, props }: { params: { slug?: string }; props: { post?: any } }) {
+  let post = props?.post;
+
+  if (!post && params?.slug) {
+    const posts = await getCollection('blog');
+    post = posts.find((p) => p.id.replace(/\.md$/, '') === params.slug);
+  }
+
+  const leadTicker = escapeXml(post?.data?.leadTicker || post?.data?.tickers?.[0] || 'MARKET');
+  const leadGain = escapeXml(post?.data?.leadGain || '+0.0%');
+  const title = post?.data?.title || 'Daily Market Intelligence';
+  const dateStr = post?.data?.displayDate || (post?.data?.date ? new Date(post.data.date).toISOString().slice(0, 10) : 'Live Scan');
+  const category = escapeXml(post?.data?.category || 'Equities');
+
+  const truncatedTitle = title.length > 58 ? title.slice(0, 55) + '...' : title;
+  const cleanTitle = escapeXml(truncatedTitle);
+  const cleanDateStr = escapeXml(dateStr.slice(0, 10));
 
   const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
@@ -68,7 +86,7 @@ export async function GET({ props }: { props: { post: any } }) {
   <!-- Category & Date Pill -->
   <rect x="80" y="160" width="220" height="42" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
   <text x="96" y="187" fill="#38bdf8" font-family="monospace" font-size="16" font-weight="700">
-    ${category.toUpperCase()} • ${dateStr.slice(0, 10)}
+    ${category.toUpperCase()} • ${cleanDateStr}
   </text>
 
   <!-- Headline Title -->
