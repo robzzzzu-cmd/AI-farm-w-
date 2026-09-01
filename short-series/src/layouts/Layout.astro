@@ -58,7 +58,10 @@ const {
     
     <header class="site-header">
       <nav class="nav-container">
-        <a href="/" class="brand-logo">TRADE<span>.OPPORTUNITIES</span></a>
+        <a href="/" class="brand-logo">
+          <span class="logo-glyph"></span>
+          TRADE OPPORTUNITIES
+        </a>
         <div class="nav-links">
           <a href="/">Terminal</a>
           <a href="/category/equities">Equities</a>
@@ -139,6 +142,7 @@ const {
     --text-muted: #94a3b8;
     --border-color: #1e293b;
     --accent: #38bdf8;
+    --brand-accent: #3b82f6;
   }
   *, *::before, *::after {
     box-sizing: border-box;
@@ -178,14 +182,22 @@ const {
     padding: 1rem 1.25rem;
   }
   .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 800;
     font-size: 1.1rem;
     color: #fff;
     text-decoration: none;
     letter-spacing: -0.02em;
+    white-space: nowrap;
   }
-  .brand-logo span {
-    color: var(--accent);
+  .logo-glyph {
+    width: 14px;
+    height: 14px;
+    background: var(--brand-accent);
+    border-radius: 3px;
+    flex-shrink: 0;
   }
   .nav-links {
     display: flex;
