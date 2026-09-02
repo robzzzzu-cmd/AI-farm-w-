@@ -1,44 +1,53 @@
-// short-series/src/pages/api/sectors.ts
+cat << 'EOF' > src/pages/api/sectors.ts
 import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-const SECTORS = [
-  { name: "Technology", symbol: "XLK.US" },
-  { name: "Communication", symbol: "XLC.US" },
-  { name: "Industrials", symbol: "XLI.US" },
-  { name: "Consumer Cyclical", symbol: "XLY.US" },
-  { name: "Financials", symbol: "XLF.US" },
-  { name: "Health Care", symbol: "XLV.US" },
-  { name: "Utilities", symbol: "XLU.US" },
-  { name: "Real Estate", symbol: "XLRE.US" }
+const SECTOR_SYMBOLS = [
+  { name: 'Technology', ticker: 'AMEX:XLK' },
+  { name: 'Communication', ticker: 'AMEX:XLC' },
+  { name: 'Industrials', ticker: 'AMEX:XLI' },
+  { name: 'Consumer Cyclical', ticker: 'AMEX:XLY' },
+  { name: 'Financials', ticker: 'AMEX:XLF' },
+  { name: 'Health Care', ticker: 'AMEX:XLV' },
+  { name: 'Utilities', ticker: 'AMEX:XLU' },
+  { name: 'Real Estate', ticker: 'AMEX:XLRE' }
 ];
 
 export const GET: APIRoute = async () => {
   try {
-    // Stooq provides free, reliable CSV quotes for US ETFs without rate limits or crumb barriers
-    const symbols = SECTORS.map(s => s.symbol.toLowerCase()).join('+');
-    const url = `https://stooq.com/q/l/?s=${symbols}&f=sd2t2ohlcvp&h&e=json`;
+    const payload = {
+      symbols: {
+        tickers: SECTOR_SYMBOLS.map((s) => s.ticker)
+      },
+      columns: ['name', 'change']
+    };
 
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0' }
+    const res = await fetch('https://scanner.tradingview.com/america/scan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0'
+      },
+      body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error(`Stooq HTTP error: ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`TradingView scanner returned HTTP ${res.status}`);
+    }
 
     const json = await res.json();
-    const symbolsData = json?.symbols || [];
+    const rows = json?.data || [];
 
-    const liveData = SECTORS.map(sec => {
-      const item = symbolsData.find((d: any) => d.symbol?.toUpperCase() === sec.symbol.toUpperCase());
-      const changePct = typeof item?.change_percent === 'number' 
-        ? parseFloat(item.change_percent.toFixed(2)) 
-        : (item?.open && item?.close ? parseFloat((((item.close - item.open) / item.open) * 100).toFixed(2)) : 0.0);
+    const liveData = SECTOR_SYMBOLS.map((item) => {
+      const match = rows.find((r: any) => r.s === item.ticker);
+      // TradingView returns positional data matching the requested columns: ['name', 'change']
+      const changeVal = match?.d?.[1];
 
       return {
-        name: sec.name,
-        symbol: sec.symbol.replace('.US', ''),
-        change: changePct
+        name: item.name,
+        symbol: item.ticker.replace('AMEX:', ''),
+        change: typeof changeVal === 'number' ? parseFloat(changeVal.toFixed(2)) : 0.0
       };
     });
 
@@ -52,11 +61,15 @@ export const GET: APIRoute = async () => {
       }
     });
   } catch (err: any) {
-    console.error('Sector data retrieval failed:', err?.message || err);
+    console.error('TradingView sector fetch failed:', err?.message || err);
 
     return new Response(
-      JSON.stringify({ success: false, error: 'Failed to retrieve live metrics' }),
-      { status: 502, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: false, error: err?.message || 'Failed to retrieve live metrics' }),
+      {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
 };
+EOF
