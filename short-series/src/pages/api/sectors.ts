@@ -1,75 +1,50 @@
-cat << 'EOF' > src/pages/api/sectors.ts
 import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-const SECTOR_SYMBOLS = [
-  { name: 'Technology', ticker: 'AMEX:XLK' },
-  { name: 'Communication', ticker: 'AMEX:XLC' },
-  { name: 'Industrials', ticker: 'AMEX:XLI' },
-  { name: 'Consumer Cyclical', ticker: 'AMEX:XLY' },
-  { name: 'Financials', ticker: 'AMEX:XLF' },
-  { name: 'Health Care', ticker: 'AMEX:XLV' },
-  { name: 'Utilities', ticker: 'AMEX:XLU' },
-  { name: 'Real Estate', ticker: 'AMEX:XLRE' }
+const SECTORS = [
+  { name: 'Technology', symbol: 'XLK', ticker: 'AMEX:XLK' },
+  { name: 'Communication', symbol: 'XLC', ticker: 'AMEX:XLC' },
+  { name: 'Industrials', symbol: 'XLI', ticker: 'AMEX:XLI' },
+  { name: 'Consumer Cyclical', symbol: 'XLY', ticker: 'AMEX:XLY' },
+  { name: 'Financials', symbol: 'XLF', ticker: 'AMEX:XLF' },
+  { name: 'Health Care', symbol: 'XLV', ticker: 'AMEX:XLV' },
+  { name: 'Utilities', symbol: 'XLU', ticker: 'AMEX:XLU' },
+  { name: 'Real Estate', symbol: 'XLRE', ticker: 'AMEX:XLRE' }
 ];
 
 export const GET: APIRoute = async () => {
   try {
-    const payload = {
-      symbols: {
-        tickers: SECTOR_SYMBOLS.map((s) => s.ticker)
-      },
-      columns: ['name', 'change']
-    };
-
     const res = await fetch('https://scanner.tradingview.com/america/scan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'Mozilla/5.0'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        symbols: { tickers: SECTORS.map((s) => s.ticker) },
+        columns: ['name', 'change']
+      })
     });
 
-    if (!res.ok) {
-      throw new Error(`TradingView scanner returned HTTP ${res.status}`);
-    }
-
-    const json = await res.json();
-    const rows = json?.data || [];
-
-    const liveData = SECTOR_SYMBOLS.map((item) => {
-      const match = rows.find((r: any) => r.s === item.ticker);
-      // TradingView returns positional data matching the requested columns: ['name', 'change']
-      const changeVal = match?.d?.[1];
-
-      return {
-        name: item.name,
-        symbol: item.ticker.replace('AMEX:', ''),
-        change: typeof changeVal === 'number' ? parseFloat(changeVal.toFixed(2)) : 0.0
-      };
-    });
-
-    liveData.sort((a, b) => b.change - a.change);
-
-    return new Response(JSON.stringify({ success: true, data: liveData }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
-      }
-    });
-  } catch (err: any) {
-    console.error('TradingView sector fetch failed:', err?.message || err);
-
-    return new Response(
-      JSON.stringify({ success: false, error: err?.message || 'Failed to retrieve live metrics' }),
-      {
-        status: 502,
+    if (res.ok) {
+      const json = await res.json();
+      const rows = json?.data || [];
+      const liveData = SECTORS.map((s) => {
+        const item = rows.find((r: any) => r.s === s.ticker);
+        const change = typeof item?.d?.[1] === 'number' ? parseFloat(item.d[1].toFixed(2)) : 0.0;
+        return { name: s.name, symbol: s.symbol, change };
+      });
+      liveData.sort((a, b) => b.change - a.change);
+      return new Response(JSON.stringify({ success: true, data: liveData }), {
+        status: 200,
         headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
+      });
+    }
+  } catch (_) {}
+
+  return new Response(JSON.stringify({ success: false }), {
+    status: 500,
+    headers: { 'Content-Type': 'application/json' }
+  });
 };
-EOF
