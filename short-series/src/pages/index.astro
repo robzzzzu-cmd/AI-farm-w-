@@ -30,7 +30,6 @@ interface MarkdownPost {
   rawContent?: () => string;
 }
 
-// Compact metric formatter: turns 116127 into 116.1K, 32100000 into 32.1M
 function formatCompactNumber(val: string | number | undefined): string {
   if (val === undefined || val === null || val === '') return '0';
   const num = typeof val === 'string' ? parseFloat(val.replace(/,/g, '')) : val;
@@ -53,41 +52,6 @@ const secondaryPosts = posts.slice(1, 5);
 
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
-
-// Server-side Sector Performance baseline ingestion (Runs in Node.js with no CORS restrictions)
-let sectorData = [
-  { name: "Technology", symbol: "XLK", change: 1.32 },
-  { name: "Communication", symbol: "XLC", change: 0.89 },
-  { name: "Industrials", symbol: "XLI", change: 0.56 },
-  { name: "Consumer Cyclical", symbol: "XLY", change: 0.41 },
-  { name: "Financials", symbol: "XLF", change: 0.21 },
-  { name: "Health Care", symbol: "XLV", change: -0.18 },
-  { name: "Utilities", symbol: "XLU", change: -0.32 },
-  { name: "Real Estate", symbol: "XLRE", change: -0.41 }
-];
-
-try {
-  const symbols = sectorData.map(s => s.symbol).join(',');
-  const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`);
-  if (res.ok) {
-    const json = await res.json();
-    const quotes = json?.quoteResponse?.result || [];
-    if (quotes.length > 0) {
-      sectorData = sectorData.map(s => {
-        const q = quotes.find((item: any) => item.symbol === s.symbol);
-        return {
-          ...s,
-          change: q?.regularMarketChangePercent !== undefined ? parseFloat(q.regularMarketChangePercent.toFixed(2)) : s.change
-        };
-      });
-      sectorData.sort((a, b) => b.change - a.change);
-    }
-  }
-} catch (_) {
-  // Gracefully fallback to baseline benchmarks
-}
-
-const maxSectorAbs = Math.max(...sectorData.map(d => Math.abs(d.change)), 1.2);
 
 const canonicalURL = "https://tradeopportunities.trade/";
 const pageTitle = "Trade Opportunities // Quantitative Market Intelligence & Volatility Monitoring";
@@ -736,7 +700,7 @@ const websiteSchema = {
       /* Section 03 Tools Split Layout */
       .tools-split-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
         gap: 1.5rem;
         align-items: stretch;
       }
@@ -775,12 +739,12 @@ const websiteSchema = {
       .sector-table {
         display: flex;
         flex-direction: column;
-        gap: 0.6rem;
+        gap: 0.65rem;
         margin: 0.4rem 0;
       }
       .sector-row {
         display: grid;
-        grid-template-columns: 130px 1fr 65px;
+        grid-template-columns: 135px 1fr 65px;
         align-items: center;
         gap: 0.75rem;
         font-size: 0.8rem;
@@ -801,7 +765,7 @@ const websiteSchema = {
       .sector-bar-fill {
         height: 100%;
         border-radius: 3px;
-        transition: width 0.4s ease;
+        transition: width 0.5s ease-out;
       }
       .sector-bar-fill.pos { background: var(--gain-color); }
       .sector-bar-fill.neg { background: var(--loss-color); }
@@ -991,7 +955,6 @@ const websiteSchema = {
 
       <div class="sidebar-body">
         <div class="sidebar-group-label">WORKSPACE HUBS</div>
-        <!-- Ordered strictly by page structure -->
         <nav class="sidebar-nav">
           <a href="#top" class="sidebar-nav-item active">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
@@ -1029,7 +992,6 @@ const websiteSchema = {
           <a href="#alerts" class="sidebar-promo-btn">Configure Feeds</a>
         </div>
       </div>
-      <!-- User profile block removed cleanly -->
     </aside>
 
     <nav class="top-nav" id="top">
@@ -1254,7 +1216,7 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Section 03: Tools (Spot Swap Utility + Relocated Sector Performance) -->
+      <!-- Section 03: Tools (Spot Swap Utility + Live Dynamic Sector Performance) -->
       <section id="tools" style="margin-bottom: 2.5rem;">
         <div class="section-label">03 // Tools &bull; Analytical Utilities</div>
         <div class="tools-split-grid">
@@ -1279,34 +1241,24 @@ const websiteSchema = {
             </div>
           </div>
 
-          <!-- Right: Real Benchmark Sector Performance (Relocated here, Deep Liquidity Routing removed) -->
+          <!-- Right: Live Sector Performance (Real-time analytics, auto-sorting) -->
           <div class="sector-card" id="sector-matrix">
             <div>
               <div class="sector-header">
                 <span class="sector-title">SECTOR PERFORMANCE</span>
-                <span class="sector-context-note" id="sector-status">S&amp;P 500 Sub-Indices</span>
+                <span class="sector-context-note" id="sector-status">Connecting Feed...</span>
               </div>
 
               <div class="sector-table" id="live-sector-table">
-                {sectorData.map(item => {
-                  const isPos = item.change >= 0;
-                  const widthPct = Math.min(Math.max((Math.abs(item.change) / maxSectorAbs) * 100, 5), 100);
-                  const sign = isPos ? '+' : '';
-                  return (
-                    <div class="sector-row">
-                      <span class="sector-name" title={item.symbol}>{item.name}</span>
-                      <div class="sector-bar-bg">
-                        <div class={`sector-bar-fill ${isPos ? 'pos' : 'neg'}`} style={`width: ${widthPct}%;`}></div>
-                      </div>
-                      <span class={`sector-val ${isPos ? 'val-pos' : 'val-neg'}`}>{sign}{item.change.toFixed(2)}%</span>
-                    </div>
-                  );
-                })}
+                <!-- Dynamically populated via real-time scanner API -->
+                <div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.8125rem;">
+                  Streaming S&amp;P benchmark sector metrics...
+                </div>
               </div>
             </div>
 
             <div class="sector-footer-note">
-              <span>Real-Time SPDR &reg; Benchmark Feed</span>
+              <span id="sector-footer-status">Connecting Live Feed</span>
               <a href="#opportunities">View All Breakouts &rarr;</a>
             </div>
           </div>
@@ -1408,7 +1360,84 @@ const websiteSchema = {
     </div>
 
     <script is:inline>
-      // 1. Side Dashboard Drawer & Smooth Link Navigation
+      // 1. Live Real-Time Sector Performance Streamer
+      (function initRealSectorAnalytics() {
+        const sectorMap = {
+          "AMEX:XLK": "Technology",
+          "AMEX:XLC": "Communication",
+          "AMEX:XLI": "Industrials",
+          "AMEX:XLY": "Consumer Cyclical",
+          "AMEX:XLF": "Financials",
+          "AMEX:XLV": "Health Care",
+          "AMEX:XLU": "Utilities",
+          "AMEX:XLRE": "Real Estate"
+        };
+
+        const tickers = Object.keys(sectorMap);
+
+        async function fetchLiveSectors() {
+          try {
+            const res = await fetch("https://scanner.tradingview.com/america/scan", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                symbols: { tickers: tickers },
+                columns: ["name", "change", "close"]
+              })
+            });
+
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const json = await res.json();
+
+            const rows = (json.data || []).map(item => {
+              const ticker = item.s;
+              const name = sectorMap[ticker] || item.d[0];
+              const changeVal = typeof item.d[1] === "number" ? parseFloat(item.d[1].toFixed(2)) : 0;
+              return { name, ticker, change: changeVal };
+            });
+
+            if (rows.length === 0) return;
+
+            // Sort dynamically: top performers first
+            rows.sort((a, b) => b.change - a.change);
+
+            const container = document.getElementById("live-sector-table");
+            const statusEl = document.getElementById("sector-status");
+            const footerStatus = document.getElementById("sector-footer-status");
+
+            if (container) {
+              const maxAbs = Math.max(...rows.map(d => Math.abs(d.change)), 1.0);
+
+              container.innerHTML = rows.map(item => {
+                const isPos = item.change >= 0;
+                const widthPct = Math.min(Math.max((Math.abs(item.change) / maxAbs) * 100, 5), 100);
+                const sign = isPos ? "+" : "";
+
+                return `
+                  <div class="sector-row">
+                    <span class="sector-name" title="${item.ticker}">${item.name}</span>
+                    <div class="sector-bar-bg">
+                      <div class="sector-bar-fill ${isPos ? 'pos' : 'neg'}" style="width: ${widthPct.toFixed(1)}%;"></div>
+                    </div>
+                    <span class="sector-val ${isPos ? 'val-pos' : 'val-neg'}">${sign}${item.change.toFixed(2)}%</span>
+                  </div>
+                `;
+              }).join("");
+            }
+
+            if (statusEl) statusEl.textContent = "S&P 500 • Live Stream";
+            if (footerStatus) footerStatus.textContent = "Live Feed Active • S&P SPDR® ETFs";
+          } catch (err) {
+            const statusEl = document.getElementById("sector-status");
+            if (statusEl) statusEl.textContent = "S&P 500 Sub-Indices";
+          }
+        }
+
+        fetchLiveSectors();
+        setInterval(fetchLiveSectors, 30000); // Polls live updates every 30s during active market sessions
+      })();
+
+      // 2. Side Dashboard Drawer & Smooth Link Navigation
       (function initDashboardDrawer() {
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
         const closeBtn = document.getElementById('sidebar-close-btn');
@@ -1471,7 +1500,7 @@ const websiteSchema = {
         });
       })();
 
-      // 2. Light / Dark Mode Toggle
+      // 3. Light / Dark Mode Toggle
       (function initThemeToggle() {
         const themeBtn = document.getElementById('theme-toggle-btn');
         const sunIcon = document.getElementById('theme-icon-sun');
@@ -1499,7 +1528,7 @@ const websiteSchema = {
         });
       })();
 
-      // 3. Compact Markdown Table Expander
+      // 4. Compact Markdown Table Expander
       (function initTableFormatters() {
         const featuredCard = document.querySelector('.dispatch-card');
         if (!featuredCard) return;
@@ -1544,7 +1573,7 @@ const websiteSchema = {
         }
       })();
 
-      // 4. Client-Side Search
+      // 5. Client-Side Search
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -1557,7 +1586,7 @@ const websiteSchema = {
         });
       }
 
-      // 5. Subscription Alerts Handler
+      // 6. Subscription Alerts Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
@@ -1590,7 +1619,7 @@ const websiteSchema = {
         });
       }
 
-      // 6. Cookie Banner
+      // 7. Cookie Banner
       (function initCookieBanner() {
         const banner = document.getElementById('cookie-banner');
         const acceptBtn = document.getElementById('accept-cookies');
