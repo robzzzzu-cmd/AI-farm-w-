@@ -294,6 +294,7 @@ const websiteSchema = {
         border-radius: 6px;
         padding: 0.85rem;
         margin-top: auto;
+        margin-bottom: 0.5rem;
       }
       .sidebar-promo-title {
         font-size: 0.75rem;
@@ -317,37 +318,6 @@ const websiteSchema = {
         padding: 0.4rem 0.6rem;
         border-radius: 4px;
         text-decoration: none;
-      }
-
-      .sidebar-footer {
-        padding: 0.85rem 1rem;
-        border-top: 1px solid var(--border-subtle);
-        display: flex;
-        align-items: center;
-        gap: 0.65rem;
-      }
-      .user-badge {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: var(--bg-surface-elevated);
-        border: 1px solid var(--border-subtle);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: 700;
-        font-family: var(--font-mono);
-        color: var(--brand-accent);
-      }
-      .user-meta-name {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-      .user-meta-status {
-        font-size: 0.65rem;
-        color: var(--text-muted);
       }
 
       /* Top Sticky Navigation */
@@ -562,58 +532,6 @@ const websiteSchema = {
         margin-bottom: 1rem;
       }
 
-      /* Clean Sector Performance Container */
-      .sector-container-wrap {
-        margin-bottom: 2.5rem;
-        width: 100%;
-      }
-
-      .sector-card {
-        background: var(--bg-surface);
-        border: 1px solid var(--border-subtle);
-        border-radius: 6px;
-        padding: 1.25rem;
-        box-shadow: var(--card-shadow);
-        width: 100%;
-        box-sizing: border-box;
-      }
-      .sector-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.15rem;
-        padding-bottom: 0.65rem;
-        border-bottom: 1px solid var(--border-subtle);
-      }
-      .sector-title {
-        font-size: 0.8125rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-muted);
-      }
-      .sector-context-note {
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        font-family: var(--font-mono);
-      }
-
-      .sector-footer-note {
-        margin-top: 1rem;
-        padding-top: 0.65rem;
-        border-top: 1px solid var(--border-subtle);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.75rem;
-      }
-      .sector-footer-note a {
-        color: var(--brand-accent);
-        text-decoration: none;
-        font-weight: 600;
-      }
-      .sector-footer-note a:hover { text-decoration: underline; }
-
       .grid-main {
         display: grid;
         grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
@@ -824,6 +742,57 @@ const websiteSchema = {
       .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
       .table-vol { font-family: var(--font-mono); color: var(--text-secondary); }
 
+      /* Section 03 Tools Split Layout */
+      .tools-split-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+        gap: 1.5rem;
+      }
+
+      .sector-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 1.15rem;
+        box-shadow: var(--card-shadow);
+        box-sizing: border-box;
+      }
+      .sector-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .sector-title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+      .sector-context-note {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+      .sector-footer-note {
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+      }
+      .sector-footer-note a {
+        color: var(--brand-accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .sector-footer-note a:hover { text-decoration: underline; }
+
       .tools-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -950,7 +919,7 @@ const websiteSchema = {
       .cookie-btn.decline { background: var(--bg-surface-elevated); color: var(--text-secondary); }
 
       @media (max-width: 900px) {
-        .grid-main { grid-template-columns: minmax(0, 1fr); }
+        .grid-main, .tools-split-grid { grid-template-columns: minmax(0, 1fr); }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
         .newsletter-box { flex-direction: column; align-items: flex-start; }
@@ -974,6 +943,7 @@ const websiteSchema = {
 
     <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
+    <!-- Always Accessible Side Dashboard Drawer -->
     <aside id="side-dashboard" class="side-dashboard" aria-label="Analytical Navigation Dashboard">
       <div class="sidebar-header">
         <div class="sidebar-brand">
@@ -985,22 +955,19 @@ const websiteSchema = {
 
       <div class="sidebar-body">
         <div class="sidebar-group-label">WORKSPACE HUBS</div>
+        <!-- Ordered strictly by page structure -->
         <nav class="sidebar-nav">
           <a href="#top" class="sidebar-nav-item active">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Dashboard</span>
           </a>
-          <a href="#opportunities" class="sidebar-nav-item">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            <span>Opportunities</span>
-          </a>
           <a href="#news-feed" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             <span>News Feed</span>
           </a>
-          <a href="#sector-matrix" class="sidebar-nav-item">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            <span>Sector Performance</span>
+          <a href="#opportunities" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span>Opportunities</span>
           </a>
           <a href="#tools" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -1026,14 +993,7 @@ const websiteSchema = {
           <a href="#alerts" class="sidebar-promo-btn">Configure Feeds</a>
         </div>
       </div>
-
-      <div class="sidebar-footer">
-        <div class="user-badge">TU</div>
-        <div>
-          <div class="user-meta-name">Trade User</div>
-          <div class="user-meta-status">Analytical Plan</div>
-        </div>
-      </div>
+      <!-- User profile block removed cleanly -->
     </aside>
 
     <nav class="top-nav" id="top">
@@ -1122,57 +1082,6 @@ const websiteSchema = {
           </div>
         </div>
       </header>
-
-      <!-- Sector Performance Section (Observation Matrix Completely Removed) -->
-      <div class="sector-container-wrap" id="sector-matrix">
-        <div class="sector-card">
-          <div class="sector-header">
-            <span class="sector-title">SECTOR PERFORMANCE</span>
-            <span class="sector-context-note">S&amp;P 500 Sub-Indices • Live Feed</span>
-          </div>
-
-          <!-- Real-Time Embeddable Sector Widget -->
-          <div class="tradingview-widget-container" style="height: 380px; width: 100%;">
-            <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async is:inline set:html={JSON.stringify({
-              "colorTheme": "dark",
-              "dateRange": "1D",
-              "showChart": false,
-              "locale": "en",
-              "largeChartUrl": "",
-              "isTransparent": true,
-              "showSymbolLogo": true,
-              "showFloatingTooltip": false,
-              "width": "100%",
-              "height": "100%",
-              "tabs": [
-                {
-                  "title": "US Sectors",
-                  "symbols": [
-                    { "s": "AMEX:XLK", "d": "Technology" },
-                    { "s": "AMEX:XLC", "d": "Communication" },
-                    { "s": "AMEX:XLI", "d": "Industrials" },
-                    { "s": "AMEX:XLY", "d": "Consumer Discretionary" },
-                    { "s": "AMEX:XLF", "d": "Financials" },
-                    { "s": "AMEX:XLV", "d": "Health Care" },
-                    { "s": "AMEX:XLU", "d": "Utilities" },
-                    { "s": "AMEX:XLRE", "d": "Real Estate" },
-                    { "s": "AMEX:XLE", "d": "Energy" },
-                    { "s": "AMEX:XLP", "d": "Consumer Staples" },
-                    { "s": "AMEX:XLB", "d": "Materials" }
-                  ]
-                }
-              ]
-            })}>
-            </script>
-          </div>
-
-          <div class="sector-footer-note">
-            <span>Continuous Session Feeds &bull; Real-Time Execution Benchmarks</span>
-            <a href="#opportunities">View Full Market Overview &rarr;</a>
-          </div>
-        </div>
-      </div>
 
       <!-- Section 01: News Feed -->
       <section id="news-feed">
@@ -1322,41 +1231,80 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Section 03: Tools -->
+      <!-- Section 03: Tools (Spot Utility + Live Sector Performance) -->
       <section id="tools" style="margin-bottom: 2.5rem;">
         <div class="section-label">03 // Tools &bull; Analytical Utilities</div>
-        <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1.5rem;">
-          <div class="card" style="padding: 1rem;">
-            <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
-              Third-Party Non-Custodial Spot Utility
+        <div class="tools-split-grid">
+          <!-- Left: Spot Swap Utility -->
+          <div class="card" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
+                Third-Party Non-Custodial Spot Utility
+              </div>
+              <p style="font-size: 0.78125rem; color: var(--text-secondary); margin-bottom: 0.85rem; line-height: 1.45;">
+                Trade Opportunities does not operate a broker or execution desk. Direct decentralized swap routing utility.
+              </p>
+              <iframe
+                id="changenow-widget"
+                src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=111622&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=3b82f6&to=eth"
+                style="height: 356px; width: 100%; max-width: 100%; border: none; border-radius: 6px;"
+                loading="lazy">
+              </iframe>
             </div>
-            <p style="font-size: 0.78125rem; color: var(--text-secondary); margin-bottom: 0.85rem; line-height: 1.45;">
-              Trade Opportunities does not operate a broker or execution desk. The utility below provides direct third-party decentralized swap routing.
-            </p>
-            <iframe
-              id="changenow-widget"
-              src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=111622&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=3b82f6&to=eth"
-              style="height: 356px; width: 100%; max-width: 100%; border: none; border-radius: 6px;"
-              loading="lazy">
-            </iframe>
+            <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle); font-size: 0.75rem; color: var(--text-muted);">
+              Instant Non-Custodial Cross-Chain Settlement
+            </div>
           </div>
 
-          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <!-- Right: Live Sector Performance (Moved here, replacing Deep Liquidity Routing) -->
+          <div class="sector-card" id="sector-matrix" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <div style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">Institutional Sourcing Partner</div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem;">Deep Liquidity Routing</h3>
-              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
-                Cross-referenced volume monitoring across high-liquidity crypto derivative pairs and global equities order books.
-              </p>
-              
-              <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; min-height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; width: 100%;">
-                <script is:inline type="text/javascript" src="//cdn.bitmedia.io/bm.js" data-bm-ad="YOUR_BITMEDIA_AD_UNIT_ID"></script>
+              <div class="sector-header">
+                <span class="sector-title">SECTOR PERFORMANCE</span>
+                <span class="sector-context-note">S&amp;P 500 Sub-Indices • Live Feed</span>
+              </div>
+
+              <!-- Live TradingView Sector Benchmark Widget -->
+              <div class="tradingview-widget-container" style="height: 356px; width: 100%;">
+                <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async is:inline set:html={JSON.stringify({
+                  "colorTheme": "dark",
+                  "dateRange": "1D",
+                  "showChart": false,
+                  "locale": "en",
+                  "largeChartUrl": "",
+                  "isTransparent": true,
+                  "showSymbolLogo": true,
+                  "showFloatingTooltip": false,
+                  "width": "100%",
+                  "height": "100%",
+                  "tabs": [
+                    {
+                      "title": "US Sectors",
+                      "symbols": [
+                        { "s": "AMEX:XLK", "d": "Technology" },
+                        { "s": "AMEX:XLC", "d": "Communication" },
+                        { "s": "AMEX:XLI", "d": "Industrials" },
+                        { "s": "AMEX:XLY", "d": "Consumer Discretionary" },
+                        { "s": "AMEX:XLF", "d": "Financials" },
+                        { "s": "AMEX:XLV", "d": "Health Care" },
+                        { "s": "AMEX:XLU", "d": "Utilities" },
+                        { "s": "AMEX:XLRE", "d": "Real Estate" },
+                        { "s": "AMEX:XLE", "d": "Energy" },
+                        { "s": "AMEX:XLP", "d": "Consumer Staples" },
+                        { "s": "AMEX:XLB", "d": "Materials" }
+                      ]
+                    }
+                  ]
+                })}>
+                </script>
               </div>
             </div>
 
-            <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn" style="margin-top: 1rem; width: 100%;">
-              Access SimpleSwap Utility &rarr;
-            </a>
+            <div class="sector-footer-note">
+              <span>Continuous Session Feeds</span>
+              <a href="#opportunities">View All Breakouts &rarr;</a>
+            </div>
           </div>
         </div>
       </section>
