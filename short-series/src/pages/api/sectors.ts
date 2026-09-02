@@ -1,10 +1,9 @@
-// short-series/src/pages/api/sectors.ts
+cat << 'EOF' > src/pages/api/sectors.ts
 import type { APIRoute } from 'astro';
 import yahooFinance from 'yahoo-finance2';
 
 export const prerender = false;
 
-// Suppress console notices regarding Yahoo survey popups
 yahooFinance.suppressNotices(['yahooSurvey']);
 
 const SECTOR_DEFS = [
@@ -21,14 +20,12 @@ const SECTOR_DEFS = [
 export const GET: APIRoute = async () => {
   try {
     const symbols = SECTOR_DEFS.map((s) => s.symbol);
-
-    // yahoo-finance2 handles session crumbs, cookies, and batching under the hood
     const quotes = await yahooFinance.quote(symbols);
 
     const liveData = SECTOR_DEFS.map((sec) => {
       const q = Array.isArray(quotes)
-        ? quotes.find((item) => item.symbol === sec.symbol)
-        : quotes;
+        ? quotes.find((item: any) => item.symbol === sec.symbol)
+        : (quotes as any);
 
       const changePct =
         typeof q?.regularMarketChangePercent === 'number'
@@ -42,7 +39,6 @@ export const GET: APIRoute = async () => {
       };
     });
 
-    // Sort descending so the strongest performing sector stays on top
     liveData.sort((a, b) => b.change - a.change);
 
     return new Response(
@@ -51,7 +47,6 @@ export const GET: APIRoute = async () => {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
-          // Cache at edge for 60 seconds to avoid hitting rate limits on Vercel
           'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
         },
       }
@@ -71,3 +66,4 @@ export const GET: APIRoute = async () => {
     );
   }
 };
+EOF
