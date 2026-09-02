@@ -1,60 +1,73 @@
 // short-series/src/pages/api/sectors.ts
 import type { APIRoute } from 'astro';
+import yahooFinance from 'yahoo-finance2';
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
-  const sectors = [
-    { name: "Technology", symbol: "XLK", baseline: 1.32 },
-    { name: "Communication", symbol: "XLC", baseline: 0.89 },
-    { name: "Industrials", symbol: "XLI", baseline: 0.56 },
-    { name: "Consumer Cyclical", symbol: "XLY", baseline: 0.41 },
-    { name: "Financials", symbol: "XLF", baseline: 0.21 },
-    { name: "Health Care", symbol: "XLV", baseline: -0.18 },
-    { name: "Utilities", symbol: "XLU", baseline: -0.32 },
-    { name: "Real Estate", symbol: "XLRE", baseline: -0.41 }
-  ];
+// Suppress console notices regarding Yahoo survey popups
+yahooFinance.suppressNotices(['yahooSurvey']);
 
+const SECTOR_DEFS = [
+  { name: 'Technology', symbol: 'XLK' },
+  { name: 'Communication', symbol: 'XLC' },
+  { name: 'Industrials', symbol: 'XLI' },
+  { name: 'Consumer Cyclical', symbol: 'XLY' },
+  { name: 'Financials', symbol: 'XLF' },
+  { name: 'Health Care', symbol: 'XLV' },
+  { name: 'Utilities', symbol: 'XLU' },
+  { name: 'Real Estate', symbol: 'XLRE' },
+];
+
+export const GET: APIRoute = async () => {
   try {
-    const symbols = sectors.map((s) => s.symbol).join(',');
-    const res = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+    const symbols = SECTOR_DEFS.map((s) => s.symbol);
+
+    // yahoo-finance2 handles session crumbs, cookies, and batching under the hood
+    const quotes = await yahooFinance.quote(symbols);
+
+    const liveData = SECTOR_DEFS.map((sec) => {
+      const q = Array.isArray(quotes)
+        ? quotes.find((item) => item.symbol === sec.symbol)
+        : quotes;
+
+      const changePct =
+        typeof q?.regularMarketChangePercent === 'number'
+          ? parseFloat(q.regularMarketChangePercent.toFixed(2))
+          : 0.0;
+
+      return {
+        name: sec.name,
+        symbol: sec.symbol,
+        change: changePct,
+      };
     });
 
-    if (res.ok) {
-      const json = await res.json();
-      const quotes = json?.quoteResponse?.result || [];
+    // Sort descending so the strongest performing sector stays on top
+    liveData.sort((a, b) => b.change - a.change);
 
-      if (quotes.length > 0) {
-        const liveData = sectors.map((sec) => {
-          const q = quotes.find((item: any) => item.symbol === sec.symbol);
-          return {
-            name: sec.name,
-            symbol: sec.symbol,
-            change: q?.regularMarketChangePercent !== undefined 
-              ? parseFloat(q.regularMarketChangePercent.toFixed(2)) 
-              : sec.baseline
-          };
-        });
-
-        liveData.sort((a, b) => b.change - a.change);
-
-        return new Response(JSON.stringify({ success: true, data: liveData }), {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=60'
-          }
-        });
+    return new Response(
+      JSON.stringify({ success: true, data: liveData }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          // Cache at edge for 60 seconds to avoid hitting rate limits on Vercel
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+        },
       }
-    }
-  } catch (_) {
-    // Fall back to verified session baselines if upstream fails
-  }
+    );
+  } catch (err: any) {
+    console.error('Yahoo Finance sector fetch failed:', err?.message || err);
 
-  sectors.sort((a, b) => b.baseline - a.baseline);
-  return new Response(JSON.stringify({ success: true, data: sectors.map(s => ({ name: s.name, symbol: s.symbol, change: s.baseline })) }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Failed to retrieve live sector metrics.',
+      }),
+      {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
 };
