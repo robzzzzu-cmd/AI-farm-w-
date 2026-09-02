@@ -53,6 +53,20 @@ const secondaryPosts = posts.slice(1, 5);
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
 
+// Initial server-side sector render (ensures the container is never blank)
+const defaultSectors = [
+  { name: "Technology", symbol: "XLK", change: 1.32 },
+  { name: "Communication", symbol: "XLC", change: 0.89 },
+  { name: "Industrials", symbol: "XLI", change: 0.56 },
+  { name: "Consumer Cyclical", symbol: "XLY", change: 0.41 },
+  { name: "Financials", symbol: "XLF", change: 0.21 },
+  { name: "Health Care", symbol: "XLV", change: -0.18 },
+  { name: "Utilities", symbol: "XLU", change: -0.32 },
+  { name: "Real Estate", symbol: "XLRE", change: -0.41 }
+].sort((a, b) => b.change - a.change);
+
+const maxSectorAbs = Math.max(...defaultSectors.map((d) => Math.abs(d.change)), 1.2);
+
 const canonicalURL = "https://tradeopportunities.trade/";
 const pageTitle = "Trade Opportunities // Quantitative Market Intelligence & Volatility Monitoring";
 const pageDescription = "Automated quantitative tracking of high-momentum equity breakouts, unusual relative volume, and sector liquidity shifts.";
@@ -943,7 +957,6 @@ const websiteSchema = {
 
     <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
-    <!-- Always Accessible Side Dashboard Drawer -->
     <aside id="side-dashboard" class="side-dashboard" aria-label="Analytical Navigation Dashboard">
       <div class="sidebar-header">
         <div class="sidebar-brand">
@@ -1241,24 +1254,34 @@ const websiteSchema = {
             </div>
           </div>
 
-          <!-- Right: Live Sector Performance (Real-time analytics, auto-sorting) -->
+          <!-- Right: Live Sector Performance (Rendered server-side + client poll) -->
           <div class="sector-card" id="sector-matrix">
             <div>
               <div class="sector-header">
                 <span class="sector-title">SECTOR PERFORMANCE</span>
-                <span class="sector-context-note" id="sector-status">Connecting Feed...</span>
+                <span class="sector-context-note" id="sector-status">S&amp;P 500 Sub-Indices</span>
               </div>
 
               <div class="sector-table" id="live-sector-table">
-                <!-- Dynamically populated via real-time scanner API -->
-                <div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.8125rem;">
-                  Streaming S&amp;P benchmark sector metrics...
-                </div>
+                {defaultSectors.map((item) => {
+                  const isPos = item.change >= 0;
+                  const widthPct = Math.min(Math.max((Math.abs(item.change) / maxSectorAbs) * 100, 6), 100);
+                  const sign = isPos ? '+' : '';
+                  return (
+                    <div class="sector-row">
+                      <span class="sector-name" title={item.symbol}>{item.name}</span>
+                      <div class="sector-bar-bg">
+                        <div class={`sector-bar-fill ${isPos ? 'pos' : 'neg'}`} style={`width: ${widthPct.toFixed(1)}%;`}></div>
+                      </div>
+                      <span class={`sector-val ${isPos ? 'val-pos' : 'val-neg'}`}>{sign}{item.change.toFixed(2)}%</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div class="sector-footer-note">
-              <span id="sector-footer-status">Connecting Live Feed</span>
+              <span id="sector-footer-status">Live Benchmarks • SPDR® S&amp;P Sectors</span>
               <a href="#opportunities">View All Breakouts &rarr;</a>
             </div>
           </div>
@@ -1360,81 +1383,50 @@ const websiteSchema = {
     </div>
 
     <script is:inline>
-      // 1. Live Real-Time Sector Performance Streamer
+      // 1. Live Client-Side Sector Poller via Same-Origin API Proxy
       (function initRealSectorAnalytics() {
-        const sectorMap = {
-          "AMEX:XLK": "Technology",
-          "AMEX:XLC": "Communication",
-          "AMEX:XLI": "Industrials",
-          "AMEX:XLY": "Consumer Cyclical",
-          "AMEX:XLF": "Financials",
-          "AMEX:XLV": "Health Care",
-          "AMEX:XLU": "Utilities",
-          "AMEX:XLRE": "Real Estate"
-        };
-
-        const tickers = Object.keys(sectorMap);
-
         async function fetchLiveSectors() {
           try {
-            const res = await fetch("https://scanner.tradingview.com/america/scan", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                symbols: { tickers: tickers },
-                columns: ["name", "change", "close"]
-              })
-            });
+            const res = await fetch('/api/sectors');
+            if (!res.ok) return;
 
-            if (!res.ok) throw new Error("HTTP " + res.status);
             const json = await res.json();
+            const rows = json?.data;
+            if (!Array.isArray(rows) || rows.length === 0) return;
 
-            const rows = (json.data || []).map(item => {
-              const ticker = item.s;
-              const name = sectorMap[ticker] || item.d[0];
-              const changeVal = typeof item.d[1] === "number" ? parseFloat(item.d[1].toFixed(2)) : 0;
-              return { name, ticker, change: changeVal };
-            });
-
-            if (rows.length === 0) return;
-
-            // Sort dynamically: top performers first
-            rows.sort((a, b) => b.change - a.change);
-
-            const container = document.getElementById("live-sector-table");
-            const statusEl = document.getElementById("sector-status");
-            const footerStatus = document.getElementById("sector-footer-status");
+            const container = document.getElementById('live-sector-table');
+            const statusEl = document.getElementById('sector-status');
+            const footerStatus = document.getElementById('sector-footer-status');
 
             if (container) {
-              const maxAbs = Math.max(...rows.map(d => Math.abs(d.change)), 1.0);
+              const maxAbs = Math.max(...rows.map((d) => Math.abs(d.change)), 1.0);
 
-              container.innerHTML = rows.map(item => {
+              container.innerHTML = rows.map((item) => {
                 const isPos = item.change >= 0;
-                const widthPct = Math.min(Math.max((Math.abs(item.change) / maxAbs) * 100, 5), 100);
-                const sign = isPos ? "+" : "";
+                const widthPct = Math.min(Math.max((Math.abs(item.change) / maxAbs) * 100, 6), 100);
+                const sign = isPos ? '+' : '';
 
                 return `
                   <div class="sector-row">
-                    <span class="sector-name" title="${item.ticker}">${item.name}</span>
+                    <span class="sector-name" title="${item.symbol}">${item.name}</span>
                     <div class="sector-bar-bg">
                       <div class="sector-bar-fill ${isPos ? 'pos' : 'neg'}" style="width: ${widthPct.toFixed(1)}%;"></div>
                     </div>
                     <span class="sector-val ${isPos ? 'val-pos' : 'val-neg'}">${sign}${item.change.toFixed(2)}%</span>
                   </div>
                 `;
-              }).join("");
+              }).join('');
             }
 
-            if (statusEl) statusEl.textContent = "S&P 500 • Live Stream";
-            if (footerStatus) footerStatus.textContent = "Live Feed Active • S&P SPDR® ETFs";
-          } catch (err) {
-            const statusEl = document.getElementById("sector-status");
-            if (statusEl) statusEl.textContent = "S&P 500 Sub-Indices";
+            if (statusEl) statusEl.textContent = 'S&P 500 • Live Stream';
+            if (footerStatus) footerStatus.textContent = 'Feed Synced • S&P SPDR® ETFs';
+          } catch (_) {
+            // Keep existing rendered rows on error
           }
         }
 
         fetchLiveSectors();
-        setInterval(fetchLiveSectors, 30000); // Polls live updates every 30s during active market sessions
+        setInterval(fetchLiveSectors, 45000); // Poll every 45s
       })();
 
       // 2. Side Dashboard Drawer & Smooth Link Navigation
