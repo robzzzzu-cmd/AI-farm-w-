@@ -30,7 +30,7 @@ export async function getStaticPaths() {
 
 let { post, allPosts = [] } = Astro.props;
 
-// Fallback retrieval in case of dynamic routing or edge cases
+// Fallback retrieval for server-rendered or case-normalized routes
 if (!post) {
   const all = await getCollection('blog');
   allPosts = all;
