@@ -1383,45 +1383,90 @@ const websiteSchema = {
     </div>
 
     <script is:inline>
-      // 1. Live Client-Side Sector Poller via Same-Origin API Proxy
+      // 1. Live Client-Side Sector Poller with Direct Browser Scan & API Fallback
       (function initRealSectorAnalytics() {
-        async function fetchLiveSectors() {
-          try {
-            const res = await fetch('/api/sectors');
-            if (!res.ok) return;
+        const sectorList = [
+          { name: 'Technology', symbol: 'XLK', ticker: 'AMEX:XLK' },
+          { name: 'Communication', symbol: 'XLC', ticker: 'AMEX:XLC' },
+          { name: 'Industrials', symbol: 'XLI', ticker: 'AMEX:XLI' },
+          { name: 'Consumer Cyclical', symbol: 'XLY', ticker: 'AMEX:XLY' },
+          { name: 'Financials', symbol: 'XLF', ticker: 'AMEX:XLF' },
+          { name: 'Health Care', symbol: 'XLV', ticker: 'AMEX:XLV' },
+          { name: 'Utilities', symbol: 'XLU', ticker: 'AMEX:XLU' },
+          { name: 'Real Estate', symbol: 'XLRE', ticker: 'AMEX:XLRE' }
+        ];
 
-            const json = await res.json();
-            const rows = json?.data;
-            if (!Array.isArray(rows) || rows.length === 0) return;
+        function renderRows(rows) {
+          if (!Array.isArray(rows) || rows.length === 0) return;
+          const container = document.getElementById('live-sector-table');
+          const statusEl = document.getElementById('sector-status');
+          const footerStatus = document.getElementById('sector-footer-status');
 
-            const container = document.getElementById('live-sector-table');
-            const statusEl = document.getElementById('sector-status');
-            const footerStatus = document.getElementById('sector-footer-status');
+          if (container) {
+            const maxAbs = Math.max(...rows.map((d) => Math.abs(d.change)), 1.0);
 
-            if (container) {
-              const maxAbs = Math.max(...rows.map((d) => Math.abs(d.change)), 1.0);
+            container.innerHTML = rows.map((item) => {
+              const isPos = item.change >= 0;
+              const widthPct = Math.min(Math.max((Math.abs(item.change) / maxAbs) * 100, 6), 100);
+              const sign = isPos ? '+' : '';
 
-              container.innerHTML = rows.map((item) => {
-                const isPos = item.change >= 0;
-                const widthPct = Math.min(Math.max((Math.abs(item.change) / maxAbs) * 100, 6), 100);
-                const sign = isPos ? '+' : '';
-
-                return `
-                  <div class="sector-row">
-                    <span class="sector-name" title="${item.symbol}">${item.name}</span>
-                    <div class="sector-bar-bg">
-                      <div class="sector-bar-fill ${isPos ? 'pos' : 'neg'}" style="width: ${widthPct.toFixed(1)}%;"></div>
-                    </div>
-                    <span class="sector-val ${isPos ? 'val-pos' : 'val-neg'}">${sign}${item.change.toFixed(2)}%</span>
+              return `
+                <div class="sector-row">
+                  <span class="sector-name" title="${item.symbol}">${item.name}</span>
+                  <div class="sector-bar-bg">
+                    <div class="sector-bar-fill ${isPos ? 'pos' : 'neg'}" style="width: ${widthPct.toFixed(1)}%;"></div>
                   </div>
-                `;
-              }).join('');
-            }
+                  <span class="sector-val ${isPos ? 'val-pos' : 'val-neg'}">${sign}${item.change.toFixed(2)}%</span>
+                </div>
+              `;
+            }).join('');
+          }
 
-            if (statusEl) statusEl.textContent = 'S&P 500 • Live Stream';
-            if (footerStatus) footerStatus.textContent = 'Feed Synced • S&P SPDR® ETFs';
+          if (statusEl) statusEl.textContent = 'S&P 500 • Live Stream';
+          if (footerStatus) footerStatus.textContent = 'Feed Synced • S&P SPDR® ETFs';
+        }
+
+        async function fetchLiveSectors() {
+          // Primary: Direct browser fetch to TradingView scanner (CORS allowed, no serverless blocks)
+          try {
+            const tvRes = await fetch('https://scanner.tradingview.com/america/scan', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                symbols: { tickers: sectorList.map((s) => s.ticker) },
+                columns: ['name', 'change']
+              })
+            });
+
+            if (tvRes.ok) {
+              const tvJson = await tvRes.json();
+              const tvData = tvJson?.data || [];
+              if (tvData.length > 0) {
+                const parsed = sectorList.map((sec) => {
+                  const match = tvData.find((r) => r.s === sec.ticker);
+                  const change = typeof match?.d?.[1] === 'number' ? parseFloat(match.d[1].toFixed(2)) : 0.0;
+                  return { name: sec.name, symbol: sec.symbol, change };
+                });
+                parsed.sort((a, b) => b.change - a.change);
+                renderRows(parsed);
+                return;
+              }
+            }
           } catch (_) {
-            // Keep existing rendered rows on error
+            // If network or adblock blocks scanner, fallback to same-origin API proxy
+          }
+
+          // Secondary Fallback: Query same-origin API route
+          try {
+            const apiRes = await fetch('/api/sectors');
+            if (apiRes.ok) {
+              const apiJson = await apiRes.json();
+              if (Array.isArray(apiJson?.data) && apiJson.data.length > 0) {
+                renderRows(apiJson.data);
+              }
+            }
+          } catch (_) {
+            // Retain existing static DOM baselines
           }
         }
 
