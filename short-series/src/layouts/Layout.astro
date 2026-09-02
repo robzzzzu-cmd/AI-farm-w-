@@ -50,7 +50,6 @@ const {
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={image} />
 
-    <!-- Additional Head Elements (JSON-LD Schemas) -->
     <slot name="head" />
   </head>
   <body>
@@ -58,16 +57,13 @@ const {
     
     <header class="site-header">
       <nav class="nav-container">
-        <a href="/" class="brand-logo">
-          <span class="logo-glyph"></span>
-          TRADE OPPORTUNITIES
-        </a>
+        <a href="/" class="brand-logo">TRADE<span> OPPORTUNITIES</span></a>
         <div class="nav-links">
-          <a href="/">Terminal</a>
-          <a href="/category/equities">Equities</a>
+          <a href="/#news-feed">News Feed</a>
+          <a href="/#opportunities">Opportunities</a>
+          <a href="/#tools">Tools</a>
+          <a href="/#platforms">Platforms</a>
           <a href="/about">Methodology</a>
-          <a href="/terms">Terms</a>
-          <a href="/privacy">Privacy</a>
         </div>
       </nav>
     </header>
@@ -90,16 +86,16 @@ const {
     <footer class="site-footer">
       <div class="footer-container">
         <div class="footer-disclosure">
-          <p class="disclosure-title">Financial Risk & Regulatory Disclaimer</p>
+          <p class="disclosure-title">Financial Risk &amp; Regulatory Disclaimer</p>
           <p class="disclosure-text">
-            <strong>Not Financial Advice:</strong> All content, market data, and quantitative summaries published on this website are provided strictly for educational and informational purposes only. Nothing contained herein constitutes investment, legal, or tax advice, nor should it be relied upon as a recommendation or endorsement of any security, trading strategy, or financial transaction.
+            <strong>Not Financial Advice:</strong> All content, market data, and quantitative summaries published on this website are provided strictly for educational and informational purposes only. Trade Opportunities is not a broker-dealer or registered financial advisor and does not execute trades or hold client deposits.
           </p>
         </div>
 
         <div class="footer-meta">
           <p>&copy; {new Date().getFullYear()} Trade Opportunities. All rights reserved.</p>
           <div class="legal-links">
-            <a href="/about">Methodology & E-E-A-T</a>
+            <a href="/about">Methodology &amp; E-E-A-T</a>
             <span>&bull;</span>
             <a href="/privacy">Privacy Policy</a>
             <span>&bull;</span>
@@ -142,7 +138,6 @@ const {
     --text-muted: #94a3b8;
     --border-color: #1e293b;
     --accent: #38bdf8;
-    --brand-accent: #3b82f6;
   }
   *, *::before, *::after {
     box-sizing: border-box;
@@ -182,22 +177,14 @@ const {
     padding: 1rem 1.25rem;
   }
   .brand-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     font-weight: 800;
     font-size: 1.1rem;
     color: #fff;
     text-decoration: none;
     letter-spacing: -0.02em;
-    white-space: nowrap;
   }
-  .logo-glyph {
-    width: 14px;
-    height: 14px;
-    background: var(--brand-accent);
-    border-radius: 3px;
-    flex-shrink: 0;
+  .brand-logo span {
+    color: var(--accent);
   }
   .nav-links {
     display: flex;
@@ -269,7 +256,6 @@ const {
     color: var(--text-primary);
   }
 
-  /* Cookie Consent Banner Styling */
   .cookie-banner {
     position: fixed;
     bottom: 1rem;
