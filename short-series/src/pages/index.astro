@@ -1,6 +1,5 @@
 ---
 // short-series/src/pages/index.astro
-import { getCollection, render } from 'astro:content';
 import MarketTicker from '../components/MarketTicker.astro';
 
 interface StockItem {
@@ -11,31 +10,59 @@ interface StockItem {
   volume: string;
 }
 
-const allPosts = await getCollection('blog');
-const posts = allPosts.sort((a, b) => {
-  const dateA = new Date(a.data.pubDate || a.data.date || 0).valueOf();
-  const dateB = new Date(b.data.pubDate || b.data.date || 0).valueOf();
+interface MarkdownPost {
+  frontmatter: {
+    title?: string;
+    description?: string;
+    date?: string;
+    displayDate?: string;
+    category?: string;
+    leadTicker?: string;
+    leadGain?: string;
+    tickers?: string[];
+    gainers?: StockItem[];
+    losers?: StockItem[];
+    active?: StockItem[];
+    refUrl?: string;
+    refLabel?: string;
+  };
+  Content: any;
+  rawContent?: () => string;
+}
+
+// Compact metric formatter: turns 116127 into 116.1K, 32100000 into 32.1M
+function formatCompactNumber(val: string | number | undefined): string {
+  if (val === undefined || val === null || val === '') return '0';
+  const num = typeof val === 'string' ? parseFloat(val.replace(/,/g, '')) : val;
+  if (isNaN(num)) return String(val);
+  if (Math.abs(num) >= 1e9) {
+    return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+  }
+  if (Math.abs(num) >= 1e6) {
+    return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (Math.abs(num) >= 1e3) {
+    return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toLocaleString();
+}
+
+const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
+const posts = rawPosts.sort((a, b) => {
+  const dateA = new Date(a.frontmatter.date || 0).valueOf();
+  const dateB = new Date(b.frontmatter.date || 0).valueOf();
   return dateB - dateA;
 });
 
 const featuredPost = posts[0];
 const secondaryPosts = posts.slice(1, 5);
 
-const { Content: FeaturedContent } = featuredPost ? await render(featuredPost) : { Content: null };
-
-const renderedSecondary = await Promise.all(
-  secondaryPosts.map(async (post) => {
-    const { Content } = await render(post);
-    return { post, Content };
-  })
-);
-
-const displayGainers = (featuredPost?.data?.gainers as StockItem[]) || [];
-const displayLosers = (featuredPost?.data?.losers as StockItem[]) || [];
+const displayGainers = featuredPost?.frontmatter?.gainers || [];
+const displayLosers = featuredPost?.frontmatter?.losers || [];
 
 const canonicalURL = "https://tradeopportunities.trade/";
-const pageTitle = "Trade Opportunities // Financial Intelligence & Market Signals";
-const pageDescription = "Automated quantitative tracking of high-momentum equity breakouts, technical chart setups, and volume divergences.";
+const pageTitle = "Trade Opportunities // Quantitative Market Intelligence & Volatility Monitoring";
+const pageDescription = "Automated quantitative tracking of high-momentum equity breakouts, unusual relative volume, and sector liquidity shifts.";
 
 const websiteSchema = {
   "@context": "https://schema.org",
@@ -70,7 +97,7 @@ const websiteSchema = {
     <meta property="og:image" content="https://tradeopportunities.trade/favicon.svg" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- High-Visibility Dynamic Favicon -->
+    <!-- Dynamic Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
     <link rel="alternate icon" href="/favicon.svg?v=2" />
     
@@ -78,7 +105,7 @@ const websiteSchema = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Structured Data Schema for Bing & Google -->
+    <!-- Structured Data Schema -->
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 
     <style is:inline>
@@ -99,6 +126,24 @@ const websiteSchema = {
         --loss-color: #ef4444;
         --loss-bg: rgba(239, 68, 68, 0.1);
         --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+        --sidebar-width: 260px;
+      }
+
+      [data-theme="light"] {
+        --bg-page: #f8fafc;
+        --bg-surface: #ffffff;
+        --bg-surface-elevated: #f1f5f9;
+        --border-subtle: #e2e8f0;
+        --border-strong: #cbd5e1;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --brand-accent: #2563eb;
+        --gain-color: #16a34a;
+        --gain-bg: rgba(22, 163, 74, 0.1);
+        --loss-color: #dc2626;
+        --loss-bg: rgba(220, 38, 38, 0.1);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       }
 
       *, *::before, *::after { 
@@ -117,6 +162,7 @@ const websiteSchema = {
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         -webkit-text-size-adjust: 100%;
+        transition: background-color 0.2s ease, color 0.2s ease;
       }
 
       .app-wrapper {
@@ -127,7 +173,184 @@ const websiteSchema = {
         box-sizing: border-box;
       }
 
-      /* Navigation */
+      /* Collapsible Side Dashboard */
+      .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(3px);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+      }
+      .sidebar-backdrop.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .side-dashboard {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: var(--sidebar-width);
+        background: var(--bg-surface);
+        border-right: 1px solid var(--border-subtle);
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        transform: translateX(-100%);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+        overflow-y: auto;
+      }
+      .side-dashboard.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        color: var(--text-primary);
+      }
+      .sidebar-close-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+      }
+      .sidebar-close-btn:hover {
+        color: var(--text-primary);
+        background: var(--bg-surface-elevated);
+      }
+
+      .sidebar-body {
+        flex: 1;
+        padding: 1rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+      .sidebar-group-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        padding: 0 0.5rem;
+      }
+      .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .sidebar-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+      .sidebar-nav-item:hover, .sidebar-nav-item.active {
+        background: var(--bg-surface-elevated);
+        color: var(--text-primary);
+      }
+      .sidebar-nav-item.active {
+        border-left: 2px solid var(--brand-accent);
+      }
+      .sidebar-icon {
+        width: 16px;
+        height: 16px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+      }
+      .sidebar-nav-item:hover .sidebar-icon, .sidebar-nav-item.active .sidebar-icon {
+        color: var(--brand-accent);
+      }
+
+      .sidebar-promo-card {
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 0.85rem;
+        margin-top: auto;
+      }
+      .sidebar-promo-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+      .sidebar-promo-desc {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+        margin-bottom: 0.65rem;
+      }
+      .sidebar-promo-btn {
+        display: block;
+        text-align: center;
+        background: var(--brand-accent);
+        color: #fff !important;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.4rem 0.6rem;
+        border-radius: 4px;
+        text-decoration: none;
+      }
+
+      .sidebar-footer {
+        padding: 0.85rem 1rem;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+      }
+      .user-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        color: var(--brand-accent);
+      }
+      .user-meta-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .user-meta-status {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+      }
+
+      /* Navigation Bar */
       .top-nav {
         position: sticky;
         top: 0;
@@ -147,15 +370,38 @@ const websiteSchema = {
       .brand-group {
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 1.5rem;
         flex-shrink: 0;
       }
+      .dashboard-toggle-btn {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .dashboard-toggle-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--brand-accent);
+      }
+      .dashboard-toggle-btn svg {
+        width: 14px;
+        height: 14px;
+      }
+
       .logo {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         font-weight: 800;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         letter-spacing: -0.02em;
         text-decoration: none;
         color: var(--text-primary);
@@ -178,12 +424,27 @@ const websiteSchema = {
         font-size: 0.85rem;
         font-weight: 500;
         color: var(--text-secondary);
+        transition: color 0.15s ease;
       }
       .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+
       .nav-actions {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.65rem;
+      }
+      .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .search-icon {
+        position: absolute;
+        left: 0.65rem;
+        width: 13px;
+        height: 13px;
+        color: var(--text-muted);
+        pointer-events: none;
       }
       .search-input {
         background: var(--bg-surface);
@@ -191,38 +452,62 @@ const websiteSchema = {
         color: var(--text-primary);
         font-family: inherit;
         font-size: 0.8125rem;
-        padding: 0.35rem 0.75rem;
+        padding: 0.35rem 0.65rem 0.35rem 1.85rem;
         border-radius: 6px;
         outline: none;
-        width: 180px;
+        width: 190px;
         box-sizing: border-box;
+        transition: border-color 0.15s ease;
       }
       .search-input:focus { border-color: var(--brand-accent); }
 
-      .ad-leaderboard {
-        margin: 1.5rem auto 0.5rem auto;
+      .icon-action-btn {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 6px;
-        display: flex;
-        flex-direction: column;
+        color: var(--text-secondary);
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        text-align: center;
-        padding: 0.75rem;
-        width: 100%;
-        box-sizing: border-box;
-        overflow: hidden;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.15s ease;
       }
-      .ad-label {
-        font-size: 0.625rem;
-        font-family: var(--font-mono);
-        text-transform: uppercase;
-        color: var(--text-muted);
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
+      .icon-action-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--brand-accent);
+      }
+      .alerts-action-btn {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.65rem;
+        height: 32px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.15s ease;
+      }
+      .alerts-action-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--brand-accent);
+      }
+      .alerts-badge-num {
+        background: var(--brand-accent);
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.1rem 0.35rem;
+        border-radius: 10px;
       }
 
+      /* Hero Section */
       .hero-section {
         padding: 1.75rem 0 1.5rem 0;
         display: flex;
@@ -237,7 +522,6 @@ const websiteSchema = {
         font-weight: 800;
         letter-spacing: -0.02em;
         margin-bottom: 0.25rem;
-        word-break: break-word;
       }
       .hero-left p { font-size: 0.9rem; color: var(--text-secondary); }
       
@@ -277,13 +561,105 @@ const websiteSchema = {
         margin-bottom: 1rem;
       }
 
+      /* Macro Overview & Sector Performance Grid */
+      .macro-row-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .sector-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 1.25rem;
+        box-shadow: var(--card-shadow);
+      }
+      .sector-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.15rem;
+        padding-bottom: 0.65rem;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .sector-title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+      .sector-context-note {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+
+      .sector-table {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+      }
+      .sector-row {
+        display: grid;
+        grid-template-columns: 140px 1fr 65px;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+      }
+      .sector-name {
+        color: var(--text-secondary);
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sector-bar-bg {
+        height: 6px;
+        background: var(--bg-surface-elevated);
+        border-radius: 3px;
+        overflow: hidden;
+        position: relative;
+      }
+      .sector-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+      }
+      .sector-bar-fill.pos { background: var(--gain-color); }
+      .sector-bar-fill.neg { background: var(--loss-color); }
+      .sector-val {
+        text-align: right;
+        font-family: var(--font-mono);
+        font-weight: 600;
+        font-size: 0.78125rem;
+      }
+      .val-pos { color: var(--gain-color); }
+      .val-neg { color: var(--loss-color); }
+
+      .sector-footer-note {
+        margin-top: 1rem;
+        padding-top: 0.65rem;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+      }
+      .sector-footer-note a {
+        color: var(--brand-accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .sector-footer-note a:hover { text-decoration: underline; }
+
       .grid-main {
         display: grid;
         grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
         gap: 1.5rem;
         margin-bottom: 2.5rem;
         align-items: start;
-        width: 100%;
       }
 
       .card {
@@ -295,7 +671,6 @@ const websiteSchema = {
         box-sizing: border-box;
         width: 100%;
         min-width: 0;
-        overflow: hidden;
       }
       .card-meta {
         display: flex;
@@ -322,8 +697,6 @@ const websiteSchema = {
         font-weight: 700;
         letter-spacing: -0.01em;
         margin-bottom: 0.85rem;
-        word-break: break-word;
-        overflow-wrap: break-word;
       }
 
       .card-body {
@@ -331,21 +704,17 @@ const websiteSchema = {
         color: var(--text-secondary);
         line-height: 1.65;
         word-break: break-word;
-        overflow-wrap: anywhere;
       }
-
       .card-body p { margin-bottom: 0.9rem; }
       .card-body a { color: var(--brand-accent); text-decoration: none; font-weight: 600; }
       .card-body a:hover { text-decoration: underline; }
       .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 1.25rem 0 0.5rem 0; }
       
-      /* Embedded Markdown Tables */
       .card-body table, .compact-table {
         display: block;
         width: 100%;
         max-width: 100%;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
         border-collapse: collapse;
         font-size: 0.78rem;
         margin: 0.75rem 0 0.5rem 0;
@@ -375,12 +744,10 @@ const websiteSchema = {
         color: var(--gain-color);
       }
 
-      /* Hidden Table Rows */
       tr.table-row-hidden {
         display: none !important;
       }
 
-      /* Show More / Show Less Table Button */
       .toggle-table-btn {
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
@@ -398,7 +765,7 @@ const websiteSchema = {
       }
       .toggle-table-btn:hover {
         border-color: var(--brand-accent);
-        color: #fff;
+        color: var(--text-primary);
       }
 
       .card-action-btn {
@@ -416,7 +783,6 @@ const websiteSchema = {
         border-radius: 5px;
         margin-top: 1rem;
         transition: opacity 0.15s;
-        box-sizing: border-box;
       }
       .card-action-btn:hover { opacity: 0.9; }
 
@@ -440,22 +806,17 @@ const websiteSchema = {
         text-decoration: none;
       }
 
-      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; min-width: 0; }
+      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; }
       .stream-item {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
         padding: 1.1rem;
-        box-sizing: border-box;
-        width: 100%;
-        min-width: 0;
       }
       .stream-title { 
         font-size: 0.875rem; 
         font-weight: 600; 
         margin-bottom: 0.4rem; 
-        word-break: break-word; 
-        overflow-wrap: break-word; 
       }
       .stream-body {
         font-size: 0.8125rem;
@@ -463,21 +824,17 @@ const websiteSchema = {
         line-height: 1.5;
         max-height: 140px;
         overflow: hidden;
-        word-break: break-word;
-        overflow-wrap: anywhere;
       }
       .stream-body table { display: none; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
 
+      /* Table Card */
       .table-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
         margin-bottom: 2.5rem;
-        width: 100%;
-        box-sizing: border-box;
       }
       .data-table {
         width: 100%;
@@ -505,21 +862,13 @@ const websiteSchema = {
       .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
       .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
-
-      .swap-and-ads-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
-        width: 100%;
-      }
+      .table-vol { font-family: var(--font-mono); color: var(--text-secondary); }
 
       .tools-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 1rem;
         margin-bottom: 3.5rem;
-        width: 100%;
       }
       .tool-card {
         background: var(--bg-surface);
@@ -529,8 +878,6 @@ const websiteSchema = {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        box-sizing: border-box;
-        width: 100%;
       }
       .tool-badge {
         font-size: 0.6875rem;
@@ -540,7 +887,7 @@ const websiteSchema = {
         margin-bottom: 0.35rem;
       }
       .tool-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
-      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem; }
+      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.45; }
       .tool-btn {
         display: inline-flex;
         align-items: center;
@@ -553,7 +900,6 @@ const websiteSchema = {
         border: 1px solid var(--border-subtle);
         padding: 0.45rem 0.75rem;
         border-radius: 4px;
-        box-sizing: border-box;
       }
       .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
 
@@ -567,8 +913,6 @@ const websiteSchema = {
         justify-content: space-between;
         align-items: center;
         gap: 1.5rem;
-        box-sizing: border-box;
-        width: 100%;
       }
       .newsletter-input-group {
         display: flex;
@@ -582,7 +926,6 @@ const websiteSchema = {
         padding: 0.5rem 0.75rem;
         border-radius: 4px;
         outline: none;
-        box-sizing: border-box;
       }
 
       footer {
@@ -590,7 +933,6 @@ const websiteSchema = {
         padding: 2.5rem 0 2rem;
         font-size: 0.78125rem;
         color: var(--text-muted);
-        width: 100%;
       }
       .disclosure-box {
         background: var(--bg-surface);
@@ -600,7 +942,6 @@ const websiteSchema = {
         padding: 1rem;
         margin-bottom: 1.5rem;
         line-height: 1.6;
-        box-sizing: border-box;
       }
       .disclosure-box strong { color: var(--text-primary); }
       .footer-meta {
@@ -618,6 +959,7 @@ const websiteSchema = {
       .footer-links a { color: var(--text-secondary); text-decoration: none; }
       .footer-links a:hover { color: var(--text-primary); }
 
+      /* Cookie Consent */
       .cookie-banner {
         position: fixed;
         bottom: 1rem;
@@ -625,13 +967,12 @@ const websiteSchema = {
         right: 1rem;
         max-width: 500px;
         margin: 0 auto;
-        background: #0b0e14;
-        border: 1px solid #1e2638;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
         border-radius: 8px;
         padding: 1rem 1.25rem;
         z-index: 9999;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-        box-sizing: border-box;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
       }
       .cookie-banner.hidden { display: none; }
       .cookie-content { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -645,15 +986,12 @@ const websiteSchema = {
         font-weight: 600;
         cursor: pointer;
         border: none;
-        transition: opacity 0.2s;
       }
       .cookie-btn.accept { background: var(--brand-accent); color: #fff; }
       .cookie-btn.decline { background: var(--bg-surface-elevated); color: var(--text-secondary); }
 
-      @media (max-width: 860px) {
-        .grid-main, .swap-and-ads-grid { 
-          grid-template-columns: minmax(0, 1fr); 
-        }
+      @media (max-width: 900px) {
+        .macro-row-grid, .grid-main { grid-template-columns: minmax(0, 1fr); }
         .hero-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
         .nav-links { display: none; }
         .newsletter-box { flex-direction: column; align-items: flex-start; }
@@ -663,8 +1001,8 @@ const websiteSchema = {
         .app-wrapper { padding: 0 0.85rem; }
         .nav-inner { flex-direction: column; align-items: stretch; padding: 0.6rem 0; }
         .brand-group { width: 100%; justify-content: space-between; }
-        .nav-actions { width: 100%; }
-        .search-input { width: 100%; }
+        .nav-actions { width: 100%; justify-content: space-between; }
+        .search-box, .search-input { width: 100%; }
         .newsletter-box { padding: 1.15rem; }
         .newsletter-input-group { flex-direction: column; width: 100%; }
         .newsletter-input, #subscribe-btn { width: 100%; }
@@ -673,32 +1011,142 @@ const websiteSchema = {
     </style>
   </head>
   <body>
+    <!-- Live Session Bar -->
     <MarketTicker />
 
+    <!-- Backdrop for side dashboard drawer -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- Openable and Closable Side Dashboard -->
+    <aside id="side-dashboard" class="side-dashboard" aria-label="Analytical Navigation Dashboard">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <span class="logo-glyph"></span>
+          <span>TRADE OPPORTUNITIES</span>
+        </div>
+        <button id="sidebar-close-btn" class="sidebar-close-btn" aria-label="Close Dashboard">&times;</button>
+      </div>
+
+      <div class="sidebar-body">
+        <div class="sidebar-group-label">WORKSPACE HUBS</div>
+        <nav class="sidebar-nav">
+          <a href="/" class="sidebar-nav-item active">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="#opportunities" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span>Opportunities</span>
+          </a>
+          <a href="#news-feed" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>News Feed</span>
+          </a>
+          <a href="/category/equities" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Research</span>
+          </a>
+          <a href="#alerts" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>Alerts</span>
+          </a>
+          <a href="#tools" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Tools</span>
+          </a>
+          <a href="/about" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Methodology</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-promo-card">
+          <div class="sidebar-promo-title">Institutional Tier</div>
+          <p class="sidebar-promo-desc">Direct anomaly alerts, volume divergence logs, and quantitative filters.</p>
+          <a href="#alerts" class="sidebar-promo-btn">Configure Feeds</a>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-badge">TU</div>
+        <div>
+          <div class="user-meta-name">Trade User</div>
+          <div class="user-meta-status">Analytical Plan</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Navigation Header -->
     <nav class="top-nav">
       <div class="app-wrapper nav-inner">
         <div class="brand-group">
+          <!-- Side Dashboard Trigger -->
+          <button id="sidebar-toggle-btn" class="dashboard-toggle-btn" aria-label="Toggle Side Dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Dashboard</span>
+          </button>
+
           <a href="/" class="logo">
             <span class="logo-glyph"></span>
             TRADE OPPORTUNITIES
           </a>
+
+          <!-- Requested Left Links -->
           <ul class="nav-links">
-            <li><a href="#intelligence" class="active">Intelligence</a></li>
-            <li><a href="#movers">Market Movers</a></li>
-            <li><a href="#terminal">Order Terminal</a></li>
-            <li><a href="#tools">Platforms</a></li>
-            <li><a href="/about">Methodology</a></li>
+            <li><a href="#news-feed" class="active">News Feed</a></li>
+            <li><a href="#opportunities">Opportunities</a></li>
+            <li><a href="#tools">Tools</a></li>
+            <li><a href="#platforms">Platforms</a></li>
           </ul>
         </div>
+
+        <!-- Requested Right Actions: Search, dark/light mode, Alerts -->
         <div class="nav-actions">
-          <input type="text" id="filter-input" class="search-input" placeholder="Filter tickers..." />
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="filter-input" class="search-input" placeholder="Search ticker..." />
+          </div>
+
+          <!-- Light / Dark Mode Toggle Button -->
+          <button id="theme-toggle-btn" class="icon-action-btn" aria-label="Toggle light / dark mode" title="Switch Theme">
+            <svg id="theme-icon-sun" style="display: none;" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg id="theme-icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <!-- Alerts Trigger -->
+          <a href="#alerts" class="alerts-action-btn" title="View Market Alerts">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span>Alerts</span>
+            <span class="alerts-badge-num">3</span>
+          </a>
         </div>
       </div>
     </nav>
 
     <div class="app-wrapper">
-      <div class="ad-leaderboard">
-        <span class="ad-label">Sponsored Intelligence</span>
+      <!-- Verified Data Partner Banner -->
+      <div class="ad-leaderboard" style="margin: 1.5rem auto 0.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
+        <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Sponsored Quantitative Data Node</span>
         <div style="width: 100%; margin: auto; position: relative;">
           <iframe 
             data-aa="2453491" 
@@ -709,62 +1157,167 @@ const websiteSchema = {
         </div>
       </div>
 
+      <!-- Hero Header -->
       <header class="hero-section">
         <div class="hero-left">
-          <h1>Market Intelligence Feed</h1>
-          <p>Automated quantitative tracking of high-momentum equity breakouts and volume divergences.</p>
+          <h1>Quantitative Market Intelligence</h1>
+          <p>Unusual price expansion accompanied by elevated volume and statistical liquidity monitoring.</p>
         </div>
         <div class="hero-right">
           <div class="scanning-badge">
             <div class="scanning-dot"></div>
-            <span>LIVE SCAN</span>
+            <span>LIVE SCAN ACTIVE</span>
           </div>
         </div>
       </header>
 
-      <!-- Section 01: Dispatches -->
-      <section id="intelligence">
-        <div class="section-label">01 // Recent Dispatches</div>
+      <!-- Sector Performance Module (Circled in Design Reference) -->
+      <div class="macro-row-grid">
+        <div class="sector-card">
+          <div class="sector-header">
+            <span class="sector-title">SECTOR PERFORMANCE</span>
+            <span class="sector-context-note">S&P 500 Sub-Indices</span>
+          </div>
+
+          <div class="sector-table">
+            <div class="sector-row">
+              <span class="sector-name">Technology</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill pos" style="width: 82%;"></div>
+              </div>
+              <span class="sector-val val-pos">+1.32%</span>
+            </div>
+
+            <div class="sector-row">
+              <span class="sector-name">Communication</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill pos" style="width: 60%;"></div>
+              </div>
+              <span class="sector-val val-pos">+0.89%</span>
+            </div>
+
+            <div class="sector-row">
+              <span class="sector-name">Industrials</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill pos" style="width: 44%;"></div>
+              </div>
+              <span class="sector-val val-pos">+0.56%</span>
+            </div>
+
+            <div class="sector-row">
+              <span class="sector-name">Consumer Cyclical</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill pos" style="width: 32%;"></div>
+              </div>
+              <span class="sector-val val-pos">+0.41%</span>
+            </div>
+
+            <div class="sector-row">
+              <span class="sector-name">Financials</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill pos" style="width: 20%;"></div>
+              </div>
+              <span class="sector-val val-pos">+0.21%</span>
+            </div>
+
+            <div class="sector-row">
+              <span class="sector-name">Health Care</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill neg" style="width: 18%;"></div>
+              </div>
+              <span class="sector-val val-neg">-0.18%</span>
+            </div>
+
+            <div class="sector-row">
+              <span class="sector-name">Utilities</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill neg" style="width: 26%;"></div>
+              </div>
+              <span class="sector-val val-neg">-0.32%</span>
+            </div>
+
+            <div class="sector-row">
+              <span class="sector-name">Real Estate</span>
+              <div class="sector-bar-bg">
+                <div class="sector-bar-fill neg" style="width: 35%;"></div>
+              </div>
+              <span class="sector-val val-neg">-0.41%</span>
+            </div>
+          </div>
+
+          <div class="sector-footer-note">
+            <span>Data updated at regular trading session intervals.</span>
+            <a href="#opportunities">View Full Market Overview &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Analytical Context Summary -->
+        <div class="sector-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="sector-header">
+              <span class="sector-title">OBSERVATION MATRIX</span>
+              <span class="sector-context-note">Algorithmic Synthesis</span>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: column; gap: 0.75rem;">
+              <p>
+                <strong>Breadth Divergence:</strong> Momentum is concentrated in low-priced equities, while major index components display consolidation around previous closing ranges.
+              </p>
+              <p>
+                <strong>Execution Parameter:</strong> Liquidity remains thin in high-turnover micro-cap names, increasing execution risk and potential spread slippage once order volume normalizes.
+              </p>
+              <p>
+                <strong>Turnover Verification:</strong> Screening criteria filters out sub-50,000 share turnover to isolate authentic order book commitment from nominal micro-prints.
+              </p>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">
+            Benchmark Feed: S&amp;P 500 / Alpha Vantage Quantitative Ingestion
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 01: News Feed -->
+      <section id="news-feed">
+        <div class="section-label">01 // News Feed &bull; Intraday Dispatches</div>
         <div class="grid-main">
           {featuredPost ? (
             <article class="card dispatch-card">
               <div class="card-meta">
-                <span class="pill pill-gain">{featuredPost.data.category || 'Equities'}</span>
-                <span style="font-family: var(--font-mono);">
-                  {featuredPost.data.displayDate || (featuredPost.data.date ? new Date(featuredPost.data.date).toISOString().slice(0, 10) : '')}
-                </span>
+                <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Equities'}</span>
+                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
               </div>
               
-              <h2 class="card-title">{featuredPost.data.title}</h2>
+              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
               
               <div class="card-body" id="featured-content">
-                {FeaturedContent && <FeaturedContent />}
+                <featuredPost.Content />
               </div>
 
-              <!-- Dynamic Fallback Table for older posts that lacked markdown tables -->
-              {displayGainers.length > 0 && (
+              <!-- Compact Table with 116.1K formatting -->
+              {featuredPost.frontmatter.gainers && featuredPost.frontmatter.gainers.length > 0 && (
                 <div class="fallback-table-wrapper" style="display: none;">
-                  <h4>Session Top Movers & Liquidity</h4>
+                  <h4>Session Top Movers &amp; Liquidity</h4>
                   <table class="compact-table">
                     <thead>
                       <tr>
                         <th>Ticker</th>
                         <th>Price</th>
-                        <th>24h Change</th>
-                        <th>Volume</th>
+                        <th>Delta</th>
+                        <th>Session Volume</th>
                         <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {displayGainers.map((stock: StockItem) => (
+                      {featuredPost.frontmatter.gainers.map((stock: StockItem) => (
                         <tr>
                           <td><strong>${stock.ticker}</strong></td>
                           <td>${parseFloat(stock.price).toFixed(2)}</td>
                           <td><code>+{parseFloat(stock.change_percentage).toFixed(2)}%</code></td>
-                          <td>{Number(stock.volume).toLocaleString()}</td>
+                          <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
                           <td>
                             <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer">
-                              Trade {stock.ticker}
+                              Analyze {stock.ticker}
                             </a>
                           </td>
                         </tr>
@@ -774,9 +1327,9 @@ const websiteSchema = {
                 </div>
               )}
 
-              {featuredPost.data.tickers && featuredPost.data.tickers.length > 0 && (
+              {featuredPost.frontmatter.tickers && (
                 <div class="ticker-tags">
-                  {featuredPost.data.tickers.map((t: string) => (
+                  {featuredPost.frontmatter.tickers.map((t: string) => (
                     <a href={`/ticker/${t.toLowerCase()}/`} class="ticker-pill" title={`View ${t} Breakout Hub`}>
                       ${t}
                     </a>
@@ -784,34 +1337,32 @@ const websiteSchema = {
                 </div>
               )}
 
-              <a href={featuredPost.data.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+              <a href={featuredPost.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                  target="_blank" 
                  rel="noopener noreferrer" 
                  class="card-action-btn">
-                {featuredPost.data.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
+                {featuredPost.frontmatter.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
               </a>
             </article>
           ) : (
             <div class="card">
-              <p style="color: var(--text-secondary);">Initializing scan sequence. Next batch will populate at US market open.</p>
+              <p style="color: var(--text-secondary);">Initializing scan sequence. Feed updates continuously around session liquidity.</p>
             </div>
           )}
 
           <div class="stream-list">
-            {renderedSecondary.map(({ post, Content }) => (
+            {secondaryPosts.map(post => (
               <article class="stream-item dispatch-card">
-                <div class="stream-date">
-                  {post.data.displayDate || (post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : '')}
-                </div>
-                <h3 class="stream-title">{post.data.title}</h3>
+                <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
+                <h3 class="stream-title">{post.frontmatter.title}</h3>
                 <div class="stream-body">
-                  <Content />
+                  <post.Content />
                 </div>
-                <a href={post.data.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+                <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                    target="_blank" 
                    rel="noopener noreferrer" 
                    style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
-                  {post.data.refLabel || "View Chart"} &rarr;
+                  {post.frontmatter.refLabel || "Review Chart Structure"} &rarr;
                 </a>
               </article>
             ))}
@@ -819,17 +1370,17 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Section 02: Breakouts Table -->
-      <section id="movers">
-        <div class="section-label">02 // Monitored Breakouts (Alpha Vantage Feed)</div>
+      <!-- Section 02: Opportunities Table -->
+      <section id="opportunities">
+        <div class="section-label">02 // Opportunities &bull; Monitored Breakouts</div>
         <div class="table-card">
           <table class="data-table">
             <thead>
               <tr>
                 <th>Asset</th>
                 <th>Price</th>
-                <th>Change (%)</th>
-                <th>Session Volume</th>
+                <th>Delta (%)</th>
+                <th>Volume (Compact)</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -841,10 +1392,10 @@ const websiteSchema = {
                       <td class="table-symbol">${stock.ticker}</td>
                       <td>${parseFloat(stock.price).toFixed(2)}</td>
                       <td class="table-gain">+{parseFloat(stock.change_percentage).toFixed(2)}%</td>
-                      <td>{Number(stock.volume).toLocaleString()}</td>
+                      <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
                       <td>
                         <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
-                          Analyze Chart &rarr;
+                          Analyze Setup &rarr;
                         </a>
                       </td>
                     </tr>
@@ -854,10 +1405,10 @@ const websiteSchema = {
                       <td class="table-symbol">${stock.ticker}</td>
                       <td>${parseFloat(stock.price).toFixed(2)}</td>
                       <td class="table-loss">{parseFloat(stock.change_percentage).toFixed(2)}%</td>
-                      <td>{Number(stock.volume).toLocaleString()}</td>
+                      <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
                       <td>
                         <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
-                          Analyze Chart &rarr;
+                          Analyze Setup &rarr;
                         </a>
                       </td>
                     </tr>
@@ -875,14 +1426,17 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Section 03: Swap Terminal -->
-      <section id="terminal" style="margin-bottom: 2.5rem;">
-        <div class="section-label">03 // Instant Execution & Liquidity Hub</div>
-        <div class="swap-and-ads-grid">
+      <!-- Section 03: Tools (Analytical & Non-Custodial Utilities) -->
+      <section id="tools" style="margin-bottom: 2.5rem;">
+        <div class="section-label">03 // Tools &bull; Analytical Utilities</div>
+        <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1.5rem;">
           <div class="card" style="padding: 1rem;">
-            <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">
-              Instant Non-Custodial Swap Terminal
+            <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
+              Third-Party Non-Custodial Spot Utility
             </div>
+            <p style="font-size: 0.78125rem; color: var(--text-secondary); margin-bottom: 0.85rem; line-height: 1.45;">
+              Trade Opportunities does not operate a broker or execution desk. The utility below provides direct third-party decentralized swap routing.
+            </p>
             <iframe
               id="changenow-widget"
               src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=111622&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=3b82f6&to=eth"
@@ -893,10 +1447,10 @@ const websiteSchema = {
 
           <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <div class="ad-label" style="text-align: left;">High-Yield Sponsored Partner</div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem;">Institutional Market Liquidity</h3>
+              <div style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">Institutional Sourcing Partner</div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem;">Deep Liquidity Routing</h3>
               <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 1rem;">
-                Access tier-1 deep-book crypto futures, low latency routing, and institutional execution spreads with partner rebates.
+                Cross-referenced volume monitoring across high-liquidity crypto derivative pairs and global equities order books.
               </p>
               
               <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; min-height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden; width: 100%;">
@@ -905,24 +1459,24 @@ const websiteSchema = {
             </div>
 
             <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn" style="margin-top: 1rem; width: 100%;">
-              Explore SimpleSwap Routing &rarr;
+              Access SimpleSwap Utility &rarr;
             </a>
           </div>
         </div>
       </section>
 
-      <!-- Newsletter -->
-      <div class="newsletter-box">
+      <!-- Newsletter / Alerts Section -->
+      <div class="newsletter-box" id="alerts">
         <div>
-          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Daily Momentum Alerts</h3>
-          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Receive high-volume breakout scans directly before market open.</p>
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Momentum Anomaly Alerts</h3>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Direct email dispatches when unusual price expansion and volume clustering occur.</p>
         </div>
         <form id="resend-subscribe-form" class="newsletter-input-group">
           <input 
             type="email" 
             name="email" 
             id="subscriber-email" 
-            placeholder="institutional@trader.com" 
+            placeholder="analyst@firm.com" 
             class="newsletter-input" 
             required 
           />
@@ -932,45 +1486,45 @@ const websiteSchema = {
             class="tool-btn" 
             style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;"
           >
-            Subscribe Free
+            Activate Alerts
           </button>
         </form>
       </div>
 
       <!-- Section 04: Platforms -->
-      <section id="tools">
-        <div class="section-label">04 // Analytical Tools & Liquidity</div>
+      <section id="platforms">
+        <div class="section-label">04 // Platforms &bull; Analytical Infrastructure</div>
         <div class="tools-grid">
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Charting</span>
+              <span class="tool-badge">Technical Suite</span>
               <h3 class="tool-name">TradingView</h3>
-              <p class="tool-desc">Multi-timeframe charting and volume profiling suites.</p>
+              <p class="tool-desc">Multi-timeframe technical workspaces with volume profiling and order flow analytics.</p>
             </div>
             <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Open Workspace &rarr;
+              Open Charting Workspace &rarr;
             </a>
           </div>
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Non-Custodial</span>
+              <span class="tool-badge">Spot Settlement</span>
               <h3 class="tool-name">ChangeNOW</h3>
-              <p class="tool-desc">Cross-chain crypto spot settlement with instant routing.</p>
+              <p class="tool-desc">Non-custodial cross-chain liquidity routing with instant algorithmic rate discovery.</p>
             </div>
             <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Access Liquidity &rarr;
+              Open Routing Utility &rarr;
             </a>
           </div>
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Asset Swaps</span>
+              <span class="tool-badge">Asset Pairs</span>
               <h3 class="tool-name">SimpleSwap</h3>
-              <p class="tool-desc">Frictionless asset routing across 1,500+ spot pairs.</p>
+              <p class="tool-desc">Low-friction settlement across 1,500+ cryptocurrency pairs and decentralized networks.</p>
             </div>
             <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Launch Exchange &rarr;
+              Launch Utility &rarr;
             </a>
           </div>
         </div>
@@ -980,26 +1534,26 @@ const websiteSchema = {
       <footer>
         <div class="disclosure-box">
           <p>
-            <strong>Financial Risk & Regulatory Notice:</strong> The quantitative data, momentum scores, algorithmic breakout alerts, and market dispatches presented on Trade Opportunities are generated automatically and published strictly for informational and educational purposes. <strong>Nothing on this site constitutes financial, investment, legal, or tax advice.</strong> Trading equities, cryptocurrencies, options, and derivatives entails a high risk of capital loss. Historical price trends and momentum metrics are not indicative of future market performance. Always conduct independent due diligence.
+            <strong>Regulatory &amp; Non-Fiduciary Disclosure:</strong> Trade Opportunities is an analytical research platform and not a broker-dealer, investment advisor, or trade execution terminal. All quantitative scores, momentum metrics, and price analyses are algorithmically generated for informational purposes only. Trading equities, micro-caps, options, and digital assets involves significant risk of capital loss. Past statistical performance does not guarantee future results.
           </p>
         </div>
 
         <div class="footer-meta">
           <div class="footer-links">
-            <a href="/about">Methodology & E-E-A-T</a>
+            <a href="/about">Methodology &amp; E-E-A-T</a>
             <a href="/terms">Terms of Service</a>
             <a href="/privacy">Privacy Policy</a>
             <a href="/rss.xml">RSS Feed</a>
           </div>
-          <div>&copy; 2026 Trade Opportunities. All rights reserved. Affiliate links may generate referral commissions.</div>
+          <div>&copy; 2026 Trade Opportunities. All rights reserved. Non-custodial market data hub.</div>
         </div>
       </footer>
     </div>
 
-    <!-- Cookie Consent Banner Component -->
+    <!-- Cookie Consent Banner -->
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-content">
-        <p>We use cookies to analyze traffic, manage affiliate referrals, and maintain market synchronization. Read our <a href="/privacy">Privacy Policy</a>.</p>
+        <p>We utilize telemetry cookies to maintain session settings and data feed synchronization. Review our <a href="/privacy">Privacy Policy</a>.</p>
         <div class="cookie-actions">
           <button id="accept-cookies" class="cookie-btn accept">Accept All</button>
           <button id="decline-cookies" class="cookie-btn decline">Essential Only</button>
@@ -1007,9 +1561,74 @@ const websiteSchema = {
       </div>
     </div>
 
-    <!-- Interactive Table & Utilities Script -->
+    <!-- Interactive Scripts: Sidebar, Dark/Light Mode, Search Filter, Tables -->
     <script is:inline>
-      (function() {
+      // 1. Openable / Closable Side Dashboard
+      (function initSideDashboard() {
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const closeBtn = document.getElementById('sidebar-close-btn');
+        const sidebar = document.getElementById('side-dashboard');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        function openSidebar() {
+          sidebar?.classList.add('open');
+          backdrop?.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+          sidebar?.classList.remove('open');
+          backdrop?.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+
+        toggleBtn?.addEventListener('click', openSidebar);
+        closeBtn?.addEventListener('click', closeSidebar);
+        backdrop?.addEventListener('click', closeSidebar);
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && sidebar?.classList.contains('open')) {
+            closeSidebar();
+          }
+        });
+
+        // Close sidebar when clicking internal navigation links
+        const navLinks = sidebar?.querySelectorAll('.sidebar-nav-item');
+        navLinks?.forEach(link => {
+          link.addEventListener('click', closeSidebar);
+        });
+      })();
+
+      // 2. Light / Dark Mode Toggle
+      (function initThemeToggle() {
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const sunIcon = document.getElementById('theme-icon-sun');
+        const moonIcon = document.getElementById('theme-icon-moon');
+
+        const savedTheme = localStorage.getItem('to_theme') || 'dark';
+        applyTheme(savedTheme);
+
+        function applyTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'light') {
+            if (sunIcon) sunIcon.style.display = 'none';
+            if (moonIcon) moonIcon.style.display = 'block';
+          } else {
+            if (sunIcon) sunIcon.style.display = 'block';
+            if (moonIcon) moonIcon.style.display = 'none';
+          }
+          localStorage.setItem('to_theme', theme);
+        }
+
+        themeBtn?.addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme') || 'dark';
+          const nextTheme = current === 'dark' ? 'light' : 'dark';
+          applyTheme(nextTheme);
+        });
+      })();
+
+      // 3. Compact Markdown Table Expander & Compact Volume Conversion
+      (function initTableFormatters() {
         const featuredCard = document.querySelector('.dispatch-card');
         if (!featuredCard) return;
 
@@ -1033,7 +1652,7 @@ const websiteSchema = {
             const toggleBtn = document.createElement('button');
             toggleBtn.type = 'button';
             toggleBtn.className = 'toggle-table-btn';
-            toggleBtn.innerHTML = '<span>Show More</span> <span>↓</span>';
+            toggleBtn.innerHTML = '<span>Show More Rows</span> <span>&darr;</span>';
 
             let isExpanded = false;
             toggleBtn.addEventListener('click', () => {
@@ -1044,8 +1663,8 @@ const websiteSchema = {
                 }
               });
               toggleBtn.innerHTML = isExpanded 
-                ? '<span>Show Less</span> <span>↑</span>' 
-                : '<span>Show More</span> <span>↓</span>';
+                ? '<span>Show Less Rows</span> <span>&uarr;</span>' 
+                : '<span>Show More Rows</span> <span>&darr;</span>';
             });
 
             targetTable.insertAdjacentElement('afterend', toggleBtn);
@@ -1053,30 +1672,11 @@ const websiteSchema = {
         }
       })();
 
-      (function () {
-        const banner = document.getElementById('cookie-banner');
-        const acceptBtn = document.getElementById('accept-cookies');
-        const declineBtn = document.getElementById('decline-cookies');
-
-        if (!localStorage.getItem('cookie_consent')) {
-          banner?.classList.remove('hidden');
-        }
-
-        acceptBtn?.addEventListener('click', () => {
-          localStorage.setItem('cookie_consent', 'accepted');
-          banner?.classList.add('hidden');
-        });
-
-        declineBtn?.addEventListener('click', () => {
-          localStorage.setItem('cookie_consent', 'declined');
-          banner?.classList.add('hidden');
-        });
-      })();
-
+      // 4. Client-side Search / Filter
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
-          const query = e.target.value.toLowerCase();
+          const query = e.target.value.toLowerCase().trim();
           const cards = document.querySelectorAll('.dispatch-card');
           cards.forEach((card) => {
             const text = card.innerText.toLowerCase();
@@ -1085,6 +1685,7 @@ const websiteSchema = {
         });
       }
 
+      // 5. Subscription Alerts Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
@@ -1104,10 +1705,10 @@ const websiteSchema = {
             });
 
             if (res.ok) {
-              subscribeBtn.textContent = 'Subscribed!';
+              subscribeBtn.textContent = 'Alerts Active';
               emailInput.value = '';
             } else {
-              subscribeBtn.textContent = 'Try Again';
+              subscribeBtn.textContent = 'Retry';
               subscribeBtn.disabled = false;
             }
           } catch (err) {
@@ -1116,6 +1717,27 @@ const websiteSchema = {
           }
         });
       }
+
+      // 6. Cookie Consent
+      (function initCookieBanner() {
+        const banner = document.getElementById('cookie-banner');
+        const acceptBtn = document.getElementById('accept-cookies');
+        const declineBtn = document.getElementById('decline-cookies');
+
+        if (!localStorage.getItem('cookie_consent')) {
+          banner?.classList.remove('hidden');
+        }
+
+        acceptBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'accepted');
+          banner?.classList.add('hidden');
+        });
+
+        declineBtn?.addEventListener('click', () => {
+          localStorage.setItem('cookie_consent', 'declined');
+          banner?.classList.add('hidden');
+        });
+      })();
     </script>
   </body>
 </html>
