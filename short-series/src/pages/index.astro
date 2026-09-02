@@ -30,7 +30,6 @@ interface MarkdownPost {
   rawContent?: () => string;
 }
 
-// Compact metric formatter: turns 116127 into 116.1K, 32100000 into 32.1M
 function formatCompactNumber(val: string | number | undefined): string {
   if (val === undefined || val === null || val === '') return '0';
   const num = typeof val === 'string' ? parseFloat(val.replace(/,/g, '')) : val;
@@ -563,7 +562,7 @@ const websiteSchema = {
         margin-bottom: 1rem;
       }
 
-      /* Sector Performance Layout */
+      /* Clean Sector Performance Container */
       .sector-container-wrap {
         margin-bottom: 2.5rem;
         width: 100%;
@@ -1124,7 +1123,7 @@ const websiteSchema = {
         </div>
       </header>
 
-      <!-- Sector Performance Section (Live TradingView Widget) -->
+      <!-- Sector Performance Section (Observation Matrix Completely Removed) -->
       <div class="sector-container-wrap" id="sector-matrix">
         <div class="sector-card">
           <div class="sector-header">
@@ -1132,7 +1131,8 @@ const websiteSchema = {
             <span class="sector-context-note">S&amp;P 500 Sub-Indices • Live Feed</span>
           </div>
 
-          <div class="tradingview-widget-container" style="height: 360px; width: 100%;">
+          <!-- Real-Time Embeddable Sector Widget -->
+          <div class="tradingview-widget-container" style="height: 380px; width: 100%;">
             <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async is:inline set:html={JSON.stringify({
               "colorTheme": "dark",
