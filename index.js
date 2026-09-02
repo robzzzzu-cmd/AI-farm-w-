@@ -83,10 +83,16 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
-    const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
+    // Defensive liquid gainers filter with fallback for low after-hours volume
+    const rawGainers = marketData.top_gainers || [];
+    const liquidGainers = rawGainers.filter((s) => Number(s.volume || 0) >= 50000);
+    const topGainers = (liquidGainers.length >= 1 ? liquidGainers : rawGainers).slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
     const mostActive = (marketData.most_actively_traded || []).slice(0, 5);
+
+    if (topGainers.length === 0) {
+      throw new Error('No gainers returned by Alpha Vantage for this session.');
+    }
 
     const leadStock = topGainers[0];
 
@@ -151,6 +157,7 @@ CRITICAL RULES:
     const timeParts = now.toISOString().split('T')[1].replace(/[:.]/g, '-').replace(/Z$/i, '').toLowerCase();
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
 
+    // Lowercase URL-safe slug without raw uppercase ISO indicators
     const slug = `market-update-${date}-${timeParts}`;
     const fileName = `${slug}.md`;
     
