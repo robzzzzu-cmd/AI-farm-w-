@@ -21,11 +21,28 @@ async function fetchWithRetry(url, options = {}, retries = 3, backoffMs = 3000) 
   }
 }
 
+// Compact metric formatter: turns 116127 into 116.1K, 32100000 into 32.1M
+function formatCompactNumber(val) {
+  if (val === undefined || val === null || val === '') return '0';
+  const num = typeof val === 'string' ? parseFloat(val.replace(/,/g, '')) : val;
+  if (isNaN(num)) return String(val);
+  if (Math.abs(num) >= 1e9) {
+    return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+  }
+  if (Math.abs(num) >= 1e6) {
+    return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (Math.abs(num) >= 1e3) {
+    return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+  }
+  return num.toLocaleString();
+}
+
 function buildCompactTable(title, items) {
   if (!items || items.length === 0) return '';
 
   let table = `#### ${title}\n\n`;
-  table += `| Ticker | Price | 24h Change | Volume | Action |\n`;
+  table += `| Ticker | Price | Delta | Volume | Action |\n`;
   table += `| :--- | :--- | :--- | :--- | :--- |\n`;
 
   for (const s of items) {
@@ -34,7 +51,7 @@ function buildCompactTable(title, items) {
     const price = !isNaN(rawPrice) ? `$${rawPrice.toFixed(2)}` : '$0.00';
     const sign = rawChange > 0 ? '+' : '';
     const change = !isNaN(rawChange) ? `${sign}${rawChange.toFixed(2)}%` : '0.00%';
-    const vol = Number(s.volume || 0).toLocaleString();
+    const vol = formatCompactNumber(s.volume);
     const link = `[Trade ${s.ticker}](https://www.tradingview.com/symbols/${s.ticker}/?aff_id=170147)`;
 
     table += `| **$${s.ticker}** | ${price} | \`${change}\` | ${vol} | ${link} |\n`;
@@ -83,46 +100,52 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    // Defensive liquid gainers filter with fallback for low after-hours volume
-    const rawGainers = marketData.top_gainers || [];
-    const liquidGainers = rawGainers.filter((s) => Number(s.volume || 0) >= 50000);
-    const topGainers = (liquidGainers.length >= 1 ? liquidGainers : rawGainers).slice(0, 5);
+    const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
+    const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
     const mostActive = (marketData.most_actively_traded || []).slice(0, 5);
-
-    if (topGainers.length === 0) {
-      throw new Error('No gainers returned by Alpha Vantage for this session.');
-    }
 
     const leadStock = topGainers[0];
 
     const stockDataSummary = `
 TOP GAINERS (Momentum Breakouts):
-${topGainers.map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: +${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
+${topGainers.map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: +${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
 
 MOST ACTIVELY TRADED (Liquidity Anchors):
-${mostActive.slice(0, 3).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
+${mostActive.slice(0, 3).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
 
 TOP DECLINERS (Distribution & Pullbacks):
-${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${Number(s.volume).toLocaleString()} shares`).join('\n')}
+${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
     `.trim();
 
-    const systemPrompt = `You are an institutional financial news journalist for Trade Opportunities.
-Write a detailed 6 to 9 sentence equity market news report analyzing today's momentum breakouts and liquidity rotation.
+    const systemPrompt = `You are a quantitative market analyst for Trade Opportunities, a professional financial intelligence company.
+Write a 6 to 9 sentence analytical market intelligence dispatch analyzing today's volume expansion and price anomalies.
 
-Key requirements:
-1. Lead with the top gainer ($${leadStock.ticker}), explaining its percentage surge and volume.
-2. Discuss secondary momentum across the other top gainers.
-3. Analyze retail speculative interest, order routing, and liquidity flow in sub-dollar equities.
-4. Compare breakout action to active volume leaders and decliners.
-5. Emphasize trade execution risks, spread slippage, and mean-reversion pullbacks as session volume exhausts.
+TONE REQUIREMENTS:
+- Use concise, objective, institutional language.
+- DO NOT use hyperbolic, tabloid, or AI-cliché phrases like:
+  * "stunned institutional desks"
+  * "speculative frenzy"
+  * "aggressive order routing"
+  * "sharp liquidity rotation"
+- Prefer measured analytical formulations:
+  * "Unusual price expansion accompanied by elevated volume."
+  * "Liquidity remains thin, increasing execution risk."
+  * "Momentum is concentrated in low-priced equities."
+  * "Volume concentration indicates localized retail interest."
+
+STRUCTURE:
+1. Lead with $${leadStock.ticker}, stating its measured percentage expansion and relative volume.
+2. Outline secondary momentum observed across adjacent gainers.
+3. Quantify liquidity distribution and contrast micro-cap momentum with active volume anchors.
+4. Detail execution risks, note thin order book depth, and address potential spread slippage or mean-reversion vulnerability upon session exhaustion.
 
 CRITICAL RULES:
-- Write strictly 6 to 9 continuous, complete sentences.
+- Write strictly 6 to 9 continuous sentences in a single paragraph.
 - DO NOT use markdown headings (#, ##), subheadings, or bullet points.
-- Refer to every ticker using standard dollar notation (e.g., $${leadStock.ticker}). DO NOT write markdown links or URLs.
-- DO NOT use raw comparison symbols like "<" or ">" (write "under $1" instead of "< $1", and "greater than" instead of ">").
-- Return ONLY the news text.`;
+- Refer to every ticker using standard dollar notation (e.g. $${leadStock.ticker}).
+- DO NOT invent or embed raw markdown links or HTML.
+- Return ONLY the paragraph text.`;
 
     console.log('2. Generating complete news dispatch with Gemini...');
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${llmApiKey}`;
@@ -140,7 +163,7 @@ CRITICAL RULES:
         ],
         generationConfig: {
           maxOutputTokens: 2000,
-          temperature: 0.25
+          temperature: 0.2
         }
       })
     });
@@ -154,12 +177,10 @@ CRITICAL RULES:
     console.log('3. Assembling structured markdown post...');
     const now = new Date();
     const date = now.toISOString().split('T')[0];
-    const timeParts = now.toISOString().split('T')[1].replace(/[:.]/g, '-').replace(/Z$/i, '').toLowerCase();
+    const timestamp = now.toISOString().replace(/[:.]/g, '-');
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
 
-    // Lowercase URL-safe slug without raw uppercase ISO indicators
-    const slug = `market-update-${date}-${timeParts}`;
-    const fileName = `${slug}.md`;
+    const fileName = `market-update-${timestamp}.md`;
     
     const folderPath = fs.existsSync('./src/content/blog')
       ? './src/content/blog'
@@ -180,18 +201,17 @@ CRITICAL RULES:
     );
 
     const generatedAnalysis = sanitizeAndLinkify(rawAnalysis, allTickers);
-    const ogImageUrl = `https://tradeopportunities.trade/og/${slug}.svg`;
 
     const markdownContent = `---
 title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
-description: "Market intelligence report on liquidity expansion in ${leadStock.ticker} and active breakout leaders."
+description: "Quantitative market report on liquidity expansion in ${leadStock.ticker} and active breakout leaders."
 date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"
 updatedDate: "${now.toISOString()}"
 displayDate: "${date} ${displayTime}"
 category: "Equities"
 categories: ["Equities", "Momentum"]
-image: "${ogImageUrl}"
+image: "https://tradeopportunities.trade/favicon.svg"
 leadTicker: "${leadStock.ticker}"
 leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
 tickers: [${allTickers.map((t) => `"${t}"`).join(', ')}]
