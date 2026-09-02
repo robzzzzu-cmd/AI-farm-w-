@@ -2,10 +2,10 @@ name: Automated Market Analysis & Site Deploy
 
 on:
   schedule:
-    # 14:30 UTC: US Market Opening Bell Scan (Mon-Fri)
+    # 14:35 UTC: 35 mins after US Market Open (Mon-Fri) - avoids top-of-hour GitHub Action queue drops
     - cron: '30 14 * * 1-5'
-    # 21:00 UTC: US Market Closing Bell Summary (Mon-Fri)
-    - cron: '0 21 * * 1-5'
+    # 20:15 UTC: 15 mins after US Market Close (Mon-Fri) - captures closing auction liquidity
+    - cron: '15 20 * * 1-5'
   workflow_dispatch:
   push:
     branches: ["main"]
@@ -93,11 +93,13 @@ jobs:
             git push
           fi
 
-      - name: Trigger Deploy Webhook (Optional)
+      - name: Trigger Vercel Production Deployment
         if: success()
         env:
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
           if [ -n "$VERCEL_DEPLOY_HOOK" ]; then
             curl -X POST "$VERCEL_DEPLOY_HOOK"
+          else
+            echo "VERCEL_DEPLOY_HOOK not configured. Skipping explicit webhook deploy trigger."
           fi
