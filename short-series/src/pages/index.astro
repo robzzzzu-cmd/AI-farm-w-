@@ -53,7 +53,7 @@ const secondaryPosts = posts.slice(1, 5);
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
 
-// Initial server-side sector render (ensures the container is never blank)
+// Initial server-side sector render (ensures container is never blank)
 const defaultSectors = [
   { name: "Technology", symbol: "XLK", change: 1.32 },
   { name: "Communication", symbol: "XLC", change: 0.89 },
@@ -1381,7 +1381,8 @@ const websiteSchema = {
         </div>
       </div>
     </div>
-<script is:inline>
+
+    <script is:inline>
       // 1. Live Client-Side Sector Poller with Anti-Cache Proxy
       (function initRealSectorAnalytics() {
         const sectorList = [
@@ -1427,7 +1428,7 @@ const websiteSchema = {
         }
 
         async function fetchLiveSectors() {
-          // 1. Attempt same-origin serverless proxy with cache buster
+          // 1. Attempt same-origin serverless proxy with cache-busting timestamp
           try {
             const apiRes = await fetch(`/api/sectors?_t=${Date.now()}`);
             if (apiRes.ok) {
@@ -1673,6 +1674,5 @@ const websiteSchema = {
         });
       })();
     </script>
-
   </body>
 </html>
