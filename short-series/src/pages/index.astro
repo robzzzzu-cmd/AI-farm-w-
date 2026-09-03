@@ -53,7 +53,7 @@ const secondaryPosts = posts.slice(1, 5);
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
 
-// Initial server-side sector render (ensures container is never blank)
+// Initial server-side sector render (ensures the container is never blank)
 const defaultSectors = [
   { name: "Technology", symbol: "XLK", change: 1.32 },
   { name: "Communication", symbol: "XLC", change: 0.89 },
@@ -991,7 +991,7 @@ const websiteSchema = {
           </a>
           <a href="#alerts" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span>Newsletter</span>
+            <span>Alerts</span>
           </a>
           <a href="/about" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
@@ -1000,9 +1000,9 @@ const websiteSchema = {
         </nav>
 
         <div class="sidebar-promo-card">
-          <div class="sidebar-promo-title">Free Weekly Newsletter</div>
-          <p class="sidebar-promo-desc">Get our end-of-week market summary with peak breakouts and volume leader tables every Friday.</p>
-          <a href="#alerts" class="sidebar-promo-btn">Subscribe for Free</a>
+          <div class="sidebar-promo-title">Institutional Tier</div>
+          <p class="sidebar-promo-desc">Direct anomaly alerts, volume divergence logs, and quantitative filters.</p>
+          <a href="#alerts" class="sidebar-promo-btn">Configure Feeds</a>
         </div>
       </div>
     </aside>
@@ -1056,21 +1056,39 @@ const websiteSchema = {
             </svg>
           </button>
 
-          <a href="#alerts" class="alerts-action-btn" title="Subscribe to Weekly Newsletter">
+          <a href="#alerts" class="alerts-action-btn" title="View Market Alerts">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
-            <span>Newsletter</span>
-            <span class="alerts-badge-num">Free</span>
+            <span>Alerts</span>
+            <span class="alerts-badge-num">3</span>
           </a>
         </div>
       </div>
     </nav>
 
     <div class="app-wrapper">
-      <div class="ad-leaderboard" style="margin: 1.5rem auto 1.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
+      <!-- Adsterra 728x90 Leaderboard -->
+      <div class="ad-leaderboard" style="margin: 1.5rem auto 1rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center; overflow-x: auto;">
         <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Sponsored Quantitative Data Node</span>
+        <div style="min-height: 90px; display: flex; justify-content: center; align-items: center; margin: auto; overflow: hidden;">
+          <script is:inline>
+            atOptions = {
+              'key' : '069907293312bf0f2555658bc919672c',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
+        </div>
+      </div>
+
+      <!-- A-ADS Adaptive Node (Maintained) -->
+      <div class="ad-leaderboard" style="margin: 0 auto 1.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
+        <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Decentralized Network Sponsor</span>
         <div style="width: 100%; margin: auto; position: relative;">
           <iframe 
             data-aa="2453491" 
@@ -1291,15 +1309,15 @@ const websiteSchema = {
       <!-- Newsletter / Alerts Section -->
       <div class="newsletter-box" id="alerts">
         <div>
-          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Subscribe to Our Weekly Newsletter for Free</h3>
-          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Get a weekly conclusion report with top breakouts, volume flows, and summary tables delivered every Friday.</p>
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Momentum Anomaly Alerts</h3>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Direct email dispatches when unusual price expansion and volume clustering occur.</p>
         </div>
         <form id="resend-subscribe-form" class="newsletter-input-group">
           <input 
             type="email" 
             name="email" 
             id="subscriber-email" 
-            placeholder="your.email@example.com" 
+            placeholder="analyst@firm.com" 
             class="newsletter-input" 
             required 
           />
@@ -1309,7 +1327,7 @@ const websiteSchema = {
             class="tool-btn" 
             style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;"
           >
-            Subscribe for Free
+            Activate Alerts
           </button>
         </form>
       </div>
@@ -1383,7 +1401,7 @@ const websiteSchema = {
     </div>
 
     <script is:inline>
-      // 1. Live Client-Side Sector Poller with Anti-Cache Proxy
+      // 1. Live Client-Side Sector Poller with Direct Browser Scan & API Fallback
       (function initRealSectorAnalytics() {
         const sectorList = [
           { name: 'Technology', symbol: 'XLK', ticker: 'AMEX:XLK' },
@@ -1422,25 +1440,12 @@ const websiteSchema = {
             }).join('');
           }
 
-          const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-          if (statusEl) statusEl.textContent = `S&P 500 • Synced ${timeStr} UTC`;
-          if (footerStatus) footerStatus.textContent = 'Feed Synced • SPDR® S&P Sectors';
+          if (statusEl) statusEl.textContent = 'S&P 500 • Live Stream';
+          if (footerStatus) footerStatus.textContent = 'Feed Synced • S&P SPDR® ETFs';
         }
 
         async function fetchLiveSectors() {
-          // 1. Attempt same-origin serverless proxy with cache-busting timestamp
-          try {
-            const apiRes = await fetch(`/api/sectors?_t=${Date.now()}`);
-            if (apiRes.ok) {
-              const apiJson = await apiRes.json();
-              if (apiJson.success && Array.isArray(apiJson.data) && apiJson.data.length > 0) {
-                renderRows(apiJson.data);
-                return;
-              }
-            }
-          } catch (_) {}
-
-          // 2. Direct TradingView scanner fallback if CORS environment allows
+          // Primary: Direct browser fetch to TradingView scanner (CORS allowed, no serverless blocks)
           try {
             const tvRes = await fetch('https://scanner.tradingview.com/america/scan', {
               method: 'POST',
@@ -1462,13 +1467,29 @@ const websiteSchema = {
                 });
                 parsed.sort((a, b) => b.change - a.change);
                 renderRows(parsed);
+                return;
               }
             }
-          } catch (_) {}
+          } catch (_) {
+            // If network or adblock blocks scanner, fallback to same-origin API proxy
+          }
+
+          // Secondary Fallback: Query same-origin API route
+          try {
+            const apiRes = await fetch('/api/sectors');
+            if (apiRes.ok) {
+              const apiJson = await apiRes.json();
+              if (Array.isArray(apiJson?.data) && apiJson.data.length > 0) {
+                renderRows(apiJson.data);
+              }
+            }
+          } catch (_) {
+            // Retain existing static DOM baselines
+          }
         }
 
         fetchLiveSectors();
-        setInterval(fetchLiveSectors, 30000);
+        setInterval(fetchLiveSectors, 45000); // Poll every 45s
       })();
 
       // 2. Side Dashboard Drawer & Smooth Link Navigation
@@ -1620,7 +1641,7 @@ const websiteSchema = {
         });
       }
 
-      // 6. Subscription Newsletter Handler
+      // 6. Subscription Alerts Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
@@ -1630,7 +1651,7 @@ const websiteSchema = {
           if (!emailInput) return;
 
           subscribeBtn.disabled = true;
-          subscribeBtn.textContent = 'Subscribing...';
+          subscribeBtn.textContent = 'Activating...';
 
           try {
             const res = await fetch('/api/subscribe', {
@@ -1640,7 +1661,7 @@ const websiteSchema = {
             });
 
             if (res.ok) {
-              subscribeBtn.textContent = 'Subscribed Free!';
+              subscribeBtn.textContent = 'Alerts Active';
               emailInput.value = '';
             } else {
               subscribeBtn.textContent = 'Retry';
