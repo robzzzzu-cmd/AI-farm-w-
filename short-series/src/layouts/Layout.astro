@@ -59,6 +59,7 @@ const {
       <nav class="nav-container">
         <a href="/" class="brand-logo">TRADE<span> OPPORTUNITIES</span></a>
         <div class="nav-links">
+          <a href="/screener" class="nav-highlight">Live Screener ⚡</a>
           <a href="/#news-feed">News Feed</a>
           <a href="/#opportunities">Opportunities</a>
           <a href="/#tools">Tools</a>
@@ -95,6 +96,8 @@ const {
         <div class="footer-meta">
           <p>&copy; {new Date().getFullYear()} Trade Opportunities. All rights reserved.</p>
           <div class="legal-links">
+            <a href="/screener">Live Screener</a>
+            <span>&bull;</span>
             <a href="/about">Methodology &amp; E-E-A-T</a>
             <span>&bull;</span>
             <a href="/privacy">Privacy Policy</a>
@@ -190,6 +193,7 @@ const {
     display: flex;
     gap: 1.5rem;
     flex-wrap: wrap;
+    align-items: center;
   }
   .nav-links a {
     color: var(--text-muted);
@@ -199,6 +203,10 @@ const {
   }
   .nav-links a:hover {
     color: #fff;
+  }
+  .nav-links a.nav-highlight {
+    color: #38bdf8;
+    font-weight: 700;
   }
   .site-footer {
     border-top: 1px solid var(--border-color);
