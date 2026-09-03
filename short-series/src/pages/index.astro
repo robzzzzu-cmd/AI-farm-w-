@@ -1381,9 +1381,8 @@ const websiteSchema = {
         </div>
       </div>
     </div>
-
-    <script is:inline>
-      // 1. Live Client-Side Sector Poller with Direct Browser Scan & API Fallback
+<script is:inline>
+      // 1. Live Client-Side Sector Poller with Anti-Cache Proxy
       (function initRealSectorAnalytics() {
         const sectorList = [
           { name: 'Technology', symbol: 'XLK', ticker: 'AMEX:XLK' },
@@ -1422,12 +1421,25 @@ const websiteSchema = {
             }).join('');
           }
 
-          if (statusEl) statusEl.textContent = 'S&P 500 • Live Stream';
-          if (footerStatus) footerStatus.textContent = 'Feed Synced • S&P SPDR® ETFs';
+          const timeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+          if (statusEl) statusEl.textContent = `S&P 500 • Synced ${timeStr} UTC`;
+          if (footerStatus) footerStatus.textContent = 'Feed Synced • SPDR® S&P Sectors';
         }
 
         async function fetchLiveSectors() {
-          // Primary: Direct browser fetch to TradingView scanner (CORS allowed, no serverless blocks)
+          // 1. Attempt same-origin serverless proxy with cache buster
+          try {
+            const apiRes = await fetch(`/api/sectors?_t=${Date.now()}`);
+            if (apiRes.ok) {
+              const apiJson = await apiRes.json();
+              if (apiJson.success && Array.isArray(apiJson.data) && apiJson.data.length > 0) {
+                renderRows(apiJson.data);
+                return;
+              }
+            }
+          } catch (_) {}
+
+          // 2. Direct TradingView scanner fallback if CORS environment allows
           try {
             const tvRes = await fetch('https://scanner.tradingview.com/america/scan', {
               method: 'POST',
@@ -1449,29 +1461,13 @@ const websiteSchema = {
                 });
                 parsed.sort((a, b) => b.change - a.change);
                 renderRows(parsed);
-                return;
               }
             }
-          } catch (_) {
-            // If network or adblock blocks scanner, fallback to same-origin API proxy
-          }
-
-          // Secondary Fallback: Query same-origin API route
-          try {
-            const apiRes = await fetch('/api/sectors');
-            if (apiRes.ok) {
-              const apiJson = await apiRes.json();
-              if (Array.isArray(apiJson?.data) && apiJson.data.length > 0) {
-                renderRows(apiJson.data);
-              }
-            }
-          } catch (_) {
-            // Retain existing static DOM baselines
-          }
+          } catch (_) {}
         }
 
         fetchLiveSectors();
-        setInterval(fetchLiveSectors, 45000); // Poll every 45s
+        setInterval(fetchLiveSectors, 30000);
       })();
 
       // 2. Side Dashboard Drawer & Smooth Link Navigation
@@ -1677,5 +1673,6 @@ const websiteSchema = {
         });
       })();
     </script>
+
   </body>
 </html>
