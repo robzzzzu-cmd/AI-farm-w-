@@ -1,7 +1,6 @@
 ---
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
-import LiveStockScreener from '../components/LiveStockScreener.astro';
 
 interface StockItem {
   ticker: string;
@@ -676,6 +675,62 @@ const websiteSchema = {
       .stream-body table { display: none; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
 
+      /* Screener Portal Hub */
+      .screener-portal-section {
+        margin-bottom: 2.5rem;
+      }
+      .screener-portal-card {
+        background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-elevated) 100%);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: var(--card-shadow);
+      }
+      .portal-badge {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: var(--brand-accent);
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+      .portal-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        color: var(--text-primary);
+        margin-bottom: 0.4rem;
+      }
+      .portal-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        max-width: 680px;
+      }
+      .portal-launch-btn {
+        background: var(--brand-accent);
+        color: #ffffff !important;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+      }
+      .portal-launch-btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+      }
+
       /* Table Card */
       .table-card {
         background: var(--bg-surface);
@@ -940,6 +995,17 @@ const websiteSchema = {
         .newsletter-box { flex-direction: column; align-items: flex-start; }
       }
 
+      @media (max-width: 768px) {
+        .screener-portal-card {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .portal-launch-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
       @media (max-width: 560px) {
         .app-wrapper { padding: 0 0.85rem; }
         .nav-inner { flex-direction: column; align-items: stretch; padding: 0.6rem 0; }
@@ -1179,9 +1245,24 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Dedicated Live Stock Screener Area -->
-      <section id="screener" style="margin-bottom: 2.5rem;">
-        <LiveStockScreener />
+      <!-- Dedicated Live Stock Screener Portal Hub -->
+      <section id="screener" class="screener-portal-section">
+        <div class="screener-portal-card">
+          <div class="portal-info">
+            <span class="portal-badge">QUANTITATIVE MARKET RADAR</span>
+            <h2 class="portal-title">Live Stock Screener &bull; Real-Time Opportunities</h2>
+            <p class="portal-desc">
+              Access real-time breakout monitoring, relative volume (RVOL) spikes, momentum scores, and conviction ratings across Penny Stocks (&lt;$5), Small/Mid Caps, and Large Cap institutions.
+            </p>
+          </div>
+          <a href="/screener" class="portal-launch-btn">
+            <span>Open Dedicated Terminal Screener</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
       </section>
 
       <!-- Section 02: Opportunities Table -->
