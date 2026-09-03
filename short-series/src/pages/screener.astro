@@ -1,0 +1,168 @@
+---
+// short-series/src/pages/screener.astro
+import Layout from '../layouts/Layout.astro';
+import LiveStockScreener from '../components/LiveStockScreener.astro';
+
+const canonicalURL = new URL('/screener/', Astro.site ?? 'https://tradeopportunities.trade').href;
+const pageTitle = "Live Stock Screener & Market Opportunities | Trade Opportunities";
+const pageDescription = "Constantly updating quantitative stock screener tracking Penny Stocks (<$5), Small & Mid Cap ($300M-$10B), and Large Cap (>$10B) momentum breakouts.";
+
+const screenerSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemPage",
+  "name": "Live Stock Screener & Real-Time Market Opportunities",
+  "url": canonicalURL,
+  "description": pageDescription,
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
+---
+
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  canonicalURL={canonicalURL}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(screenerSchema)} />
+  </Fragment>
+
+  <div class="screener-page-container">
+    <header class="page-intro-header">
+      <div class="breadcrumb">
+        <a href="/">Terminal</a> &rsaquo; <span>Live Screener</span>
+      </div>
+      <span class="hub-pill">Algorithmic Surveillance Hub</span>
+      <h1>Live Market Screener</h1>
+      <p class="subtitle">
+        Automated real-time scanner tracking high-momentum equity breakouts, unusual relative volume (RVOL), and institutional liquidity shifts.
+      </p>
+    </header>
+
+    <!-- Full Interactive Screener Module -->
+    <LiveStockScreener />
+
+    <!-- Quantitative Framework Documentation -->
+    <section class="methodology-note-card">
+      <h2>Screener Architecture & Execution Parameters</h2>
+      <div class="framework-grid">
+        <div class="framework-item">
+          <strong>Penny Stocks (&lt;$5)</strong>
+          <p>Equities trading below $5.00/share. Filtered against a 25,000 share minimum session volume floor to minimize illiquid quotation anomalies.</p>
+        </div>
+        <div class="framework-item">
+          <strong>Small &amp; Mid Cap ($300M–$10B)</strong>
+          <p>Equities between $300M and $10B market capitalization. Targets growth breakouts, relative volume surges, and institutional accumulation.</p>
+        </div>
+        <div class="framework-item">
+          <strong>Large Cap (&gt;$10B)</strong>
+          <p>Established liquid market anchors with market capitalization exceeding $10B, index drivers, and macro rotation benchmarks.</p>
+        </div>
+      </div>
+      <p class="footer-clarification">
+        <em>Note: Thresholds are practical platform categories engineered for volatility tracking and rapid scanning rather than universal regulatory definitions. Data feed refreshes automatically; off-hours and consolidated exchange feeds reflect 15-minute standard statutory delays.</em>
+      </p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .screener-page-container {
+    max-width: 1240px;
+    margin: 2rem auto 4rem auto;
+    padding: 0 1.25rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .breadcrumb {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+  .breadcrumb a {
+    color: #38bdf8;
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+  .page-intro-header {
+    border-bottom: 1px solid #1e2638;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .hub-pill {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    background: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem 0;
+    color: #f1f5f9;
+  }
+  .subtitle {
+    font-size: 1rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .methodology-note-card {
+    background: #0f172a;
+    border: 1px solid #1e2638;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+  .methodology-note-card h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  .framework-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .framework-item strong {
+    display: block;
+    font-size: 0.85rem;
+    color: #38bdf8;
+    margin-bottom: 0.35rem;
+  }
+  .framework-item p {
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .footer-clarification {
+    font-size: 0.75rem;
+    color: #64748b;
+    border-top: 1px solid #1e2638;
+    padding-top: 0.85rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+</style>
