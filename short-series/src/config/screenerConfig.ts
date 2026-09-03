@@ -58,7 +58,7 @@ export const SCREENER_CONFIG: ScreenerSettings = {
     }
   },
   refreshCadenceMs: 20000,      // 20s fast-polling (free API friendly, respecting rate limits)
-  staleAfterSeconds: 90,        // Flag as delayed / stale if update > 90s old
+  staleAfterSeconds: 90,        // Flag as delayed if update is > 90s old
   defaultCategory: 'penny',
   defaultSort: 'momentum',      // Best-performing / strongest momentum first
   platformNotice: 'Platform Classification Framework: Penny Stocks (<$5), Small & Mid Cap ($300M–$10B), and Large Cap (>$10B) thresholds are practical platform categories engineered for quantitative screening and volatility tracking rather than universal regulatory definitions.',
