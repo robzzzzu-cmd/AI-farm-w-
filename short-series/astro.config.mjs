@@ -15,9 +15,12 @@ export default defineConfig({
       changefreq: 'daily',
       priority: 0.8,
       serialize(item) {
-        // High priority for market feed home
         if (item.url === 'https://tradeopportunities.trade/') {
           item.priority = 1.0;
+          item.changefreq = 'hourly';
+          item.lastmod = new Date().toISOString();
+        } else if (item.url.includes('/screener')) {
+          item.priority = 0.98;
           item.changefreq = 'hourly';
           item.lastmod = new Date().toISOString();
         } else if (item.url.includes('/ticker/')) {
