@@ -100,12 +100,63 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    const liquidGainers = (marketData.top_gainers || []).filter((s) => Number(s.volume || 0) >= 50000);
-    const topGainers = (liquidGainers.length >= 3 ? liquidGainers : marketData.top_gainers).slice(0, 5);
+    const folderPath = fs.existsSync('./src/content/blog')
+      ? './src/content/blog'
+      : './short-series/src/content/blog';
+
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    // Identify tickers already featured today
+    const todayPrefix = new Date().toISOString().split('T')[0];
+    const existingPostsToday = fs.readdirSync(folderPath).filter((file) => file.includes(todayPrefix));
+    const coveredLeadTickers = new Set();
+
+    for (const file of existingPostsToday) {
+      try {
+        const raw = fs.readFileSync(path.join(folderPath, file), 'utf-8');
+        const match = raw.match(/leadTicker:\s*["']?([A-Za-z0-9]+)["']?/);
+        if (match) coveredLeadTickers.add(match[1].toUpperCase());
+      } catch (_) {}
+    }
+
+    console.log('Already covered today:', Array.from(coveredLeadTickers));
+
+    // Filter out illiquid sub-penny warrants and require minimum liquidity thresholds
+    const liquidGainers = (marketData.top_gainers || []).filter((s) => {
+      const vol = Number(s.volume || 0);
+      const price = parseFloat(s.price || 0);
+      const dollarVolume = vol * price;
+      const isPennyWarrant = s.ticker.endsWith('W') && price < 0.05;
+      return vol >= 50000 && dollarVolume >= 100000 && !isPennyWarrant;
+    });
+
+    const candidateGainers = liquidGainers.length >= 2 ? liquidGainers : marketData.top_gainers;
+
+    // Pick the highest-ranked gainer not yet covered today
+    let leadStock = candidateGainers.find((s) => !coveredLeadTickers.has(s.ticker.toUpperCase()));
+
+    // Fallback: If top gainers are all covered, evaluate high-volume active rotation
+    if (!leadStock) {
+      leadStock = (marketData.most_actively_traded || []).find(
+        (s) => !coveredLeadTickers.has(s.ticker.toUpperCase()) && Math.abs(parseFloat(s.change_percentage)) >= 5
+      );
+    }
+
+    // Unproductive market check: Avoid repeating dispatches if no new momentum has developed
+    if (!leadStock) {
+      console.log('No new significant momentum shifts detected today. Skipping duplicate dispatch.');
+      if (process.env.GITHUB_OUTPUT) {
+        fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_new_post=false\n');
+      }
+      process.exit(0);
+    }
+
+    const otherGainers = candidateGainers.filter((s) => s.ticker.toUpperCase() !== leadStock.ticker.toUpperCase());
+    const topGainers = [leadStock, ...otherGainers].slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
     const mostActive = (marketData.most_actively_traded || []).slice(0, 5);
-
-    const leadStock = topGainers[0];
 
     const stockDataSummary = `
 TOP GAINERS (Momentum Breakouts):
@@ -147,7 +198,7 @@ CRITICAL RULES:
 - DO NOT invent or embed raw markdown links or HTML.
 - Return ONLY the paragraph text.`;
 
-    console.log('2. Generating complete news dispatch with Gemini...');
+    console.log(`2. Generating news dispatch with Gemini for lead asset $${leadStock.ticker}...`);
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
@@ -181,15 +232,6 @@ CRITICAL RULES:
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
 
     const fileName = `market-update-${timestamp}.md`;
-    
-    const folderPath = fs.existsSync('./src/content/blog')
-      ? './src/content/blog'
-      : './short-series/src/content/blog';
-
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-    }
-
     const compactTable = buildCompactTable('Session Top Movers & Liquidity', topGainers);
 
     const allTickers = Array.from(
@@ -229,6 +271,10 @@ ${compactTable}
 
     fs.writeFileSync(path.join(folderPath, fileName), markdownContent);
     console.log(`Saved structured markdown: ${fileName} into ${folderPath}`);
+
+    if (process.env.GITHUB_OUTPUT) {
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_new_post=true\n');
+    }
   } catch (error) {
     console.error('Pipeline execution error:', error.message);
     process.exit(1);
