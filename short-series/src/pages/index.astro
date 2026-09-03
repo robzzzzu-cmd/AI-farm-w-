@@ -1,6 +1,7 @@
 ---
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
+import LiveStockScreener from '../components/LiveStockScreener.astro';
 
 interface StockItem {
   ticker: string;
@@ -977,6 +978,10 @@ const websiteSchema = {
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             <span>News Feed</span>
           </a>
+          <a href="#screener" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Live Screener</span>
+          </a>
           <a href="#opportunities" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
             <span>Opportunities</span>
@@ -1027,6 +1032,7 @@ const websiteSchema = {
 
           <ul class="nav-links">
             <li><a href="#news-feed" class="active">News Feed</a></li>
+            <li><a href="#screener">Screener</a></li>
             <li><a href="#opportunities">Opportunities</a></li>
             <li><a href="#tools">Tools</a></li>
             <li><a href="#platforms">Platforms</a></li>
@@ -1171,6 +1177,11 @@ const websiteSchema = {
             ))}
           </div>
         </div>
+      </section>
+
+      <!-- Dedicated Live Stock Screener Area -->
+      <section id="screener" style="margin-bottom: 2.5rem;">
+        <LiveStockScreener />
       </section>
 
       <!-- Section 02: Opportunities Table -->
