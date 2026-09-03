@@ -53,7 +53,7 @@ const secondaryPosts = posts.slice(1, 5);
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
 
-// Initial server-side sector render (ensures the container is never blank)
+// Initial server-side sector render
 const defaultSectors = [
   { name: "Technology", symbol: "XLK", change: 1.32 },
   { name: "Communication", symbol: "XLC", change: 0.89 },
@@ -675,17 +675,124 @@ const websiteSchema = {
       .stream-body table { display: none; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
 
-      /* Table Card */
-      .table-card {
+      /* Multi-Tab Opportunities Screener Component */
+      .screener-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 6px;
-        overflow-x: auto;
+        border-radius: 8px;
         margin-bottom: 2.5rem;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+      }
+      .screener-header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: var(--bg-surface-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .screener-tabs {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+      }
+      .screener-tab-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-secondary);
+        font-family: inherit;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.45rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .screener-tab-btn:hover {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .screener-tab-btn.active {
+        background: var(--bg-surface);
+        border-color: var(--border-subtle);
+        color: var(--brand-accent);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      .tab-tag {
+        font-size: 0.65rem;
+        opacity: 0.75;
+        font-family: var(--font-mono);
+      }
+      .screener-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+      }
+      .screener-search-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .screener-search-input {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem 0.35rem 1.65rem;
+        border-radius: 5px;
+        outline: none;
+        width: 170px;
+        transition: border-color 0.15s ease;
+      }
+      .screener-search-input:focus {
+        border-color: var(--brand-accent);
+      }
+      .screener-search-icon {
+        position: absolute;
+        left: 0.5rem;
+        width: 12px;
+        height: 12px;
+        color: var(--text-muted);
+        pointer-events: none;
+      }
+      .screener-sync-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.6875rem;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--gain-color);
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+        animation: pulseLive 2s infinite ease-in-out;
+      }
+      @keyframes pulseLive {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.35; transform: scale(0.8); }
+      }
+
+      .table-card {
+        background: var(--bg-surface);
+        overflow-x: auto;
       }
       .data-table {
         width: 100%;
-        min-width: 540px;
+        min-width: 620px;
         border-collapse: collapse;
         font-size: 0.8125rem;
         text-align: left;
@@ -693,20 +800,35 @@ const websiteSchema = {
       .data-table th {
         background: var(--bg-surface-elevated);
         color: var(--text-muted);
-        font-size: 0.725rem;
-        font-weight: 600;
+        font-size: 0.7rem;
+        font-weight: 700;
         text-transform: uppercase;
+        letter-spacing: 0.04em;
         padding: 0.65rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
         white-space: nowrap;
       }
       .data-table td {
-        padding: 0.75rem 1rem;
+        padding: 0.7rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
         white-space: nowrap;
       }
-      .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+      .table-symbol { 
+        font-weight: 700; 
+        color: var(--text-primary); 
+        font-family: var(--font-mono); 
+      }
+      .table-name {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-left: 0.45rem;
+        max-width: 140px;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+      }
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
       .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
       .table-vol { font-family: var(--font-mono); color: var(--text-secondary); }
@@ -939,6 +1061,13 @@ const websiteSchema = {
         .newsletter-box { flex-direction: column; align-items: flex-start; }
       }
 
+      @media (max-width: 640px) {
+        .screener-header-bar { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+        .screener-tabs { width: 100%; justify-content: flex-start; }
+        .screener-controls { width: 100%; justify-content: space-between; }
+        .screener-search-input { width: 140px; }
+      }
+
       @media (max-width: 560px) {
         .app-wrapper { padding: 0 0.85rem; }
         .nav-inner { flex-direction: column; align-items: stretch; padding: 0.6rem 0; }
@@ -1069,26 +1198,8 @@ const websiteSchema = {
     </nav>
 
     <div class="app-wrapper">
-      <!-- Adsterra 728x90 Leaderboard -->
-      <div class="ad-leaderboard" style="margin: 1.5rem auto 1rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center; overflow-x: auto;">
+      <div class="ad-leaderboard" style="margin: 1.5rem auto 1.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
         <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Sponsored Quantitative Data Node</span>
-        <div style="min-height: 90px; display: flex; justify-content: center; align-items: center; margin: auto; overflow: hidden;">
-          <script is:inline>
-            atOptions = {
-              'key' : '069907293312bf0f2555658bc919672c',
-              'format' : 'iframe',
-              'height' : 90,
-              'width' : 728,
-              'params' : {}
-            };
-          </script>
-          <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
-        </div>
-      </div>
-
-      <!-- A-ADS Adaptive Node (Maintained) -->
-      <div class="ad-leaderboard" style="margin: 0 auto 1.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
-        <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Decentralized Network Sponsor</span>
         <div style="width: 100%; margin: auto; position: relative;">
           <iframe 
             data-aa="2453491" 
@@ -1191,26 +1302,70 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Section 02: Opportunities Table -->
+      <!-- Section 02: Real-Time Multi-Tier Screener -->
       <section id="opportunities">
-        <div class="section-label">02 // Opportunities &bull; Monitored Breakouts</div>
-        <div class="table-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Asset</th>
-                <th>Price</th>
-                <th>Delta (%)</th>
-                <th>Volume (Compact)</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayGainers.length > 0 ? (
-                <>
-                  {displayGainers.map((stock: StockItem) => (
-                    <tr>
-                      <td class="table-symbol">${stock.ticker}</td>
+        <div class="section-label">02 // Opportunities &bull; Live Multi-Tier Breakout Screener</div>
+        
+        <div class="screener-card">
+          <!-- Screener Tabs & Toolbar -->
+          <div class="screener-header-bar">
+            <div class="screener-tabs" role="tablist">
+              <button class="screener-tab-btn active" data-tier="penny" id="tab-penny" role="tab" aria-selected="true">
+                <span>Penny Equities</span>
+                <span class="tab-tag">&lt; $5.00</span>
+              </button>
+              <button class="screener-tab-btn" data-tier="mid" id="tab-mid" role="tab" aria-selected="false">
+                <span>Mid-Tier Momentum</span>
+                <span class="tab-tag">$5 – $50</span>
+              </button>
+              <button class="screener-tab-btn" data-tier="high" id="tab-high" role="tab" aria-selected="false">
+                <span>Large-Cap &amp; High-Value</span>
+                <span class="tab-tag">$50+</span>
+              </button>
+            </div>
+
+            <div class="screener-controls">
+              <div class="screener-search-wrap">
+                <svg class="screener-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input 
+                  type="text" 
+                  id="screener-filter-input" 
+                  class="screener-search-input" 
+                  placeholder="Filter tier tickers..." 
+                  aria-label="Filter equities in selected tier"
+                />
+              </div>
+
+              <div class="screener-sync-status">
+                <span class="live-dot"></span>
+                <span id="screener-sync-label">SYNCING...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screener Table Body -->
+          <div class="table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Asset / Security</th>
+                  <th>Price</th>
+                  <th>24h Delta</th>
+                  <th>Session Volume</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="screener-table-body">
+                {/* Initial Server-side fallback for SEO and instant render */}
+                {displayGainers.length > 0 ? (
+                  displayGainers.map((stock: StockItem) => (
+                    <tr class="screener-row" data-ticker={stock.ticker} data-name={stock.ticker}>
+                      <td>
+                        <span class="table-symbol">${stock.ticker}</span>
+                      </td>
                       <td>${parseFloat(stock.price).toFixed(2)}</td>
                       <td class="table-gain">+{parseFloat(stock.change_percentage).toFixed(2)}%</td>
                       <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
@@ -1220,30 +1375,17 @@ const websiteSchema = {
                         </a>
                       </td>
                     </tr>
-                  ))}
-                  {displayLosers.slice(0, 2).map((stock: StockItem) => (
-                    <tr>
-                      <td class="table-symbol">${stock.ticker}</td>
-                      <td>${parseFloat(stock.price).toFixed(2)}</td>
-                      <td class="table-loss">{parseFloat(stock.change_percentage).toFixed(2)}%</td>
-                      <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
-                      <td>
-                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
-                          Analyze Setup &rarr;
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </>
-              ) : (
-                <tr>
-                  <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
-                    Market feed synchronizes at US opening bell (14:30 UTC).
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                  ))
+                ) : (
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                      Connecting to live liquidity feed...
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -1272,7 +1414,7 @@ const websiteSchema = {
             </div>
           </div>
 
-          <!-- Right: Live Sector Performance (Rendered server-side + client poll) -->
+          <!-- Right: Live Sector Performance -->
           <div class="sector-card" id="sector-matrix">
             <div>
               <div class="sector-header">
@@ -1401,7 +1543,133 @@ const websiteSchema = {
     </div>
 
     <script is:inline>
-      // 1. Live Client-Side Sector Poller with Direct Browser Scan & API Fallback
+      // Compact metric number formatter
+      function formatCompactNumber(val) {
+        if (val === undefined || val === null || val === '') return '0';
+        const num = typeof val === 'string' ? parseFloat(val.replace(/,/g, '')) : val;
+        if (isNaN(num)) return String(val);
+        if (Math.abs(num) >= 1e9) return (num / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+        if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+        if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+        return num.toLocaleString();
+      }
+
+      // 1. Live Multi-Tier Screener Poller (Penny, Mid, High)
+      (function initLiveMultiTierScreener() {
+        let activeTier = 'penny';
+        let tiersData = { penny: [], mid: [], high: [] };
+        let searchQuery = '';
+
+        const tableBody = document.getElementById('screener-table-body');
+        const searchInput = document.getElementById('screener-filter-input');
+        const syncLabel = document.getElementById('screener-sync-label');
+        const tabButtons = document.querySelectorAll('.screener-tab-btn');
+
+        function renderRows() {
+          if (!tableBody) return;
+          const currentList = tiersData[activeTier] || [];
+          
+          const filtered = currentList.filter((item) => {
+            if (!searchQuery) return true;
+            const t = (item.ticker || '').toLowerCase();
+            const n = (item.name || '').toLowerCase();
+            return t.includes(searchQuery) || n.includes(searchQuery);
+          });
+
+          // Always sorted descending from best performing
+          filtered.sort((a, b) => b.change - a.change);
+
+          if (filtered.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+                  No active equities found matching "${searchQuery}" in this tier.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          tableBody.innerHTML = filtered.map((stock) => {
+            const isPos = stock.change >= 0;
+            const sign = isPos ? '+' : '';
+            const deltaClass = isPos ? 'table-gain' : 'table-loss';
+            const priceStr = '$' + stock.price.toFixed(2);
+            const deltaStr = `${sign}${stock.change.toFixed(2)}%`;
+            const volStr = formatCompactNumber(stock.volume);
+
+            return `
+              <tr class="screener-row" data-ticker="${stock.ticker}">
+                <td>
+                  <span class="table-symbol">$${stock.ticker}</span>
+                  ${stock.name && stock.name !== stock.ticker ? `<span class="table-name" title="${stock.name}">${stock.name}</span>` : ''}
+                </td>
+                <td>${priceStr}</td>
+                <td class="${deltaClass}">${deltaStr}</td>
+                <td class="table-vol">${volStr}</td>
+                <td>
+                  <a href="https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147" 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
+                    Analyze Setup &rarr;
+                  </a>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        // Fetch using browser direct scan with automatic fallback to server proxy
+        async function fetchLiveTiers() {
+          if (syncLabel) syncLabel.textContent = 'STREAMING...';
+
+          try {
+            // First check same-origin serverless endpoint
+            const res = await fetch('/api/screener');
+            if (res.ok) {
+              const json = await res.json();
+              if (json?.tiers) {
+                tiersData = json.tiers;
+                renderRows();
+                if (syncLabel) syncLabel.textContent = 'LIVE • 20S PULSE';
+                return;
+              }
+            }
+          } catch (_) {
+            // Retain existing state if network glitches
+          }
+
+          if (syncLabel) syncLabel.textContent = 'CONNECTED';
+        }
+
+        // Tab switching logic
+        tabButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            tabButtons.forEach((b) => {
+              b.classList.remove('active');
+              b.setAttribute('aria-selected', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            activeTier = btn.getAttribute('data-tier') || 'penny';
+            renderRows();
+          });
+        });
+
+        // Search filter logic
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            renderRows();
+          });
+        }
+
+        fetchLiveTiers();
+        setInterval(fetchLiveTiers, 20000); // 20-second live pulse cycle
+      })();
+
+      // 2. Live Client-Side Sector Poller
       (function initRealSectorAnalytics() {
         const sectorList = [
           { name: 'Technology', symbol: 'XLK', ticker: 'AMEX:XLK' },
@@ -1445,7 +1713,6 @@ const websiteSchema = {
         }
 
         async function fetchLiveSectors() {
-          // Primary: Direct browser fetch to TradingView scanner (CORS allowed, no serverless blocks)
           try {
             const tvRes = await fetch('https://scanner.tradingview.com/america/scan', {
               method: 'POST',
@@ -1470,11 +1737,8 @@ const websiteSchema = {
                 return;
               }
             }
-          } catch (_) {
-            // If network or adblock blocks scanner, fallback to same-origin API proxy
-          }
+          } catch (_) {}
 
-          // Secondary Fallback: Query same-origin API route
           try {
             const apiRes = await fetch('/api/sectors');
             if (apiRes.ok) {
@@ -1483,16 +1747,14 @@ const websiteSchema = {
                 renderRows(apiJson.data);
               }
             }
-          } catch (_) {
-            // Retain existing static DOM baselines
-          }
+          } catch (_) {}
         }
 
         fetchLiveSectors();
-        setInterval(fetchLiveSectors, 45000); // Poll every 45s
+        setInterval(fetchLiveSectors, 45000);
       })();
 
-      // 2. Side Dashboard Drawer & Smooth Link Navigation
+      // 3. Side Dashboard Drawer & Navigation
       (function initDashboardDrawer() {
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
         const closeBtn = document.getElementById('sidebar-close-btn');
@@ -1555,7 +1817,7 @@ const websiteSchema = {
         });
       })();
 
-      // 3. Light / Dark Mode Toggle
+      // 4. Light / Dark Mode Toggle
       (function initThemeToggle() {
         const themeBtn = document.getElementById('theme-toggle-btn');
         const sunIcon = document.getElementById('theme-icon-sun');
@@ -1583,7 +1845,7 @@ const websiteSchema = {
         });
       })();
 
-      // 4. Compact Markdown Table Expander
+      // 5. Compact Table Expander
       (function initTableFormatters() {
         const featuredCard = document.querySelector('.dispatch-card');
         if (!featuredCard) return;
@@ -1628,7 +1890,7 @@ const websiteSchema = {
         }
       })();
 
-      // 5. Client-Side Search
+      // 6. Global Header Search (Dispatches)
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', (e) => {
@@ -1641,7 +1903,7 @@ const websiteSchema = {
         });
       }
 
-      // 6. Subscription Alerts Handler
+      // 7. Subscription Alerts Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
@@ -1674,7 +1936,7 @@ const websiteSchema = {
         });
       }
 
-      // 7. Cookie Banner
+      // 8. Cookie Banner
       (function initCookieBanner() {
         const banner = document.getElementById('cookie-banner');
         const acceptBtn = document.getElementById('accept-cookies');
