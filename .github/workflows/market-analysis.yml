@@ -2,9 +2,13 @@ name: Automated Market Analysis & Site Deploy
 
 on:
   schedule:
-    # 14:35 UTC: 35 mins after US Market Open (Mon-Fri) - avoids top-of-hour GitHub Action queue drops
-    - cron: '30 14 * * 1-5'
-    # 20:15 UTC: 15 mins after US Market Close (Mon-Fri) - captures closing auction liquidity
+    # 13:45 UTC: 15 mins after US Market Open (Opening breakout surge)
+    - cron: '45 13 * * 1-5'
+    # 16:30 UTC: Midday liquidity transition
+    - cron: '30 16 * * 1-5'
+    # 18:30 UTC: Afternoon rotation & volume concentration
+    - cron: '30 18 * * 1-5'
+    # 20:15 UTC: 15 mins after US Market Close (Closing auction liquidity)
     - cron: '15 20 * * 1-5'
   workflow_dispatch:
   push:
@@ -22,7 +26,6 @@ concurrency:
 
 jobs:
   analyze-market:
-    # Run data collection ONLY on cron schedules or manual trigger
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
@@ -45,7 +48,7 @@ jobs:
         run: node index.js
 
       - name: Dispatch Daily Newsletter Broadcast
-        if: success()
+        if: success() && steps.run_script.outputs.has_new_post == 'true'
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
@@ -94,7 +97,7 @@ jobs:
           fi
 
       - name: Trigger Vercel Production Deployment
-        if: success()
+        if: success() && steps.run_script.outputs.has_new_post == 'true'
         env:
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
