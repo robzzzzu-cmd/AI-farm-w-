@@ -1,0 +1,1635 @@
+---
+// short-series/src/components/LiveStockScreener.astro
+import { SCREENER_CONFIG } from '../config/screenerConfig';
+
+const { categories, platformNotice, dataFeedNotice } = SCREENER_CONFIG;
+const categoriesList = Object.values(categories);
+---
+
+<div class="screener-wrapper" id="screener">
+  <!-- Header & Practical Classification Explanation -->
+  <div class="screener-header-card">
+    <div class="screener-title-row">
+      <div>
+        <div class="screener-pill-badge">QUANTITATIVE MARKET RADAR</div>
+        <h2 class="screener-title">Live Stock Screener &bull; Real-Time Opportunities</h2>
+      </div>
+      
+      <div class="screener-sync-box">
+        <div class="pulse-indicator">
+          <span class="live-dot" id="screener-pulse-dot"></span>
+          <span class="sync-status" id="screener-status-text">FEED ACTIVE</span>
+        </div>
+        <span class="sync-timer" id="screener-last-updated">Last updated: Just now</span>
+        <button id="screener-manual-refresh-btn" class="manual-refresh-btn" title="Sync Live Market Feed" aria-label="Refresh Data">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span>Sync</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- UI Explanation: Platform Categories rather than universal industry definitions -->
+    <div class="classification-callout">
+      <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <p>{platformNotice}</p>
+    </div>
+
+    <!-- Category Tabs Navigation -->
+    <div class="screener-tabs" role="tablist">
+      {categoriesList.map((cat, idx) => (
+        <button 
+          class={`screener-tab-btn ${idx === 0 ? 'active' : ''}`}
+          role="tab"
+          data-category={cat.id}
+          id={`tab-${cat.id}`}
+          aria-selected={idx === 0 ? 'true' : 'false'}
+        >
+          <span class="tab-title">{cat.name}</span>
+          <span class="tab-sub">{cat.subtitle}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="category-meta-row">
+      <span class="category-description-text" id="category-desc">
+        {categoriesList[0].description}
+      </span>
+      <span class="category-count-badge" id="screener-count-badge">Tracking Top Movers</span>
+    </div>
+  </div>
+
+  <!-- Search & Fast Multi-Filtering Toolbar -->
+  <div class="screener-toolbar">
+    <div class="toolbar-primary">
+      <div class="search-field">
+        <svg class="search-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          id="screener-search-input" 
+          class="screener-input" 
+          placeholder="Filter by Ticker or Company name..." 
+          autocomplete="off"
+        />
+        <button id="screener-search-clear" class="clear-input-btn" style="display: none;">&times;</button>
+      </div>
+
+      <div class="toolbar-controls">
+        <div class="control-group">
+          <label for="screener-sector-select">Sector:</label>
+          <select id="screener-sector-select" class="screener-select">
+            <option value="ALL">All Sectors</option>
+            <option value="Electronic Technology">Electronic Technology</option>
+            <option value="Technology Services">Technology Services</option>
+            <option value="Health Technology">Health Technology</option>
+            <option value="Finance">Finance</option>
+            <option value="Consumer Services">Consumer Services</option>
+            <option value="Consumer Non-Durables">Consumer Goods</option>
+            <option value="Energy Minerals">Energy</option>
+            <option value="Producer Manufacturing">Industrials</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="screener-sort-select">Sort By:</label>
+          <select id="screener-sort-select" class="screener-select">
+            <option value="momentum">Strongest Momentum (Default)</option>
+            <option value="change_desc">Best Performers (% Gain)</option>
+            <option value="change_asc">Worst Performers (% Loss)</option>
+            <option value="volume_desc">Highest Volume</option>
+            <option value="rvol_desc">Highest Relative Volume (RVOL)</option>
+            <option value="conviction_desc">Highest Conviction</option>
+            <option value="market_cap_desc">Market Cap (High to Low)</option>
+            <option value="price_desc">Price (High to Low)</option>
+          </select>
+        </div>
+
+        <button id="screener-filter-toggle-btn" class="toggle-filters-btn">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <span>More Filters</span>
+          <span class="active-filter-dot" id="active-filter-indicator" style="display: none;"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Expandable Advanced Filters Panel -->
+    <div class="advanced-filter-panel" id="advanced-filter-panel" style="display: none;">
+      <div class="filter-grid">
+        <div class="filter-cell">
+          <span class="cell-label">Min % Gain</span>
+          <select id="filter-min-gain" class="screener-select">
+            <option value="0">Any Gain</option>
+            <option value="3">&gt; +3%</option>
+            <option value="5">&gt; +5%</option>
+            <option value="10">&gt; +10%</option>
+            <option value="20">&gt; +20%</option>
+          </select>
+        </div>
+
+        <div class="filter-cell">
+          <span class="cell-label">Decliners / % Loss</span>
+          <select id="filter-max-loss" class="screener-select">
+            <option value="0">All Stocks</option>
+            <option value="-1">Decliners (&lt; 0%)</option>
+            <option value="-5">Loss &gt; 5%</option>
+            <option value="-10">Loss &gt; 10%</option>
+          </select>
+        </div>
+
+        <div class="filter-cell">
+          <span class="cell-label">Min Session Volume</span>
+          <select id="filter-min-volume" class="screener-select">
+            <option value="0">Any Volume</option>
+            <option value="100000">&gt; 100K Shares</option>
+            <option value="500000">&gt; 500K Shares</option>
+            <option value="1000000">&gt; 1M Shares</option>
+            <option value="5000000">&gt; 5M Shares</option>
+          </select>
+        </div>
+
+        <div class="filter-cell">
+          <span class="cell-label">Relative Volume (RVOL)</span>
+          <select id="filter-min-rvol" class="screener-select">
+            <option value="0">Any RVOL</option>
+            <option value="1.2">&gt; 1.2x (Above Avg)</option>
+            <option value="1.5">&gt; 1.5x (Elevated)</option>
+            <option value="2.0">&gt; 2.0x (Surge)</option>
+          </select>
+        </div>
+
+        <div class="filter-cell">
+          <span class="cell-label">Momentum Score</span>
+          <select id="filter-min-momentum" class="screener-select">
+            <option value="0">Any Score</option>
+            <option value="60">&gt; 60 (Positive)</option>
+            <option value="75">&gt; 75 (High Momentum)</option>
+            <option value="85">&gt; 85 (Velocity Spike)</option>
+          </select>
+        </div>
+
+        <div class="filter-cell">
+          <span class="cell-label">Conviction Rating</span>
+          <select id="filter-conviction" class="screener-select">
+            <option value="ALL">All Scores</option>
+            <option value="65">Bullish Setup+ (&ge;65)</option>
+            <option value="80">High Conviction (&ge;80)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-actions-row">
+        <span class="filter-helper-note">Client-side filtering executes instantly without external API overhead.</span>
+        <button id="screener-reset-filters-btn" class="reset-filters-btn">Reset All Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stale / Delay Data Banner (Activates if upstream feed pauses) -->
+  <div id="screener-stale-banner" class="stale-alert-banner" style="display: none;">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+      <line x1="12" y1="9" x2="12" y2="13"></line>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
+    <span id="stale-banner-text">Data delayed: Connection to data feed is synchronizing. Retaining last observed session snapshot.</span>
+  </div>
+
+  <!-- Modern Interactive Stock Screener Table Container -->
+  <div class="screener-table-card">
+    <div class="table-responsive-viewport">
+      <table class="screener-table" id="screener-live-table">
+        <thead>
+          <tr>
+            <th data-sort="name">Ticker / Company</th>
+            <th data-sort="price" class="text-right">Price</th>
+            <th data-sort="change_abs" class="text-right">Change ($)</th>
+            <th data-sort="change_desc" class="text-right">Change (%)</th>
+            <th data-sort="volume_desc" class="text-right">Volume</th>
+            <th data-sort="rvol_desc" class="text-right">Rel Vol</th>
+            <th data-sort="market_cap_desc" class="text-right">Market Cap</th>
+            <th class="text-center">Day Range (L - H)</th>
+            <th data-sort="momentum" class="text-center">Momentum</th>
+            <th data-sort="conviction_desc" class="text-center">Conviction</th>
+            <th class="text-right">Last Monitored</th>
+            <th class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody id="screener-table-body">
+          <!-- Populated dynamically by client-side JavaScript -->
+          <tr class="loading-skeleton-row">
+            <td colspan="12" class="screener-loading-cell">
+              <div class="loading-pulse-box">
+                <span class="loading-spinner"></span>
+                <span>Connecting to live consolidated market feed...</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Footer / Regulatory Transparency -->
+    <div class="screener-table-footer">
+      <div class="feed-transparency-note">
+        <span class="status-indicator-mini"></span>
+        <span>{dataFeedNotice}</span>
+      </div>
+      <div class="footer-aux-actions">
+        <span id="screener-row-counter">Displaying 0 assets</span>
+        <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="tv-source-link">
+          TradingView Feeds ↗
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ configJson: JSON.stringify(SCREENER_CONFIG) }}>
+  (function initLiveStockScreener() {
+    const config = JSON.parse(configJson);
+    let currentCategory = config.defaultCategory || 'penny';
+    let currentSort = config.defaultSort || 'momentum';
+    let rawStocksData = [];
+    let lastSuccessTime = Date.now();
+    let pollIntervalId = null;
+    let clockIntervalId = null;
+    let isFetching = false;
+
+    // Filter states
+    let activeFilters = {
+      searchQuery: '',
+      sector: 'ALL',
+      minGain: 0,
+      maxLoss: 0,
+      minVolume: 0,
+      minRvol: 0,
+      minMomentum: 0,
+      minConviction: 'ALL'
+    };
+
+    // DOM References
+    const tableBody = document.getElementById('screener-table-body');
+    const tabs = document.querySelectorAll('.screener-tab-btn');
+    const searchInput = document.getElementById('screener-search-input');
+    const searchClearBtn = document.getElementById('screener-search-clear');
+    const sectorSelect = document.getElementById('screener-sector-select');
+    const sortSelect = document.getElementById('screener-sort-select');
+    const lastUpdatedEl = document.getElementById('screener-last-updated');
+    const statusTextEl = document.getElementById('screener-status-text');
+    const pulseDot = document.getElementById('screener-pulse-dot');
+    const manualRefreshBtn = document.getElementById('screener-manual-refresh-btn');
+    const countBadge = document.getElementById('screener-count-badge');
+    const rowCounter = document.getElementById('screener-row-counter');
+    const staleBanner = document.getElementById('screener-stale-banner');
+    const staleText = document.getElementById('stale-banner-text');
+    const categoryDesc = document.getElementById('category-desc');
+    const filterToggleBtn = document.getElementById('screener-filter-toggle-btn');
+    const advancedPanel = document.getElementById('advanced-filter-panel');
+    const filterIndicator = document.getElementById('active-filter-indicator');
+    const resetFiltersBtn = document.getElementById('screener-reset-filters-btn');
+
+    // Advanced filter selectors
+    const minGainSelect = document.getElementById('filter-min-gain');
+    const maxLossSelect = document.getElementById('filter-max-loss');
+    const minVolSelect = document.getElementById('filter-min-volume');
+    const minRvolSelect = document.getElementById('filter-min-rvol');
+    const minMomSelect = document.getElementById('filter-min-momentum');
+    const convictionSelect = document.getElementById('filter-conviction');
+
+    function formatNumber(num) {
+      if (num === undefined || num === null || isNaN(num)) return '0';
+      if (Math.abs(num) >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+      if (Math.abs(num) >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+      if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+      if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+      return num.toLocaleString();
+    }
+
+    function formatPrice(val) {
+      const num = parseFloat(val);
+      if (isNaN(num)) return '$0.00';
+      if (num < 0.01) return '$' + num.toFixed(4);
+      if (num < 1.0) return '$' + num.toFixed(3);
+      return '$' + num.toFixed(2);
+    }
+
+    // Mathematical momentum scoring logic
+    function calculateMomentum(changePercent, rvol, rsi, price, high, low) {
+      let priceScore = 50 + (changePercent * 1.4);
+      priceScore = Math.max(5, Math.min(99, priceScore));
+
+      const rvolVal = rvol || 1.0;
+      let rvolScore = 50 + ((rvolVal - 1.0) * 20);
+      rvolScore = Math.max(10, Math.min(99, rvolScore));
+
+      let techScore = 50;
+      if (typeof rsi === 'number' && !isNaN(rsi)) {
+        techScore = rsi;
+      } else if (price && high && low && high > low) {
+        techScore = ((price - low) / (high - low)) * 100;
+      }
+      techScore = Math.max(10, Math.min(95, techScore));
+
+      return Math.max(1, Math.min(99, Math.round((priceScore * 0.45) + (rvolScore * 0.35) + (techScore * 0.20))));
+    }
+
+    function calculateConviction(recommendAll, momentumScore) {
+      let score = 50;
+      if (typeof recommendAll === 'number' && !isNaN(recommendAll)) {
+        score = Math.round(((recommendAll + 1) / 2) * 100);
+      } else if (momentumScore) {
+        score = Math.round(momentumScore * 0.9);
+      }
+      score = Math.max(1, Math.min(99, score));
+
+      let label = 'Neutral';
+      if (score >= 80) label = 'High Conviction';
+      else if (score >= 65) label = 'Bullish Setup';
+      else if (score >= 45) label = 'Balanced Flow';
+      else if (score >= 30) label = 'Bearish Pressure';
+      else label = 'High Distribution';
+
+      return { score, label };
+    }
+
+    // Fetch implementation with TradingView direct scan + Astro API proxy fallback
+    async function fetchScreenerData(isManual = false) {
+      if (isFetching) return;
+      isFetching = true;
+
+      if (isManual && manualRefreshBtn) {
+        manualRefreshBtn.classList.add('spinning');
+      }
+
+      const categoryConf = config.categories[currentCategory] || config.categories.penny;
+
+      // 1. Primary Route: Direct TradingView Scanner
+      try {
+        const filters = [
+          { left: 'market_cap_basic', operation: 'nempty' },
+          { left: 'type', operation: 'in_range', right: ['stock', 'dr'] },
+          { left: 'subtype', operation: 'in_range', right: ['common'] }
+        ];
+
+        if (categoryConf.priceMax !== undefined) {
+          filters.push({ left: 'close', operation: 'less', right: categoryConf.priceMax });
+        }
+        if (categoryConf.priceMin !== undefined) {
+          filters.push({ left: 'close', operation: 'greater', right: categoryConf.priceMin });
+        }
+        if (categoryConf.marketCapMin !== undefined) {
+          filters.push({ left: 'market_cap_basic', operation: 'greater', right: categoryConf.marketCapMin });
+        }
+        if (categoryConf.marketCapMax !== undefined) {
+          filters.push({ left: 'market_cap_basic', operation: 'less', right: categoryConf.marketCapMax });
+        }
+        if (categoryConf.volumeFloor !== undefined) {
+          filters.push({ left: 'volume', operation: 'greater', right: categoryConf.volumeFloor });
+        }
+
+        const tvRes = await fetch('https://scanner.tradingview.com/america/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filter: filters,
+            options: { lang: 'en' },
+            symbols: { query: { types: [] }, tickers: [] },
+            columns: [
+              'name',
+              'description',
+              'close',
+              'change_abs',
+              'change',
+              'volume',
+              'relative_volume_10d_calc',
+              'market_cap_basic',
+              'high',
+              'low',
+              'sector',
+              'Recommend.All',
+              'RSI'
+            ],
+            sort: { sortBy: 'change', sortOrder: 'desc' },
+            range: [0, 60]
+          })
+        });
+
+        if (tvRes.ok) {
+          const json = await tvRes.json();
+          const rows = json?.data || [];
+          if (rows.length > 0) {
+            handleSuccessfulData(parseTradingViewRows(rows));
+            return;
+          }
+        }
+      } catch (e) {
+        // Direct browser network error / Ad-block fallback
+      }
+
+      // 2. Secondary Fallback Route: Internal Astro API Proxy
+      try {
+        const apiRes = await fetch(`/api/screener?category=${currentCategory}`);
+        if (apiRes.ok) {
+          const apiJson = await apiRes.json();
+          if (apiJson.success && Array.isArray(apiJson.data)) {
+            handleSuccessfulData(apiJson.data);
+            return;
+          }
+        }
+      } catch (err) {
+        // Network offline
+      }
+
+      // 3. Error / Stale Handler
+      handleFetchFailure();
+    }
+
+    function parseTradingViewRows(rows) {
+      const timeStr = new Date().toTimeString().split(' ')[0] + ' UTC';
+      return rows.map((row) => {
+        const d = row.d || [];
+        const ticker = String(d[0] || row.s?.split(':')?.[1] || '');
+        const name = String(d[1] || ticker);
+        const price = typeof d[2] === 'number' ? d[2] : parseFloat(d[2]) || 0;
+        const changeAbs = typeof d[3] === 'number' ? d[3] : parseFloat(d[3]) || 0;
+        const changePercent = typeof d[4] === 'number' ? d[4] : parseFloat(d[4]) || 0;
+        const volume = typeof d[5] === 'number' ? d[5] : parseInt(d[5], 10) || 0;
+        const rvol = typeof d[6] === 'number' ? parseFloat(d[6].toFixed(2)) : 1.0;
+        const marketCap = typeof d[7] === 'number' ? d[7] : parseFloat(d[7]) || 0;
+        const high = typeof d[8] === 'number' ? d[8] : price;
+        const low = typeof d[9] === 'number' ? d[9] : price;
+        const sector = String(d[10] || 'Unclassified');
+        const recommendAll = typeof d[11] === 'number' ? d[11] : 0;
+        const rsi = typeof d[12] === 'number' ? d[12] : 50;
+
+        const momentumScore = calculateMomentum(changePercent, rvol, rsi, price, high, low);
+        const { score: convictionScore, label: convictionLabel } = calculateConviction(recommendAll, momentumScore);
+
+        return {
+          ticker,
+          name,
+          price,
+          changeAbs,
+          changePercent,
+          volume,
+          relativeVolume: rvol,
+          marketCap,
+          high,
+          low,
+          sector,
+          momentumScore,
+          convictionScore,
+          convictionLabel,
+          lastUpdatedTime: timeStr
+        };
+      });
+    }
+
+    function handleSuccessfulData(stocks) {
+      rawStocksData = stocks;
+      lastSuccessTime = Date.now();
+      isFetching = false;
+      if (manualRefreshBtn) manualRefreshBtn.classList.remove('spinning');
+
+      if (staleBanner) staleBanner.style.display = 'none';
+      if (pulseDot) {
+        pulseDot.className = 'live-dot';
+      }
+      if (statusTextEl) statusTextEl.textContent = 'FEED ACTIVE';
+
+      renderFilteredTable();
+    }
+
+    function handleFetchFailure() {
+      isFetching = false;
+      if (manualRefreshBtn) manualRefreshBtn.classList.remove('spinning');
+      const elapsedSec = Math.floor((Date.now() - lastSuccessTime) / 1000);
+
+      if (elapsedSec > config.staleAfterSeconds) {
+        if (staleBanner) {
+          staleBanner.style.display = 'flex';
+          const minutes = Math.floor(elapsedSec / 60);
+          if (staleText) {
+            staleText.textContent = `Data delayed: Last synced ${minutes > 0 ? minutes + 'm ' : ''}${elapsedSec % 60}s ago. Market feed is reconnecting.`;
+          }
+        }
+        if (pulseDot) pulseDot.className = 'live-dot stale';
+        if (statusTextEl) statusTextEl.textContent = 'FEED DELAYED';
+      }
+    }
+
+    // In-Memory Search, Multi-Filter, and Sorting Engine
+    function renderFilteredTable() {
+      if (!tableBody) return;
+
+      let result = [...rawStocksData];
+
+      // 1. Text Search Filter (Ticker or Company Name)
+      const query = activeFilters.searchQuery.toLowerCase().trim();
+      if (query) {
+        result = result.filter(
+          (s) => s.ticker.toLowerCase().includes(query) || s.name.toLowerCase().includes(query)
+        );
+      }
+
+      // 2. Sector Filter
+      if (activeFilters.sector !== 'ALL') {
+        result = result.filter((s) => s.sector.toLowerCase().includes(activeFilters.sector.toLowerCase()));
+      }
+
+      // 3. Min Gain Filter
+      if (activeFilters.minGain > 0) {
+        result = result.filter((s) => s.changePercent >= activeFilters.minGain);
+      }
+
+      // 4. Decliners / Max Loss Filter
+      if (activeFilters.maxLoss < 0) {
+        result = result.filter((s) => s.changePercent <= activeFilters.maxLoss);
+      }
+
+      // 5. Min Volume Filter
+      if (activeFilters.minVolume > 0) {
+        result = result.filter((s) => s.volume >= activeFilters.minVolume);
+      }
+
+      // 6. Min RVOL Filter
+      if (activeFilters.minRvol > 0) {
+        result = result.filter((s) => s.relativeVolume >= activeFilters.minRvol);
+      }
+
+      // 7. Momentum Filter
+      if (activeFilters.minMomentum > 0) {
+        result = result.filter((s) => s.momentumScore >= activeFilters.minMomentum);
+      }
+
+      // 8. Conviction Filter
+      if (activeFilters.minConviction !== 'ALL') {
+        const threshold = parseInt(activeFilters.minConviction, 10);
+        result = result.filter((s) => s.convictionScore >= threshold);
+      }
+
+      // 9. Sorting (Default: Best-performing / strongest momentum first)
+      result.sort((a, b) => {
+        switch (currentSort) {
+          case 'momentum':
+            return b.momentumScore - a.momentumScore || b.changePercent - a.changePercent;
+          case 'change_desc':
+            return b.changePercent - a.changePercent;
+          case 'change_asc':
+            return a.changePercent - b.changePercent;
+          case 'volume_desc':
+            return b.volume - a.volume;
+          case 'rvol_desc':
+            return b.relativeVolume - a.relativeVolume;
+          case 'conviction_desc':
+            return b.convictionScore - a.convictionScore;
+          case 'market_cap_desc':
+            return b.marketCap - a.marketCap;
+          case 'price_desc':
+            return b.price - a.price;
+          default:
+            return b.momentumScore - a.momentumScore;
+        }
+      });
+
+      // Update counters
+      if (countBadge) countBadge.textContent = `${result.length} of ${rawStocksData.length} stocks`;
+      if (rowCounter) rowCounter.textContent = `Displaying ${result.length} active opportunities`;
+
+      // Render Rows
+      if (result.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="12" class="screener-empty-cell">
+              <div class="empty-state-box">
+                <p class="empty-primary">No assets matched your active filter criteria.</p>
+                <p class="empty-secondary">Try widening your price range, sector, or volume floor.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tableBody.innerHTML = result.map((stock) => {
+        const isPos = stock.changePercent >= 0;
+        const deltaClass = isPos ? 'text-gain' : 'text-loss';
+        const badgeClass = isPos ? 'delta-pill-gain' : 'delta-pill-loss';
+        const sign = isPos ? '+' : '';
+        const tvUrl = `https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`;
+        
+        // Range bar calculation
+        const rangeSpread = stock.high - stock.low;
+        const rangePos = rangeSpread > 0 ? Math.min(100, Math.max(0, ((stock.price - stock.low) / rangeSpread) * 100)) : 50;
+
+        // Momentum pill style
+        let momTierClass = 'mom-high';
+        if (stock.momentumScore < 50) momTierClass = 'mom-low';
+        else if (stock.momentumScore < 75) momTierClass = 'mom-mid';
+
+        // Conviction pill style
+        let convTierClass = 'conv-neutral';
+        if (stock.convictionScore >= 80) convTierClass = 'conv-high';
+        else if (stock.convictionScore >= 65) convTierClass = 'conv-bull';
+
+        return `
+          <tr class="stock-data-row">
+            <td class="cell-symbol">
+              <div class="symbol-flex">
+                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link" title="Analyze ${stock.ticker} on TradingView">
+                  $${stock.ticker}
+                </a>
+                <span class="company-subname" title="${stock.name}">${stock.name}</span>
+              </div>
+            </td>
+
+            <td class="cell-price text-right">${formatPrice(stock.price)}</td>
+
+            <td class="cell-change-abs text-right ${deltaClass}">
+              ${sign}${formatPrice(stock.changeAbs)}
+            </td>
+
+            <td class="cell-change-pct text-right">
+              <span class="delta-pill ${badgeClass}">${sign}${stock.changePercent.toFixed(2)}%</span>
+            </td>
+
+            <td class="cell-volume text-right font-mono">${formatNumber(stock.volume)}</td>
+
+            <td class="cell-rvol text-right font-mono">
+              <span class="${stock.relativeVolume >= 1.5 ? 'rvol-surge' : ''}">${stock.relativeVolume.toFixed(2)}x</span>
+            </td>
+
+            <td class="cell-market-cap text-right font-mono">${formatNumber(stock.marketCap)}</td>
+
+            <td class="cell-range">
+              <div class="range-wrapper">
+                <span class="range-val">${formatPrice(stock.low)}</span>
+                <div class="range-track">
+                  <div class="range-marker" style="left: ${rangePos.toFixed(1)}%;"></div>
+                </div>
+                <span class="range-val">${formatPrice(stock.high)}</span>
+              </div>
+            </td>
+
+            <td class="cell-momentum text-center">
+              <div class="momentum-pill ${momTierClass}" title="Algorithmic Momentum Score: ${stock.momentumScore}/100">
+                <span class="mom-score">${stock.momentumScore}</span>
+                <div class="mom-bar-mini" style="width: ${stock.momentumScore}%;"></div>
+              </div>
+            </td>
+
+            <td class="cell-conviction text-center">
+              <span class="conviction-badge ${convTierClass}" title="${stock.convictionLabel}">
+                ${stock.convictionScore} &bull; ${stock.convictionLabel}
+              </span>
+            </td>
+
+            <td class="cell-time text-right font-mono text-muted">${stock.lastUpdatedTime}</td>
+
+            <td class="cell-action text-center">
+              <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="row-chart-btn" title="Open Chart Workspace">
+                Chart ↗
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Active ticking relative time updater
+    function updateClockDisplay() {
+      if (!lastUpdatedEl) return;
+      const elapsedSec = Math.floor((Date.now() - lastSuccessTime) / 1000);
+
+      if (elapsedSec < 5) {
+        lastUpdatedEl.textContent = 'Last updated: Just now';
+      } else if (elapsedSec < 60) {
+        lastUpdatedEl.textContent = `Last updated: ${elapsedSec} seconds ago`;
+      } else {
+        const mins = Math.floor(elapsedSec / 60);
+        const remSec = elapsedSec % 60;
+        lastUpdatedEl.textContent = `Last updated: ${mins}m ${remSec}s ago`;
+      }
+
+      if (elapsedSec > config.staleAfterSeconds) {
+        handleFetchFailure();
+      }
+    }
+
+    function checkActiveFilters() {
+      const hasActive = 
+        activeFilters.minGain > 0 ||
+        activeFilters.maxLoss < 0 ||
+        activeFilters.minVolume > 0 ||
+        activeFilters.minRvol > 0 ||
+        activeFilters.minMomentum > 0 ||
+        activeFilters.minConviction !== 'ALL';
+
+      if (filterIndicator) {
+        filterIndicator.style.display = hasActive ? 'inline-block' : 'none';
+      }
+    }
+
+    // Event Bindings
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const selectedCat = tab.getAttribute('data-category');
+        if (!selectedCat || selectedCat === currentCategory) return;
+
+        tabs.forEach((t) => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+
+        currentCategory = selectedCat;
+        const categoryConf = config.categories[currentCategory];
+        if (categoryDesc && categoryConf) {
+          categoryDesc.textContent = categoryConf.description;
+        }
+
+        // Display skeleton and fetch category
+        if (tableBody) {
+          tableBody.innerHTML = `
+            <tr class="loading-skeleton-row">
+              <td colspan="12" class="screener-loading-cell">
+                <div class="loading-pulse-box">
+                  <span class="loading-spinner"></span>
+                  <span>Scanning ${categoryConf.name} liquidity pool...</span>
+                </div>
+              </td>
+            </tr>
+          `;
+        }
+        fetchScreenerData();
+      });
+    });
+
+    searchInput?.addEventListener('input', (e) => {
+      activeFilters.searchQuery = e.target.value;
+      if (searchClearBtn) {
+        searchClearBtn.style.display = activeFilters.searchQuery ? 'block' : 'none';
+      }
+      renderFilteredTable();
+    });
+
+    searchClearBtn?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      activeFilters.searchQuery = '';
+      searchClearBtn.style.display = 'none';
+      renderFilteredTable();
+    });
+
+    sectorSelect?.addEventListener('change', (e) => {
+      activeFilters.sector = e.target.value;
+      renderFilteredTable();
+    });
+
+    sortSelect?.addEventListener('change', (e) => {
+      currentSort = e.target.value;
+      renderFilteredTable();
+    });
+
+    // Column header sort clicking
+    document.querySelectorAll('.screener-table th[data-sort]').forEach((th) => {
+      th.addEventListener('click', () => {
+        const sortVal = th.getAttribute('data-sort');
+        if (sortVal) {
+          currentSort = sortVal;
+          if (sortSelect) sortSelect.value = sortVal;
+          renderFilteredTable();
+        }
+      });
+    });
+
+    filterToggleBtn?.addEventListener('click', () => {
+      if (!advancedPanel) return;
+      const isClosed = advancedPanel.style.display === 'none';
+      advancedPanel.style.display = isClosed ? 'block' : 'none';
+      filterToggleBtn.classList.toggle('active', isClosed);
+    });
+
+    minGainSelect?.addEventListener('change', (e) => {
+      activeFilters.minGain = parseFloat(e.target.value) || 0;
+      checkActiveFilters();
+      renderFilteredTable();
+    });
+
+    maxLossSelect?.addEventListener('change', (e) => {
+      activeFilters.maxLoss = parseFloat(e.target.value) || 0;
+      checkActiveFilters();
+      renderFilteredTable();
+    });
+
+    minVolSelect?.addEventListener('change', (e) => {
+      activeFilters.minVolume = parseInt(e.target.value, 10) || 0;
+      checkActiveFilters();
+      renderFilteredTable();
+    });
+
+    minRvolSelect?.addEventListener('change', (e) => {
+      activeFilters.minRvol = parseFloat(e.target.value) || 0;
+      checkActiveFilters();
+      renderFilteredTable();
+    });
+
+    minMomSelect?.addEventListener('change', (e) => {
+      activeFilters.minMomentum = parseInt(e.target.value, 10) || 0;
+      checkActiveFilters();
+      renderFilteredTable();
+    });
+
+    convictionSelect?.addEventListener('change', (e) => {
+      activeFilters.minConviction = e.target.value;
+      checkActiveFilters();
+      renderFilteredTable();
+    });
+
+    resetFiltersBtn?.addEventListener('click', () => {
+      activeFilters = {
+        searchQuery: '',
+        sector: 'ALL',
+        minGain: 0,
+        maxLoss: 0,
+        minVolume: 0,
+        minRvol: 0,
+        minMomentum: 0,
+        minConviction: 'ALL'
+      };
+      if (searchInput) searchInput.value = '';
+      if (searchClearBtn) searchClearBtn.style.display = 'none';
+      if (sectorSelect) sectorSelect.value = 'ALL';
+      if (minGainSelect) minGainSelect.value = '0';
+      if (maxLossSelect) maxLossSelect.value = '0';
+      if (minVolSelect) minVolSelect.value = '0';
+      if (minRvolSelect) minRvolSelect.value = '0';
+      if (minMomSelect) minMomSelect.value = '0';
+      if (convictionSelect) convictionSelect.value = 'ALL';
+      checkActiveFilters();
+      renderFilteredTable();
+    });
+
+    manualRefreshBtn?.addEventListener('click', () => {
+      fetchScreenerData(true);
+    });
+
+    // Smart Visibility Architecture: pauses polling during background tabs
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        fetchScreenerData();
+      }
+    });
+
+    // Start auto-refresh loops
+    fetchScreenerData();
+    pollIntervalId = setInterval(() => {
+      if (!document.hidden) {
+        fetchScreenerData();
+      }
+    }, config.refreshCadenceMs);
+
+    clockIntervalId = setInterval(updateClockDisplay, 1000);
+  })();
+</script>
+
+<style>
+  .screener-wrapper {
+    margin-bottom: 3rem;
+    width: 100%;
+  }
+
+  .screener-header-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px 8px 0 0;
+    padding: 1.25rem;
+  }
+
+  .screener-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .screener-pill-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--brand-accent);
+    margin-bottom: 0.2rem;
+  }
+
+  .screener-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+
+  .screener-sync-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+  }
+
+  .pulse-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gain-color);
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    animation: livePulse 2s infinite ease-in-out;
+  }
+
+  .live-dot.stale {
+    background: #eab308;
+    box-shadow: 0 0 6px rgba(234, 179, 8, 0.7);
+    animation: none;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .sync-status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+  }
+
+  .sync-timer {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    border-left: 1px solid var(--border-subtle);
+    padding-left: 0.65rem;
+  }
+
+  .manual-refresh-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+
+  .manual-refresh-btn:hover {
+    color: var(--brand-accent);
+    border-color: var(--brand-accent);
+  }
+
+  .manual-refresh-btn.spinning svg {
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+
+  .classification-callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 6px;
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .info-icon {
+    width: 15px;
+    height: 15px;
+    color: var(--brand-accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .classification-callout p {
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .screener-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .screener-tab-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.55rem 1rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+
+  .screener-tab-btn:hover {
+    background: var(--bg-page);
+    color: var(--text-primary);
+  }
+
+  .screener-tab-btn.active {
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #ffffff;
+  }
+
+  .tab-title {
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  .tab-sub {
+    font-size: 0.6875rem;
+    opacity: 0.85;
+    font-family: var(--font-mono);
+  }
+
+  .category-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .category-description-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .category-count-badge {
+    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    color: var(--brand-accent);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  /* Toolbar */
+  .screener-toolbar {
+    background: var(--bg-surface-elevated);
+    border-left: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--border-subtle);
+    padding: 0.85rem 1.25rem;
+  }
+
+  .toolbar-primary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .search-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 220px;
+    max-width: 360px;
+  }
+
+  .search-svg {
+    position: absolute;
+    left: 0.7rem;
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .screener-input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 0.8125rem;
+    padding: 0.45rem 1.8rem 0.45rem 2rem;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .screener-input:focus {
+    border-color: var(--brand-accent);
+  }
+
+  .clear-input-btn {
+    position: absolute;
+    right: 0.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .toolbar-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .control-group label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .screener-select {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 0.78125rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 5px;
+    outline: none;
+  }
+
+  .screener-select:focus {
+    border-color: var(--brand-accent);
+  }
+
+  .toggle-filters-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 0.4rem 0.7rem;
+    border-radius: 5px;
+    font-size: 0.78125rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .toggle-filters-btn:hover, .toggle-filters-btn.active {
+    color: var(--brand-accent);
+    border-color: var(--brand-accent);
+  }
+
+  .active-filter-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+  }
+
+  /* Advanced Filter Panel */
+  .advanced-filter-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 0.85rem;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .filter-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .cell-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .filter-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.85rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .filter-helper-note {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .reset-filters-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: 0.725rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .reset-filters-btn:hover {
+    color: var(--loss-color);
+    border-color: var(--loss-color);
+  }
+
+  .stale-alert-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(234, 179, 8, 0.1);
+    border-left: 3px solid #eab308;
+    padding: 0.65rem 1.25rem;
+    color: #fef08a;
+    font-size: 0.78125rem;
+  }
+
+  /* Table Viewport */
+  .screener-table-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+  }
+
+  .table-responsive-viewport {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .screener-table {
+    width: 100%;
+    min-width: 980px;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    text-align: left;
+  }
+
+  .screener-table th {
+    background: var(--bg-surface-elevated);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .screener-table th:hover {
+    color: var(--text-primary);
+  }
+
+  .screener-table td {
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .stock-data-row:hover td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .cell-symbol {
+    position: sticky;
+    left: 0;
+    background: var(--bg-surface);
+    z-index: 2;
+  }
+
+  .symbol-flex {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .ticker-link {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .ticker-link:hover {
+    color: var(--brand-accent);
+    text-decoration: underline;
+  }
+
+  .company-subname {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cell-price {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .delta-pill {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .delta-pill-gain {
+    background: var(--gain-bg);
+    color: var(--gain-color);
+  }
+
+  .delta-pill-loss {
+    background: var(--loss-bg);
+    color: var(--loss-color);
+  }
+
+  .text-gain { color: var(--gain-color); }
+  .text-loss { color: var(--loss-color); }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .font-mono { font-family: var(--font-mono); }
+  .text-muted { color: var(--text-muted); }
+
+  .rvol-surge {
+    color: #f59e0b;
+    font-weight: 700;
+  }
+
+  .range-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-width: 130px;
+  }
+
+  .range-val {
+    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+  }
+
+  .range-track {
+    width: 60px;
+    height: 4px;
+    background: var(--border-subtle);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .range-marker {
+    position: absolute;
+    top: -3px;
+    width: 4px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--brand-accent);
+    transform: translateX(-50%);
+  }
+
+  /* Momentum & Conviction Pills */
+  .momentum-pill {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    width: 50px;
+  }
+
+  .mom-score {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .mom-bar-mini {
+    height: 2px;
+    border-radius: 1px;
+    margin-top: 2px;
+  }
+
+  .mom-high .mom-score { color: var(--gain-color); }
+  .mom-high .mom-bar-mini { background: var(--gain-color); }
+  .mom-mid .mom-score { color: #f59e0b; }
+  .mom-mid .mom-bar-mini { background: #f59e0b; }
+  .mom-low .mom-score { color: var(--loss-color); }
+  .mom-low .mom-bar-mini { background: var(--loss-color); }
+
+  .conviction-badge {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .conv-high {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--gain-color);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .conv-bull {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--brand-accent);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .conv-neutral {
+    background: var(--bg-surface-elevated);
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .row-chart-btn {
+    display: inline-block;
+    font-size: 0.725rem;
+    font-weight: 600;
+    color: var(--brand-accent);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .row-chart-btn:hover {
+    background: var(--brand-accent);
+    color: #ffffff;
+    border-color: var(--brand-accent);
+  }
+
+  .loading-pulse-box, .empty-state-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2.5rem;
+    color: var(--text-muted);
+  }
+
+  .empty-state-box {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .empty-primary {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .empty-secondary {
+    font-size: 0.75rem;
+  }
+
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-subtle);
+    border-top-color: var(--brand-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* Table Footer */
+  .screener-table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    background: var(--bg-surface-elevated);
+    border-top: 1px solid var(--border-subtle);
+    font-size: 0.725rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .feed-transparency-note {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .status-indicator-mini {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gain-color);
+  }
+
+  .footer-aux-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .tv-source-link {
+    color: var(--brand-accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .tv-source-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .screener-title-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .toolbar-primary {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .search-field {
+      max-width: 100%;
+    }
+    .toolbar-controls {
+      justify-content: space-between;
+    }
+  }
+</style>
