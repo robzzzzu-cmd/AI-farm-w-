@@ -32,6 +32,19 @@ const categoriesList = Object.values(categories);
       </div>
     </div>
 
+    <!-- Sponsored Ad Node -->
+    <div class="ad-leaderboard" style="margin: 1rem auto 1.25rem auto; background: var(--bg-surface-elevated, #161d2d); border: 1px solid var(--border-subtle, #1e2638); border-radius: 6px; padding: 0.75rem; text-align: center;">
+      <span style="font-size: 0.625rem; font-family: var(--font-mono, monospace); text-transform: uppercase; color: var(--text-muted, #64748b); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">SPONSORED MARKET NODE</span>
+      <div style="width: 100%; margin: auto; position: relative;">
+        <iframe 
+          data-aa="2453491" 
+          src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=111622" 
+          style="border: 0; padding: 0; width: 100%; max-width: 728px; height: 90px; overflow: hidden; display: block; margin: auto;"
+          loading="lazy">
+        </iframe>
+      </div>
+    </div>
+
     <!-- UI Explanation: Platform Categories rather than universal industry definitions -->
     <div class="classification-callout">
       <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -196,7 +209,7 @@ const categoriesList = Object.values(categories);
     </div>
   </div>
 
-  <!-- Stale / Delay Data Banner (Activates if upstream feed pauses) -->
+  <!-- Stale / Delay Data Banner -->
   <div id="screener-stale-banner" class="stale-alert-banner" style="display: none;">
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
@@ -206,7 +219,7 @@ const categoriesList = Object.values(categories);
     <span id="stale-banner-text">Data delayed: Connection to data feed is synchronizing. Retaining last observed session snapshot.</span>
   </div>
 
-  <!-- Modern Interactive Stock Screener Table Container -->
+  <!-- Stock Screener Table Container -->
   <div class="screener-table-card">
     <div class="table-responsive-viewport">
       <table class="screener-table" id="screener-live-table">
@@ -239,7 +252,7 @@ const categoriesList = Object.values(categories);
       </table>
     </div>
 
-    <!-- Table Footer / Regulatory Transparency -->
+    <!-- Table Footer -->
     <div class="screener-table-footer">
       <div class="feed-transparency-note">
         <span class="status-indicator-mini"></span>
@@ -600,6 +613,8 @@ const categoriesList = Object.values(categories);
 
       tableBody.innerHTML = result.map((stock) => {
         const isPos = stock.changePercent >= 0;
+        // Direct hex colors guarantee green and red render properly on client-side innerHTML
+        const stockColor = isPos ? '#22c55e' : '#ef4444';
         const deltaClass = isPos ? 'text-gain' : 'text-loss';
         const badgeClass = isPos ? 'delta-pill-gain' : 'delta-pill-loss';
         const sign = isPos ? '+' : '';
@@ -620,16 +635,16 @@ const categoriesList = Object.values(categories);
           <tr class="stock-data-row">
             <td class="cell-symbol">
               <div class="symbol-flex">
-                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link ${deltaClass}" title="Analyze ${stock.ticker} on TradingView">
+                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link ${deltaClass}" style="color: ${stockColor} !important;" title="Analyze ${stock.ticker} on TradingView">
                   $${stock.ticker}
                 </a>
                 <span class="company-subname" title="${stock.name}">${stock.name}</span>
               </div>
             </td>
 
-            <td class="cell-price text-right ${deltaClass}">${formatPrice(stock.price)}</td>
+            <td class="cell-price text-right ${deltaClass}" style="color: ${stockColor} !important;">${formatPrice(stock.price)}</td>
 
-            <td class="cell-change-abs text-right ${deltaClass}">
+            <td class="cell-change-abs text-right ${deltaClass}" style="color: ${stockColor} !important;">
               ${sign}${formatPrice(stock.changeAbs)}
             </td>
 
@@ -871,7 +886,7 @@ const categoriesList = Object.values(categories);
   })();
 </script>
 
-<style>
+<style is:inline>
   :root, .screener-wrapper {
     --gain-color: #22c55e;
     --gain-bg: rgba(34, 197, 94, 0.12);
@@ -1351,26 +1366,26 @@ const categoriesList = Object.values(categories);
   }
 
   .ticker-link {
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     font-size: 0.875rem;
     font-weight: 800;
     text-decoration: none;
-    transition: color 0.15s ease;
-  }
-
-  .ticker-link.text-gain,
-  .cell-price.text-gain {
-    color: var(--gain-color, #22c55e);
-  }
-
-  .ticker-link.text-loss,
-  .cell-price.text-loss {
-    color: var(--loss-color, #ef4444);
+    transition: opacity 0.15s ease;
   }
 
   .ticker-link:hover {
     text-decoration: underline;
     opacity: 0.85;
+  }
+
+  .ticker-link.text-gain,
+  .cell-price.text-gain {
+    color: #22c55e !important;
+  }
+
+  .ticker-link.text-loss,
+  .cell-price.text-loss {
+    color: #ef4444 !important;
   }
 
   .company-subname {
@@ -1382,9 +1397,8 @@ const categoriesList = Object.values(categories);
   }
 
   .cell-price {
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     font-weight: 700;
-    transition: color 0.15s ease;
   }
 
   .delta-pill {
@@ -1392,25 +1406,25 @@ const categoriesList = Object.values(categories);
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-weight: 700;
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     font-size: 0.75rem;
   }
 
   .delta-pill-gain {
-    background: var(--gain-bg, rgba(34, 197, 94, 0.12));
-    color: var(--gain-color, #22c55e);
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
   }
 
   .delta-pill-loss {
-    background: var(--loss-bg, rgba(239, 68, 68, 0.12));
-    color: var(--loss-color, #ef4444);
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
   }
 
-  .text-gain { color: var(--gain-color, #22c55e); }
-  .text-loss { color: var(--loss-color, #ef4444); }
+  .text-gain { color: #22c55e !important; }
+  .text-loss { color: #ef4444 !important; }
   .text-right { text-align: right; }
   .text-center { text-align: center; }
-  .font-mono { font-family: var(--font-mono); }
+  .font-mono { font-family: var(--font-mono, monospace); }
   .text-muted { color: var(--text-muted); }
 
   .rvol-surge {
@@ -1428,7 +1442,7 @@ const categoriesList = Object.values(categories);
 
   .range-val {
     font-size: 0.6875rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     color: var(--text-muted);
   }
 
@@ -1462,7 +1476,7 @@ const categoriesList = Object.values(categories);
   }
 
   .mom-score {
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     font-size: 0.75rem;
     font-weight: 700;
   }
