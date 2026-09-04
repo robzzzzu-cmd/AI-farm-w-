@@ -52,7 +52,7 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
-          npm install resend
+          npm install --no-save resend
           node scripts/send-broadcast.mjs
 
       - name: Send Failure Webhook Alert
@@ -92,7 +92,8 @@ jobs:
             echo "No new changes to commit"
           else
             git commit -m "chore(intel): automated market scan"
-            git pull --rebase origin main
+            git checkout -- .
+            git pull --rebase --autostash origin main
             git push
           fi
 
