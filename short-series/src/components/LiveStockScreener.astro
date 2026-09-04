@@ -2,7 +2,7 @@
 // short-series/src/components/LiveStockScreener.astro
 import { SCREENER_CONFIG } from '../config/screenerConfig';
 
-const { categories, dataFeedNotice } = SCREENER_CONFIG;
+const { categories, platformNotice, dataFeedNotice } = SCREENER_CONFIG;
 const categoriesList = Object.values(categories);
 ---
 
@@ -32,21 +32,14 @@ const categoriesList = Object.values(categories);
       </div>
     </div>
 
-    <!-- Top Ad Placement (Adsterra 728x90) -->
-    <div class="screener-ad-container">
-      <span class="ad-meta-tag">Sponsored Market Node</span>
-      <div class="ad-frame-wrapper">
-        <script is:inline>
-          atOptions = {
-            'key' : '069907293312bf0f2555658bc919672c',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
-        </script>
-        <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
-      </div>
+    <!-- UI Explanation: Platform Categories rather than universal industry definitions -->
+    <div class="classification-callout">
+      <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+      <p>{platformNotice}</p>
     </div>
 
     <!-- Category Tabs Navigation -->
@@ -333,7 +326,7 @@ const categoriesList = Object.values(categories);
       priceScore = Math.max(5, Math.min(99, priceScore));
 
       const rvolVal = rvol || 1.0;
-      let rvolScore = 50 + ((rvolVal - 1.0) * 20);
+      let rvolScore = 50 + ((rvol - 1.0) * 20);
       rvolScore = Math.max(10, Math.min(99, rvolScore));
 
       let techScore = 50;
@@ -627,14 +620,14 @@ const categoriesList = Object.values(categories);
           <tr class="stock-data-row">
             <td class="cell-symbol">
               <div class="symbol-flex">
-                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link" title="Analyze ${stock.ticker} on TradingView">
+                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link ${deltaClass}" title="Analyze ${stock.ticker} on TradingView">
                   $${stock.ticker}
                 </a>
                 <span class="company-subname" title="${stock.name}">${stock.name}</span>
               </div>
             </td>
 
-            <td class="cell-price text-right">${formatPrice(stock.price)}</td>
+            <td class="cell-price text-right ${deltaClass}">${formatPrice(stock.price)}</td>
 
             <td class="cell-change-abs text-right ${deltaClass}">
               ${sign}${formatPrice(stock.changeAbs)}
@@ -879,6 +872,20 @@ const categoriesList = Object.values(categories);
 </script>
 
 <style>
+  :root, .screener-wrapper {
+    --gain-color: #22c55e;
+    --gain-bg: rgba(34, 197, 94, 0.12);
+    --loss-color: #ef4444;
+    --loss-bg: rgba(239, 68, 68, 0.12);
+    --bg-surface: #111622;
+    --bg-surface-elevated: #161d2d;
+    --border-subtle: #1e2638;
+    --brand-accent: #38bdf8;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+  }
+
   .screener-wrapper {
     margin-bottom: 3rem;
     width: 100%;
@@ -994,38 +1001,30 @@ const categoriesList = Object.values(categories);
     100% { transform: rotate(360deg); }
   }
 
-  .screener-ad-container {
+  .classification-callout {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
+    align-items: flex-start;
+    gap: 0.6rem;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
     border-radius: 6px;
-    padding: 0.65rem 0.5rem;
+    padding: 0.65rem 0.85rem;
     margin-bottom: 1.15rem;
-    width: 100%;
-    overflow-x: auto;
-    box-sizing: border-box;
   }
 
-  .ad-meta-tag {
-    font-size: 0.6rem;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    color: var(--text-muted);
-    letter-spacing: 0.06em;
-    margin-bottom: 0.45rem;
-    display: block;
+  .info-icon {
+    width: 15px;
+    height: 15px;
+    color: var(--brand-accent);
+    flex-shrink: 0;
+    margin-top: 2px;
   }
 
-  .ad-frame-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    min-height: 90px;
-    overflow: hidden;
+  .classification-callout p {
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    margin: 0;
   }
 
   .screener-tabs {
@@ -1355,13 +1354,23 @@ const categoriesList = Object.values(categories);
     font-family: var(--font-mono);
     font-size: 0.875rem;
     font-weight: 800;
-    color: var(--text-primary);
     text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .ticker-link.text-gain,
+  .cell-price.text-gain {
+    color: var(--gain-color, #22c55e);
+  }
+
+  .ticker-link.text-loss,
+  .cell-price.text-loss {
+    color: var(--loss-color, #ef4444);
   }
 
   .ticker-link:hover {
-    color: var(--brand-accent);
     text-decoration: underline;
+    opacity: 0.85;
   }
 
   .company-subname {
@@ -1375,7 +1384,7 @@ const categoriesList = Object.values(categories);
   .cell-price {
     font-family: var(--font-mono);
     font-weight: 700;
-    color: var(--text-primary);
+    transition: color 0.15s ease;
   }
 
   .delta-pill {
@@ -1388,17 +1397,17 @@ const categoriesList = Object.values(categories);
   }
 
   .delta-pill-gain {
-    background: var(--gain-bg);
-    color: var(--gain-color);
+    background: var(--gain-bg, rgba(34, 197, 94, 0.12));
+    color: var(--gain-color, #22c55e);
   }
 
   .delta-pill-loss {
-    background: var(--loss-bg);
-    color: var(--loss-color);
+    background: var(--loss-bg, rgba(239, 68, 68, 0.12));
+    color: var(--loss-color, #ef4444);
   }
 
-  .text-gain { color: var(--gain-color); }
-  .text-loss { color: var(--loss-color); }
+  .text-gain { color: var(--gain-color, #22c55e); }
+  .text-loss { color: var(--loss-color, #ef4444); }
   .text-right { text-align: right; }
   .text-center { text-align: center; }
   .font-mono { font-family: var(--font-mono); }
