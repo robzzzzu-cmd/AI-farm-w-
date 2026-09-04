@@ -76,7 +76,7 @@ export const GET: APIRoute = async ({ request }) => {
         symbols: { query: { types: [] }, tickers: [] },
         columns: columns,
         sort: { sortBy: 'change', sortOrder: 'desc' },
-        range: [0, 60]
+        range: [0, 150]
       })
     });
 
