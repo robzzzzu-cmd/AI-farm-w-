@@ -57,8 +57,8 @@ export const SCREENER_CONFIG: ScreenerSettings = {
       description: 'Equities with greater than $10B market capitalization. Primary institutional liquidity anchors, index drivers, and established industry leaders.'
     }
   },
-  refreshCadenceMs: 20000,      // 20s fast-polling (free API friendly, respecting rate limits)
-  staleAfterSeconds: 90,        // Flag as delayed if update is > 90s old
+  refreshCadenceMs: 8000,       // Accelerated to 8s live polling cadence
+  staleAfterSeconds: 45,        // Threshold before marking feed delayed
   defaultCategory: 'penny',
   defaultSort: 'momentum',      // Best-performing / strongest momentum first
   platformNotice: 'Platform Classification Framework: Penny Stocks (<$5), Small & Mid Cap ($300M–$10B), and Large Cap (>$10B) thresholds are practical platform categories engineered for quantitative screening and volatility tracking rather than universal regulatory definitions.',
