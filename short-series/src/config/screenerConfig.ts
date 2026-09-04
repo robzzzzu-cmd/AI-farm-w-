@@ -40,8 +40,8 @@ export const SCREENER_CONFIG: ScreenerSettings = {
       name: 'Small & Mid Cap',
       badge: '$300M – $10B Cap',
       subtitle: 'Market Cap $300M–$10B',
-      marketCapMin: 300_000_000,      // $300 Million
-      marketCapMax: 10_000_000_000,   // $10 Billion
+      marketCapMin: 300_000_000,
+      marketCapMax: 10_000_000_000,
       priceMin: 0.50,
       volumeFloor: 50000,
       description: 'Equities with approximately $300M to $10B market capitalization. Balances growth velocity, momentum breakouts, and institutional accumulation trends.'
@@ -51,16 +51,16 @@ export const SCREENER_CONFIG: ScreenerSettings = {
       name: 'Large Cap',
       badge: '>$10B Cap',
       subtitle: 'Market Cap > $10B',
-      marketCapMin: 10_000_000_000,   // > $10 Billion
+      marketCapMin: 10_000_000_000,
       priceMin: 1.0,
       volumeFloor: 100000,
       description: 'Equities with greater than $10B market capitalization. Primary institutional liquidity anchors, index drivers, and established industry leaders.'
     }
   },
-  refreshCadenceMs: 8000,       // Accelerated to 8s live polling cadence
+  refreshCadenceMs: 6000,       // Refreshes every 6 seconds
   staleAfterSeconds: 45,        // Threshold before marking feed delayed
   defaultCategory: 'penny',
-  defaultSort: 'momentum',      // Best-performing / strongest momentum first
+  defaultSort: 'momentum',
   platformNotice: 'Platform Classification Framework: Penny Stocks (<$5), Small & Mid Cap ($300M–$10B), and Large Cap (>$10B) thresholds are practical platform categories engineered for quantitative screening and volatility tracking rather than universal regulatory definitions.',
   dataFeedNotice: 'Consolidated Market Data Feeds (Delayed ~15m where required by exchange rules for free consolidated feeds).'
 };
