@@ -32,16 +32,20 @@ const categoriesList = Object.values(categories);
       </div>
     </div>
 
-    <!-- Sponsored Ad Node -->
+    <!-- Exact High Revenue Ad Placement -->
     <div class="ad-leaderboard" style="margin: 1rem auto 1.25rem auto; background: var(--bg-surface-elevated, #161d2d); border: 1px solid var(--border-subtle, #1e2638); border-radius: 6px; padding: 0.75rem; text-align: center;">
       <span style="font-size: 0.625rem; font-family: var(--font-mono, monospace); text-transform: uppercase; color: var(--text-muted, #64748b); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">SPONSORED MARKET NODE</span>
-      <div style="width: 100%; margin: auto; position: relative;">
-        <iframe 
-          data-aa="2453491" 
-          src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=111622" 
-          style="border: 0; padding: 0; width: 100%; max-width: 728px; height: 90px; overflow: hidden; display: block; margin: auto;"
-          loading="lazy">
-        </iframe>
+      <div style="width: 100%; min-height: 90px; margin: auto; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+        <script is:inline>
+          atOptions = {
+            'key' : '069907293312bf0f2555658bc919672c',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
       </div>
     </div>
 
@@ -613,9 +617,6 @@ const categoriesList = Object.values(categories);
 
       tableBody.innerHTML = result.map((stock) => {
         const isPos = stock.changePercent >= 0;
-        // Direct hex colors guarantee green and red render properly on client-side innerHTML
-        const stockColor = isPos ? '#22c55e' : '#ef4444';
-        const deltaClass = isPos ? 'text-gain' : 'text-loss';
         const badgeClass = isPos ? 'delta-pill-gain' : 'delta-pill-loss';
         const sign = isPos ? '+' : '';
         const tvUrl = `https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`;
@@ -635,16 +636,16 @@ const categoriesList = Object.values(categories);
           <tr class="stock-data-row">
             <td class="cell-symbol">
               <div class="symbol-flex">
-                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link ${deltaClass}" style="color: ${stockColor} !important;" title="Analyze ${stock.ticker} on TradingView">
+                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link" title="Analyze ${stock.ticker} on TradingView">
                   $${stock.ticker}
                 </a>
                 <span class="company-subname" title="${stock.name}">${stock.name}</span>
               </div>
             </td>
 
-            <td class="cell-price text-right ${deltaClass}" style="color: ${stockColor} !important;">${formatPrice(stock.price)}</td>
+            <td class="cell-price text-right font-mono">${formatPrice(stock.price)}</td>
 
-            <td class="cell-change-abs text-right ${deltaClass}" style="color: ${stockColor} !important;">
+            <td class="cell-change-abs text-right font-mono text-muted">
               ${sign}${formatPrice(stock.changeAbs)}
             </td>
 
@@ -888,10 +889,6 @@ const categoriesList = Object.values(categories);
 
 <style is:inline>
   :root, .screener-wrapper {
-    --gain-color: #22c55e;
-    --gain-bg: rgba(34, 197, 94, 0.12);
-    --loss-color: #ef4444;
-    --loss-bg: rgba(239, 68, 68, 0.12);
     --bg-surface: #111622;
     --bg-surface-elevated: #161d2d;
     --border-subtle: #1e2638;
@@ -957,7 +954,7 @@ const categoriesList = Object.values(categories);
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--gain-color);
+    background: #22c55e;
     box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
     animation: livePulse 2s infinite ease-in-out;
   }
@@ -977,13 +974,13 @@ const categoriesList = Object.values(categories);
     font-size: 0.7rem;
     font-weight: 700;
     color: var(--text-primary);
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
   }
 
   .sync-timer {
     font-size: 0.7rem;
     color: var(--text-muted);
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     border-left: 1px solid var(--border-subtle);
     padding-left: 0.65rem;
   }
@@ -1066,7 +1063,7 @@ const categoriesList = Object.values(categories);
   }
 
   .screener-tab-btn:hover {
-    background: var(--bg-page);
+    background: var(--bg-page, #0b0e14);
     color: var(--text-primary);
   }
 
@@ -1084,7 +1081,7 @@ const categoriesList = Object.values(categories);
   .tab-sub {
     font-size: 0.6875rem;
     opacity: 0.85;
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
   }
 
   .category-meta-row {
@@ -1103,7 +1100,7 @@ const categoriesList = Object.values(categories);
 
   .category-count-badge {
     font-size: 0.7rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-mono, monospace);
     color: var(--brand-accent);
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
@@ -1287,8 +1284,8 @@ const categoriesList = Object.values(categories);
   }
 
   .reset-filters-btn:hover {
-    color: var(--loss-color);
-    border-color: var(--loss-color);
+    color: #ef4444;
+    border-color: #ef4444;
   }
 
   .stale-alert-banner {
@@ -1365,27 +1362,19 @@ const categoriesList = Object.values(categories);
     gap: 0.15rem;
   }
 
+  /* Neutral, professional ticker styling */
   .ticker-link {
     font-family: var(--font-mono, monospace);
     font-size: 0.875rem;
     font-weight: 800;
+    color: var(--text-primary, #f1f5f9) !important;
     text-decoration: none;
-    transition: opacity 0.15s ease;
+    transition: color 0.15s ease;
   }
 
   .ticker-link:hover {
+    color: var(--brand-accent, #38bdf8) !important;
     text-decoration: underline;
-    opacity: 0.85;
-  }
-
-  .ticker-link.text-gain,
-  .cell-price.text-gain {
-    color: #22c55e !important;
-  }
-
-  .ticker-link.text-loss,
-  .cell-price.text-loss {
-    color: #ef4444 !important;
   }
 
   .company-subname {
@@ -1396,32 +1385,39 @@ const categoriesList = Object.values(categories);
     text-overflow: ellipsis;
   }
 
+  /* Clean price presentation */
   .cell-price {
     font-family: var(--font-mono, monospace);
     font-weight: 700;
+    color: var(--text-primary, #f1f5f9) !important;
   }
 
+  /* High-contrast dark badge pill for percentage */
   .delta-pill {
-    display: inline-block;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.22rem 0.55rem;
+    border-radius: 5px;
     font-weight: 700;
     font-family: var(--font-mono, monospace);
-    font-size: 0.75rem;
+    font-size: 0.78125rem;
+    letter-spacing: 0.02em;
+    min-width: 65px;
   }
 
   .delta-pill-gain {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
+    background: #0d281e !important;
+    color: #22c55e !important;
+    border: 1px solid rgba(34, 197, 94, 0.25);
   }
 
   .delta-pill-loss {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
+    background: #2a1215 !important;
+    color: #ef4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.25);
   }
 
-  .text-gain { color: #22c55e !important; }
-  .text-loss { color: #ef4444 !important; }
   .text-right { text-align: right; }
   .text-center { text-align: center; }
   .font-mono { font-family: var(--font-mono, monospace); }
@@ -1487,12 +1483,12 @@ const categoriesList = Object.values(categories);
     margin-top: 2px;
   }
 
-  .mom-high .mom-score { color: var(--gain-color); }
-  .mom-high .mom-bar-mini { background: var(--gain-color); }
+  .mom-high .mom-score { color: #22c55e; }
+  .mom-high .mom-bar-mini { background: #22c55e; }
   .mom-mid .mom-score { color: #f59e0b; }
   .mom-mid .mom-bar-mini { background: #f59e0b; }
-  .mom-low .mom-score { color: var(--loss-color); }
-  .mom-low .mom-bar-mini { background: var(--loss-color); }
+  .mom-low .mom-score { color: #ef4444; }
+  .mom-low .mom-bar-mini { background: #ef4444; }
 
   .conviction-badge {
     display: inline-block;
@@ -1505,7 +1501,7 @@ const categoriesList = Object.values(categories);
 
   .conv-high {
     background: rgba(34, 197, 94, 0.15);
-    color: var(--gain-color);
+    color: #22c55e;
     border: 1px solid rgba(34, 197, 94, 0.3);
   }
 
@@ -1596,7 +1592,7 @@ const categoriesList = Object.values(categories);
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--gain-color);
+    background: #22c55e;
   }
 
   .footer-aux-actions {
