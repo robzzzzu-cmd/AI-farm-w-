@@ -29,11 +29,6 @@ const {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
     <link rel="alternate icon" href="/favicon.svg?v=2" />
     
-    <!-- Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <!-- Primary SEO Meta -->
     <title>{title}</title>
     <meta name="title" content={title} />
@@ -62,17 +57,14 @@ const {
     
     <header class="site-header">
       <nav class="nav-container">
-        <a href="/" class="brand-logo">
-          <span class="logo-dot"></span>
-          TRADE<span>OPPORTUNITIES</span>
-        </a>
+        <a href="/" class="brand-logo">TRADE<span> OPPORTUNITIES</span></a>
         <div class="nav-links">
           <a href="/#news-feed">News Feed</a>
           <a href="/screener">Live Screener</a>
           <a href="/#opportunities">Opportunities</a>
           <a href="/#tools">Tools</a>
           <a href="/#platforms">Platforms</a>
-          <a href="/about/">Methodology</a>
+          <a href="/about">Methodology</a>
         </div>
       </nav>
     </header>
@@ -84,7 +76,7 @@ const {
     <!-- Cookie Consent Banner -->
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-content">
-        <p>We use telemetry cookies to ensure real-time analytics, security, and market feed synchronization. Review our <a href="/privacy/">Privacy Policy</a>.</p>
+        <p>We use cookies to ensure proper analytics, security, and market feed synchronization. Review our <a href="/privacy">Privacy Policy</a>.</p>
         <div class="cookie-actions">
           <button id="accept-cookies" class="cookie-btn accept">Accept All</button>
           <button id="decline-cookies" class="cookie-btn decline">Essential Only</button>
@@ -95,23 +87,20 @@ const {
     <footer class="site-footer">
       <div class="footer-container">
         <div class="footer-disclosure">
-          <div class="disclosure-header">
-            <span class="disclosure-badge">DISCLOSURE</span>
-            <p class="disclosure-title">Financial Risk &amp; Regulatory Transparency</p>
-          </div>
+          <p class="disclosure-title">Financial Risk &amp; Regulatory Disclaimer</p>
           <p class="disclosure-text">
-            <strong>Not Financial Advice:</strong> All content, quantitative ratings, price metrics, and market commentary published on Trade Opportunities are compiled programmatically strictly for educational, analytical, and informational use. Trade Opportunities is not a registered broker-dealer, CTA, or financial adviser.
+            <strong>Not Financial Advice:</strong> All content, market data, and quantitative summaries published on this website are provided strictly for educational and informational purposes only. Trade Opportunities is not a broker-dealer or registered financial advisor and does not execute trades or hold client deposits.
           </p>
         </div>
 
         <div class="footer-meta">
-          <p>&copy; {new Date().getFullYear()} Trade Opportunities. Built for high-velocity algorithmic market intelligence.</p>
+          <p>&copy; {new Date().getFullYear()} Trade Opportunities. All rights reserved.</p>
           <div class="legal-links">
-            <a href="/about/">Methodology &amp; E-E-A-T</a>
+            <a href="/about">Methodology &amp; E-E-A-T</a>
             <span>&bull;</span>
-            <a href="/privacy/">Privacy Policy</a>
+            <a href="/privacy">Privacy Policy</a>
             <span>&bull;</span>
-            <a href="/terms/">Terms of Service</a>
+            <a href="/terms">Terms of Service</a>
             <span>&bull;</span>
             <a href="/rss.xml">RSS Feed</a>
           </div>
@@ -145,305 +134,194 @@ const {
 
 <style>
   :root {
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --bg-primary: #080b11;
-    --bg-surface: #0f141f;
-    --bg-surface-elevated: #151b29;
+    --bg-primary: #020617;
     --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(56, 189, 248, 0.3);
+    --text-muted: #94a3b8;
+    --border-color: #1e293b;
     --accent: #38bdf8;
-    --accent-glow: rgba(56, 189, 248, 0.15);
   }
-
   *, *::before, *::after {
     box-sizing: border-box;
   }
-
   html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
-    font-family: var(--font-sans);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-primary);
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.04) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(34, 197, 94, 0.03) 0px, transparent 50%);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
   }
-
-  /* Custom Sleek Scrollbars */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #080b11;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #1e293b;
-    border-radius: 4px;
-    border: 2px solid #080b11;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
-  }
-
   main {
     flex: 1;
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
   }
-
   .site-header {
-    position: sticky;
-    top: 46px; /* Sits right beneath MarketTicker */
-    z-index: 99;
-    border-bottom: 1px solid var(--border-subtle);
-    background: rgba(8, 11, 17, 0.85);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(8px);
     width: 100%;
-    transition: border-color 0.2s;
   }
-
   .nav-container {
-    max-width: 1240px;
+    max-width: 1100px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1.25rem;
+    padding: 1rem 1.25rem;
   }
-
   .brand-logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
     font-weight: 800;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: #fff;
     text-decoration: none;
     letter-spacing: -0.02em;
   }
-
-  .logo-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    background: linear-gradient(135deg, #38bdf8, #2563eb);
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-  }
-
   .brand-logo span {
     color: var(--accent);
-    font-weight: 700;
   }
-
   .nav-links {
     display: flex;
     gap: 1.5rem;
-    align-items: center;
     flex-wrap: wrap;
   }
-
   .nav-links a {
-    color: var(--text-secondary);
+    color: var(--text-muted);
     text-decoration: none;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    padding: 0.35rem 0.65rem;
-    border-radius: 6px;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 0.9rem;
+    transition: color 0.2s;
   }
-
   .nav-links a:hover {
     color: #fff;
-    background: rgba(255, 255, 255, 0.04);
   }
-
   .site-footer {
-    border-top: 1px solid var(--border-subtle);
-    background: #06080d;
-    padding: 3rem 1.25rem 2.5rem 1.25rem;
-    margin-top: 4rem;
+    border-top: 1px solid var(--border-color);
+    background: #090d16;
+    padding: 2.5rem 1.25rem;
+    margin-top: 3rem;
     width: 100%;
   }
-
   .footer-container {
-    max-width: 1240px;
+    max-width: 1100px;
     margin: 0 auto;
     width: 100%;
   }
-
   .footer-disclosure {
-    background: #0b0f17;
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
   }
-
-  .disclosure-header {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .disclosure-badge {
-    font-size: 0.625rem;
-    font-weight: 800;
-    font-family: var(--font-mono);
-    color: #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
-    border: 1px solid rgba(245, 158, 11, 0.2);
-  }
-
   .disclosure-title {
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #e2e8f0;
-    margin: 0;
+    margin: 0 0 0.4rem 0;
   }
-
   .disclosure-text {
-    font-size: 0.8125rem;
-    line-height: 1.55;
+    font-size: 0.8rem;
+    line-height: 1.45;
     color: #94a3b8;
     margin: 0;
   }
-
   .footer-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.8125rem;
-    color: var(--text-muted);
+    font-size: 0.85rem;
+    color: #64748b;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.75rem;
   }
-
   .legal-links {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.6rem;
     align-items: center;
     flex-wrap: wrap;
   }
-
   .legal-links a {
-    color: #94a3b8;
+    color: #64748b;
     text-decoration: none;
-    transition: color 0.15s;
   }
-
   .legal-links a:hover {
-    color: var(--accent);
+    color: var(--text-primary);
   }
 
   .cookie-banner {
     position: fixed;
-    bottom: 1.25rem;
-    left: 1.25rem;
-    right: 1.25rem;
-    max-width: 480px;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    max-width: 500px;
     margin: 0 auto;
-    background: rgba(15, 20, 31, 0.95);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    border-radius: 10px;
-    padding: 1.15rem 1.35rem;
+    background: #0b0e14;
+    border: 1px solid #1e2638;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
     z-index: 9999;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
   }
-
   .cookie-banner.hidden {
     display: none;
   }
-
   .cookie-content {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.75rem;
   }
-
   .cookie-content p {
     font-size: 0.8125rem;
-    color: #cbd5e1;
-    line-height: 1.45;
+    color: var(--text-muted);
+    line-height: 1.4;
     margin: 0;
   }
-
   .cookie-content a {
     color: var(--accent);
     text-decoration: underline;
   }
-
   .cookie-actions {
     display: flex;
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
-
   .cookie-btn {
-    padding: 0.45rem 0.95rem;
-    border-radius: 6px;
+    padding: 0.4rem 0.85rem;
+    border-radius: 4px;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: all 0.2s;
+    transition: opacity 0.2s;
   }
-
   .cookie-btn.accept {
     background: #2563eb;
     color: #fff;
-    box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
   }
-
-  .cookie-btn.accept:hover {
-    background: #1d4ed8;
-  }
-
   .cookie-btn.decline {
-    background: rgba(255, 255, 255, 0.06);
+    background: #1e2638;
     color: #94a3b8;
-    border: 1px solid var(--border-subtle);
   }
-
-  .cookie-btn.decline:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
+  .cookie-btn:hover {
+    opacity: 0.9;
   }
 
   @media (max-width: 640px) {
-    .site-header {
-      top: 46px;
-    }
     .nav-container {
       flex-direction: column;
       gap: 0.75rem;
       align-items: flex-start;
     }
     .nav-links {
-      gap: 0.75rem;
-      font-size: 0.75rem;
+      gap: 1rem;
     }
   }
 </style>
