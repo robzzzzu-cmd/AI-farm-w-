@@ -675,6 +675,62 @@ const websiteSchema = {
       .stream-body table { display: none; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
 
+      /* Screener Portal Hub */
+      .screener-portal-section {
+        margin-bottom: 2.5rem;
+      }
+      .screener-portal-card {
+        background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-elevated) 100%);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: var(--card-shadow);
+      }
+      .portal-badge {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: var(--brand-accent);
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+      .portal-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        color: var(--text-primary);
+        margin-bottom: 0.4rem;
+      }
+      .portal-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        max-width: 680px;
+      }
+      .portal-launch-btn {
+        background: var(--brand-accent);
+        color: #ffffff !important;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+      }
+      .portal-launch-btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+      }
+
       /* Table Card */
       .table-card {
         background: var(--bg-surface);
@@ -939,6 +995,17 @@ const websiteSchema = {
         .newsletter-box { flex-direction: column; align-items: flex-start; }
       }
 
+      @media (max-width: 768px) {
+        .screener-portal-card {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .portal-launch-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
       @media (max-width: 560px) {
         .app-wrapper { padding: 0 0.85rem; }
         .nav-inner { flex-direction: column; align-items: stretch; padding: 0.6rem 0; }
@@ -995,7 +1062,7 @@ const websiteSchema = {
           </a>
           <a href="#alerts" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span>Alerts</span>
+            <span>Newsletter</span>
           </a>
           <a href="/about" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
@@ -1004,9 +1071,9 @@ const websiteSchema = {
         </nav>
 
         <div class="sidebar-promo-card">
-          <div class="sidebar-promo-title">Institutional Tier</div>
-          <p class="sidebar-promo-desc">Direct anomaly alerts, volume divergence logs, and quantitative filters.</p>
-          <a href="#alerts" class="sidebar-promo-btn">Configure Feeds</a>
+          <div class="sidebar-promo-title">Weekly Market Wrap</div>
+          <p class="sidebar-promo-desc">Subscribe for free to our weekly newsletter covering top breakouts, volume surges, and key market setups.</p>
+          <a href="#alerts" class="sidebar-promo-btn">Subscribe for Free</a>
         </div>
       </div>
     </aside>
@@ -1061,13 +1128,13 @@ const websiteSchema = {
             </svg>
           </button>
 
-          <a href="#alerts" class="alerts-action-btn" title="View Market Alerts">
+          <a href="#alerts" class="alerts-action-btn" title="Subscribe to Newsletter">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
-            <span>Alerts</span>
-            <span class="alerts-badge-num">3</span>
+            <span>Newsletter</span>
+            <span class="alerts-badge-num">Free</span>
           </a>
         </div>
       </div>
@@ -1178,22 +1245,23 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Live Stock Screener Hub Gateway -->
-      <section id="screener" style="margin-bottom: 2.5rem;">
-        <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem; padding: 1.5rem; background: linear-gradient(180deg, var(--bg-surface-elevated) 0%, var(--bg-surface) 100%); border: 1px solid var(--border-subtle); border-radius: 6px;">
-          <div style="max-width: 720px;">
-            <div style="font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; color: var(--brand-accent); margin-bottom: 0.35rem;">QUANTITATIVE MARKET RADAR</div>
-            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.35rem;">Live Stock Screener &bull; Real-Time Opportunities</h3>
-            <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
-              High-frequency multi-tier screener tracking Penny Stocks (&lt;$5), Small &amp; Mid Cap ($300M–$10B), and Large Cap (&gt;$10B) with live RVOL metrics, momentum rankings, and sector filters.
+      <!-- Dedicated Live Stock Screener Portal Hub -->
+      <section id="screener" class="screener-portal-section">
+        <div class="screener-portal-card">
+          <div class="portal-info">
+            <span class="portal-badge">QUANTITATIVE MARKET RADAR</span>
+            <h2 class="portal-title">Live Stock Screener &bull; Real-Time Opportunities</h2>
+            <p class="portal-desc">
+              Access real-time breakout monitoring, relative volume (RVOL) spikes, momentum scores, and conviction ratings across Penny Stocks (&lt;$5), Small/Mid Caps, and Large Cap institutions.
             </p>
           </div>
-          <div>
-            <a href="/screener" class="tool-btn" style="background: var(--brand-accent); color: #ffffff; border: none; font-size: 0.85rem; font-weight: 700; padding: 0.75rem 1.4rem; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
-              <span>Open Live Screener</span>
-              <span>&rarr;</span>
-            </a>
-          </div>
+          <a href="/screener" class="portal-launch-btn">
+            <span>Open Dedicated Terminal Screener</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
         </div>
       </section>
 
@@ -1312,18 +1380,18 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Newsletter / Alerts Section -->
+      <!-- Newsletter / Free Weekly Subscription Section -->
       <div class="newsletter-box" id="alerts">
         <div>
-          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Momentum Anomaly Alerts</h3>
-          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Direct email dispatches when unusual price expansion and volume clustering occur.</p>
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Subscribe Free to Our Weekly Newsletter</h3>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Get weekly market wraps, top breakout recaps, and institutional volume flows delivered directly to your inbox for free.</p>
         </div>
         <form id="resend-subscribe-form" class="newsletter-input-group">
           <input 
             type="email" 
             name="email" 
             id="subscriber-email" 
-            placeholder="analyst@firm.com" 
+            placeholder="your.email@domain.com" 
             class="newsletter-input" 
             required 
           />
@@ -1333,7 +1401,7 @@ const websiteSchema = {
             class="tool-btn" 
             style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;"
           >
-            Activate Alerts
+            Subscribe for Free
           </button>
         </form>
       </div>
@@ -1647,7 +1715,7 @@ const websiteSchema = {
         });
       }
 
-      // 6. Subscription Alerts Handler
+      // 6. Subscription Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
@@ -1657,7 +1725,7 @@ const websiteSchema = {
           if (!emailInput) return;
 
           subscribeBtn.disabled = true;
-          subscribeBtn.textContent = 'Activating...';
+          subscribeBtn.textContent = 'Subscribing...';
 
           try {
             const res = await fetch('/api/subscribe', {
@@ -1667,7 +1735,7 @@ const websiteSchema = {
             });
 
             if (res.ok) {
-              subscribeBtn.textContent = 'Alerts Active';
+              subscribeBtn.textContent = 'Subscribed!';
               emailInput.value = '';
             } else {
               subscribeBtn.textContent = 'Retry';
