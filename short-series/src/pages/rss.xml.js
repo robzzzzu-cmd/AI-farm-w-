@@ -9,7 +9,7 @@ export async function GET(context) {
   const siteUrl = (context.site ? context.site.href : 'https://tradeopportunities.trade').replace(/\/$/, '');
 
   const items = blogPosts.map((post) => {
-    const slug = post.id.replace(/\.md$/, '');
+    const slug = post.id.replace(/\.md$/, '').toLowerCase();
     const data = post.data || {};
 
     const rawDate = data.pubDate || data.date || Date.now();
