@@ -119,7 +119,7 @@ const websiteSchema = {
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 
@@ -127,45 +127,39 @@ const websiteSchema = {
       :root {
         --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         --font-mono: 'JetBrains Mono', monospace;
-        --bg-page: #080b11;
-        --bg-surface: #0f141f;
-        --bg-surface-elevated: #141a27;
-        --bg-card-glass: rgba(15, 20, 31, 0.75);
-        --border-subtle: rgba(255, 255, 255, 0.08);
-        --border-strong: rgba(255, 255, 255, 0.15);
-        --border-glow: rgba(56, 189, 248, 0.3);
-        --text-primary: #f8fafc;
+        --bg-page: #0b0e14;
+        --bg-surface: #111622;
+        --bg-surface-elevated: #161d2d;
+        --border-subtle: #1e2638;
+        --border-strong: #2d374d;
+        --text-primary: #f1f5f9;
         --text-secondary: #94a3b8;
         --text-muted: #64748b;
-        --brand-accent: #38bdf8;
-        --brand-blue: #2563eb;
-        --gain-color: #10b981;
-        --gain-bg: rgba(16, 185, 129, 0.12);
+        --brand-accent: #3b82f6;
+        --gain-color: #22c55e;
+        --gain-bg: rgba(34, 197, 94, 0.1);
         --loss-color: #ef4444;
-        --loss-bg: rgba(239, 68, 68, 0.12);
-        --card-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
-        --sidebar-width: 280px;
-        --nav-height: 56px;
+        --loss-bg: rgba(239, 68, 68, 0.1);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+        --sidebar-width: 270px;
+        --nav-height: 58px;
       }
 
       [data-theme="light"] {
         --bg-page: #f8fafc;
         --bg-surface: #ffffff;
         --bg-surface-elevated: #f1f5f9;
-        --bg-card-glass: rgba(255, 255, 255, 0.9);
         --border-subtle: #e2e8f0;
         --border-strong: #cbd5e1;
-        --border-glow: rgba(37, 99, 235, 0.2);
         --text-primary: #0f172a;
         --text-secondary: #475569;
         --text-muted: #64748b;
         --brand-accent: #2563eb;
-        --brand-blue: #1d4ed8;
-        --gain-color: #059669;
-        --gain-bg: rgba(5, 150, 105, 0.1);
+        --gain-color: #16a34a;
+        --gain-bg: rgba(22, 163, 74, 0.1);
         --loss-color: #dc2626;
         --loss-bg: rgba(220, 38, 38, 0.1);
-        --card-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       }
 
       *, *::before, *::after { 
@@ -179,7 +173,7 @@ const websiteSchema = {
       }
 
       section[id], div[id] {
-        scroll-margin-top: calc(var(--nav-height) + 52px);
+        scroll-margin-top: calc(var(--nav-height) + 48px);
       }
 
       body {
@@ -188,15 +182,11 @@ const websiteSchema = {
         overflow-x: hidden;
         font-family: var(--font-sans);
         background-color: var(--bg-page);
-        background-image: 
-          radial-gradient(at 15% 10%, rgba(56, 189, 248, 0.03) 0px, transparent 40%),
-          radial-gradient(at 85% 20%, rgba(34, 197, 94, 0.02) 0px, transparent 40%);
         color: var(--text-primary);
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
         -webkit-text-size-adjust: 100%;
-        transition: background-color 0.25s ease, color 0.25s ease;
+        transition: background-color 0.2s ease, color 0.2s ease;
       }
 
       .app-wrapper {
@@ -211,8 +201,8 @@ const websiteSchema = {
       .sidebar-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(6px);
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
         z-index: 1000;
         opacity: 0;
         visibility: hidden;
@@ -235,8 +225,8 @@ const websiteSchema = {
         display: flex;
         flex-direction: column;
         transform: translateX(-100%);
-        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 10px 0 35px rgba(0, 0, 0, 0.55);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45);
         overflow-y: auto;
       }
       .side-dashboard.open {
@@ -247,13 +237,13 @@ const websiteSchema = {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1.25rem 1.15rem;
+        padding: 1.25rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
       }
       .sidebar-brand {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.5rem;
         font-size: 0.875rem;
         font-weight: 800;
         letter-spacing: -0.01em;
@@ -263,7 +253,7 @@ const websiteSchema = {
         background: transparent;
         border: none;
         color: var(--text-muted);
-        font-size: 1.35rem;
+        font-size: 1.25rem;
         cursor: pointer;
         padding: 0.25rem 0.5rem;
         border-radius: 4px;
@@ -276,35 +266,35 @@ const websiteSchema = {
 
       .sidebar-body {
         flex: 1;
-        padding: 1.15rem 0.85rem;
+        padding: 1rem 0.75rem;
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
       }
       .sidebar-group-label {
         font-size: 0.65rem;
-        font-weight: 800;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         color: var(--text-muted);
-        padding: 0 0.6rem;
+        padding: 0 0.5rem;
       }
       .sidebar-nav {
         display: flex;
         flex-direction: column;
-        gap: 0.3rem;
+        gap: 0.25rem;
       }
       .sidebar-nav-item {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.65rem 0.85rem;
+        padding: 0.6rem 0.75rem;
         border-radius: 6px;
         font-size: 0.8125rem;
-        font-weight: 600;
+        font-weight: 500;
         color: var(--text-secondary);
         text-decoration: none;
-        transition: all 0.15s ease;
+        transition: background 0.15s ease, color 0.15s ease;
       }
       .sidebar-nav-item:hover, .sidebar-nav-item.active {
         background: var(--bg-surface-elevated);
@@ -324,36 +314,35 @@ const websiteSchema = {
       }
 
       .sidebar-promo-card {
-        background: linear-gradient(180deg, var(--bg-surface-elevated) 0%, rgba(20, 26, 39, 0.4) 100%);
+        background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1rem;
+        border-radius: 6px;
+        padding: 0.85rem;
         margin-top: auto;
         margin-bottom: 0.5rem;
       }
       .sidebar-promo-title {
-        font-size: 0.78125rem;
-        font-weight: 800;
+        font-size: 0.75rem;
+        font-weight: 700;
         color: var(--text-primary);
         margin-bottom: 0.25rem;
       }
       .sidebar-promo-desc {
-        font-size: 0.725rem;
+        font-size: 0.7rem;
         color: var(--text-secondary);
-        line-height: 1.45;
-        margin-bottom: 0.75rem;
+        line-height: 1.4;
+        margin-bottom: 0.65rem;
       }
       .sidebar-promo-btn {
         display: block;
         text-align: center;
-        background: #2563eb;
+        background: var(--brand-accent);
         color: #fff !important;
-        font-size: 0.725rem;
-        font-weight: 700;
-        padding: 0.45rem 0.65rem;
-        border-radius: 5px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.4rem 0.6rem;
+        border-radius: 4px;
         text-decoration: none;
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
       }
 
       /* Top Sticky Navigation */
@@ -361,9 +350,7 @@ const websiteSchema = {
         position: sticky;
         top: 0;
         z-index: 100;
-        background: rgba(8, 11, 17, 0.85);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
+        background: var(--bg-page);
         border-bottom: 1px solid var(--border-subtle);
         width: 100%;
       }
@@ -417,11 +404,10 @@ const websiteSchema = {
         white-space: nowrap;
       }
       .logo-glyph {
-        width: 10px;
-        height: 10px;
+        width: 14px;
+        height: 14px;
         background: var(--brand-accent);
-        border-radius: 2px;
-        box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+        border-radius: 3px;
         flex-shrink: 0;
       }
       .nav-links {
@@ -431,17 +417,12 @@ const websiteSchema = {
       }
       .nav-links a {
         text-decoration: none;
-        font-size: 0.8125rem;
-        font-weight: 600;
+        font-size: 0.85rem;
+        font-weight: 500;
         color: var(--text-secondary);
-        padding: 0.3rem 0.5rem;
-        border-radius: 5px;
-        transition: all 0.15s ease;
+        transition: color 0.15s ease;
       }
-      .nav-links a:hover, .nav-links a.active { 
-        color: var(--text-primary);
-        background: rgba(255, 255, 255, 0.04);
-      }
+      .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
 
       .nav-actions {
         display: flex;
@@ -455,7 +436,7 @@ const websiteSchema = {
       }
       .search-icon {
         position: absolute;
-        left: 0.75rem;
+        left: 0.65rem;
         width: 13px;
         height: 13px;
         color: var(--text-muted);
@@ -466,19 +447,15 @@ const websiteSchema = {
         border: 1px solid var(--border-subtle);
         color: var(--text-primary);
         font-family: inherit;
-        font-size: 0.78125rem;
-        padding: 0.4rem 0.65rem 0.4rem 2rem;
+        font-size: 0.8125rem;
+        padding: 0.35rem 0.65rem 0.35rem 1.85rem;
         border-radius: 6px;
         outline: none;
         width: 180px;
         box-sizing: border-box;
-        transition: all 0.2s ease;
+        transition: border-color 0.15s ease;
       }
-      .search-input:focus { 
-        border-color: var(--brand-accent);
-        box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
-        width: 210px;
-      }
+      .search-input:focus { border-color: var(--brand-accent); }
 
       .icon-action-btn {
         background: var(--bg-surface);
@@ -504,13 +481,13 @@ const websiteSchema = {
         color: var(--text-secondary);
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        padding: 0.35rem 0.7rem;
+        gap: 0.35rem;
+        padding: 0.35rem 0.65rem;
         height: 32px;
         border-radius: 6px;
         text-decoration: none;
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 600;
         transition: all 0.15s ease;
       }
       .alerts-action-btn:hover {
@@ -518,100 +495,78 @@ const websiteSchema = {
         border-color: var(--brand-accent);
       }
       .alerts-badge-num {
-        background: #2563eb;
+        background: var(--brand-accent);
         color: #fff;
         font-size: 0.65rem;
-        font-weight: 800;
-        padding: 0.1rem 0.4rem;
+        font-weight: 700;
+        padding: 0.1rem 0.35rem;
         border-radius: 10px;
       }
 
       .section-label {
-        font-size: 0.75rem;
-        font-weight: 800;
+        font-size: 0.78125rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.05em;
         color: var(--text-muted);
-        margin-bottom: 1.15rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .section-label::before {
-        content: '';
-        display: inline-block;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--brand-accent);
+        margin-bottom: 1rem;
       }
 
       .grid-main {
         display: grid;
-        grid-template-columns: minmax(0, 1.85fr) minmax(0, 1.15fr);
+        grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
         gap: 1.5rem;
-        margin-bottom: 3rem;
+        margin-bottom: 2.5rem;
         align-items: start;
       }
 
       .card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 10px;
-        padding: 1.45rem;
+        border-radius: 6px;
+        padding: 1.35rem;
         box-shadow: var(--card-shadow);
         box-sizing: border-box;
         width: 100%;
         min-width: 0;
-        position: relative;
-        transition: border-color 0.2s ease, transform 0.2s ease;
       }
-      .card:hover {
-        border-color: rgba(56, 189, 248, 0.25);
-      }
-
       .card-meta {
         display: flex;
         align-items: center;
-        gap: 0.65rem;
+        gap: 0.6rem;
         font-size: 0.75rem;
         color: var(--text-muted);
-        margin-bottom: 0.85rem;
+        margin-bottom: 0.75rem;
       }
       .pill {
         font-size: 0.6875rem;
         font-weight: 700;
         text-transform: uppercase;
-        padding: 0.18rem 0.55rem;
-        border-radius: 4px;
+        padding: 0.15rem 0.45rem;
+        border-radius: 3px;
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
         color: var(--text-secondary);
       }
-      .pill-gain { 
-        background: var(--gain-bg); 
-        color: var(--gain-color); 
-        border: 1px solid rgba(16, 185, 129, 0.25); 
-      }
+      .pill-gain { background: var(--gain-bg); color: var(--gain-color); border-color: transparent; }
       
       .card-title {
-        font-size: 1.35rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.95rem;
-        line-height: 1.3;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 0.85rem;
       }
 
       .card-body {
-        font-size: 0.9rem;
+        font-size: 0.885rem;
         color: var(--text-secondary);
-        line-height: 1.68;
+        line-height: 1.65;
         word-break: break-word;
       }
-      .card-body p { margin-bottom: 0.95rem; }
+      .card-body p { margin-bottom: 0.9rem; }
       .card-body a { color: var(--brand-accent); text-decoration: none; font-weight: 600; }
       .card-body a:hover { text-decoration: underline; }
-      .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 1.35rem 0 0.65rem 0; }
+      .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 1.25rem 0 0.5rem 0; }
       
       .card-body table, .compact-table {
         display: block;
@@ -620,33 +575,31 @@ const websiteSchema = {
         overflow-x: auto;
         border-collapse: collapse;
         font-size: 0.78rem;
-        margin: 0.85rem 0 0.65rem 0;
+        margin: 0.75rem 0 0.5rem 0;
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
-        border-radius: 6px;
+        border-radius: 4px;
       }
       .card-body th, .compact-table th {
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(255, 255, 255, 0.03);
         color: var(--text-muted);
         text-align: left;
-        padding: 0.6rem 0.75rem;
+        padding: 0.5rem 0.65rem;
         border-bottom: 1px solid var(--border-subtle);
-        font-weight: 700;
+        font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.6875rem;
+        font-size: 0.68rem;
         white-space: nowrap;
       }
       .card-body td, .compact-table td {
-        padding: 0.6rem 0.75rem;
+        padding: 0.5rem 0.65rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
         white-space: nowrap;
-        font-variant-numeric: tabular-nums;
       }
       .card-body code, .compact-table code {
         font-family: var(--font-mono);
         color: var(--gain-color);
-        font-weight: 700;
       }
 
       tr.table-row-hidden {
@@ -658,14 +611,14 @@ const websiteSchema = {
         border: 1px solid var(--border-subtle);
         color: var(--brand-accent);
         font-size: 0.75rem;
-        font-weight: 700;
-        padding: 0.4rem 0.85rem;
-        border-radius: 5px;
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        margin-bottom: 1.15rem;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
         transition: all 0.15s ease;
       }
       .toggle-table-btn:hover {
@@ -679,114 +632,94 @@ const websiteSchema = {
         justify-content: center;
         text-align: center;
         width: 100%;
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        background: var(--brand-accent);
         color: #ffffff !important;
         text-decoration: none;
-        font-weight: 700;
+        font-weight: 600;
         font-size: 0.8125rem;
-        padding: 0.75rem 1rem;
-        border-radius: 6px;
-        margin-top: 1.25rem;
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
-        transition: opacity 0.15s, transform 0.15s;
+        padding: 0.65rem 0.85rem;
+        border-radius: 5px;
+        margin-top: 1rem;
+        transition: opacity 0.15s;
       }
-      .card-action-btn:hover { 
-        opacity: 0.95;
-        transform: translateY(-1px);
-      }
+      .card-action-btn:hover { opacity: 0.9; }
 
       .ticker-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.45rem;
-        margin-top: 0.95rem;
-        padding-top: 0.95rem;
+        gap: 0.4rem;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
         border-top: 1px solid var(--border-subtle);
       }
       .ticker-pill {
         font-family: var(--font-mono);
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 600;
         color: var(--brand-accent);
         background: var(--bg-surface-elevated);
-        padding: 0.2rem 0.5rem;
-        border-radius: 4px;
+        padding: 0.15rem 0.45rem;
+        border-radius: 3px;
         border: 1px solid var(--border-subtle);
         text-decoration: none;
-        transition: all 0.15s ease;
-      }
-      .ticker-pill:hover {
-        border-color: var(--brand-accent);
-        background: rgba(56, 189, 248, 0.08);
       }
 
-      .stream-list { display: flex; flex-direction: column; gap: 0.85rem; }
+      .stream-list { display: flex; flex-direction: column; gap: 0.75rem; }
       .stream-item {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1.15rem;
-        transition: border-color 0.2s ease;
-      }
-      .stream-item:hover {
-        border-color: rgba(56, 189, 248, 0.2);
+        border-radius: 6px;
+        padding: 1.1rem;
       }
       .stream-title { 
-        font-size: 0.95rem; 
-        font-weight: 700; 
-        margin-bottom: 0.45rem; 
-        line-height: 1.35;
+        font-size: 0.875rem; 
+        font-weight: 600; 
+        margin-bottom: 0.4rem; 
       }
       .stream-body {
-        font-size: 0.825rem;
+        font-size: 0.8125rem;
         color: var(--text-secondary);
-        line-height: 1.55;
-        max-height: 130px;
+        line-height: 1.5;
+        max-height: 140px;
         overflow: hidden;
       }
       .stream-body table { display: none; }
-      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.4rem; }
+      .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
 
-      /* Opportunities Table */
+      /* Table Card */
       .table-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
+        border-radius: 6px;
         overflow-x: auto;
-        margin-bottom: 3rem;
-        box-shadow: var(--card-shadow);
+        margin-bottom: 2.5rem;
       }
       .data-table {
         width: 100%;
-        min-width: 580px;
+        min-width: 540px;
         border-collapse: collapse;
         font-size: 0.8125rem;
         text-align: left;
       }
       .data-table th {
-        background: #0b0f17;
+        background: var(--bg-surface-elevated);
         color: var(--text-muted);
-        font-size: 0.7rem;
-        font-weight: 700;
+        font-size: 0.725rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-        padding: 0.75rem 1rem;
+        padding: 0.65rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
         white-space: nowrap;
       }
       .data-table td {
-        padding: 0.85rem 1rem;
+        padding: 0.75rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
         white-space: nowrap;
-        font-variant-numeric: tabular-nums;
       }
-      .data-table tr:hover td {
-        background: rgba(255, 255, 255, 0.015);
-      }
-      .table-symbol { font-weight: 800; color: var(--text-primary); font-family: var(--font-mono); }
-      .table-gain { color: var(--gain-color); font-weight: 700; font-family: var(--font-mono); }
-      .table-loss { color: var(--loss-color); font-weight: 700; font-family: var(--font-mono); }
+      .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
+      .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
+      .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
       .table-vol { font-family: var(--font-mono); color: var(--text-secondary); }
 
       /* Section 03 Tools Split Layout */
@@ -800,8 +733,8 @@ const websiteSchema = {
       .sector-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1.25rem;
+        border-radius: 6px;
+        padding: 1.15rem;
         box-shadow: var(--card-shadow);
         box-sizing: border-box;
         display: flex;
@@ -812,38 +745,38 @@ const websiteSchema = {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.85rem;
-        padding-bottom: 0.6rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
         border-bottom: 1px solid var(--border-subtle);
       }
       .sector-title {
-        font-size: 0.78125rem;
-        font-weight: 800;
+        font-size: 0.8125rem;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--text-primary);
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
       }
       .sector-context-note {
-        font-size: 0.6875rem;
+        font-size: 0.7rem;
         color: var(--text-muted);
         font-family: var(--font-mono);
       }
       .sector-table {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        margin: 0.5rem 0;
+        gap: 0.65rem;
+        margin: 0.4rem 0;
       }
       .sector-row {
         display: grid;
         grid-template-columns: 135px 1fr 65px;
         align-items: center;
         gap: 0.75rem;
-        font-size: 0.8125rem;
+        font-size: 0.8rem;
       }
       .sector-name {
         color: var(--text-secondary);
-        font-weight: 600;
+        font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -857,28 +790,22 @@ const websiteSchema = {
       .sector-bar-fill {
         height: 100%;
         border-radius: 3px;
-        transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: width 0.5s ease-out;
       }
-      .sector-bar-fill.pos { 
-        background: linear-gradient(90deg, #10b981, #059669); 
-        box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
-      }
-      .sector-bar-fill.neg { 
-        background: linear-gradient(90deg, #ef4444, #dc2626); 
-        box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
-      }
+      .sector-bar-fill.pos { background: var(--gain-color); }
+      .sector-bar-fill.neg { background: var(--loss-color); }
       .sector-val {
         text-align: right;
         font-family: var(--font-mono);
-        font-weight: 700;
+        font-weight: 600;
         font-size: 0.78125rem;
       }
       .val-pos { color: var(--gain-color); }
       .val-neg { color: var(--loss-color); }
 
       .sector-footer-note {
-        margin-top: 0.85rem;
-        padding-top: 0.6rem;
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
         border-top: 1px solid var(--border-subtle);
         display: flex;
         justify-content: space-between;
@@ -888,7 +815,7 @@ const websiteSchema = {
       .sector-footer-note a {
         color: var(--brand-accent);
         text-decoration: none;
-        font-weight: 700;
+        font-weight: 600;
       }
       .sector-footer-note a:hover { text-decoration: underline; }
 
@@ -901,59 +828,46 @@ const websiteSchema = {
       .tool-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1.25rem;
+        border-radius: 6px;
+        padding: 1.15rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: border-color 0.2s ease, transform 0.2s ease;
-      }
-      .tool-card:hover {
-        border-color: rgba(56, 189, 248, 0.25);
-        transform: translateY(-2px);
       }
       .tool-badge {
         font-size: 0.6875rem;
-        font-weight: 800;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
         color: var(--brand-accent);
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.35rem;
       }
-      .tool-name { font-size: 1rem; font-weight: 800; margin-bottom: 0.35rem; }
-      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.15rem; line-height: 1.5; }
+      .tool-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+      .tool-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.45; }
       .tool-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         font-size: 0.78125rem;
-        font-weight: 700;
+        font-weight: 600;
         text-decoration: none;
         color: var(--text-primary);
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
-        padding: 0.55rem 0.85rem;
-        border-radius: 6px;
-        transition: all 0.15s ease;
+        padding: 0.45rem 0.75rem;
+        border-radius: 4px;
       }
-      .tool-btn:hover { 
-        background: #2563eb; 
-        color: #fff; 
-        border-color: #2563eb; 
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-      }
+      .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
 
       .newsletter-box {
         background: linear-gradient(180deg, var(--bg-surface-elevated) 0%, var(--bg-surface) 100%);
         border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1.75rem;
-        margin-bottom: 3rem;
+        border-radius: 6px;
+        padding: 1.5rem;
+        margin-bottom: 2.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: 1.5rem;
-        box-shadow: var(--card-shadow);
       }
       .newsletter-input-group {
         display: flex;
@@ -964,13 +878,9 @@ const websiteSchema = {
         border: 1px solid var(--border-strong);
         color: var(--text-primary);
         font-size: 0.8125rem;
-        padding: 0.55rem 0.85rem;
-        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
         outline: none;
-        transition: border-color 0.15s;
-      }
-      .newsletter-input:focus {
-        border-color: var(--brand-accent);
       }
 
       footer {
@@ -983,8 +893,8 @@ const websiteSchema = {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-left: 3px solid var(--brand-accent);
-        border-radius: 6px;
-        padding: 1.15rem;
+        border-radius: 4px;
+        padding: 1rem;
         margin-bottom: 1.5rem;
         line-height: 1.6;
       }
@@ -1004,6 +914,36 @@ const websiteSchema = {
       .footer-links a { color: var(--text-secondary); text-decoration: none; }
       .footer-links a:hover { color: var(--text-primary); }
 
+      .cookie-banner {
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        max-width: 500px;
+        margin: 0 auto;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        z-index: 9999;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      }
+      .cookie-banner.hidden { display: none; }
+      .cookie-content { display: flex; flex-direction: column; gap: 0.75rem; }
+      .cookie-content p { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.4; }
+      .cookie-content a { color: var(--brand-accent); text-decoration: underline; }
+      .cookie-actions { display: flex; gap: 0.5rem; }
+      .cookie-btn {
+        padding: 0.4rem 0.85rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+      }
+      .cookie-btn.accept { background: var(--brand-accent); color: #fff; }
+      .cookie-btn.decline { background: var(--bg-surface-elevated); color: var(--text-secondary); }
+
       @media (max-width: 900px) {
         .grid-main, .tools-split-grid { grid-template-columns: minmax(0, 1fr); }
         .nav-links { display: none; }
@@ -1016,10 +956,10 @@ const websiteSchema = {
         .brand-group { width: 100%; justify-content: space-between; }
         .nav-actions { width: 100%; justify-content: space-between; }
         .search-box, .search-input { width: 100%; }
-        .newsletter-box { padding: 1.25rem; }
+        .newsletter-box { padding: 1.15rem; }
         .newsletter-input-group { flex-direction: column; width: 100%; }
         .newsletter-input, #subscribe-btn { width: 100%; }
-        .card { padding: 1.1rem; }
+        .card { padding: 1rem; }
       }
     </style>
   </head>
@@ -1068,7 +1008,7 @@ const websiteSchema = {
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
             <span>Alerts</span>
           </a>
-          <a href="/about/" class="sidebar-nav-item">
+          <a href="/about" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
             <span>Methodology</span>
           </a>
@@ -1145,12 +1085,12 @@ const websiteSchema = {
     </nav>
 
     <div class="app-wrapper">
-      <div class="ad-leaderboard" style="margin: 1.5rem auto 1.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 0.75rem; text-align: center;">
+      <div class="ad-leaderboard" style="margin: 1.5rem auto 1.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
         <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Sponsored Quantitative Data Node</span>
         <div style="width: 100%; margin: auto; position: relative;">
           <iframe 
             data-aa="2453491" 
-            src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=0f141f" 
+            src="//acceptable.a-ads.com/2453491/?size=Adaptive&background_color=111622" 
             style="border: 0; padding: 0; width: 100%; max-width: 728px; height: 90px; overflow: hidden; display: block; margin: auto;"
             loading="lazy">
           </iframe>
@@ -1165,7 +1105,7 @@ const websiteSchema = {
             <article class="card dispatch-card">
               <div class="card-meta">
                 <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Equities'}</span>
-                <span style="font-family: var(--font-mono); font-size: 0.725rem;">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
+                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
               </div>
               
               <h2 class="card-title">
@@ -1245,9 +1185,9 @@ const websiteSchema = {
                 <div class="stream-body">
                   <post.Content />
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.65rem; flex-wrap: wrap;">
+                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap;">
                   <a href={`/blog/${post.slug}/`} 
-                     style="font-size: 0.75rem; font-weight: 700; color: var(--brand-accent); text-decoration: none;">
+                     style="font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none;">
                     Read Full Report &rarr;
                   </a>
                   <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
@@ -1264,7 +1204,7 @@ const websiteSchema = {
       </section>
 
       <!-- Dedicated Live Stock Screener Area -->
-      <section id="screener" style="margin-bottom: 3rem;">
+      <section id="screener" style="margin-bottom: 2.5rem;">
         <LiveStockScreener />
       </section>
 
@@ -1292,7 +1232,7 @@ const websiteSchema = {
                       <td class="table-gain">+{parseFloat(stock.change_percentage).toFixed(2)}%</td>
                       <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
                       <td>
-                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 700;">
+                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
                           Analyze Setup &rarr;
                         </a>
                       </td>
@@ -1305,7 +1245,7 @@ const websiteSchema = {
                       <td class="table-loss">{parseFloat(stock.change_percentage).toFixed(2)}%</td>
                       <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
                       <td>
-                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 700;">
+                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
                           Analyze Setup &rarr;
                         </a>
                       </td>
@@ -1325,31 +1265,31 @@ const websiteSchema = {
       </section>
 
       <!-- Section 03: Tools (Spot Swap Utility + Live Dynamic Sector Performance) -->
-      <section id="tools" style="margin-bottom: 3rem;">
+      <section id="tools" style="margin-bottom: 2.5rem;">
         <div class="section-label">03 // Tools &bull; Analytical Utilities</div>
         <div class="tools-split-grid">
           <!-- Left: Spot Swap Utility -->
-          <div class="card" style="padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="card" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <div style="font-size: 0.875rem; font-weight: 800; margin-bottom: 0.35rem; color: var(--text-primary);">
+              <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
                 Third-Party Non-Custodial Spot Utility
               </div>
-              <p style="font-size: 0.78125rem; color: var(--text-secondary); margin-bottom: 0.95rem; line-height: 1.45;">
+              <p style="font-size: 0.78125rem; color: var(--text-secondary); margin-bottom: 0.85rem; line-height: 1.45;">
                 Trade Opportunities does not operate a broker or execution desk. Direct decentralized swap routing utility.
               </p>
               <iframe
                 id="changenow-widget"
-                src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=0f141f&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=38bdf8&to=eth"
-                style="height: 356px; width: 100%; max-width: 100%; border: none; border-radius: 8px;"
+                src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=111622&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=3b82f6&to=eth"
+                style="height: 356px; width: 100%; max-width: 100%; border: none; border-radius: 6px;"
                 loading="lazy">
               </iframe>
             </div>
-            <div style="margin-top: 0.85rem; padding-top: 0.6rem; border-top: 1px solid var(--border-subtle); font-size: 0.725rem; color: var(--text-muted);">
+            <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle); font-size: 0.75rem; color: var(--text-muted);">
               Instant Non-Custodial Cross-Chain Settlement
             </div>
           </div>
 
-          <!-- Right: Live Sector Performance -->
+          <!-- Right: Live Sector Performance (Rendered server-side + client poll) -->
           <div class="sector-card" id="sector-matrix">
             <div>
               <div class="sector-header">
@@ -1386,7 +1326,7 @@ const websiteSchema = {
       <!-- Newsletter / Alerts Section -->
       <div class="newsletter-box" id="alerts">
         <div>
-          <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 0.35rem;">Momentum Anomaly Alerts</h3>
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Momentum Anomaly Alerts</h3>
           <p style="font-size: 0.8125rem; color: var(--text-secondary);">Direct email dispatches when unusual price expansion and volume clustering occur.</p>
         </div>
         <form id="resend-subscribe-form" class="newsletter-input-group">
@@ -1402,7 +1342,7 @@ const websiteSchema = {
             type="submit" 
             id="subscribe-btn"
             class="tool-btn" 
-            style="background: #2563eb; color: #fff; border: none; cursor: pointer;"
+            style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;"
           >
             Activate Alerts
           </button>
@@ -1457,9 +1397,9 @@ const websiteSchema = {
 
         <div class="footer-meta">
           <div class="footer-links">
-            <a href="/about/">Methodology &amp; E-E-A-T</a>
-            <a href="/terms/">Terms of Service</a>
-            <a href="/privacy/">Privacy Policy</a>
+            <a href="/about">Methodology &amp; E-E-A-T</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/privacy">Privacy Policy</a>
             <a href="/rss.xml">RSS Feed</a>
           </div>
           <div>&copy; 2026 Trade Opportunities. All rights reserved. Non-custodial market data hub.</div>
@@ -1469,7 +1409,7 @@ const websiteSchema = {
 
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-content">
-        <p>We utilize telemetry cookies to maintain session settings and data feed synchronization. Review our <a href="/privacy/">Privacy Policy</a>.</p>
+        <p>We utilize telemetry cookies to maintain session settings and data feed synchronization. Review our <a href="/privacy">Privacy Policy</a>.</p>
         <div class="cookie-actions">
           <button id="accept-cookies" class="cookie-btn accept">Accept All</button>
           <button id="decline-cookies" class="cookie-btn decline">Essential Only</button>
@@ -1522,6 +1462,7 @@ const websiteSchema = {
         }
 
         async function fetchLiveSectors() {
+          // Primary: Direct browser fetch to TradingView scanner (CORS allowed, no serverless blocks)
           try {
             const tvRes = await fetch('https://scanner.tradingview.com/america/scan', {
               method: 'POST',
@@ -1546,8 +1487,11 @@ const websiteSchema = {
                 return;
               }
             }
-          } catch (_) {}
+          } catch (_) {
+            // If network or adblock blocks scanner, fallback to same-origin API proxy
+          }
 
+          // Secondary Fallback: Query same-origin API route
           try {
             const apiRes = await fetch('/api/sectors');
             if (apiRes.ok) {
@@ -1556,11 +1500,13 @@ const websiteSchema = {
                 renderRows(apiJson.data);
               }
             }
-          } catch (_) {}
+          } catch (_) {
+            // Retain existing static DOM baselines
+          }
         }
 
         fetchLiveSectors();
-        setInterval(fetchLiveSectors, 45000);
+        setInterval(fetchLiveSectors, 45000); // Poll every 45s
       })();
 
       // 2. Side Dashboard Drawer & Smooth Link Navigation
