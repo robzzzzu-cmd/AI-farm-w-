@@ -6,6 +6,7 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://tradeopportunities.trade',
+  trailingSlash: 'always',
   adapter: vercel(),
   redirects: {
     '/sitemap.xml': '/sitemap-index.xml',
@@ -21,8 +22,8 @@ export default defineConfig({
           item.changefreq = 'hourly';
           item.lastmod = new Date().toISOString();
         } else if (item.url.includes('/ticker/')) {
-          item.priority = 0.95;
-          item.changefreq = 'daily';
+          item.priority = 0.5;
+          item.changefreq = 'weekly';
           item.lastmod = new Date().toISOString();
         } else if (item.url.includes('/blog/')) {
           item.priority = 0.9;
