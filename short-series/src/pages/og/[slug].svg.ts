@@ -6,7 +6,7 @@ export const prerender = true;
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
-    params: { slug: post.id.replace(/\.md$/, '') },
+    params: { slug: post.id.replace(/\.md$/, '').toLowerCase() },
     props: { post },
   }));
 }
@@ -25,7 +25,7 @@ export async function GET({ params, props }: { params: { slug?: string }; props:
 
   if (!post && params?.slug) {
     const posts = await getCollection('blog');
-    post = posts.find((p) => p.id.replace(/\.md$/, '') === params.slug);
+    post = posts.find((p) => p.id.replace(/\.md$/, '').toLowerCase() === params.slug?.toLowerCase());
   }
 
   const leadTicker = escapeXml(post?.data?.leadTicker || post?.data?.tickers?.[0] || 'MARKET');
@@ -58,14 +58,11 @@ export async function GET({ params, props }: { params: { slug?: string }; props:
     </filter>
   </defs>
 
-  <!-- Background Base -->
   <rect width="1200" height="630" fill="url(#bg)" />
 
-  <!-- Ambient Glow -->
   <circle cx="950" cy="200" r="280" fill="#2563eb" opacity="0.25" filter="url(#blurFilter)" />
   <circle cx="1050" cy="450" r="240" fill="#22c55e" opacity="0.2" filter="url(#blurFilter)" />
 
-  <!-- Grid Pattern -->
   <g stroke="#1e293b" stroke-width="1.5" opacity="0.7">
     <line x1="80" y1="120" x2="1120" y2="120" />
     <line x1="80" y1="240" x2="1120" y2="240" stroke-dasharray="6 6" />
@@ -73,28 +70,23 @@ export async function GET({ params, props }: { params: { slug?: string }; props:
     <line x1="80" y1="480" x2="1120" y2="480" />
   </g>
 
-  <!-- Stylized Breakout Curve -->
   <path d="M 500 480 Q 700 450 820 330 T 1120 180" fill="none" stroke="url(#accent)" stroke-width="6" stroke-linecap="round" />
   <path d="M 500 480 Q 700 450 820 330 T 1120 180 L 1120 480 L 500 480 Z" fill="url(#glowGrad)" />
 
-  <!-- Top Brand Banner -->
   <text x="80" y="80" fill="#94a3b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" letter-spacing="3">
     TRADE OPPORTUNITIES // QUANTITATIVE SCAN
   </text>
   <rect x="80" y="100" width="80" height="3" fill="url(#accent)" />
 
-  <!-- Category & Date Pill -->
   <rect x="80" y="160" width="220" height="42" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
   <text x="96" y="187" fill="#38bdf8" font-family="monospace" font-size="16" font-weight="700">
     ${category.toUpperCase()} • ${cleanDateStr}
   </text>
 
-  <!-- Headline Title -->
   <text x="80" y="260" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="800" letter-spacing="-1">
     ${cleanTitle}
   </text>
 
-  <!-- Lead Ticker Badge -->
   <g transform="translate(80, 320)">
     <rect width="360" height="150" rx="12" fill="#0b1120" stroke="#1e293b" stroke-width="2" />
     <text x="28" y="55" fill="#64748b" font-family="monospace" font-size="16" font-weight="700">LEAD BREAKOUT ASSET</text>
@@ -103,7 +95,6 @@ export async function GET({ params, props }: { params: { slug?: string }; props:
     <text x="225" y="102" fill="#22c55e" font-family="monospace" font-size="24" font-weight="800">${leadGain}</text>
   </g>
 
-  <!-- Footer Verification Badge -->
   <text x="80" y="540" fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16">
     Verified Data Feed: Alpha Vantage API • Minimum 50k Volume Filter • tradeopportunities.trade
   </text>
