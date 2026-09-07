@@ -1,6 +1,7 @@
 ---
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
+import LiveStockScreener from '../components/LiveStockScreener.astro';
 
 interface StockItem {
   ticker: string;
@@ -11,6 +12,7 @@ interface StockItem {
 }
 
 interface MarkdownPost {
+  slug: string;
   frontmatter: {
     title?: string;
     description?: string;
@@ -40,7 +42,16 @@ function formatCompactNumber(val: string | number | undefined): string {
   return num.toLocaleString();
 }
 
-const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
+const rawModules = import.meta.glob('../content/blog/*.md', { eager: true }) as Record<string, any>;
+const rawPosts: MarkdownPost[] = Object.entries(rawModules).map(([filePath, mod]) => {
+  const filename = filePath.split('/').pop() || '';
+  const slug = filename.replace(/\.md$/, '').toLowerCase();
+  return {
+    ...mod,
+    slug,
+  };
+});
+
 const posts = rawPosts.sort((a, b) => {
   const dateA = new Date(a.frontmatter.date || 0).valueOf();
   const dateB = new Date(b.frontmatter.date || 0).valueOf();
@@ -675,62 +686,6 @@ const websiteSchema = {
       .stream-body table { display: none; }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
 
-      /* Screener Portal Hub */
-      .screener-portal-section {
-        margin-bottom: 2.5rem;
-      }
-      .screener-portal-card {
-        background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-elevated) 100%);
-        border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        padding: 1.75rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1.5rem;
-        box-shadow: var(--card-shadow);
-      }
-      .portal-badge {
-        font-size: 0.65rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        color: var(--brand-accent);
-        display: block;
-        margin-bottom: 0.35rem;
-      }
-      .portal-title {
-        font-size: 1.25rem;
-        font-weight: 800;
-        letter-spacing: -0.01em;
-        color: var(--text-primary);
-        margin-bottom: 0.4rem;
-      }
-      .portal-desc {
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        line-height: 1.5;
-        max-width: 680px;
-      }
-      .portal-launch-btn {
-        background: var(--brand-accent);
-        color: #ffffff !important;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        padding: 0.75rem 1.25rem;
-        border-radius: 6px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        white-space: nowrap;
-        flex-shrink: 0;
-        transition: opacity 0.15s ease, transform 0.15s ease;
-      }
-      .portal-launch-btn:hover {
-        opacity: 0.92;
-        transform: translateY(-1px);
-      }
-
       /* Table Card */
       .table-card {
         background: var(--bg-surface);
@@ -995,17 +950,6 @@ const websiteSchema = {
         .newsletter-box { flex-direction: column; align-items: flex-start; }
       }
 
-      @media (max-width: 768px) {
-        .screener-portal-card {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        .portal-launch-btn {
-          width: 100%;
-          justify-content: center;
-        }
-      }
-
       @media (max-width: 560px) {
         .app-wrapper { padding: 0 0.85rem; }
         .nav-inner { flex-direction: column; align-items: stretch; padding: 0.6rem 0; }
@@ -1062,7 +1006,7 @@ const websiteSchema = {
           </a>
           <a href="#alerts" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span>Newsletter</span>
+            <span>Alerts</span>
           </a>
           <a href="/about" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
@@ -1071,9 +1015,9 @@ const websiteSchema = {
         </nav>
 
         <div class="sidebar-promo-card">
-          <div class="sidebar-promo-title">Weekly Market Wrap</div>
-          <p class="sidebar-promo-desc">Subscribe for free to our weekly newsletter covering top breakouts, volume surges, and key market setups.</p>
-          <a href="#alerts" class="sidebar-promo-btn">Subscribe for Free</a>
+          <div class="sidebar-promo-title">Institutional Tier</div>
+          <p class="sidebar-promo-desc">Direct anomaly alerts, volume divergence logs, and quantitative filters.</p>
+          <a href="#alerts" class="sidebar-promo-btn">Configure Feeds</a>
         </div>
       </div>
     </aside>
@@ -1128,13 +1072,13 @@ const websiteSchema = {
             </svg>
           </button>
 
-          <a href="#alerts" class="alerts-action-btn" title="Subscribe to Newsletter">
+          <a href="#alerts" class="alerts-action-btn" title="View Market Alerts">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
-            <span>Newsletter</span>
-            <span class="alerts-badge-num">Free</span>
+            <span>Alerts</span>
+            <span class="alerts-badge-num">3</span>
           </a>
         </div>
       </div>
@@ -1164,7 +1108,11 @@ const websiteSchema = {
                 <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
               </div>
               
-              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
+              <h2 class="card-title">
+                <a href={`/blog/${featuredPost.slug}/`} style="color: inherit; text-decoration: none;">
+                  {featuredPost.frontmatter.title}
+                </a>
+              </h2>
               
               <div class="card-body" id="featured-content">
                 <featuredPost.Content />
@@ -1229,40 +1177,35 @@ const websiteSchema = {
             {secondaryPosts.map(post => (
               <article class="stream-item dispatch-card">
                 <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
-                <h3 class="stream-title">{post.frontmatter.title}</h3>
+                <h3 class="stream-title">
+                  <a href={`/blog/${post.slug}/`} style="color: inherit; text-decoration: none;">
+                    {post.frontmatter.title}
+                  </a>
+                </h3>
                 <div class="stream-body">
                   <post.Content />
                 </div>
-                <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
-                  {post.frontmatter.refLabel || "Review Chart Structure"} &rarr;
-                </a>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap;">
+                  <a href={`/blog/${post.slug}/`} 
+                     style="font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none;">
+                    Read Full Report &rarr;
+                  </a>
+                  <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+                     target="_blank" 
+                     rel="noopener noreferrer" 
+                     style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-decoration: none;">
+                    {post.frontmatter.refLabel || "Review Chart Structure"} &rarr;
+                  </a>
+                </div>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <!-- Dedicated Live Stock Screener Portal Hub -->
-      <section id="screener" class="screener-portal-section">
-        <div class="screener-portal-card">
-          <div class="portal-info">
-            <span class="portal-badge">QUANTITATIVE MARKET RADAR</span>
-            <h2 class="portal-title">Live Stock Screener &bull; Real-Time Opportunities</h2>
-            <p class="portal-desc">
-              Access real-time breakout monitoring, relative volume (RVOL) spikes, momentum scores, and conviction ratings across Penny Stocks (&lt;$5), Small/Mid Caps, and Large Cap institutions.
-            </p>
-          </div>
-          <a href="/screener" class="portal-launch-btn">
-            <span>Open Dedicated Terminal Screener</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </a>
-        </div>
+      <!-- Dedicated Live Stock Screener Area -->
+      <section id="screener" style="margin-bottom: 2.5rem;">
+        <LiveStockScreener />
       </section>
 
       <!-- Section 02: Opportunities Table -->
@@ -1380,18 +1323,18 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Newsletter / Free Weekly Subscription Section -->
+      <!-- Newsletter / Alerts Section -->
       <div class="newsletter-box" id="alerts">
         <div>
-          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Subscribe Free to Our Weekly Newsletter</h3>
-          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Get weekly market wraps, top breakout recaps, and institutional volume flows delivered directly to your inbox for free.</p>
+          <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Momentum Anomaly Alerts</h3>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Direct email dispatches when unusual price expansion and volume clustering occur.</p>
         </div>
         <form id="resend-subscribe-form" class="newsletter-input-group">
           <input 
             type="email" 
             name="email" 
             id="subscriber-email" 
-            placeholder="your.email@domain.com" 
+            placeholder="analyst@firm.com" 
             class="newsletter-input" 
             required 
           />
@@ -1401,7 +1344,7 @@ const websiteSchema = {
             class="tool-btn" 
             style="background: var(--brand-accent); color: #fff; border: none; cursor: pointer;"
           >
-            Subscribe for Free
+            Activate Alerts
           </button>
         </form>
       </div>
@@ -1715,7 +1658,7 @@ const websiteSchema = {
         });
       }
 
-      // 6. Subscription Handler
+      // 6. Subscription Alerts Handler
       const subscribeForm = document.getElementById('resend-subscribe-form');
       const subscribeBtn = document.getElementById('subscribe-btn');
       if (subscribeForm && subscribeBtn) {
@@ -1725,7 +1668,7 @@ const websiteSchema = {
           if (!emailInput) return;
 
           subscribeBtn.disabled = true;
-          subscribeBtn.textContent = 'Subscribing...';
+          subscribeBtn.textContent = 'Activating...';
 
           try {
             const res = await fetch('/api/subscribe', {
@@ -1735,7 +1678,7 @@ const websiteSchema = {
             });
 
             if (res.ok) {
-              subscribeBtn.textContent = 'Subscribed!';
+              subscribeBtn.textContent = 'Alerts Active';
               emailInput.value = '';
             } else {
               subscribeBtn.textContent = 'Retry';
