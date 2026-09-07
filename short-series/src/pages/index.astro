@@ -1,7 +1,6 @@
 ---
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
-import LiveStockScreener from '../components/LiveStockScreener.astro';
 
 interface StockItem {
   ticker: string;
@@ -12,7 +11,6 @@ interface StockItem {
 }
 
 interface MarkdownPost {
-  slug: string;
   frontmatter: {
     title?: string;
     description?: string;
@@ -42,16 +40,7 @@ function formatCompactNumber(val: string | number | undefined): string {
   return num.toLocaleString();
 }
 
-const rawModules = import.meta.glob('../content/blog/*.md', { eager: true }) as Record<string, any>;
-const rawPosts: MarkdownPost[] = Object.entries(rawModules).map(([filePath, mod]) => {
-  const filename = filePath.split('/').pop() || '';
-  const slug = filename.replace(/\.md$/, '').toLowerCase();
-  return {
-    ...mod,
-    slug,
-  };
-});
-
+const rawPosts = Object.values(import.meta.glob('../content/blog/*.md', { eager: true })) as MarkdownPost[];
 const posts = rawPosts.sort((a, b) => {
   const dateA = new Date(a.frontmatter.date || 0).valueOf();
   const dateB = new Date(b.frontmatter.date || 0).valueOf();
@@ -1108,11 +1097,7 @@ const websiteSchema = {
                 <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
               </div>
               
-              <h2 class="card-title">
-                <a href={`/blog/${featuredPost.slug}/`} style="color: inherit; text-decoration: none;">
-                  {featuredPost.frontmatter.title}
-                </a>
-              </h2>
+              <h2 class="card-title">{featuredPost.frontmatter.title}</h2>
               
               <div class="card-body" id="featured-content">
                 <featuredPost.Content />
@@ -1177,35 +1162,39 @@ const websiteSchema = {
             {secondaryPosts.map(post => (
               <article class="stream-item dispatch-card">
                 <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
-                <h3 class="stream-title">
-                  <a href={`/blog/${post.slug}/`} style="color: inherit; text-decoration: none;">
-                    {post.frontmatter.title}
-                  </a>
-                </h3>
+                <h3 class="stream-title">{post.frontmatter.title}</h3>
                 <div class="stream-body">
                   <post.Content />
                 </div>
-                <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap;">
-                  <a href={`/blog/${post.slug}/`} 
-                     style="font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none;">
-                    Read Full Report &rarr;
-                  </a>
-                  <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
-                     target="_blank" 
-                     rel="noopener noreferrer" 
-                     style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-decoration: none;">
-                    {post.frontmatter.refLabel || "Review Chart Structure"} &rarr;
-                  </a>
-                </div>
+                <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   style="display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none; margin-top: 0.5rem;">
+                  {post.frontmatter.refLabel || "Review Chart Structure"} &rarr;
+                </a>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <!-- Dedicated Live Stock Screener Area -->
+      <!-- Live Stock Screener Hub Gateway -->
       <section id="screener" style="margin-bottom: 2.5rem;">
-        <LiveStockScreener />
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem; padding: 1.5rem; background: linear-gradient(180deg, var(--bg-surface-elevated) 0%, var(--bg-surface) 100%); border: 1px solid var(--border-subtle); border-radius: 6px;">
+          <div style="max-width: 720px;">
+            <div style="font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; color: var(--brand-accent); margin-bottom: 0.35rem;">QUANTITATIVE MARKET RADAR</div>
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.35rem;">Live Stock Screener &bull; Real-Time Opportunities</h3>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+              High-frequency multi-tier screener tracking Penny Stocks (&lt;$5), Small &amp; Mid Cap ($300M–$10B), and Large Cap (&gt;$10B) with live RVOL metrics, momentum rankings, and sector filters.
+            </p>
+          </div>
+          <div>
+            <a href="/screener" class="tool-btn" style="background: var(--brand-accent); color: #ffffff; border: none; font-size: 0.85rem; font-weight: 700; padding: 0.75rem 1.4rem; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+              <span>Open Live Screener</span>
+              <span>&rarr;</span>
+            </a>
+          </div>
+        </div>
       </section>
 
       <!-- Section 02: Opportunities Table -->
