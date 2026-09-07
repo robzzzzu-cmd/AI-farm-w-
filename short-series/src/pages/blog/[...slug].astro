@@ -7,30 +7,19 @@ export const prerender = true;
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
-  const paths = [];
 
-  for (const post of posts) {
-    const cleanId = post.id.replace(/\.md$/, '');
-    paths.push({
+  return posts.map((post) => {
+    const cleanId = post.id.replace(/\.md$/, '').toLowerCase();
+    return {
       params: { slug: cleanId },
       props: { post, allPosts: posts },
-    });
-
-    const lowerId = cleanId.toLowerCase();
-    if (lowerId !== cleanId) {
-      paths.push({
-        params: { slug: lowerId },
-        props: { post, allPosts: posts },
-      });
-    }
-  }
-
-  return paths;
+    };
+  });
 }
 
 let { post, allPosts = [] } = Astro.props;
 
-// Fallback retrieval for server-rendered or case-normalized routes
+// Fallback retrieval for case-normalized routes
 if (!post) {
   const all = await getCollection('blog');
   allPosts = all;
@@ -56,7 +45,7 @@ const isoModDate = !isNaN(modDateObj.getTime()) ? modDateObj.toISOString() : iso
 
 const displayDate = post.data?.displayDate || pubDateObj.toLocaleDateString('en-US', { dateStyle: 'long' });
 
-const slug = post.id.replace(/\.md$/, '');
+const slug = post.id.replace(/\.md$/, '').toLowerCase();
 const canonicalURL = new URL(`/blog/${slug}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
 
 // Dynamic Image URL
@@ -68,9 +57,9 @@ const postCategory = post.data?.category || 'Equities';
 const categorySlug = postCategory.toLowerCase().replace(/\s+/g, '-');
 
 // Internal Linking: Find related posts
-const currentSlug = post.id.replace(/\.md$/, '');
+const currentSlug = slug;
 const relatedPosts = allPosts
-  .filter((p) => p.id.replace(/\.md$/, '') !== currentSlug)
+  .filter((p) => p.id.replace(/\.md$/, '').toLowerCase() !== currentSlug)
   .sort((a, b) => {
     const aTickers = a.data?.tickers || [];
     const bTickers = b.data?.tickers || [];
@@ -126,7 +115,6 @@ const newsArticleSchema = {
   </Fragment>
 
   <article class="article-wrapper">
-    <!-- Visual News Header Banner -->
     <div class="article-banner-container">
       <img 
         src={`/og/${slug}.svg`} 
@@ -142,10 +130,10 @@ const newsArticleSchema = {
       )}
       <h1>{post.data?.title}</h1>
       <div class="header-badges">
-        <a href={`/category/${categorySlug}`} class="pill pill-gain" title={`View all ${postCategory} updates`}>
+        <a href={`/category/${categorySlug}/`} class="pill pill-gain" title={`View all ${postCategory} updates`}>
           {postCategory} Hub &rarr;
         </a>
-        <a href="/about" class="pill pill-methodology">
+        <a href="/about/" class="pill pill-methodology">
           Audited Model &rarr;
         </a>
       </div>
@@ -175,14 +163,13 @@ const newsArticleSchema = {
       </a>
     )}
 
-    <!-- E-E-A-T Model Attribution Card -->
     <div class="eeat-box">
       <div class="eeat-header">
         <span class="eeat-badge">Verified Model</span>
         <span class="eeat-title">Quantitative Model Architecture</span>
       </div>
       <p class="eeat-desc">
-        This dispatch was compiled programmatically via the <strong>Trade Opportunities Anomaly Engine</strong> utilizing tier-1 data ingestion from Alpha Vantage and verified against a 50,000 share minimum session liquidity filter. Review our complete <a href="/about">Quantitative Methodology & Verification Guidelines</a>.
+        This dispatch was compiled programmatically via the <strong>Trade Opportunities Anomaly Engine</strong> utilizing tier-1 data ingestion from Alpha Vantage and verified against a 50,000 share minimum session liquidity filter. Review our complete <a href="/about/">Quantitative Methodology & Verification Guidelines</a>.
       </p>
       <div class="eeat-sources">
         <span>Primary Verification Sources:</span>
@@ -191,13 +178,12 @@ const newsArticleSchema = {
       </div>
     </div>
 
-    <!-- Internal Linking: Related Opportunities Hub -->
     {relatedPosts.length > 0 && (
       <section class="related-intel-section">
         <h3 class="related-intel-title">Related Market Opportunities</h3>
         <div class="related-intel-grid">
           {relatedPosts.map((related) => (
-            <a href={`/blog/${related.id.replace(/\.md$/, '')}/`} class="related-card">
+            <a href={`/blog/${related.id.replace(/\.md$/, '').toLowerCase()}/`} class="related-card">
               <span class="related-date">
                 {related.data?.displayDate || (related.data?.date ? new Date(related.data.date).toISOString().slice(0, 10) : 'Recent')}
               </span>
