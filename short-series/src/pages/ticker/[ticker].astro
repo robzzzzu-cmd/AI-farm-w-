@@ -103,7 +103,7 @@ const tickerSchema = {
     <header class="ticker-header">
       <div class="breadcrumb">
         <a href="/">Terminal</a> &rsaquo; 
-        <a href="/category/equities">Equities</a> &rsaquo; 
+        <a href="/category/equities/">Equities</a> &rsaquo; 
         <span>${ticker}</span>
       </div>
 
@@ -189,7 +189,7 @@ const tickerSchema = {
             </div>
 
             <h3 class="post-title">
-              <a href={`/blog/${post.id.replace(/\.md$/, '')}/`}>
+              <a href={`/blog/${post.id.replace(/\.md$/, '').toLowerCase()}/`}>
                 {post.data?.title}
               </a>
             </h3>
@@ -199,7 +199,7 @@ const tickerSchema = {
             )}
 
             <div class="post-foot">
-              <a href={`/blog/${post.id.replace(/\.md$/, '')}/`} class="read-link">
+              <a href={`/blog/${post.id.replace(/\.md$/, '').toLowerCase()}/`} class="read-link">
                 Read Full Intelligence Dispatch &rarr;
               </a>
             </div>
