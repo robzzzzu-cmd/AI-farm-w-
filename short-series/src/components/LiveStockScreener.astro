@@ -32,23 +32,6 @@ const categoriesList = Object.values(categories);
       </div>
     </div>
 
-    <!-- Ad Placement -->
-    <div class="ad-leaderboard" style="margin: 1rem auto 1.25rem auto; background: var(--bg-surface-elevated, #161d2d); border: 1px solid var(--border-subtle, #1e2638); border-radius: 6px; padding: 0.75rem; text-align: center;">
-      <span style="font-size: 0.625rem; font-family: var(--font-mono, monospace); text-transform: uppercase; color: var(--text-muted, #64748b); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">SPONSORED MARKET NODE</span>
-      <div style="width: 100%; min-height: 90px; margin: auto; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-        <script is:inline>
-          atOptions = {
-            'key' : '069907293312bf0f2555658bc919672c',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
-        </script>
-        <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
-      </div>
-    </div>
-
     <!-- UI Explanation: Platform Categories rather than universal industry definitions -->
     <div class="classification-callout">
       <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -213,7 +196,7 @@ const categoriesList = Object.values(categories);
     </div>
   </div>
 
-  <!-- Stale / Delay Data Banner -->
+  <!-- Stale / Delay Data Banner (Activates if upstream feed pauses) -->
   <div id="screener-stale-banner" class="stale-alert-banner" style="display: none;">
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
@@ -223,28 +206,29 @@ const categoriesList = Object.values(categories);
     <span id="stale-banner-text">Data delayed: Connection to data feed is synchronizing. Retaining last observed session snapshot.</span>
   </div>
 
-  <!-- Stock Screener Table Container -->
+  <!-- Modern Interactive Stock Screener Table Container -->
   <div class="screener-table-card">
     <div class="table-responsive-viewport">
       <table class="screener-table" id="screener-live-table">
         <thead>
           <tr>
-            <th data-sort="name" class="cell-symbol">Ticker / Company</th>
+            <th data-sort="name">Ticker / Company</th>
             <th data-sort="price" class="text-right">Price</th>
             <th data-sort="change_abs" class="text-right">Change ($)</th>
-            <th data-sort="change_desc" class="text-center">Change (%)</th>
+            <th data-sort="change_desc" class="text-right">Change (%)</th>
             <th data-sort="volume_desc" class="text-right">Volume</th>
             <th data-sort="rvol_desc" class="text-right">Rel Vol</th>
             <th data-sort="market_cap_desc" class="text-right">Market Cap</th>
-            <th class="text-center">Day Range</th>
+            <th class="text-center">Day Range (L - H)</th>
             <th data-sort="momentum" class="text-center">Momentum</th>
             <th data-sort="conviction_desc" class="text-center">Conviction</th>
+            <th class="text-right">Last Monitored</th>
             <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody id="screener-table-body">
           <tr class="loading-skeleton-row">
-            <td colspan="11" class="screener-loading-cell">
+            <td colspan="12" class="screener-loading-cell">
               <div class="loading-pulse-box">
                 <span class="loading-spinner"></span>
                 <span>Connecting to live consolidated market feed...</span>
@@ -255,7 +239,7 @@ const categoriesList = Object.values(categories);
       </table>
     </div>
 
-    <!-- Table Footer -->
+    <!-- Table Footer / Regulatory Transparency -->
     <div class="screener-table-footer">
       <div class="feed-transparency-note">
         <span class="status-indicator-mini"></span>
@@ -385,7 +369,7 @@ const categoriesList = Object.values(categories);
 
       const categoryConf = config.categories[currentCategory] || config.categories.penny;
 
-      // 1. Direct TradingView Scanner (Increased range to 150 items)
+      // 1. Direct TradingView Scanner
       try {
         const filters = [
           { left: 'market_cap_basic', operation: 'nempty' },
@@ -432,7 +416,7 @@ const categoriesList = Object.values(categories);
               'RSI'
             ],
             sort: { sortBy: 'change', sortOrder: 'desc' },
-            range: [0, 150]
+            range: [0, 60]
           })
         });
 
@@ -603,7 +587,7 @@ const categoriesList = Object.values(categories);
       if (result.length === 0) {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="11" class="screener-empty-cell">
+            <td colspan="12" class="screener-empty-cell">
               <div class="empty-state-box">
                 <p class="empty-primary">No assets matched your active filter criteria.</p>
                 <p class="empty-secondary">Try widening your price range, sector, or volume floor.</p>
@@ -616,6 +600,7 @@ const categoriesList = Object.values(categories);
 
       tableBody.innerHTML = result.map((stock) => {
         const isPos = stock.changePercent >= 0;
+        const deltaClass = isPos ? 'text-gain' : 'text-loss';
         const badgeClass = isPos ? 'delta-pill-gain' : 'delta-pill-loss';
         const sign = isPos ? '+' : '';
         const tvUrl = `https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`;
@@ -635,20 +620,20 @@ const categoriesList = Object.values(categories);
           <tr class="stock-data-row">
             <td class="cell-symbol">
               <div class="symbol-flex">
-                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link" title="Analyze ${stock.ticker} on TradingView">
+                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="ticker-link ${deltaClass}" title="Analyze ${stock.ticker} on TradingView">
                   $${stock.ticker}
                 </a>
                 <span class="company-subname" title="${stock.name}">${stock.name}</span>
               </div>
             </td>
 
-            <td class="cell-price text-right font-mono">${formatPrice(stock.price)}</td>
+            <td class="cell-price text-right ${deltaClass}">${formatPrice(stock.price)}</td>
 
-            <td class="cell-change-abs text-right font-mono text-muted">
+            <td class="cell-change-abs text-right ${deltaClass}">
               ${sign}${formatPrice(stock.changeAbs)}
             </td>
 
-            <td class="cell-change-pct text-center">
+            <td class="cell-change-pct text-right">
               <span class="delta-pill ${badgeClass}">${sign}${stock.changePercent.toFixed(2)}%</span>
             </td>
 
@@ -682,6 +667,8 @@ const categoriesList = Object.values(categories);
                 ${stock.convictionScore} &bull; ${stock.convictionLabel}
               </span>
             </td>
+
+            <td class="cell-time text-right font-mono text-muted">${stock.lastUpdatedTime}</td>
 
             <td class="cell-action text-center">
               <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="row-chart-btn" title="Open Chart Workspace">
@@ -747,7 +734,7 @@ const categoriesList = Object.values(categories);
         if (tableBody) {
           tableBody.innerHTML = `
             <tr class="loading-skeleton-row">
-              <td colspan="11" class="screener-loading-cell">
+              <td colspan="12" class="screener-loading-cell">
                 <div class="loading-pulse-box">
                   <span class="loading-spinner"></span>
                   <span>Scanning ${categoryConf.name} liquidity pool...</span>
@@ -884,8 +871,12 @@ const categoriesList = Object.values(categories);
   })();
 </script>
 
-<style is:inline>
+<style>
   :root, .screener-wrapper {
+    --gain-color: #22c55e;
+    --gain-bg: rgba(34, 197, 94, 0.12);
+    --loss-color: #ef4444;
+    --loss-bg: rgba(239, 68, 68, 0.12);
     --bg-surface: #111622;
     --bg-surface-elevated: #161d2d;
     --border-subtle: #1e2638;
@@ -951,7 +942,7 @@ const categoriesList = Object.values(categories);
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #22c55e;
+    background: var(--gain-color);
     box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
     animation: livePulse 2s infinite ease-in-out;
   }
@@ -971,13 +962,13 @@ const categoriesList = Object.values(categories);
     font-size: 0.7rem;
     font-weight: 700;
     color: var(--text-primary);
-    font-family: var(--font-mono, monospace);
+    font-family: var(--font-mono);
   }
 
   .sync-timer {
     font-size: 0.7rem;
     color: var(--text-muted);
-    font-family: var(--font-mono, monospace);
+    font-family: var(--font-mono);
     border-left: 1px solid var(--border-subtle);
     padding-left: 0.65rem;
   }
@@ -1060,7 +1051,7 @@ const categoriesList = Object.values(categories);
   }
 
   .screener-tab-btn:hover {
-    background: var(--bg-page, #0b0e14);
+    background: var(--bg-page);
     color: var(--text-primary);
   }
 
@@ -1078,7 +1069,7 @@ const categoriesList = Object.values(categories);
   .tab-sub {
     font-size: 0.6875rem;
     opacity: 0.85;
-    font-family: var(--font-mono, monospace);
+    font-family: var(--font-mono);
   }
 
   .category-meta-row {
@@ -1097,7 +1088,7 @@ const categoriesList = Object.values(categories);
 
   .category-count-badge {
     font-size: 0.7rem;
-    font-family: var(--font-mono, monospace);
+    font-family: var(--font-mono);
     color: var(--brand-accent);
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
@@ -1281,8 +1272,8 @@ const categoriesList = Object.values(categories);
   }
 
   .reset-filters-btn:hover {
-    color: #ef4444;
-    border-color: #ef4444;
+    color: var(--loss-color);
+    border-color: var(--loss-color);
   }
 
   .stale-alert-banner {
@@ -1303,51 +1294,28 @@ const categoriesList = Object.values(categories);
     overflow: hidden;
   }
 
-  /* Fixed height scrollable viewport so scrollbar is immediately accessible */
   .table-responsive-viewport {
     width: 100%;
-    max-height: 640px;
     overflow-x: auto;
-    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #2d374d #111622;
-  }
-
-  .table-responsive-viewport::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
-  }
-
-  .table-responsive-viewport::-webkit-scrollbar-track {
-    background: #111622;
-  }
-
-  .table-responsive-viewport::-webkit-scrollbar-thumb {
-    background: #2d374d;
-    border-radius: 4px;
   }
 
   .screener-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 0.78125rem;
+    min-width: 980px;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
     text-align: left;
   }
 
-  /* Pinned sticky table headers */
   .screener-table th {
-    position: sticky;
-    top: 0;
-    z-index: 4;
     background: var(--bg-surface-elevated);
     color: var(--text-muted);
-    font-size: 0.675rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding: 0.65rem 0.6rem;
+    padding: 0.65rem 0.85rem;
     border-bottom: 1px solid var(--border-subtle);
     white-space: nowrap;
     cursor: pointer;
@@ -1359,7 +1327,7 @@ const categoriesList = Object.values(categories);
   }
 
   .screener-table td {
-    padding: 0.55rem 0.6rem;
+    padding: 0.75rem 0.85rem;
     border-bottom: 1px solid var(--border-subtle);
     color: var(--text-secondary);
     white-space: nowrap;
@@ -1369,86 +1337,80 @@ const categoriesList = Object.values(categories);
     background: rgba(255, 255, 255, 0.02);
   }
 
-  /* Sticky first column */
   .cell-symbol {
     position: sticky;
     left: 0;
     background: var(--bg-surface);
     z-index: 2;
-    min-width: 120px;
-  }
-
-  .screener-table th.cell-symbol {
-    position: sticky;
-    left: 0;
-    top: 0;
-    z-index: 6;
-    background: var(--bg-surface-elevated);
   }
 
   .symbol-flex {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.15rem;
   }
 
   .ticker-link {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.8125rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
     font-weight: 800;
-    color: var(--text-primary, #f1f5f9) !important;
     text-decoration: none;
     transition: color 0.15s ease;
   }
 
+  .ticker-link.text-gain,
+  .cell-price.text-gain {
+    color: var(--gain-color, #22c55e);
+  }
+
+  .ticker-link.text-loss,
+  .cell-price.text-loss {
+    color: var(--loss-color, #ef4444);
+  }
+
   .ticker-link:hover {
-    color: var(--brand-accent, #38bdf8) !important;
     text-decoration: underline;
+    opacity: 0.85;
   }
 
   .company-subname {
-    font-size: 0.65rem;
+    font-size: 0.6875rem;
     color: var(--text-muted);
-    max-width: 120px;
+    max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .cell-price {
-    font-family: var(--font-mono, monospace);
+    font-family: var(--font-mono);
     font-weight: 700;
-    color: var(--text-primary, #f1f5f9) !important;
+    transition: color 0.15s ease;
   }
 
-  /* Distinct percentage badge */
   .delta-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.2rem 0.45rem;
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
     border-radius: 4px;
     font-weight: 700;
-    font-family: var(--font-mono, monospace);
+    font-family: var(--font-mono);
     font-size: 0.75rem;
-    letter-spacing: 0.01em;
-    min-width: 60px;
   }
 
   .delta-pill-gain {
-    background: #0d281e !important;
-    color: #22c55e !important;
-    border: 1px solid rgba(34, 197, 94, 0.25);
+    background: var(--gain-bg, rgba(34, 197, 94, 0.12));
+    color: var(--gain-color, #22c55e);
   }
 
   .delta-pill-loss {
-    background: #2a1215 !important;
-    color: #ef4444 !important;
-    border: 1px solid rgba(239, 68, 68, 0.25);
+    background: var(--loss-bg, rgba(239, 68, 68, 0.12));
+    color: var(--loss-color, #ef4444);
   }
 
+  .text-gain { color: var(--gain-color, #22c55e); }
+  .text-loss { color: var(--loss-color, #ef4444); }
   .text-right { text-align: right; }
   .text-center { text-align: center; }
-  .font-mono { font-family: var(--font-mono, monospace); }
+  .font-mono { font-family: var(--font-mono); }
   .text-muted { color: var(--text-muted); }
 
   .rvol-surge {
@@ -1460,18 +1422,18 @@ const categoriesList = Object.values(categories);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
-    min-width: 95px;
+    gap: 0.4rem;
+    min-width: 130px;
   }
 
   .range-val {
-    font-size: 0.65rem;
-    font-family: var(--font-mono, monospace);
+    font-size: 0.6875rem;
+    font-family: var(--font-mono);
     color: var(--text-muted);
   }
 
   .range-track {
-    width: 38px;
+    width: 60px;
     height: 4px;
     background: var(--border-subtle);
     border-radius: 2px;
@@ -1481,7 +1443,7 @@ const categoriesList = Object.values(categories);
   .range-marker {
     position: absolute;
     top: -3px;
-    width: 3px;
+    width: 4px;
     height: 10px;
     border-radius: 2px;
     background: var(--brand-accent);
@@ -1495,13 +1457,13 @@ const categoriesList = Object.values(categories);
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: 4px;
-    padding: 0.15rem 0.4rem;
-    width: 44px;
+    padding: 0.2rem 0.5rem;
+    width: 50px;
   }
 
   .mom-score {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.725rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     font-weight: 700;
   }
 
@@ -1511,25 +1473,25 @@ const categoriesList = Object.values(categories);
     margin-top: 2px;
   }
 
-  .mom-high .mom-score { color: #22c55e; }
-  .mom-high .mom-bar-mini { background: #22c55e; }
+  .mom-high .mom-score { color: var(--gain-color); }
+  .mom-high .mom-bar-mini { background: var(--gain-color); }
   .mom-mid .mom-score { color: #f59e0b; }
   .mom-mid .mom-bar-mini { background: #f59e0b; }
-  .mom-low .mom-score { color: #ef4444; }
-  .mom-low .mom-bar-mini { background: #ef4444; }
+  .mom-low .mom-score { color: var(--loss-color); }
+  .mom-low .mom-bar-mini { background: var(--loss-color); }
 
   .conviction-badge {
     display: inline-block;
-    font-size: 0.65rem;
+    font-size: 0.6875rem;
     font-weight: 700;
-    padding: 0.18rem 0.45rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 4px;
     white-space: nowrap;
   }
 
   .conv-high {
     background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
+    color: var(--gain-color);
     border: 1px solid rgba(34, 197, 94, 0.3);
   }
 
@@ -1547,12 +1509,12 @@ const categoriesList = Object.values(categories);
 
   .row-chart-btn {
     display: inline-block;
-    font-size: 0.7rem;
+    font-size: 0.725rem;
     font-weight: 600;
     color: var(--brand-accent);
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
-    padding: 0.2rem 0.5rem;
+    padding: 0.25rem 0.55rem;
     border-radius: 4px;
     text-decoration: none;
     transition: all 0.15s ease;
@@ -1620,7 +1582,7 @@ const categoriesList = Object.values(categories);
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #22c55e;
+    background: var(--gain-color);
   }
 
   .footer-aux-actions {
