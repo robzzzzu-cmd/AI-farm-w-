@@ -152,6 +152,9 @@ const {
   *, *::before, *::after {
     box-sizing: border-box;
   }
+  html {
+    scroll-behavior: smooth;
+  }
   html, body {
     margin: 0;
     padding: 0;
@@ -177,6 +180,9 @@ const {
     background: rgba(2, 6, 23, 0.85);
     backdrop-filter: blur(8px);
     width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
   .nav-container {
     max-width: 1100px;
@@ -202,10 +208,13 @@ const {
     flex-wrap: wrap;
   }
   .nav-links a {
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9rem;
-    transition: color 0.2s;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    position: relative;
+    padding-bottom: 2px;
   }
   .nav-links a:hover {
     color: #fff;

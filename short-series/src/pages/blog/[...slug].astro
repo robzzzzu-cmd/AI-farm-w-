@@ -279,6 +279,73 @@ const newsArticleSchema = {
     color: #cbd5e1;
     font-size: 1rem;
   }
+  .article-body h4 {
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+  }
+  .article-body table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 1rem 0 1.75rem 0;
+    background: #111622;
+    border: 1px solid #1e2638;
+    border-radius: 6px;
+    overflow: hidden;
+    display: table;
+  }
+  .article-body th {
+    background: #161d2d;
+    color: #94a3b8;
+    font-size: 0.725rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid #1e2638;
+    text-align: left;
+  }
+  .article-body td {
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid #1e2638;
+    color: #cbd5e1;
+    font-size: 0.85rem;
+  }
+  .article-body tbody tr {
+    transition: background 0.15s ease;
+  }
+  .article-body tbody tr:hover {
+    background: #161d2d;
+  }
+  .article-body code {
+    font-family: monospace;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+  }
+  .article-body a {
+    color: #38bdf8;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .article-body a:hover {
+    color: #7dd3fc;
+    text-decoration: underline;
+  }
+  @media (max-width: 640px) {
+    .article-body table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
+    }
+  }
   .ticker-tags {
     display: flex;
     flex-wrap: wrap;
@@ -297,6 +364,12 @@ const newsArticleSchema = {
     border-radius: 3px;
     border: 1px solid #1e2638;
     text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ticker-pill:hover {
+    border-color: #38bdf8;
+    color: #38bdf8;
+    transform: translateY(-1px);
   }
   .card-action-btn {
     display: inline-flex;
@@ -311,6 +384,11 @@ const newsArticleSchema = {
     padding: 0.65rem 1rem;
     border-radius: 5px;
     margin-top: 1.5rem;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .card-action-btn:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
   }
   .eeat-box {
     margin-top: 2rem;

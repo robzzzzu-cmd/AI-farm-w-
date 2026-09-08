@@ -294,13 +294,18 @@ const websiteSchema = {
         font-weight: 500;
         color: var(--text-secondary);
         text-decoration: none;
-        transition: background 0.15s ease, color 0.15s ease;
+        border-left: 3px solid transparent;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       }
-      .sidebar-nav-item:hover, .sidebar-nav-item.active {
+      .sidebar-nav-item:hover {
         background: var(--bg-surface-elevated);
         color: var(--text-primary);
+        transform: translateX(2px);
       }
       .sidebar-nav-item.active {
+        background: var(--bg-surface-elevated);
+        color: var(--brand-accent);
+        font-weight: 600;
         border-left: 3px solid var(--brand-accent);
       }
       .sidebar-icon {
@@ -308,6 +313,7 @@ const websiteSchema = {
         height: 16px;
         color: var(--text-muted);
         flex-shrink: 0;
+        transition: color 0.2s ease;
       }
       .sidebar-nav-item:hover .sidebar-icon, .sidebar-nav-item.active .sidebar-icon {
         color: var(--brand-accent);
@@ -412,7 +418,7 @@ const websiteSchema = {
       }
       .nav-links {
         display: flex;
-        gap: 1.25rem;
+        gap: 1.35rem;
         list-style: none;
       }
       .nav-links a {
@@ -420,9 +426,32 @@ const websiteSchema = {
         font-size: 0.85rem;
         font-weight: 500;
         color: var(--text-secondary);
-        transition: color 0.15s ease;
+        transition: color 0.2s ease;
+        position: relative;
+        padding-bottom: 4px;
       }
-      .nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+      .nav-links a:hover {
+        color: var(--text-primary);
+      }
+      .nav-links a.active {
+        color: var(--brand-accent);
+        font-weight: 600;
+      }
+      .nav-links a.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--brand-accent);
+        border-radius: 2px;
+        animation: navUnderlineFade 0.2s ease-out;
+      }
+      @keyframes navUnderlineFade {
+        from { opacity: 0; transform: scaleX(0.7); }
+        to { opacity: 1; transform: scaleX(1); }
+      }
 
       .nav-actions {
         display: flex;
@@ -640,9 +669,12 @@ const websiteSchema = {
         padding: 0.65rem 0.85rem;
         border-radius: 5px;
         margin-top: 1rem;
-        transition: opacity 0.15s;
+        transition: opacity 0.2s ease, transform 0.2s ease;
       }
-      .card-action-btn:hover { opacity: 0.9; }
+      .card-action-btn:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+      }
 
       .ticker-tags {
         display: flex;
@@ -662,6 +694,12 @@ const websiteSchema = {
         border-radius: 3px;
         border: 1px solid var(--border-subtle);
         text-decoration: none;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .ticker-pill:hover {
+        border-color: var(--brand-accent);
+        background: var(--bg-surface);
+        transform: translateY(-1px);
       }
 
       .stream-list { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -670,21 +708,73 @@ const websiteSchema = {
         border: 1px solid var(--border-subtle);
         border-radius: 6px;
         padding: 1.1rem;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .stream-item:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
       }
       .stream-title { 
         font-size: 0.875rem; 
         font-weight: 600; 
         margin-bottom: 0.4rem; 
       }
+      .stream-title a {
+        transition: color 0.15s ease;
+      }
+      .stream-title a:hover {
+        color: var(--brand-accent) !important;
+      }
       .stream-body {
         font-size: 0.8125rem;
         color: var(--text-secondary);
-        line-height: 1.5;
-        max-height: 140px;
+        line-height: 1.55;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      .stream-body table { display: none; }
+      .stream-body table,
+      .stream-body h4,
+      .stream-body h3,
+      .stream-body h2 {
+        display: none !important;
+      }
       .stream-date { font-size: 0.6875rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 0.35rem; }
+
+      .back-to-top-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        z-index: 999;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      }
+      .back-to-top-btn.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      .back-to-top-btn:hover {
+        background: var(--brand-accent);
+        color: #ffffff;
+        border-color: var(--brand-accent);
+        transform: translateY(-2px);
+      }
 
       /* Table Card */
       .table-card {
@@ -716,6 +806,12 @@ const websiteSchema = {
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
         white-space: nowrap;
+      }
+      .data-table tbody tr {
+        transition: background-color 0.15s ease;
+      }
+      .data-table tbody tr:hover {
+        background-color: var(--bg-surface-elevated);
       }
       .table-symbol { font-weight: 700; color: var(--text-primary); font-family: var(--font-mono); }
       .table-gain { color: var(--gain-color); font-weight: 600; font-family: var(--font-mono); }
@@ -833,6 +929,12 @@ const websiteSchema = {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .tool-card:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
       }
       .tool-badge {
         font-size: 0.6875rem;
@@ -855,8 +957,9 @@ const websiteSchema = {
         border: 1px solid var(--border-subtle);
         padding: 0.45rem 0.75rem;
         border-radius: 4px;
+        transition: all 0.2s ease;
       }
-      .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); }
+      .tool-btn:hover { background: var(--brand-accent); color: #fff; border-color: var(--brand-accent); transform: translateY(-1px); }
 
       .newsletter-box {
         background: linear-gradient(180deg, var(--bg-surface-elevated) 0%, var(--bg-surface) 100%);
@@ -1711,6 +1814,70 @@ const websiteSchema = {
           banner?.classList.add('hidden');
         });
       })();
+
+      // 8. Dynamic Scrollspy & Active Section Highlighting
+      (function initScrollSpy() {
+        const sections = document.querySelectorAll('section[id], div[id="alerts"]');
+        const topNavLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+        const sideNavLinks = document.querySelectorAll('.sidebar-nav a[href^="#"]');
+
+        if (!sections.length || !('IntersectionObserver' in window)) return;
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const currentId = '#' + entry.target.id;
+              
+              topNavLinks.forEach((link) => {
+                const isMatch = link.getAttribute('href') === currentId;
+                link.classList.toggle('active', isMatch);
+              });
+
+              sideNavLinks.forEach((link) => {
+                const isMatch = link.getAttribute('href') === currentId;
+                link.classList.toggle('active', isMatch);
+              });
+            }
+          });
+        }, {
+          rootMargin: '-20% 0px -65% 0px',
+          threshold: 0
+        });
+
+        sections.forEach((sec) => observer.observe(sec));
+      })();
+
+      // 9. Floating Back-to-Top Button
+      (function initBackToTop() {
+        const bttBtn = document.getElementById('back-to-top-btn');
+        if (!bttBtn) return;
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+          if (!ticking) {
+            window.requestAnimationFrame(() => {
+              if (window.scrollY > 350) {
+                bttBtn.classList.add('visible');
+              } else {
+                bttBtn.classList.remove('visible');
+              }
+              ticking = false;
+            });
+            ticking = true;
+          }
+        }, { passive: true });
+
+        bttBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
     </script>
+
+    <!-- Floating Back to Top Navigation Button -->
+    <button id="back-to-top-btn" class="back-to-top-btn" aria-label="Scroll back to top" title="Back to Top">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
   </body>
 </html>
