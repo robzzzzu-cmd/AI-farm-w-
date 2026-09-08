@@ -135,39 +135,39 @@ const websiteSchema = {
       :root {
         --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         --font-mono: 'JetBrains Mono', monospace;
-        --bg-page: #0b0e14;
-        --bg-surface: #111622;
-        --bg-surface-elevated: #161d2d;
-        --border-subtle: #1e2638;
-        --border-strong: #2d374d;
-        --text-primary: #f1f5f9;
-        --text-secondary: #94a3b8;
-        --text-muted: #64748b;
+        --bg-page: #0b0c10;
+        --bg-surface: #12141a;
+        --bg-surface-elevated: #181b22;
+        --border-subtle: #222632;
+        --border-strong: #2f3545;
+        --text-primary: #f3f4f6;
+        --text-secondary: #9ca3af;
+        --text-muted: #6b7280;
         --brand-accent: #3b82f6;
         --gain-color: #22c55e;
         --gain-bg: rgba(34, 197, 94, 0.1);
         --loss-color: #ef4444;
         --loss-bg: rgba(239, 68, 68, 0.1);
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.35);
         --sidebar-width: 270px;
         --nav-height: 58px;
       }
 
       [data-theme="light"] {
-        --bg-page: #f8fafc;
+        --bg-page: #f0f2f5;
         --bg-surface: #ffffff;
-        --bg-surface-elevated: #f1f5f9;
-        --border-subtle: #e2e8f0;
-        --border-strong: #cbd5e1;
-        --text-primary: #0f172a;
-        --text-secondary: #475569;
-        --text-muted: #64748b;
+        --bg-surface-elevated: #e5e8ed;
+        --border-subtle: #d0d5dd;
+        --border-strong: #98a2b3;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --text-muted: #667085;
         --brand-accent: #2563eb;
         --gain-color: #16a34a;
-        --gain-bg: rgba(22, 163, 74, 0.1);
+        --gain-bg: rgba(22, 163, 74, 0.12);
         --loss-color: #dc2626;
-        --loss-bg: rgba(220, 38, 38, 0.1);
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        --loss-bg: rgba(220, 38, 38, 0.12);
+        --card-shadow: 0 2px 8px -2px rgba(16, 24, 40, 0.08), 0 1px 4px -1px rgba(16, 24, 40, 0.04);
       }
 
       *, *::before, *::after { 
@@ -605,34 +605,48 @@ const websiteSchema = {
       .card-body a:hover { text-decoration: underline; }
       .card-body h4 { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin: 1.25rem 0 0.5rem 0; }
       
-      .card-body table, .compact-table {
-        display: block;
+      .table-responsive-wrapper {
         width: 100%;
-        max-width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1rem 0 0.75rem 0;
+        border-radius: 6px;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-surface-elevated);
+      }
+      .card-body table, .compact-table {
+        display: table;
+        width: 100%;
+        table-layout: auto;
         border-collapse: collapse;
-        font-size: 0.78rem;
-        margin: 0.75rem 0 0.5rem 0;
+        font-size: 0.8125rem;
+        margin: 0.85rem 0;
         background: var(--bg-surface-elevated);
         border: 1px solid var(--border-subtle);
-        border-radius: 4px;
+        border-radius: 6px;
+        overflow: hidden;
       }
       .card-body th, .compact-table th {
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--bg-surface-elevated);
         color: var(--text-muted);
         text-align: left;
-        padding: 0.5rem 0.65rem;
+        padding: 0.65rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
-        font-size: 0.68rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
         white-space: nowrap;
       }
       .card-body td, .compact-table td {
-        padding: 0.5rem 0.65rem;
+        padding: 0.65rem 1rem;
         border-bottom: 1px solid var(--border-subtle);
         color: var(--text-secondary);
         white-space: nowrap;
+      }
+      .card-body th:last-child, .card-body td:last-child,
+      .compact-table th:last-child, .compact-table td:last-child {
+        text-align: right;
       }
       .card-body code, .compact-table code {
         font-family: var(--font-mono);
@@ -661,6 +675,34 @@ const websiteSchema = {
       .toggle-table-btn:hover {
         border-color: var(--brand-accent);
         color: var(--text-primary);
+      }
+
+      .big-screener-cta-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 1.1rem 1.75rem;
+        background: linear-gradient(135deg, var(--brand-accent) 0%, #1d4ed8 100%);
+        color: #ffffff !important;
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-sizing: border-box;
+      }
+      .big-screener-cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45);
+        filter: brightness(1.08);
+      }
+      .big-screener-cta-btn:active {
+        transform: translateY(0);
       }
 
       .card-action-btn {
@@ -712,16 +754,26 @@ const websiteSchema = {
 
       .stream-list { display: flex; flex-direction: column; gap: 0.75rem; }
       .stream-item {
-        background: var(--bg-surface);
-        border: 1px solid var(--border-subtle);
+        background: #14151b;
+        border: 1px solid #232630;
         border-radius: 6px;
         padding: 1.1rem;
         transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease;
       }
       .stream-item:hover {
-        border-color: var(--border-strong);
+        border-color: #353b4b;
+        background: #181a24;
         transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      }
+      [data-theme="light"] .stream-item {
+        background: #ffffff;
+        border: 1px solid var(--border-subtle);
+      }
+      [data-theme="light"] .stream-item:hover {
+        border-color: var(--border-strong);
+        background: #ffffff;
+        box-shadow: var(--card-shadow);
       }
       .stream-title { 
         font-size: 0.875rem; 
@@ -1313,41 +1365,20 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Dedicated Live Stock Screener Teaser Area -->
+      <!-- Dedicated Live Stock Screener Button -->
       <section id="screener" style="margin-bottom: 2.5rem;">
-        <div class="card" style="padding: 1.5rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
-            <div>
-              <div style="font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; color: var(--brand-accent); text-transform: uppercase; margin-bottom: 0.35rem;">QUANTITATIVE MARKET RADAR</div>
-              <h2 style="font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; color: var(--text-primary); margin: 0 0 0.35rem 0;">Live Stock Screener &bull; Real-Time Opportunities</h2>
-              <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0; line-height: 1.5;">Automated real-time scanner tracking high-momentum equity breakouts, unusual relative volume (RVOL), and institutional liquidity shifts.</p>
-            </div>
-            <a href="/screener" class="card-action-btn" style="width: auto; padding: 0.6rem 1.25rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0;">
-              <span>Open Live Stock Screener</span>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
-          </div>
-
-          <!-- Sponsored Market Node -->
-          <div class="ad-leaderboard" style="margin: 1.25rem auto 0.5rem auto; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
-            <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">SPONSORED MARKET NODE</span>
-            <div style="width: 100%; min-height: 90px; margin: auto; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-              <script is:inline>
-                atOptions = {
-                  'key' : '069907293312bf0f2555658bc919672c',
-                  'format' : 'iframe',
-                  'height' : 90,
-                  'width' : 728,
-                  'params' : {}
-                };
-              </script>
-              <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
-            </div>
-          </div>
-        </div>
+        <a href="/screener" class="big-screener-cta-btn">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Open Live Stock Screener</span>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
       </section>
 
       <!-- Section 02: Opportunities Table -->
@@ -1758,6 +1789,15 @@ const websiteSchema = {
         }
 
         if (targetTable) {
+          let insertAnchor = targetTable;
+          if (targetTable.parentElement && !targetTable.parentElement.classList.contains('table-responsive-wrapper')) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'table-responsive-wrapper';
+            targetTable.parentNode.insertBefore(wrapper, targetTable);
+            wrapper.appendChild(targetTable);
+            insertAnchor = wrapper;
+          }
+
           const rows = targetTable.querySelectorAll('tbody tr');
           if (rows.length > 2) {
             rows.forEach((row, i) => {
@@ -1782,7 +1822,7 @@ const websiteSchema = {
                 : '<span>Show More Rows</span> <span>&darr;</span>';
             });
 
-            targetTable.insertAdjacentElement('afterend', toggleBtn);
+            insertAnchor.insertAdjacentElement('afterend', toggleBtn);
           }
         }
       })();
