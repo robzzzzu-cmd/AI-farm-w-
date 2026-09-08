@@ -20,7 +20,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -50,23 +50,142 @@ const {
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={image} />
 
+    <!-- Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Instant Theme Synchronization to Prevent Flash -->
+    <script is:inline>
+      (function() {
+        const savedTheme = localStorage.getItem('to_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      })();
+    </script>
+
     <slot name="head" />
   </head>
   <body>
     <MarketTicker />
-    
-    <header class="site-header">
-      <nav class="nav-container">
-        <a href="/" class="brand-logo">TRADE<span> OPPORTUNITIES</span></a>
-        <div class="nav-links">
-          <a href="/#news-feed">News Feed</a>
-          <a href="/screener">Live Screener</a>
-          <a href="/#opportunities">Opportunities</a>
-          <a href="/#tools">Tools</a>
-          <a href="/#platforms">Platforms</a>
-          <a href="/about">Methodology</a>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <aside id="side-dashboard" class="side-dashboard" aria-label="Analytical Navigation Dashboard">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <span class="logo-glyph"></span>
+          <span>TRADE OPPORTUNITIES</span>
         </div>
-      </nav>
+        <button id="sidebar-close-btn" class="sidebar-close-btn" aria-label="Close Dashboard">&times;</button>
+      </div>
+
+      <div class="sidebar-body">
+        <div class="sidebar-group-label">WORKSPACE HUBS</div>
+        <nav class="sidebar-nav">
+          <a href="/" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="/#news-feed" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>News Feed</span>
+          </a>
+          <a href="/screener" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Live Screener</span>
+          </a>
+          <a href="/#opportunities" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span>Opportunities</span>
+          </a>
+          <a href="/#tools" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Tools</span>
+          </a>
+          <a href="/#platforms" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Platforms</span>
+          </a>
+          <a href="/#alerts" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <span>Weekly News</span>
+          </a>
+          <a href="/about" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Methodology</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-promo-card">
+          <div class="sidebar-promo-title">Weekly Market Intelligence</div>
+          <p class="sidebar-promo-desc">Direct market dispatches, volume anomaly alerts, and weekly quantitative digests.</p>
+          <a href="/#alerts" class="sidebar-promo-btn">Subscribe Free</a>
+        </div>
+      </div>
+    </aside>
+
+    <header class="top-nav">
+      <div class="nav-inner">
+        <div class="brand-group">
+          <button id="sidebar-toggle-btn" class="dashboard-toggle-btn" aria-label="Toggle Side Dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>Dashboard</span>
+          </button>
+
+          <a href="/" class="logo">
+            <span class="logo-glyph"></span>
+            TRADE OPPORTUNITIES
+          </a>
+
+          <ul class="nav-links">
+            <li><a href="/#news-feed">News Feed</a></li>
+            <li><a href="/screener">Live Screener</a></li>
+            <li><a href="/#opportunities">Opportunities</a></li>
+            <li><a href="/#tools">Tools</a></li>
+            <li><a href="/#platforms">Platforms</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-actions">
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="filter-input" class="search-input" placeholder="Search ticker..." />
+          </div>
+
+          <button id="theme-toggle-btn" class="icon-action-btn" aria-label="Toggle light / dark mode" title="Switch Theme">
+            <svg id="theme-icon-sun" style="display: none;" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg id="theme-icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <a href="/#alerts" class="alerts-action-btn" title="Subscribe for Weekly News">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <span>Weekly News</span>
+          </a>
+        </div>
+      </div>
     </header>
 
     <main>
@@ -109,7 +228,83 @@ const {
     </footer>
 
     <script is:inline>
-      (function () {
+      // 1. Theme Initializer & Toggle
+      (function initLayoutTheme() {
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const sunIcon = document.getElementById('theme-icon-sun');
+        const moonIcon = document.getElementById('theme-icon-moon');
+
+        function applyTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'light') {
+            if (sunIcon) sunIcon.style.display = 'none';
+            if (moonIcon) moonIcon.style.display = 'block';
+          } else {
+            if (sunIcon) sunIcon.style.display = 'block';
+            if (moonIcon) moonIcon.style.display = 'none';
+          }
+          localStorage.setItem('to_theme', theme);
+        }
+
+        const savedTheme = localStorage.getItem('to_theme') || 'dark';
+        applyTheme(savedTheme);
+
+        themeBtn?.addEventListener('click', () => {
+          const current = document.documentElement.getAttribute('data-theme') || 'dark';
+          const next = current === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+        });
+      })();
+
+      // 2. Sidebar Dashboard Drawer
+      (function initLayoutDrawer() {
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const closeBtn = document.getElementById('sidebar-close-btn');
+        const sidebar = document.getElementById('side-dashboard');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        function openSidebar() {
+          sidebar?.classList.add('open');
+          backdrop?.classList.add('active');
+        }
+
+        function closeSidebar() {
+          sidebar?.classList.remove('open');
+          backdrop?.classList.remove('active');
+        }
+
+        toggleBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openSidebar();
+        });
+
+        closeBtn?.addEventListener('click', closeSidebar);
+        backdrop?.addEventListener('click', closeSidebar);
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && sidebar?.classList.contains('open')) {
+            closeSidebar();
+          }
+        });
+      })();
+
+      // 3. Search Field Redirect
+      (function initSearchRedirect() {
+        const searchInput = document.getElementById('filter-input');
+        if (!searchInput) return;
+
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const q = searchInput.value.trim();
+            if (q) {
+              window.location.href = `/?search=${encodeURIComponent(q)}#news-feed`;
+            }
+          }
+        });
+      })();
+
+      // 4. Cookie Banner
+      (function initCookieBanner() {
         const banner = document.getElementById('cookie-banner');
         const acceptBtn = document.getElementById('accept-cookies');
         const declineBtn = document.getElementById('decline-cookies');
@@ -132,99 +327,403 @@ const {
   </body>
 </html>
 
-<style>
+<style is:global>
   :root {
-    --bg-primary: #020617;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --bg-page: #0b0e14;
     --bg-surface: #111622;
     --bg-surface-elevated: #161d2d;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #94a3b8;
-    --border-color: #1e293b;
     --border-subtle: #1e2638;
-    --accent: #38bdf8;
-    --brand-accent: #38bdf8;
+    --border-strong: #2d374d;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --brand-accent: #3b82f6;
     --gain-color: #22c55e;
     --gain-bg: rgba(34, 197, 94, 0.1);
     --loss-color: #ef4444;
     --loss-bg: rgba(239, 68, 68, 0.1);
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+    --sidebar-width: 270px;
+    --nav-height: 58px;
   }
+
+  [data-theme="light"] {
+    --bg-page: #f1f5f9;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #e2e8f0;
+    --border-subtle: #cbd5e1;
+    --border-strong: #94a3b8;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --brand-accent: #2563eb;
+    --gain-color: #16a34a;
+    --gain-bg: rgba(22, 163, 74, 0.12);
+    --loss-color: #dc2626;
+    --loss-bg: rgba(220, 38, 38, 0.12);
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
   *, *::before, *::after {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
+
   html {
     scroll-behavior: smooth;
   }
-  html, body {
+
+  body {
     margin: 0;
     padding: 0;
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg-primary);
+    font-family: var(--font-sans);
+    background-color: var(--bg-page);
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
     -webkit-text-size-adjust: 100%;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
+
   main {
     flex: 1;
     width: 100%;
     max-width: 100vw;
     overflow-x: hidden;
   }
-  .site-header {
-    border-bottom: 1px solid var(--border-color);
-    background: rgba(2, 6, 23, 0.85);
-    backdrop-filter: blur(8px);
-    width: 100%;
+
+  /* Side Dashboard Drawer */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .sidebar-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .side-dashboard {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-subtle);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45);
+    overflow-y: auto;
+  }
+  .side-dashboard.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+  .sidebar-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    line-height: 1;
+  }
+  .sidebar-close-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-surface-elevated);
+  }
+
+  .sidebar-body {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .sidebar-group-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 0 0.5rem;
+  }
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .sidebar-nav-item:hover {
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    transform: translateX(2px);
+  }
+  .sidebar-nav-item.active {
+    background: var(--bg-surface-elevated);
+    color: var(--brand-accent);
+    font-weight: 600;
+    border-left: 3px solid var(--brand-accent);
+  }
+  .sidebar-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+  .sidebar-nav-item:hover .sidebar-icon, .sidebar-nav-item.active .sidebar-icon {
+    color: var(--brand-accent);
+  }
+
+  .sidebar-promo-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.85rem;
+    margin-top: auto;
+    margin-bottom: 0.5rem;
+  }
+  .sidebar-promo-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+  .sidebar-promo-desc {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 0.65rem;
+  }
+  .sidebar-promo-btn {
+    display: block;
+    text-align: center;
+    background: var(--brand-accent);
+    color: #fff !important;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    text-decoration: none;
+  }
+
+  /* Top Sticky Navigation */
+  .top-nav {
     position: sticky;
     top: 0;
     z-index: 100;
+    background: var(--bg-page);
+    border-bottom: 1px solid var(--border-subtle);
+    width: 100%;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
-  .nav-container {
-    max-width: 1100px;
-    margin: 0 auto;
+  .nav-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.25rem;
+    height: var(--nav-height);
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    box-sizing: border-box;
   }
-  .brand-logo {
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .dashboard-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.78125rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .dashboard-toggle-btn:hover {
+    background: var(--bg-surface-elevated);
+    border-color: var(--border-strong);
+  }
+  .dashboard-toggle-btn svg {
+    width: 14px;
+    height: 14px;
+    color: var(--brand-accent);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 800;
-    font-size: 1.1rem;
-    color: #fff;
-    text-decoration: none;
+    font-size: 1.05rem;
     letter-spacing: -0.02em;
+    text-decoration: none;
+    color: var(--text-primary);
+    white-space: nowrap;
   }
-  .brand-logo span {
-    color: var(--accent);
+  .logo-glyph {
+    width: 14px;
+    height: 14px;
+    background: var(--brand-accent);
+    border-radius: 3px;
+    flex-shrink: 0;
   }
   .nav-links {
     display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    gap: 1.35rem;
+    list-style: none;
   }
   .nav-links a {
-    color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
+    color: var(--text-secondary);
     transition: color 0.2s ease;
     position: relative;
-    padding-bottom: 2px;
+    padding-bottom: 4px;
   }
   .nav-links a:hover {
-    color: #fff;
+    color: var(--text-primary);
   }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-icon {
+    position: absolute;
+    left: 0.65rem;
+    width: 13px;
+    height: 13px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .search-input {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.8125rem;
+    padding: 0.4rem 0.75rem 0.4rem 1.9rem;
+    border-radius: 4px;
+    width: 170px;
+    outline: none;
+    transition: width 0.2s ease, border-color 0.2s ease;
+  }
+  .search-input:focus {
+    width: 210px;
+    border-color: var(--brand-accent);
+  }
+
+  .icon-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .icon-action-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-surface-elevated);
+    border-color: var(--border-strong);
+  }
+
+  .alerts-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.4rem 0.65rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .alerts-action-btn:hover {
+    background: var(--bg-surface-elevated);
+    border-color: var(--border-strong);
+  }
+  .alerts-action-btn svg {
+    color: var(--brand-accent);
+  }
+
+  /* Footer */
   .site-footer {
-    border-top: 1px solid var(--border-color);
-    background: #090d16;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
     padding: 2.5rem 1.25rem;
     margin-top: 3rem;
     width: 100%;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
   .footer-container {
     max-width: 1100px;
@@ -232,8 +731,8 @@ const {
     width: 100%;
   }
   .footer-disclosure {
-    background: #020617;
-    border: 1px solid #1e293b;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
     border-radius: 6px;
     padding: 1rem 1.25rem;
     margin-bottom: 1.5rem;
@@ -243,13 +742,13 @@ const {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #e2e8f0;
+    color: var(--text-primary);
     margin: 0 0 0.4rem 0;
   }
   .disclosure-text {
     font-size: 0.8rem;
     line-height: 1.45;
-    color: #94a3b8;
+    color: var(--text-secondary);
     margin: 0;
   }
   .footer-meta {
@@ -257,7 +756,7 @@ const {
     justify-content: space-between;
     align-items: center;
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--text-muted);
     flex-wrap: wrap;
     gap: 0.75rem;
   }
@@ -268,8 +767,9 @@ const {
     flex-wrap: wrap;
   }
   .legal-links a {
-    color: #64748b;
+    color: var(--text-muted);
     text-decoration: none;
+    transition: color 0.15s ease;
   }
   .legal-links a:hover {
     color: var(--text-primary);
@@ -282,12 +782,12 @@ const {
     right: 1rem;
     max-width: 500px;
     margin: 0 auto;
-    background: #0b0e14;
-    border: 1px solid #1e2638;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 1rem 1.25rem;
     z-index: 9999;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
   }
   .cookie-banner.hidden {
     display: none;
@@ -299,12 +799,12 @@ const {
   }
   .cookie-content p {
     font-size: 0.8125rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     line-height: 1.4;
     margin: 0;
   }
   .cookie-content a {
-    color: var(--accent);
+    color: var(--brand-accent);
     text-decoration: underline;
   }
   .cookie-actions {
@@ -321,25 +821,27 @@ const {
     transition: opacity 0.2s;
   }
   .cookie-btn.accept {
-    background: #2563eb;
+    background: var(--brand-accent);
     color: #fff;
   }
   .cookie-btn.decline {
-    background: #1e2638;
-    color: #94a3b8;
+    background: var(--bg-surface-elevated);
+    color: var(--text-secondary);
   }
   .cookie-btn:hover {
     opacity: 0.9;
   }
 
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+  }
+
   @media (max-width: 640px) {
-    .nav-container {
-      flex-direction: column;
-      gap: 0.75rem;
-      align-items: flex-start;
+    .nav-inner {
+      padding: 0.6rem 0.85rem;
     }
-    .nav-links {
-      gap: 1rem;
+    .search-box {
+      display: none;
     }
   }
 </style>

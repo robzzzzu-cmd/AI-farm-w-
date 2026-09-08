@@ -56,29 +56,29 @@ const canonicalURL = new URL('/privacy/', Astro.site ?? 'https://tradeopportunit
     font-size: 2rem; 
     margin-bottom: 0.25rem; 
     font-weight: 800; 
-    color: #f1f5f9;
+    color: var(--text-primary);
   }
   .last-updated { 
     font-size: 0.8rem; 
-    color: #64748b; 
-    font-family: ui-monospace, monospace; 
+    color: var(--text-muted); 
+    font-family: var(--font-mono, monospace); 
     margin-bottom: 2rem; 
   }
   h2 { 
     font-size: 1.25rem; 
     margin-top: 1.75rem; 
     margin-bottom: 0.5rem; 
-    color: #f1f5f9; 
+    color: var(--text-primary); 
     font-weight: 700;
   }
   p { 
     font-size: 0.925rem; 
-    color: #94a3b8; 
+    color: var(--text-secondary); 
     margin-bottom: 1rem; 
     line-height: 1.65;
   }
   a { 
-    color: #3b82f6; 
+    color: var(--brand-accent); 
     text-decoration: none; 
     font-weight: 600; 
   }

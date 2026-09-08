@@ -93,7 +93,7 @@ const aboutSchema = {
     padding: 0 1.5rem;
   }
   .about-header {
-    border-bottom: 1px solid #1e2638;
+    border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 2rem;
     margin-bottom: 2.5rem;
   }
@@ -104,8 +104,8 @@ const aboutSchema = {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 0.2rem 0.6rem;
-    background: rgba(56, 189, 248, 0.1);
-    color: #38bdf8;
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--brand-accent);
     border-radius: 4px;
     margin-bottom: 0.75rem;
   }
@@ -115,10 +115,11 @@ const aboutSchema = {
     letter-spacing: -0.02em;
     margin: 0 0 0.75rem 0;
     line-height: 1.2;
+    color: var(--text-primary);
   }
   .subtitle {
     font-size: 1.05rem;
-    color: #94a3b8;
+    color: var(--text-secondary);
     line-height: 1.5;
     margin: 0;
   }
@@ -129,12 +130,12 @@ const aboutSchema = {
     font-size: 1.35rem;
     font-weight: 700;
     margin-bottom: 0.85rem;
-    color: #f1f5f9;
+    color: var(--text-primary);
   }
   p {
     font-size: 0.95rem;
     line-height: 1.65;
-    color: #cbd5e1;
+    color: var(--text-secondary);
     margin-bottom: 1rem;
   }
   ul {
@@ -144,7 +145,7 @@ const aboutSchema = {
   li {
     font-size: 0.925rem;
     line-height: 1.6;
-    color: #cbd5e1;
+    color: var(--text-secondary);
     margin-bottom: 0.5rem;
   }
   .spec-grid {
@@ -154,8 +155,8 @@ const aboutSchema = {
     margin-top: 1.25rem;
   }
   .spec-card {
-    background: #111622;
-    border: 1px solid #1e2638;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: 6px;
     padding: 1rem;
     display: flex;
@@ -165,19 +166,19 @@ const aboutSchema = {
   .spec-label {
     font-size: 0.7rem;
     text-transform: uppercase;
-    color: #64748b;
+    color: var(--text-muted);
     font-family: monospace;
   }
   .spec-val {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #38bdf8;
+    color: var(--brand-accent);
   }
   code {
     font-family: monospace;
-    background: #161d2d;
+    background: var(--bg-surface-elevated);
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
-    color: #38bdf8;
+    color: var(--brand-accent);
   }
 </style>

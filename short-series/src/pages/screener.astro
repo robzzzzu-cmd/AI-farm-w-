@@ -76,26 +76,6 @@ const screenerSchema = {
   </div>
 </Layout>
 
-<style is:global>
-  :root {
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --bg-page: #0b0e14;
-    --bg-surface: #111622;
-    --bg-surface-elevated: #161d2d;
-    --border-subtle: #1e2638;
-    --border-strong: #2d374d;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --brand-accent: #3b82f6;
-    --gain-color: #22c55e;
-    --gain-bg: rgba(34, 197, 94, 0.1);
-    --loss-color: #ef4444;
-    --loss-bg: rgba(239, 68, 68, 0.1);
-  }
-</style>
-
 <style>
   .screener-page-container {
     max-width: 1240px;
@@ -106,12 +86,12 @@ const screenerSchema = {
   }
   .breadcrumb {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--text-muted);
     margin-bottom: 1rem;
     font-family: var(--font-mono);
   }
   .breadcrumb a {
-    color: #38bdf8;
+    color: var(--brand-accent);
     text-decoration: none;
   }
   .breadcrumb a:hover {
@@ -129,8 +109,8 @@ const screenerSchema = {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 0.2rem 0.6rem;
-    background: rgba(56, 189, 248, 0.1);
-    color: #38bdf8;
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--brand-accent);
     border-radius: 4px;
     margin-bottom: 0.5rem;
   }
@@ -139,7 +119,7 @@ const screenerSchema = {
     font-weight: 800;
     letter-spacing: -0.02em;
     margin: 0 0 0.5rem 0;
-    color: #f1f5f9;
+    color: var(--text-primary);
   }
   .subtitle {
     font-size: 1rem;
@@ -170,7 +150,7 @@ const screenerSchema = {
   .framework-item strong {
     display: block;
     font-size: 0.85rem;
-    color: #38bdf8;
+    color: var(--brand-accent);
     margin-bottom: 0.35rem;
   }
   .framework-item p {
