@@ -49,12 +49,13 @@
         <div class="layer-header">
           <span class="layer-num">LAYER 01</span>
           <span class="layer-title">Catalyst &amp; News Ingestion</span>
+          <span class="provider-pill">FINNHUB &bull; POLYGON</span>
           <span class="layer-badge" id="catalyst-category-badge">UNCONFIRMED</span>
         </div>
         <div class="layer-content">
           <p class="catalyst-summary-text" id="catalyst-summary">Searching live feeds...</p>
           <div class="catalyst-meta-row">
-            <span class="catalyst-source" id="catalyst-source-tag">Source: Live RSS</span>
+            <span class="catalyst-source" id="catalyst-source-tag">Source: Finnhub / Polygon Live Wire</span>
             <a id="catalyst-link" href="#" target="_blank" rel="noopener noreferrer" class="catalyst-link-btn" style="display: none;">
               Read Original Filing / Story &rarr;
             </a>
@@ -398,6 +399,18 @@
     letter-spacing: 0.04em;
     flex: 1;
     margin-left: 0.5rem;
+  }
+  .provider-pill {
+    font-size: 0.58rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    color: var(--brand-accent, #3b82f6);
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    letter-spacing: 0.03em;
+    margin-right: 0.4rem;
   }
   .layer-badge {
     font-size: 0.65rem;

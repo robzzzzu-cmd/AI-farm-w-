@@ -87,6 +87,10 @@ const {
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Dashboard</span>
           </a>
+          <a href="/#catalyst-wire" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <span>Catalysts &amp; Wire (Finnhub/Polygon)</span>
+          </a>
           <a href="/#news-feed" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             <span>News Feed</span>
@@ -132,6 +136,18 @@ const {
       </div>
     </aside>
 
+    <!-- Persistent Floating Dashboard Access Button -->
+    <button id="floating-dashboard-btn" class="floating-dashboard-btn" aria-label="Open Market Dashboard" title="Access all market hubs and tools">
+      <span class="pulse-indicator"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span>Dashboard</span>
+    </button>
+
     <header class="top-nav">
       <div class="nav-inner">
         <div class="brand-group">
@@ -151,6 +167,7 @@ const {
           </a>
 
           <ul class="nav-links">
+            <li><a href="/#catalyst-wire">Catalysts &amp; Wire</a></li>
             <li><a href="/#news-feed">News Feed</a></li>
             <li><a href="/screener">Live Screener</a></li>
             <li><a href="/#opportunities">Opportunities</a></li>
@@ -265,6 +282,7 @@ const {
       // 2. Sidebar Dashboard Drawer
       (function initLayoutDrawer() {
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const floatingBtn = document.getElementById('floating-dashboard-btn');
         const closeBtn = document.getElementById('sidebar-close-btn');
         const sidebar = document.getElementById('side-dashboard');
         const backdrop = document.getElementById('sidebar-backdrop');
@@ -280,6 +298,11 @@ const {
         }
 
         toggleBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openSidebar();
+        });
+
+        floatingBtn?.addEventListener('click', (e) => {
           e.stopPropagation();
           openSidebar();
         });
@@ -380,7 +403,7 @@ const {
 
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
     width: 100%;
     max-width: 100%;
   }
@@ -390,7 +413,6 @@ const {
     padding: 0;
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
     position: relative;
     font-family: var(--font-sans);
     background-color: var(--bg-page);
@@ -408,7 +430,6 @@ const {
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    overflow-x: hidden;
   }
 
   img, iframe, embed, object {
@@ -577,7 +598,56 @@ const {
     background: var(--bg-page);
     border-bottom: 1px solid var(--border-subtle);
     width: 100%;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* Persistent Floating Dashboard Button */
+  .floating-dashboard-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 9990;
+    background: var(--bg-surface-elevated, #161a24);
+    border: 1px solid var(--border-strong, #2f3545);
+    color: var(--text-primary, #f1f5f9);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .floating-dashboard-btn:hover {
+    background: var(--brand-accent, #3b82f6);
+    border-color: var(--brand-accent, #3b82f6);
+    color: #ffffff;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 24px rgba(59, 130, 246, 0.45);
+  }
+  .floating-dashboard-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--brand-accent, #3b82f6);
+    transition: color 0.15s ease;
+  }
+  .floating-dashboard-btn:hover svg {
+    color: #ffffff;
+  }
+  .floating-dashboard-btn .pulse-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
   }
   .nav-inner {
     display: flex;
@@ -884,8 +954,11 @@ const {
   }
 
   @media (max-width: 440px) {
-    .dashboard-toggle-btn span {
-      display: none;
+    .floating-dashboard-btn {
+      bottom: 1rem;
+      left: 1rem;
+      padding: 0.5rem 0.8rem;
+      font-size: 0.75rem;
     }
     .alerts-action-btn span {
       display: none;

@@ -2,6 +2,7 @@
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
 import DiagnosticDrawer from '../components/DiagnosticDrawer.astro';
+import LiveCatalystWire from '../components/LiveCatalystWire.astro';
 
 interface StockItem {
   ticker: string;
@@ -179,7 +180,7 @@ const websiteSchema = {
       
       html {
         scroll-behavior: smooth;
-        overflow-x: hidden;
+        overflow-x: clip;
         width: 100%;
         max-width: 100%;
       }
@@ -192,7 +193,6 @@ const websiteSchema = {
         width: 100%;
         max-width: 100%;
         min-width: 0;
-        overflow-x: hidden;
         position: relative;
         font-family: var(--font-sans);
         background-color: var(--bg-page);
@@ -388,7 +388,56 @@ const websiteSchema = {
         background: var(--bg-page);
         border-bottom: 1px solid var(--border-subtle);
         width: 100%;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         transition: background-color 0.2s ease, border-color 0.2s ease;
+      }
+
+      /* Persistent Floating Dashboard Button */
+      .floating-dashboard-btn {
+        position: fixed;
+        bottom: 1.5rem;
+        left: 1.5rem;
+        z-index: 9990;
+        background: var(--bg-surface-elevated, #161a24);
+        border: 1px solid var(--border-strong, #2f3545);
+        color: var(--text-primary, #f1f5f9);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.25);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .floating-dashboard-btn:hover {
+        background: var(--brand-accent, #3b82f6);
+        border-color: var(--brand-accent, #3b82f6);
+        color: #ffffff;
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 6px 24px rgba(59, 130, 246, 0.45);
+      }
+      .floating-dashboard-btn svg {
+        width: 16px;
+        height: 16px;
+        color: var(--brand-accent, #3b82f6);
+        transition: color 0.15s ease;
+      }
+      .floating-dashboard-btn:hover svg {
+        color: #ffffff;
+      }
+      .floating-dashboard-btn .pulse-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 6px #10b981;
       }
       .nav-inner {
         display: flex;
@@ -1377,7 +1426,7 @@ const websiteSchema = {
       }
 
       @media (max-width: 480px) {
-        .dashboard-toggle-btn span { display: none; }
+        .floating-dashboard-btn { bottom: 1rem; left: 1rem; padding: 0.5rem 0.8rem; font-size: 0.75rem; }
         .alerts-action-btn span { display: none; }
         .alerts-action-btn { padding: 0.35rem 0.5rem; }
       }
@@ -1404,6 +1453,10 @@ const websiteSchema = {
           <a href="#top" class="sidebar-nav-item active">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Dashboard</span>
+          </a>
+          <a href="#catalyst-wire" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <span>Catalysts &amp; Wire (Finnhub/Polygon)</span>
           </a>
           <a href="#news-feed" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -1447,6 +1500,18 @@ const websiteSchema = {
       </div>
     </aside>
 
+    <!-- Persistent Floating Dashboard Quick-Action -->
+    <button id="floating-dashboard-btn" class="floating-dashboard-btn" aria-label="Open Market Dashboard" title="Access all market hubs and tools">
+      <span class="pulse-indicator"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span>Dashboard</span>
+    </button>
+
     <nav class="top-nav">
       <div class="app-wrapper nav-inner">
         <div class="brand-group">
@@ -1466,6 +1531,7 @@ const websiteSchema = {
           </a>
 
           <ul class="nav-links">
+            <li><a href="#catalyst-wire">Catalysts &amp; Wire</a></li>
             <li><a href="#news-feed" class="active">News Feed</a></li>
             <li><a href="/screener">Live Screener</a></li>
             <li><a href="#opportunities">Opportunities</a></li>
@@ -1559,12 +1625,11 @@ const websiteSchema = {
             </svg>
             <span>Scan Live Breakouts &rarr;</span>
           </a>
-          <a href="#news-feed" class="hero-secondary-btn">
+          <a href="#catalyst-wire" class="hero-secondary-btn">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
             </svg>
-            <span>Live Market Feed &darr;</span>
+            <span>Live Catalysts &amp; Wire &darr;</span>
           </a>
         </div>
 
@@ -1611,6 +1676,9 @@ const websiteSchema = {
           </div>
         </div>
       </section>
+
+      <!-- Live Finnhub & Polygon.io Catalyst Wire & Market Calendar -->
+      <LiveCatalystWire />
 
       <!-- Section 01: News Feed -->
       <section id="news-feed">
@@ -2038,6 +2106,7 @@ const websiteSchema = {
       // 2. Side Dashboard Drawer & Smooth Link Navigation
       (function initDashboardDrawer() {
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        const floatingBtn = document.getElementById('floating-dashboard-btn');
         const closeBtn = document.getElementById('sidebar-close-btn');
         const sidebar = document.getElementById('side-dashboard');
         const backdrop = document.getElementById('sidebar-backdrop');
@@ -2053,6 +2122,11 @@ const websiteSchema = {
         }
 
         toggleBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openSidebar();
+        });
+
+        floatingBtn?.addEventListener('click', (e) => {
           e.stopPropagation();
           openSidebar();
         });
