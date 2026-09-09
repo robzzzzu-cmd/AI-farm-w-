@@ -392,53 +392,6 @@ const websiteSchema = {
         -webkit-backdrop-filter: blur(12px);
         transition: background-color 0.2s ease, border-color 0.2s ease;
       }
-
-      /* Persistent Floating Dashboard Button */
-      .floating-dashboard-btn {
-        position: fixed;
-        bottom: 1.5rem;
-        left: 1.5rem;
-        z-index: 9990;
-        background: var(--bg-surface-elevated, #161a24);
-        border: 1px solid var(--border-strong, #2f3545);
-        color: var(--text-primary, #f1f5f9);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1rem;
-        border-radius: 9999px;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.25);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .floating-dashboard-btn:hover {
-        background: var(--brand-accent, #3b82f6);
-        border-color: var(--brand-accent, #3b82f6);
-        color: #ffffff;
-        transform: translateY(-2px) scale(1.03);
-        box-shadow: 0 6px 24px rgba(59, 130, 246, 0.45);
-      }
-      .floating-dashboard-btn svg {
-        width: 16px;
-        height: 16px;
-        color: var(--brand-accent, #3b82f6);
-        transition: color 0.15s ease;
-      }
-      .floating-dashboard-btn:hover svg {
-        color: #ffffff;
-      }
-      .floating-dashboard-btn .pulse-indicator {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #10b981;
-        box-shadow: 0 0 6px #10b981;
-      }
       .nav-inner {
         display: flex;
         justify-content: space-between;
@@ -1426,7 +1379,6 @@ const websiteSchema = {
       }
 
       @media (max-width: 480px) {
-        .floating-dashboard-btn { bottom: 1rem; left: 1rem; padding: 0.5rem 0.8rem; font-size: 0.75rem; }
         .alerts-action-btn span { display: none; }
         .alerts-action-btn { padding: 0.35rem 0.5rem; }
       }
@@ -1454,10 +1406,6 @@ const websiteSchema = {
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Dashboard</span>
           </a>
-          <a href="#catalyst-wire" class="sidebar-nav-item">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-            <span>Catalysts &amp; Wire (Finnhub/Polygon)</span>
-          </a>
           <a href="#news-feed" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             <span>News Feed</span>
@@ -1473,6 +1421,10 @@ const websiteSchema = {
           <a href="#tools" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Tools</span>
+          </a>
+          <a href="#catalyst-wire" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <span>Catalysts &amp; Calendar</span>
           </a>
           <a href="#platforms" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -1500,18 +1452,6 @@ const websiteSchema = {
       </div>
     </aside>
 
-    <!-- Persistent Floating Dashboard Quick-Action -->
-    <button id="floating-dashboard-btn" class="floating-dashboard-btn" aria-label="Open Market Dashboard" title="Access all market hubs and tools">
-      <span class="pulse-indicator"></span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7"></rect>
-        <rect x="14" y="3" width="7" height="7"></rect>
-        <rect x="14" y="14" width="7" height="7"></rect>
-        <rect x="3" y="14" width="7" height="7"></rect>
-      </svg>
-      <span>Dashboard</span>
-    </button>
-
     <nav class="top-nav">
       <div class="app-wrapper nav-inner">
         <div class="brand-group">
@@ -1531,11 +1471,11 @@ const websiteSchema = {
           </a>
 
           <ul class="nav-links">
-            <li><a href="#catalyst-wire">Catalysts &amp; Wire</a></li>
             <li><a href="#news-feed" class="active">News Feed</a></li>
             <li><a href="/screener">Live Screener</a></li>
             <li><a href="#opportunities">Opportunities</a></li>
             <li><a href="#tools">Tools</a></li>
+            <li><a href="#catalyst-wire">Catalysts</a></li>
             <li><a href="#platforms">Platforms</a></li>
             <li><a href="/track-record">Track Record</a></li>
           </ul>
@@ -1625,11 +1565,12 @@ const websiteSchema = {
             </svg>
             <span>Scan Live Breakouts &rarr;</span>
           </a>
-          <a href="#catalyst-wire" class="hero-secondary-btn">
+          <a href="#news-feed" class="hero-secondary-btn">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
-            <span>Live Catalysts &amp; Wire &darr;</span>
+            <span>Live Market Feed &darr;</span>
           </a>
         </div>
 
@@ -1676,9 +1617,6 @@ const websiteSchema = {
           </div>
         </div>
       </section>
-
-      <!-- Live Finnhub & Polygon.io Catalyst Wire & Market Calendar -->
-      <LiveCatalystWire />
 
       <!-- Section 01: News Feed -->
       <section id="news-feed">
@@ -1917,6 +1855,9 @@ const websiteSchema = {
         </div>
       </section>
 
+      <!-- Section 04: Market Catalysts & Macro Calendar -->
+      <LiveCatalystWire />
+
       <!-- Newsletter / Subscribe for Weekly News Section -->
       <div class="newsletter-box" id="alerts">
         <div>
@@ -1943,9 +1884,9 @@ const websiteSchema = {
         </form>
       </div>
 
-      <!-- Section 04: Platforms -->
+      <!-- Section 05: Platforms -->
       <section id="platforms">
-        <div class="section-label">04 // Platforms &bull; Trading Tools &amp; Execution</div>
+        <div class="section-label">05 // Platforms &bull; Trading Tools &amp; Execution</div>
         <div class="tools-grid">
           <div class="tool-card">
             <div>
@@ -2106,7 +2047,6 @@ const websiteSchema = {
       // 2. Side Dashboard Drawer & Smooth Link Navigation
       (function initDashboardDrawer() {
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
-        const floatingBtn = document.getElementById('floating-dashboard-btn');
         const closeBtn = document.getElementById('sidebar-close-btn');
         const sidebar = document.getElementById('side-dashboard');
         const backdrop = document.getElementById('sidebar-backdrop');
@@ -2122,11 +2062,6 @@ const websiteSchema = {
         }
 
         toggleBtn?.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openSidebar();
-        });
-
-        floatingBtn?.addEventListener('click', (e) => {
           e.stopPropagation();
           openSidebar();
         });

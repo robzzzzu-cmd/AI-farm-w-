@@ -22,7 +22,7 @@ const pageDescription = "Terms of service, execution risk disclaimers, and regul
     <p class="last-updated">Last Updated: August 2026</p>
 
     <div class="alert-box">
-      <strong>CRITICAL RISK DISCLOSURE:</strong> Trade Opportunities is an automated financial data aggregator. No information published on this domain constitutes personalized investment, tax, legal, or financial advice. All trades, orders, or liquidity routing actions executed by you are done solely at your own risk.
+      <strong>Risk Disclosure:</strong> Trade Opportunities is an automated financial data aggregator. No information published on this domain constitutes personalized investment, tax, legal, or financial advice. All trades or market actions are conducted at your own discretion and risk.
     </div>
 
     <section class="legal-section">
@@ -92,19 +92,22 @@ const pageDescription = "Terms of service, execution risk disclaimers, and regul
     margin-bottom: 2rem;
   }
   .alert-box {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: 6px;
-    padding: 1.25rem;
+    padding: 1rem 1.25rem;
     margin: 1.5rem 0;
-    font-size: 0.9rem;
-    color: #ef4444;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
     line-height: 1.6;
   }
+  .alert-box strong {
+    color: var(--text-primary);
+  }
   [data-theme="light"] .alert-box {
-    background: rgba(239, 68, 68, 0.06);
-    color: #b91c1c;
-    border-color: rgba(239, 68, 68, 0.25);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
   }
   .legal-section {
     margin-bottom: 1.5rem;
