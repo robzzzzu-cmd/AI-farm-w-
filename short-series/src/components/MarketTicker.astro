@@ -58,9 +58,9 @@ const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
         { "proName": "BINANCE:BTCUSDT", "title": "BTC/USDT" },
         { "proName": "BINANCE:ETHUSDT", "title": "ETH/USDT" }
       ],
-      "showSymbolLogo": true,
+      "showSymbolLogo": false,
       "isTransparent": true,
-      "displayMode": "adaptive",
+      "displayMode": "compact",
       "colorTheme": "dark",
       "locale": "en"
     });
@@ -142,15 +142,24 @@ const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
     background: var(--brand-accent, #38bdf8);
     color: #ffffff;
   }
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
+    .ticker-ribbon-container {
+      height: 38px;
+    }
     .session-badge {
-      font-size: 0.6875rem;
-      padding: 0 0.5rem;
+      padding: 0 0.45rem;
+      border-right: 1px solid var(--border-subtle, #1e2638);
+    }
+    .session-text {
+      display: none;
     }
     .tv-ref-pill {
-      font-size: 0.65rem;
-      padding: 0.2rem 0.4rem;
-      margin-right: 0.35rem;
+      font-size: 0.62rem;
+      padding: 0.15rem 0.35rem;
+      margin-right: 0.25rem;
+    }
+    .tradingview-widget-container {
+      height: 38px;
     }
   }
 </style>

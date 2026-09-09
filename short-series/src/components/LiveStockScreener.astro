@@ -42,19 +42,21 @@ const categoriesList = Object.values(categories);
     </div>
 
     <!-- Ad Placement -->
-    <div class="ad-leaderboard" style="margin: 1rem auto 1.25rem auto; background: var(--bg-surface-elevated, #161d2d); border: 1px solid var(--border-subtle, #1e2638); border-radius: 6px; padding: 0.75rem; text-align: center;">
-      <span style="font-size: 0.625rem; font-family: var(--font-mono, monospace); text-transform: uppercase; color: var(--text-muted, #64748b); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">SPONSORED MARKET NODE</span>
-      <div style="width: 100%; min-height: 90px; margin: auto; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-        <script is:inline>
-          atOptions = {
-            'key' : '069907293312bf0f2555658bc919672c',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-          };
-        </script>
-        <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
+    <div class="ad-leaderboard">
+      <span class="ad-sponsor-label">SPONSORED MARKET NODE</span>
+      <div class="ad-container-outer">
+        <div class="ad-container-inner">
+          <script is:inline>
+            atOptions = {
+              'key' : '069907293312bf0f2555658bc919672c',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
+        </div>
       </div>
     </div>
 
@@ -918,11 +920,47 @@ const categoriesList = Object.values(categories);
   .ad-leaderboard {
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
+    margin: 1rem auto 1.25rem auto;
+    background: var(--bg-surface-elevated, #161d2d);
+    border: 1px solid var(--border-subtle, #1e2638);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
     box-sizing: border-box;
+    overflow: hidden;
   }
-  .ad-leaderboard iframe {
-    max-width: 100% !important;
+  .ad-sponsor-label {
+    font-size: 0.625rem;
+    font-family: var(--font-mono, monospace);
+    text-transform: uppercase;
+    color: var(--text-muted, #64748b);
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .ad-container-outer {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90px;
+  }
+  .ad-container-inner {
+    width: 728px;
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .ad-container-inner iframe {
+    width: 728px !important;
+    height: 90px !important;
+    max-width: none !important;
+    border: 0 !important;
+    display: block !important;
   }
 
   [data-theme="light"] .screener-wrapper {
@@ -1944,9 +1982,29 @@ const categoriesList = Object.values(categories);
       display: none !important; /* Eliminates the bloated company name taking up the screen */
     }
 
+    /* Adsterra banner responsive scaling */
+    .ad-leaderboard {
+      padding: 0.4rem 0.25rem;
+      margin: 0.75rem auto 1rem auto;
+    }
+    .ad-container-outer {
+      min-height: 48px;
+      height: 48px;
+    }
+    .ad-container-inner {
+      transform: scale(0.46);
+      transform-origin: center center;
+    }
+
+    /* Hide redundant Change ($) column on mobile so Change (%) sits directly next to Price */
+    .screener-table th[data-sort="change_abs"],
+    .screener-table td.cell-change-abs {
+      display: none !important;
+    }
+
     /* Tightly spaced compact table cells NEXT TO EACH OTHER */
     .screener-table {
-      min-width: 640px !important;
+      min-width: 580px !important;
     }
     .screener-table td, 
     .screener-table th {
@@ -1956,10 +2014,24 @@ const categoriesList = Object.values(categories);
     .cell-price {
       font-size: 0.75rem !important;
     }
+    .cell-change-pct {
+      min-width: 72px !important;
+      text-align: center !important;
+      padding: 0.45rem 0.35rem !important;
+      white-space: nowrap !important;
+    }
     .delta-pill {
-      min-width: 48px !important;
-      padding: 0.15rem 0.3rem !important;
-      font-size: 0.68rem !important;
+      min-width: 62px !important;
+      width: auto !important;
+      padding: 0.22rem 0.45rem !important;
+      font-size: 0.74rem !important;
+      line-height: 1.15 !important;
+      white-space: nowrap !important;
+      word-break: keep-all !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
     }
     .cell-action .row-btn-group {
       gap: 0.2rem;
@@ -1980,6 +2052,17 @@ const categoriesList = Object.values(categories);
     .footer-aux-actions {
       width: auto;
       gap: 0.5rem;
+    }
+  }
+
+  @media (min-width: 440px) and (max-width: 768px) {
+    .ad-container-outer {
+      min-height: 60px;
+      height: 60px;
+    }
+    .ad-container-inner {
+      transform: scale(0.58);
+      transform-origin: center center;
     }
   }
 </style>
