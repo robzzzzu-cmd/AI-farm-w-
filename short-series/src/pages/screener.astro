@@ -4,8 +4,8 @@ import Layout from '../layouts/Layout.astro';
 import LiveStockScreener from '../components/LiveStockScreener.astro';
 
 const canonicalURL = new URL('/screener/', Astro.site ?? 'https://tradeopportunities.trade').href;
-const pageTitle = "Live Stock Screener & Market Opportunities | Trade Opportunities";
-const pageDescription = "Constantly updating quantitative stock screener tracking Penny Stocks (<$5), Small & Mid Cap ($300M-$10B), and Large Cap (>$10B) momentum breakouts.";
+const pageTitle = "Live Real-Time Stock Screener & Breakout Matrix | Trade Opportunities";
+const pageDescription = "Real-time momentum screener tracking relative volume (RVOL), multi-week consolidation breakouts, and live 'Why Is It Moving?' attribution layers.";
 
 const screenerSchema = {
   "@context": "https://schema.org",
@@ -42,10 +42,10 @@ const screenerSchema = {
       <div class="breadcrumb">
         <a href="/">Terminal</a> &rsaquo; <span>Live Screener</span>
       </div>
-      <span class="hub-pill">Algorithmic Surveillance Hub</span>
-      <h1>Live Market Screener</h1>
+      <span class="hub-pill">REAL-TIME MOMENTUM MATRIX</span>
+      <h1>Live Breakout Screener</h1>
       <p class="subtitle">
-        Automated real-time scanner tracking high-momentum equity breakouts, unusual relative volume (RVOL), and institutional liquidity shifts.
+        Scan volume explosions (RVOL &ge; 3.0x), technical consolidation breaches, and instant 5-layer "Why Is It Moving?" diagnostics on US equities.
       </p>
     </header>
 

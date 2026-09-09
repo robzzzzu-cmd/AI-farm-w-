@@ -1,4 +1,4 @@
-// index.js
+﻿// index.js
 const fs = require('fs');
 const path = require('path');
 
@@ -88,7 +88,61 @@ async function run() {
   }
 
   try {
-    console.log('1. Fetching market movers from Alpha Vantage...');
+    const now = new Date();
+    const currentUtcHour = now.getUTCHours();
+
+    // 1. Determine time-gated brief cadence (Morning, Midday, Afternoon, Closing)
+    let briefType = 'MORNING';
+    let briefPrefix = 'Morning Momentum Brief';
+    let briefCategory = 'Morning Brief';
+    let briefFocus = 'Pre-market gap leaders, opening drive volume, technical breakout levels, and spread slippage precautions.';
+
+    if (currentUtcHour >= 15 && currentUtcHour < 18) {
+      briefType = 'MIDDAY';
+      briefPrefix = 'Midday Market Update';
+      briefCategory = 'Midday Update';
+      briefFocus = 'Morning runners consolidating above VWAP, afternoon continuation setups, and midday volume dry-up analysis.';
+    } else if (currentUtcHour >= 18 && currentUtcHour < 20) {
+      briefType = 'AFTERNOON';
+      briefPrefix = 'Afternoon Momentum Brief';
+      briefCategory = 'Market Brief';
+      briefFocus = 'Power hour volume acceleration, sector rotations, and institutional block accumulation.';
+    } else if (currentUtcHour >= 20 || currentUtcHour < 4) {
+      briefType = 'CLOSING';
+      briefPrefix = 'Closing Momentum Report';
+      briefCategory = 'Closing Report';
+      briefFocus = 'Cash session wrap, attribution post-mortem on top gainers, after-hours earnings movers, and overnight continuation candidates.';
+    }
+
+    const folderPath = fs.existsSync('./src/content/blog')
+      ? './src/content/blog'
+      : './short-series/src/content/blog';
+
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, { recursive: true });
+    }
+
+    // Identify posts already published today
+    const todayPrefix = now.toISOString().split('T')[0];
+    const existingPostsToday = fs.readdirSync(folderPath).filter((file) => file.includes(todayPrefix));
+    
+    // Check if this specific scheduled brief has already been generated today
+    const briefAlreadyPublished = existingPostsToday.some((file) => {
+      try {
+        const raw = fs.readFileSync(path.join(folderPath, file), 'utf-8');
+        return raw.includes(`briefType: "${briefType}"`);
+      } catch (_) { return false; }
+    });
+
+    if (briefAlreadyPublished) {
+      console.log(`Today's ${briefPrefix} (${briefType}) has already been generated. Skipping duplicate.`);
+      if (process.env.GITHUB_OUTPUT) {
+        fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_new_post=false\n');
+      }
+      process.exit(0);
+    }
+
+    console.log(`1. Fetching live market movers from Alpha Vantage for ${briefPrefix}...`);
     const avUrl = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${alphaVantageKey}`;
     const marketData = await fetchWithRetry(avUrl);
 
@@ -100,30 +154,7 @@ async function run() {
       throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
     }
 
-    const folderPath = fs.existsSync('./src/content/blog')
-      ? './src/content/blog'
-      : './short-series/src/content/blog';
-
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-    }
-
-    // Identify tickers already featured today
-    const todayPrefix = new Date().toISOString().split('T')[0];
-    const existingPostsToday = fs.readdirSync(folderPath).filter((file) => file.includes(todayPrefix));
-    const coveredLeadTickers = new Set();
-
-    for (const file of existingPostsToday) {
-      try {
-        const raw = fs.readFileSync(path.join(folderPath, file), 'utf-8');
-        const match = raw.match(/leadTicker:\s*["']?([A-Za-z0-9]+)["']?/);
-        if (match) coveredLeadTickers.add(match[1].toUpperCase());
-      } catch (_) {}
-    }
-
-    console.log('Already covered today:', Array.from(coveredLeadTickers));
-
-    // Filter out illiquid sub-penny warrants and require minimum liquidity thresholds
+    // Filter out illiquid sub-penny warrants
     const liquidGainers = (marketData.top_gainers || []).filter((s) => {
       const vol = Number(s.volume || 0);
       const price = parseFloat(s.price || 0);
@@ -133,32 +164,16 @@ async function run() {
     });
 
     const candidateGainers = liquidGainers.length >= 2 ? liquidGainers : marketData.top_gainers;
-
-    // Pick the highest-ranked gainer not yet covered today
-    let leadStock = candidateGainers.find((s) => !coveredLeadTickers.has(s.ticker.toUpperCase()));
-
-    // Fallback: If top gainers are all covered, evaluate high-volume active rotation
-    if (!leadStock) {
-      leadStock = (marketData.most_actively_traded || []).find(
-        (s) => !coveredLeadTickers.has(s.ticker.toUpperCase()) && Math.abs(parseFloat(s.change_percentage)) >= 5
-      );
-    }
-
-    // Unproductive market check: Avoid repeating dispatches if no new momentum has developed
-    if (!leadStock) {
-      console.log('No new significant momentum shifts detected today. Skipping duplicate dispatch.');
-      if (process.env.GITHUB_OUTPUT) {
-        fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_new_post=false\n');
-      }
-      process.exit(0);
-    }
-
+    const leadStock = candidateGainers[0] || marketData.top_gainers[0];
     const otherGainers = candidateGainers.filter((s) => s.ticker.toUpperCase() !== leadStock.ticker.toUpperCase());
     const topGainers = [leadStock, ...otherGainers].slice(0, 5);
     const topLosers = (marketData.top_losers || []).slice(0, 5);
     const mostActive = (marketData.most_actively_traded || []).slice(0, 5);
 
     const stockDataSummary = `
+SESSION MOVERS FOR ${briefPrefix}:
+LEAD MOVER: $${leadStock.ticker} (Price: $${parseFloat(leadStock.price).toFixed(2)}, Change: +${parseFloat(leadStock.change_percentage).toFixed(2)}%, Vol: ${formatCompactNumber(leadStock.volume)})
+
 TOP GAINERS (Momentum Breakouts):
 ${topGainers.map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: +${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
 
@@ -169,36 +184,32 @@ TOP DECLINERS (Distribution & Pullbacks):
 ${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
     `.trim();
 
-    const systemPrompt = `You are a quantitative market analyst for Trade Opportunities, a professional financial intelligence company.
-Write a 6 to 9 sentence analytical market intelligence dispatch analyzing today's volume expansion and price anomalies.
+    const systemPrompt = `You are the Chief Market Strategist for Trade Opportunities (tradeopportunities.trade).
+Write the analytical narrative for today's "${briefPrefix}".
+Primary focus: ${briefFocus}
 
 TONE REQUIREMENTS:
-- Use concise, objective, institutional language.
-- DO NOT use hyperbolic, tabloid, or AI-cliché phrases like:
-  * "stunned institutional desks"
-  * "speculative frenzy"
-  * "aggressive order routing"
-  * "sharp liquidity rotation"
+- Use concise, objective, institutional trader vernacular.
+- DO NOT use hyperbolic, tabloid, or AI-cliché phrases ("stunned institutional desks", "speculative frenzy", "sharp liquidity rotation").
 - Prefer measured analytical formulations:
-  * "Unusual price expansion accompanied by elevated volume."
-  * "Liquidity remains thin, increasing execution risk."
-  * "Momentum is concentrated in low-priced equities."
+  * "Unusual price expansion accompanied by elevated relative volume."
+  * "Liquidity remains thin across sub-$5 equities, increasing execution slippage risk."
   * "Volume concentration indicates localized retail interest."
 
 STRUCTURE:
-1. Lead with $${leadStock.ticker}, stating its measured percentage expansion and relative volume.
-2. Outline secondary momentum observed across adjacent gainers.
-3. Quantify liquidity distribution and contrast micro-cap momentum with active volume anchors.
-4. Detail execution risks, note thin order book depth, and address potential spread slippage or mean-reversion vulnerability upon session exhaustion.
+1. Lead with market regime context and lead mover $${leadStock.ticker} stating its percentage expansion and volume.
+2. Analyze secondary momentum across adjacent gainers and whether morning volume is consolidating or fading.
+3. Quantify liquidity distribution and contrast micro-cap volatility with active volume anchors.
+4. Detail execution risks, order book depth, and key pivot levels for the next trading window.
 
 CRITICAL RULES:
 - Write strictly 6 to 9 continuous sentences in a single paragraph.
-- DO NOT use markdown headings (#, ##), subheadings, or bullet points.
+- DO NOT use markdown headings (#, ##) or bullet points in your response.
 - Refer to every ticker using standard dollar notation (e.g. $${leadStock.ticker}).
 - DO NOT invent or embed raw markdown links or HTML.
 - Return ONLY the paragraph text.`;
 
-    console.log(`2. Generating news dispatch with Gemini for lead asset $${leadStock.ticker}...`);
+    console.log(`2. Generating narrative with Gemini for ${briefPrefix} (Lead $${leadStock.ticker})...`);
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
@@ -225,13 +236,12 @@ CRITICAL RULES:
 
     const rawAnalysis = llmData.candidates[0].content.parts[0].text.trim();
 
-    console.log('3. Assembling structured markdown post...');
-    const now = new Date();
+    console.log('3. Assembling structured brief markdown post...');
     const date = now.toISOString().split('T')[0];
     const timestamp = now.toISOString().replace(/[:.]/g, '-');
     const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
 
-    const fileName = `market-update-${timestamp}.md`;
+    const fileName = `brief-${briefType.toLowerCase()}-${timestamp}.md`;
     const compactTable = buildCompactTable('Session Top Movers & Liquidity', topGainers);
 
     const allTickers = Array.from(
@@ -243,16 +253,18 @@ CRITICAL RULES:
     );
 
     const generatedAnalysis = sanitizeAndLinkify(rawAnalysis, allTickers);
+    const postTitle = `${briefPrefix}: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`;
 
     const markdownContent = `---
-title: "Momentum Scan: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)"
-description: "Quantitative market report on liquidity expansion in ${leadStock.ticker} and active breakout leaders."
+title: "${postTitle}"
+description: "${briefPrefix} analyzing liquidity expansion in ${leadStock.ticker}, active breakouts, and session volume anchors."
+briefType: "${briefType}"
 date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"
 updatedDate: "${now.toISOString()}"
 displayDate: "${date} ${displayTime}"
 category: "Equities"
-categories: ["Equities", "Momentum"]
+categories: ["Equities", "Momentum", "${briefCategory}"]
 image: "https://tradeopportunities.trade/favicon.svg"
 leadTicker: "${leadStock.ticker}"
 leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
@@ -270,7 +282,7 @@ ${compactTable}
 `;
 
     fs.writeFileSync(path.join(folderPath, fileName), markdownContent);
-    console.log(`Saved structured markdown: ${fileName} into ${folderPath}`);
+    console.log(`Saved scheduled brief: ${fileName} into ${folderPath}`);
 
     if (process.env.GITHUB_OUTPUT) {
       fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_new_post=true\n');

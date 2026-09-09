@@ -1,12 +1,21 @@
 ---
 // short-series/src/components/LiveStockScreener.astro
 import { SCREENER_CONFIG } from '../config/screenerConfig';
+import MarketRadar from './MarketRadar.astro';
+import WatchlistMatrix from './WatchlistMatrix.astro';
+import DiagnosticDrawer from './DiagnosticDrawer.astro';
 
 const { categories, platformNotice, dataFeedNotice } = SCREENER_CONFIG;
 const categoriesList = Object.values(categories);
 ---
 
 <div class="screener-wrapper" id="screener">
+  <!-- Live Market Radar HUD -->
+  <MarketRadar />
+
+  <!-- Retention Engine: Dynamic Watchlist & Alert Matrix -->
+  <WatchlistMatrix />
+
   <!-- Header & Practical Classification Explanation -->
   <div class="screener-header-card">
     <div class="screener-title-row">
@@ -269,6 +278,7 @@ const categoriesList = Object.values(categories);
       </div>
     </div>
   </div>
+  <DiagnosticDrawer />
 </div>
 
 <script is:inline define:vars={{ configJson: JSON.stringify(SCREENER_CONFIG) }}>
@@ -684,9 +694,13 @@ const categoriesList = Object.values(categories);
             </td>
 
             <td class="cell-action text-center">
-              <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="row-chart-btn" title="Open Chart Workspace">
-                Chart ↗
-              </a>
+              <div class="row-btn-group">
+                <button class="row-why-btn" data-open-diagnostic="${stock.ticker}" title="Why Is It Moving?">Why?</button>
+                <button class="row-watch-btn" onclick="window.__addToWatchlist && window.__addToWatchlist('${stock.ticker}')" title="Pin to Watchlist">+ Watch</button>
+                <a href="${tvUrl}" target="_blank" rel="noopener noreferrer" class="row-chart-btn" title="Open Chart Workspace">
+                  Chart ↗
+                </a>
+              </div>
             </td>
           </tr>
         `;
@@ -1591,6 +1605,47 @@ const categoriesList = Object.values(categories);
     background: var(--bg-surface-elevated);
     color: var(--text-muted);
     border: 1px solid var(--border-subtle);
+  }
+
+  .row-btn-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    justify-content: center;
+  }
+
+  .row-why-btn {
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: var(--brand-accent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .row-why-btn:hover {
+    background: var(--brand-accent);
+    color: #ffffff;
+  }
+
+  .row-watch-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .row-watch-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
   }
 
   .row-chart-btn {

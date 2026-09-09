@@ -1,6 +1,7 @@
 ---
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
+import DiagnosticDrawer from '../components/DiagnosticDrawer.astro';
 
 interface StockItem {
   ticker: string;
@@ -78,8 +79,8 @@ const defaultSectors = [
 const maxSectorAbs = Math.max(...defaultSectors.map((d) => Math.abs(d.change)), 1.2);
 
 const canonicalURL = "https://tradeopportunities.trade/";
-const pageTitle = "Trade Opportunities // Quantitative Market Intelligence & Volatility Monitoring";
-const pageDescription = "Automated quantitative tracking of high-momentum equity breakouts, unusual relative volume, and sector liquidity shifts.";
+const pageTitle = "Trade Opportunities // Real-Time Stock Momentum Scanner & Breakout Intelligence";
+const pageDescription = "Scan explosive RVOL volume surges, multi-week consolidation breakouts, and live 'Why Is It Moving?' SEC & catalyst diagnostics for US equities.";
 
 const websiteSchema = {
   "@context": "https://schema.org",
@@ -538,6 +539,173 @@ const websiteSchema = {
         font-weight: 700;
         padding: 0.1rem 0.35rem;
         border-radius: 10px;
+      }
+
+      /* Repositioned Hero & Value Proposition Styles */
+      .hero-repositioned {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 2.2rem 2rem;
+        margin-bottom: 2.5rem;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+      }
+      .persona-selector-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.25rem;
+      }
+      .persona-label {
+        font-size: 0.65rem;
+        font-family: var(--font-mono);
+        font-weight: 800;
+        color: var(--brand-accent);
+        letter-spacing: 0.08em;
+      }
+      .persona-pills {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .persona-pill-btn {
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.15s ease;
+      }
+      .persona-pill-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--border-strong);
+      }
+      .persona-pill-btn.active {
+        background: rgba(59, 130, 246, 0.14);
+        border-color: var(--brand-accent);
+        color: var(--text-primary);
+      }
+      .pill-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--text-muted);
+        transition: background 0.15s ease;
+      }
+      .persona-pill-btn.active .pill-dot {
+        background: var(--brand-accent);
+        box-shadow: 0 0 6px var(--brand-accent);
+      }
+      .hero-text-container {
+        max-width: 900px;
+        margin-bottom: 1.75rem;
+      }
+      .hero-headline {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+      }
+      @media (max-width: 768px) {
+        .hero-headline { font-size: 1.6rem; }
+        .hero-repositioned { padding: 1.5rem 1.25rem; }
+      }
+      .hero-subheadline {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.55;
+        max-width: 780px;
+      }
+      .hero-cta-group {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+      }
+      .hero-primary-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--brand-accent);
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 0.7rem 1.35rem;
+        border-radius: 6px;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+        transition: all 0.15s ease;
+      }
+      .hero-primary-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+        filter: brightness(1.08);
+      }
+      .hero-secondary-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary) !important;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.7rem 1.25rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.15s ease;
+      }
+      .hero-secondary-btn:hover {
+        border-color: var(--brand-accent);
+        background: var(--bg-surface);
+      }
+      .hero-instant-chips-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-subtle);
+      }
+      .chips-label {
+        font-size: 0.72rem;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .instant-chips-list {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
+      .hero-chip-btn {
+        background: var(--bg-page);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.25rem 0.55rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .hero-chip-btn:hover {
+        color: var(--brand-accent);
+        border-color: var(--brand-accent);
+        background: var(--bg-surface-elevated);
       }
 
       .section-label {
@@ -1259,6 +1427,75 @@ const websiteSchema = {
         </div>
       </div>
 
+      <!-- Repositioned Hero & Value Proposition Section -->
+      <section class="hero-repositioned" id="hero">
+        <div class="persona-selector-wrap">
+          <span class="persona-label">ACTIVE TRADER COHORT:</span>
+          <div class="persona-pills" role="tablist">
+            <button class="persona-pill-btn active" data-persona="momentum" id="persona-btn-momentum" type="button">
+              <span class="pill-dot"></span>
+              <span>Intraday Momentum</span>
+            </button>
+            <button class="persona-pill-btn" data-persona="swing" id="persona-btn-swing" type="button">
+              <span class="pill-dot"></span>
+              <span>Retail Swing Breakouts</span>
+            </button>
+            <button class="persona-pill-btn" data-persona="quant" id="persona-btn-quant" type="button">
+              <span class="pill-dot"></span>
+              <span>Data-Driven Quants</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-text-container">
+          <h1 class="hero-headline" id="hero-headline">
+            Catch Explosive RVOL Surges &amp; Opening Drive Breakouts in Real Time.
+          </h1>
+          <p class="hero-subheadline" id="hero-subheadline">
+            Stop chasing extended runners. Our algorithmic scanner flags sub-$10 and mid-cap runners the second Relative Volume crosses 3.0&times; with aggressive bid lifting.
+          </p>
+        </div>
+
+        <!-- Primary & Secondary CTAs -->
+        <div class="hero-cta-group">
+          <a href="/screener" class="hero-primary-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Scan Live Breakouts &rarr;</span>
+          </a>
+          <a href="/screener#watchlist-matrix" class="hero-secondary-btn">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Track Your First Ticker</span>
+          </a>
+        </div>
+
+        <!-- Instant Zero-Click Watchlist Chips -->
+        <div class="hero-instant-chips-bar">
+          <span class="chips-label">Quick Try:</span>
+          <div class="instant-chips-list">
+            <button class="hero-chip-btn" data-ticker="NVDA" type="button" title="Pin $NVDA to Watchlist">
+              + Watch $NVDA
+            </button>
+            <button class="hero-chip-btn" data-ticker="TSLA" type="button" title="Pin $TSLA to Watchlist">
+              + Watch $TSLA
+            </button>
+            <button class="hero-chip-btn" data-ticker="AMD" type="button" title="Pin $AMD to Watchlist">
+              + Watch $AMD
+            </button>
+            <button class="hero-chip-btn" data-ticker="PLTR" type="button" title="Pin $PLTR to Watchlist">
+              + Watch $PLTR
+            </button>
+            <button class="hero-chip-btn" data-ticker="SMCI" type="button" title="Pin $SMCI to Watchlist">
+              + Watch $SMCI
+            </button>
+          </div>
+        </div>
+      </section>
+
       <!-- Section 01: News Feed -->
       <section id="news-feed">
         <div class="section-label">01 // News Feed &bull; Intraday Dispatches</div>
@@ -1962,11 +2199,62 @@ const websiteSchema = {
       })();
     </script>
 
-    <!-- Floating Back to Top Navigation Button -->
-    <button id="back-to-top-btn" class="back-to-top-btn" aria-label="Scroll back to top" title="Back to Top">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="18 15 12 9 6 15"></polyline>
-      </svg>
-    </button>
+    <script is:inline>
+      (function initHeroPersonaSwitcher() {
+        const personaHeadlines = {
+          momentum: {
+            headline: 'Catch Explosive RVOL Surges & Opening Drive Breakouts in Real Time.',
+            subheadline: 'Stop chasing extended runners. Our algorithmic scanner flags sub-$10 and mid-cap runners the second Relative Volume crosses 3.0× with aggressive bid lifting.'
+          },
+          swing: {
+            headline: 'Identify Multi-Day Stage-2 Breakouts Backed by Verified Catalysts.',
+            subheadline: 'Filter out dead-cat bounces and toxic penny dilution. Isolate multi-week consolidation breaches backed by clean earnings surprises, institutional accumulation, and zero shelf-offering risk.'
+          },
+          quant: {
+            headline: 'Systematic Momentum Discovery Powered by Volume Profiling & Attribution Layers.',
+            subheadline: 'Replace raw percentage noise with multi-variable market telemetry: float turnover distributions, relative volume standard deviations, order flow imbalance, and structured narrative classification.'
+          }
+        };
+
+        const btns = document.querySelectorAll('.persona-pill-btn');
+        const hEl = document.getElementById('hero-headline');
+        const sEl = document.getElementById('hero-subheadline');
+
+        btns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            btns.forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            const p = btn.getAttribute('data-persona');
+            if (p && personaHeadlines[p] && hEl && sEl) {
+              hEl.textContent = personaHeadlines[p].headline;
+              sEl.textContent = personaHeadlines[p].subheadline;
+            }
+          });
+        });
+
+        // Quick Try Chips
+        const chipBtns = document.querySelectorAll('.hero-chip-btn');
+        chipBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const ticker = btn.getAttribute('data-ticker');
+            if (!ticker) return;
+            try {
+              const raw = localStorage.getItem('to_watchlist_v1');
+              let list = raw ? JSON.parse(raw) : [];
+              if (!list.some((item) => (typeof item === 'string' ? item : item.ticker) === ticker)) {
+                list.unshift({
+                  ticker: ticker,
+                  triggers: { pctMove: true, rvol: true, breakout: true, catalyst: true }
+                });
+                localStorage.setItem('to_watchlist_v1', JSON.stringify(list));
+              }
+            } catch(e) {}
+            window.location.href = '/screener#watchlist-matrix';
+          });
+        });
+      })();
+    </script>
+
+    <DiagnosticDrawer />
   </body>
 </html>

@@ -1,0 +1,685 @@
+﻿---
+// short-series/src/components/DiagnosticDrawer.astro
+---
+
+<!-- Diagnostic Slide-Over Drawer Container -->
+<div id="diagnostic-backdrop" class="diagnostic-backdrop" aria-hidden="true">
+  <div id="diagnostic-drawer" class="diagnostic-drawer" role="dialog" aria-modal="true" aria-labelledby="diagnostic-title">
+    
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <div class="header-main">
+        <span class="diagnostic-kicker">PROPRIETARY 5-LAYER ATTRIBUTION</span>
+        <div class="header-ticker-row">
+          <h2 id="diagnostic-title" class="drawer-symbol">---</h2>
+          <span id="diagnostic-name" class="drawer-company-name">Analyzing Asset</span>
+          <span id="diagnostic-price-pill" class="drawer-price-pill">$0.00</span>
+          <span id="diagnostic-delta-pill" class="drawer-delta-pill">0.00%</span>
+        </div>
+      </div>
+      <button id="diagnostic-close-btn" class="drawer-close-btn" aria-label="Close diagnostic">&times;</button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="diagnostic-loading" class="diagnostic-loading-state">
+      <div class="diagnostic-spinner"></div>
+      <p class="loading-title">Extracting Real-Time Market Intelligence</p>
+      <p class="loading-sub">Ingesting SEC EDGAR atom feeds, Google News RSS, and live volume profile...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="diagnostic-error" class="diagnostic-error-state" style="display: none;">
+      <p class="error-title">Telemetry Temporarily Unavailable</p>
+      <p class="error-msg" id="diagnostic-error-msg">Failed to query live attribution layers. Please try again.</p>
+      <button id="diagnostic-retry-btn" class="drawer-btn retry-btn">Retry Scan</button>
+    </div>
+
+    <!-- Diagnostic Content Body -->
+    <div id="diagnostic-body" class="drawer-body" style="display: none;">
+      
+      <!-- Top Synthesis Verdict Card -->
+      <div class="verdict-banner" id="verdict-banner">
+        <div class="verdict-label">SYNTHESIS ATTRIBUTION VERDICT</div>
+        <div class="verdict-badge" id="verdict-badge">BALANCED FLOW / RANGEBOUND</div>
+        <p class="verdict-explainer" id="verdict-explainer">Deterministic classification synthesized from real-time SEC filings, float turnover, and order flow aggression.</p>
+      </div>
+
+      <!-- Layer 1: Catalyst Extraction -->
+      <div class="diagnostic-card">
+        <div class="layer-header">
+          <span class="layer-num">LAYER 01</span>
+          <span class="layer-title">Catalyst &amp; News Ingestion</span>
+          <span class="layer-badge" id="catalyst-category-badge">UNCONFIRMED</span>
+        </div>
+        <div class="layer-content">
+          <p class="catalyst-summary-text" id="catalyst-summary">Searching live feeds...</p>
+          <div class="catalyst-meta-row">
+            <span class="catalyst-source" id="catalyst-source-tag">Source: Live RSS</span>
+            <a id="catalyst-link" href="#" target="_blank" rel="noopener noreferrer" class="catalyst-link-btn" style="display: none;">
+              Read Original Filing / Story &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 2: Technical Structure -->
+      <div class="diagnostic-card">
+        <div class="layer-header">
+          <span class="layer-num">LAYER 02</span>
+          <span class="layer-title">Technical Pivots &amp; RVOL</span>
+        </div>
+        <div class="layer-grid-2">
+          <div class="metric-cell">
+            <span class="metric-label">Relative Volume (RVOL)</span>
+            <span class="metric-value" id="tech-rvol">1.0x</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">VWAP Divergence</span>
+            <span class="metric-value" id="tech-vwap-delta">0.0%</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">52-Week High Pivot</span>
+            <span class="metric-value" id="tech-52w-status">Below Range</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">RSI Momentum</span>
+            <span class="metric-value" id="tech-rsi">50</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 3: Liquidity Profile -->
+      <div class="diagnostic-card">
+        <div class="layer-header">
+          <span class="layer-num">LAYER 03</span>
+          <span class="layer-title">Liquidity &amp; Float Turnover</span>
+        </div>
+        <div class="layer-grid-2">
+          <div class="metric-cell">
+            <span class="metric-label">Free Float Structure</span>
+            <span class="metric-value" id="liq-float-tier">---</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">Float Turnover %</span>
+            <span class="metric-value" id="liq-float-turnover">0.0%</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">Dollar Volume Traded</span>
+            <span class="metric-value" id="liq-dollar-volume">$0</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">Session vs 30D ADV</span>
+            <span class="metric-value" id="liq-adv-ratio">Normal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 4: Market Behavior & Order Flow -->
+      <div class="diagnostic-card">
+        <div class="layer-header">
+          <span class="layer-num">LAYER 04</span>
+          <span class="layer-title">Order Flow &amp; Short Pressure</span>
+        </div>
+        <div class="layer-grid-2">
+          <div class="metric-cell">
+            <span class="metric-label">Order Flow Bias</span>
+            <span class="metric-value" id="flow-bias">Balanced</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">Ask Lifting Aggression</span>
+            <span class="metric-value" id="flow-ask-lift">50%</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">Short Interest (% Float)</span>
+            <span class="metric-value" id="flow-short-interest">---</span>
+          </div>
+          <div class="metric-cell">
+            <span class="metric-label">Squeeze Vulnerability</span>
+            <span class="metric-value" id="flow-squeeze-rating">Low</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer 5: Risk Rating & Dilution Hazards -->
+      <div class="diagnostic-card risk-card">
+        <div class="layer-header">
+          <span class="layer-num">LAYER 05</span>
+          <span class="layer-title">Risk Rating &amp; Dilution Hazard</span>
+          <span class="risk-score-badge" id="risk-score-badge">Risk: 30/100</span>
+        </div>
+        <div class="risk-flags-list" id="risk-flags-container">
+          <!-- Dynamic Risk Notices -->
+        </div>
+      </div>
+
+      <!-- Action & Affiliate CTAs -->
+      <div class="drawer-actions">
+        <button id="drawer-add-watchlist-btn" class="drawer-btn action-primary">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Pin to Live Watchlist</span>
+        </button>
+        <a id="drawer-tv-chart-btn" href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="drawer-btn action-secondary">
+          Analyze Chart on TradingView &rarr;
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .diagnostic-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 7, 13, 0.72);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .diagnostic-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .diagnostic-drawer {
+    width: 100%;
+    max-width: 580px;
+    height: 100%;
+    background: var(--bg-surface, #12141a);
+    border-left: 1px solid var(--border-subtle, #222632);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.6);
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+  }
+  .diagnostic-backdrop.active .diagnostic-drawer {
+    transform: translateX(0);
+  }
+  .drawer-header {
+    padding: 1.2rem 1.4rem;
+    border-bottom: 1px solid var(--border-subtle, #222632);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: var(--bg-page, #0b0c10);
+  }
+  .diagnostic-kicker {
+    font-size: 0.65rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    color: var(--brand-accent, #3b82f6);
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .header-ticker-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .drawer-symbol {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-primary, #f3f4f6);
+    font-family: var(--font-mono, monospace);
+    line-height: 1;
+  }
+  .drawer-company-name {
+    font-size: 0.8rem;
+    color: var(--text-muted, #9ca3af);
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .drawer-price-pill {
+    font-size: 0.8rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: var(--bg-surface-elevated, #181b22);
+    color: var(--text-primary, #f3f4f6);
+  }
+  .drawer-delta-pill {
+    font-size: 0.78rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--gain-color, #22c55e);
+  }
+  .drawer-delta-pill.neg {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--loss-color, #ef4444);
+  }
+  .drawer-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    color: var(--text-muted, #9ca3af);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+  }
+  .drawer-close-btn:hover {
+    color: var(--text-primary, #f3f4f6);
+    background: var(--bg-surface-elevated, #181b22);
+  }
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .diagnostic-loading-state, .diagnostic-error-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  .diagnostic-spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: var(--brand-accent, #3b82f6);
+    border-radius: 50%;
+    animation: diag-spin 0.8s linear infinite;
+    margin-bottom: 1.2rem;
+  }
+  @keyframes diag-spin { to { transform: rotate(360deg); } }
+  .loading-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary, #f3f4f6);
+    margin-bottom: 0.35rem;
+  }
+  .loading-sub {
+    font-size: 0.78rem;
+    color: var(--text-muted, #9ca3af);
+    max-width: 320px;
+    line-height: 1.4;
+  }
+  .verdict-banner {
+    background: var(--bg-page, #0b0c10);
+    border: 1px solid var(--border-strong, #2f3545);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .verdict-label {
+    font-size: 0.65rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    color: var(--text-muted, #9ca3af);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+  }
+  .verdict-badge {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    padding: 0.45rem 0.8rem;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 0.4rem;
+  }
+  .verdict-badge.GREEN {
+    background: rgba(34, 197, 94, 0.16);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.35);
+  }
+  .verdict-badge.YELLOW {
+    background: rgba(234, 179, 8, 0.16);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.35);
+  }
+  .verdict-badge.RED {
+    background: rgba(239, 68, 68, 0.16);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+  }
+  .verdict-badge.BLUE {
+    background: rgba(59, 130, 246, 0.16);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+  }
+  .verdict-badge.GRAY {
+    background: rgba(156, 163, 175, 0.16);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.35);
+  }
+  .verdict-explainer {
+    font-size: 0.72rem;
+    color: var(--text-muted, #9ca3af);
+    line-height: 1.35;
+  }
+  .diagnostic-card {
+    background: var(--bg-surface-elevated, #181b22);
+    border: 1px solid var(--border-subtle, #222632);
+    border-radius: 6px;
+    padding: 0.95rem 1.05rem;
+  }
+  .layer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--border-subtle, #222632);
+  }
+  .layer-num {
+    font-size: 0.65rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    color: var(--brand-accent, #3b82f6);
+  }
+  .layer-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-primary, #f3f4f6);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 1;
+    margin-left: 0.5rem;
+  }
+  .layer-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--brand-accent, #3b82f6);
+    text-transform: uppercase;
+  }
+  .catalyst-summary-text {
+    font-size: 0.8125rem;
+    color: var(--text-primary, #f3f4f6);
+    line-height: 1.45;
+    margin-bottom: 0.5rem;
+  }
+  .catalyst-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+  }
+  .catalyst-source {
+    color: var(--text-muted, #9ca3af);
+    font-family: var(--font-mono, monospace);
+  }
+  .catalyst-link-btn {
+    color: var(--brand-accent, #3b82f6);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .catalyst-link-btn:hover { text-decoration: underline; }
+  .layer-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+  .metric-cell {
+    background: var(--bg-page, #0b0c10);
+    border: 1px solid var(--border-subtle, #222632);
+    border-radius: 4px;
+    padding: 0.5rem 0.65rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .metric-label {
+    font-size: 0.65rem;
+    color: var(--text-muted, #9ca3af);
+    margin-bottom: 0.15rem;
+  }
+  .metric-value {
+    font-size: 0.82rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    color: var(--text-primary, #f3f4f6);
+  }
+  .risk-score-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-family: var(--font-mono, monospace);
+    color: #ef4444;
+  }
+  .risk-flags-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .risk-flag-item {
+    font-size: 0.74rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    background: rgba(239, 68, 68, 0.08);
+    border-left: 3px solid #ef4444;
+    color: var(--text-primary, #f3f4f6);
+    line-height: 1.35;
+  }
+  .risk-flag-item.safe {
+    background: rgba(34, 197, 94, 0.08);
+    border-left: 3px solid #22c55e;
+  }
+  .drawer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+  .drawer-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: all 0.15s ease;
+  }
+  .action-primary {
+    background: var(--brand-accent, #3b82f6);
+    color: #ffffff;
+  }
+  .action-primary:hover {
+    filter: brightness(1.1);
+  }
+  .action-secondary {
+    background: var(--bg-surface, #12141a);
+    border: 1px solid var(--border-subtle, #222632);
+    color: var(--text-primary, #f3f4f6);
+  }
+  .action-secondary:hover {
+    border-color: var(--brand-accent, #3b82f6);
+  }
+</style>
+
+<script is:inline>
+  (function initDiagnosticDrawer() {
+    let currentTicker = '';
+    const backdrop = document.getElementById('diagnostic-backdrop');
+    const closeBtn = document.getElementById('diagnostic-close-btn');
+    const loadingState = document.getElementById('diagnostic-loading');
+    const errorState = document.getElementById('diagnostic-error');
+    const errorMsg = document.getElementById('diagnostic-error-msg');
+    const bodyContent = document.getElementById('diagnostic-body');
+    const retryBtn = document.getElementById('diagnostic-retry-btn');
+    const addWatchlistBtn = document.getElementById('drawer-add-watchlist-btn');
+    const tvChartBtn = document.getElementById('drawer-tv-chart-btn');
+
+    function closeDrawer() {
+      if (!backdrop) return;
+      backdrop.classList.remove('active');
+      backdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) closeDrawer();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && backdrop && backdrop.classList.contains('active')) {
+        closeDrawer();
+      }
+    });
+
+    async function loadDiagnostic(ticker) {
+      if (!ticker) return;
+      currentTicker = ticker.toUpperCase();
+
+      if (!backdrop) return;
+      backdrop.classList.add('active');
+      backdrop.setAttribute('aria-hidden', 'false');
+
+      // Update header placeholders
+      document.getElementById('diagnostic-title').textContent = '$' + currentTicker;
+      document.getElementById('diagnostic-name').textContent = 'Loading company...';
+      document.getElementById('diagnostic-price-pill').textContent = '$--';
+      const deltaPill = document.getElementById('diagnostic-delta-pill');
+      deltaPill.textContent = '0.00%';
+      deltaPill.className = 'drawer-delta-pill';
+
+      loadingState.style.display = 'flex';
+      errorState.style.display = 'none';
+      bodyContent.style.display = 'none';
+
+      if (tvChartBtn) {
+        tvChartBtn.href = `https://www.tradingview.com/symbols/${currentTicker}/?aff_id=170147`;
+      }
+
+      try {
+        const res = await fetch(`/api/diagnostic?ticker=${encodeURIComponent(currentTicker)}`);
+        const json = await res.json();
+        if (!json.success || !json.data) {
+          throw new Error(json.error || 'Diagnostic computation failed');
+        }
+
+        const d = json.data;
+        document.getElementById('diagnostic-name').textContent = d.name || currentTicker;
+        document.getElementById('diagnostic-price-pill').textContent = '$' + (d.price < 1 ? d.price.toFixed(4) : d.price.toFixed(2));
+        
+        const isGain = d.changePercent >= 0;
+        deltaPill.textContent = (isGain ? '+' : '') + d.changePercent.toFixed(2) + '%';
+        deltaPill.className = 'drawer-delta-pill' + (isGain ? '' : ' neg');
+
+        // Synthesis Verdict
+        const verdictBadge = document.getElementById('verdict-badge');
+        verdictBadge.textContent = d.synthesisVerdict;
+        verdictBadge.className = 'verdict-badge ' + (d.verdictColor || 'GRAY');
+
+        // Layer 1: Catalyst
+        document.getElementById('catalyst-category-badge').textContent = d.catalyst.category.replace(/_/g, ' ');
+        document.getElementById('catalyst-summary').textContent = d.catalyst.summary;
+        document.getElementById('catalyst-source-tag').textContent = 'Source: ' + d.catalyst.source;
+        const catLink = document.getElementById('catalyst-link');
+        if (d.catalyst.link) {
+          catLink.href = d.catalyst.link;
+          catLink.style.display = 'inline-block';
+        } else {
+          catLink.style.display = 'none';
+        }
+
+        // Layer 2: Technical
+        document.getElementById('tech-rvol').textContent = d.technical.rvolMultiplier.toFixed(2) + 'x';
+        const vwapDelta = d.technical.pctFromVWAP;
+        document.getElementById('tech-vwap-delta').textContent = (vwapDelta >= 0 ? '+' : '') + vwapDelta.toFixed(2) + '%';
+        document.getElementById('tech-52w-status').textContent = d.technical.is52WeekHighBreach ? '🔥 52W High Breach' : 'Within Range';
+        document.getElementById('tech-rsi').textContent = d.technical.rsi || '50';
+
+        // Layer 3: Liquidity
+        document.getElementById('liq-float-tier').textContent = d.liquidity.floatCategory.replace(/_/g, ' ');
+        document.getElementById('liq-float-turnover').textContent = d.liquidity.floatTurnoverPct.toFixed(1) + '%';
+        document.getElementById('liq-dollar-volume').textContent = '$' + (d.liquidity.dollarVolume >= 1e6 ? (d.liquidity.dollarVolume / 1e6).toFixed(1) + 'M' : (d.liquidity.dollarVolume / 1e3).toFixed(0) + 'K');
+        document.getElementById('liq-adv-ratio').textContent = (d.rvol >= 2.5 ? 'Surge (>2.5x)' : 'Standard Flow');
+
+        // Layer 4: Behavior
+        document.getElementById('flow-bias').textContent = d.marketBehavior.orderFlowBias.replace(/_/g, ' ');
+        document.getElementById('flow-ask-lift').textContent = d.marketBehavior.aggressiveAskLiftPct + '% Ask Lifting';
+        document.getElementById('flow-short-interest').textContent = d.marketBehavior.shortInterestPct > 0 ? d.marketBehavior.shortInterestPct.toFixed(1) + '% Float' : 'N/A';
+        document.getElementById('flow-squeeze-rating').textContent = (d.marketBehavior.shortInterestPct >= 20 ? 'High' : 'Normal');
+
+        // Layer 5: Risk
+        document.getElementById('risk-score-badge').textContent = `Risk Score: ${d.riskRating.overallRiskScore}/100`;
+        const flagsContainer = document.getElementById('risk-flags-container');
+        flagsContainer.innerHTML = '';
+
+        if (d.riskRating.hasActiveS3Shelf) {
+          flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Active Shelf Registration (S-3/424B):</strong> Company has active financing or ATM capacity on file. Extreme dilution risk upon momentum spikes.</div>`;
+        }
+        if (d.riskRating.isSubDollarPenny) {
+          flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Sub-Dollar Penny Stock:</strong> Ticker trades under $1.00. Subject to OTC/reverse-split listing compliance hazards.</div>`;
+        }
+        if (d.riskRating.spreadWarning) {
+          flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Wide Bid/Ask Spread Warning:</strong> Session volume is light relative to quotation depth. High slippage on market orders.</div>`;
+        }
+        if (!d.riskRating.hasActiveS3Shelf && !d.riskRating.isSubDollarPenny && !d.riskRating.spreadWarning) {
+          flagsContainer.innerHTML += `<div class="risk-flag-item safe">✅ <strong>No Toxic Dilution Red Flags:</strong> Clean structure without pending S-3 ATM shelf offerings or extreme spread anomalies.</div>`;
+        }
+
+        loadingState.style.display = 'none';
+        bodyContent.style.display = 'flex';
+      } catch (err) {
+        loadingState.style.display = 'none';
+        errorMsg.textContent = err.message || 'Failed to query live attribution.';
+        errorState.style.display = 'flex';
+      }
+    }
+
+    if (retryBtn) {
+      retryBtn.addEventListener('click', () => loadDiagnostic(currentTicker));
+    }
+
+    if (addWatchlistBtn) {
+      addWatchlistBtn.addEventListener('click', () => {
+        if (currentTicker && window.__addToWatchlist) {
+          window.__addToWatchlist(currentTicker);
+        }
+      });
+    }
+
+    // Global listener
+    window.openDiagnostic = loadDiagnostic;
+    window.addEventListener('open-diagnostic', (e) => {
+      if (e.detail && e.detail.ticker) {
+        loadDiagnostic(e.detail.ticker);
+      }
+    });
+
+    // Delegate clicks
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-open-diagnostic]');
+      if (target) {
+        const ticker = target.getAttribute('data-open-diagnostic');
+        if (ticker) {
+          e.preventDefault();
+          loadDiagnostic(ticker);
+        }
+      }
+    });
+  })();
+</script>
