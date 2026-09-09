@@ -5,9 +5,9 @@ import Layout from '../layouts/Layout.astro';
 const aboutSchema = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
-  "name": "Quantitative Methodology & Editorial Standards",
+  "name": "Methodology, Tactical Rules & Performance Standards",
   "url": "https://tradeopportunities.trade/about",
-  "description": "Algorithmic architecture, volume screening criteria, and quantitative research methodology of Trade Opportunities.",
+  "description": "Momentum screening criteria, causal attribution diagnostics, and auditable track record standards of Trade Opportunities.",
   "publisher": {
     "@type": "Organization",
     "name": "Trade Opportunities",
@@ -21,8 +21,8 @@ const aboutSchema = {
 ---
 
 <Layout 
-  title="Quantitative Methodology & Editorial Standards // Trade Opportunities"
-  description="Algorithmic architecture, volume screening criteria, and quantitative research methodology."
+  title="Methodology, Tactical Rules & Performance Standards // Trade Opportunities"
+  description="Momentum screening criteria, causal attribution diagnostics, and auditable track record standards."
 >
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
@@ -30,22 +30,27 @@ const aboutSchema = {
 
   <div class="about-container">
     <header class="about-header">
-      <span class="hub-pill">E-E-A-T & Research Standards</span>
-      <h1>Quantitative Methodology & System Architecture</h1>
+      <span class="hub-pill">E-E-A-T &amp; Research Standards</span>
+      <h1>Methodology &amp; System Architecture</h1>
       <p class="subtitle">
-        Documentation of data pipelines, statistical anomaly detection, and algorithmic execution risk protocols.
+        Documentation of real-time data pipelines, momentum anomaly detection, causal catalyst diagnostics, and our auditable signal track record.
       </p>
     </header>
 
     <section class="content-block">
-      <h2>1. Algorithmic Screening Architecture</h2>
+      <h2>1. The 3-Pillar Operational Architecture</h2>
       <p>
-        Trade Opportunities deploys automated market surveillance algorithms tracking high-velocity liquidity rotations and abnormal intraday volume expansions across US equities and secondary markets.
+        Trade Opportunities is built on three tactical pillars engineered specifically for serious active retail momentum and swing traders:
       </p>
+      <ul>
+        <li><strong>01. FIND (Discovery):</strong> Algorithmic scanning filters 10,000+ US equities continuously to flag abnormal relative volume (RVOL &ge; 3.0x), pre-market gap leaders, and multi-week consolidation breakouts before the crowd notices.</li>
+        <li><strong>02. UNDERSTAND (Context):</strong> Our automated 5-layer "Why Is It Moving?" diagnostic unpacks SEC EDGAR filings (8-K contracts, Form 4, Form S-3 shelf offerings), clinical biotech data, earnings surprises, and float turnover in under 3 seconds to expose toxic dilution pumps before entry.</li>
+        <li><strong>03. ACT (Execution):</strong> Every setup features an actionable trigger price, Target 1 ($R:R \ge 2:1$), Target 2, and a hard invalidation stop loss level, with continuous excursion tracking (MFE &amp; MAE).</li>
+      </ul>
       <div class="spec-grid">
         <div class="spec-card">
           <span class="spec-label">Primary Ingestion</span>
-          <span class="spec-val">Alpha Vantage Tier-1 Market API</span>
+          <span class="spec-val">Alpha Vantage Live Market Feed</span>
         </div>
         <div class="spec-card">
           <span class="spec-label">Volume Floor Filter</span>
@@ -53,34 +58,46 @@ const aboutSchema = {
         </div>
         <div class="spec-card">
           <span class="spec-label">Execution Cadence</span>
-          <span class="spec-val">US Open (14:30 UTC) & US Close (21:00 UTC)</span>
+          <span class="spec-val">US Open (14:30 UTC) &amp; US Close (21:00 UTC)</span>
         </div>
         <div class="spec-card">
           <span class="spec-label">Chart Validation</span>
-          <span class="spec-val">TradingView Quantitative Workspaces</span>
+          <span class="spec-val">TradingView Real-Time Charting</span>
         </div>
       </div>
     </section>
 
     <section class="content-block">
-      <h2>2. Quantitative Anomaly Detection</h2>
+      <h2>2. Anomaly Detection &amp; Risk Invalidation</h2>
       <p>
-        Market dispatches are programmatically compiled using strict volume-weighted parameters. Assets displaying triple-digit percentage changes without underlying baseline liquidity are algorithmically flagged for high slippage, execution drag, and violent mean-reversion risk.
+        Market dispatches and screener feeds are compiled using strict volume-weighted parameters. Assets displaying triple-digit percentage changes without underlying baseline liquidity are automatically flagged for spread slippage and violent mean-reversion risk.
       </p>
       <ul>
-        <li><strong>Liquidity Ranking:</strong> Top gainers are evaluated against active session volume to identify true institutional conviction versus sub-dollar retail illiquidity.</li>
-        <li><strong>Distribution Tracking:</strong> Session decliners and high-volume pullbacks are correlated against leading gainers to highlight macro sector rotation.</li>
-        <li><strong>Risk Disclosures:</strong> Every report is published with strict financial disclaimers and non-fiduciary educational context.</li>
+        <li><strong>Liquidity &amp; Spread Assessment:</strong> Top gainers are evaluated against active session volume and float turnover to differentiate between genuine breakout volume and illiquid sub-dollar pumps where spreads can severely widen.</li>
+        <li><strong>SEC Dilution Verification:</strong> Form S-3 shelf registration and ATM (At-The-Market) offering checks prevent traders from buying into corporate share dilution traps.</li>
+        <li><strong>Hard Invalidation Levels:</strong> Every alert specifies the exact price level where the breakout thesis is invalidated.</li>
       </ul>
     </section>
 
     <section class="content-block">
-      <h2>3. Editorial Governance & Corrections Policy</h2>
+      <h2>3. The Auditable "Signal Track Record" Engine</h2>
+      <p>
+        Unlike opaque newsletters that cherry-pick winners and hide stopped-out alerts, Trade Opportunities maintains an auditable, immutable verification engine:
+      </p>
+      <ul>
+        <li><strong>Rolling 30-Day Window:</strong> Automatically recomputed metrics including Total Setups Detected, Hit Rate to Target 1, Median Maximum Favorable Excursion (MFE), Median Maximum Adverse Excursion (MAE), and Realized Reward/Risk Ratio.</li>
+        <li><strong>Anti-Cherry-Picking Protocol:</strong> Every alert is assigned a deterministic SHA-256 ID at the trigger moment and recorded permanently. Stopped-out setups and false breakouts are displayed prominently alongside winners.</li>
+        <li><strong>Continuous Excursion Telemetry:</strong> Tracks peak favorable excursion (peak profit potential) and maximum adverse excursion (deepest drawdown prior to exit) across streaming market ticks.</li>
+      </ul>
+    </section>
+
+    <section class="content-block">
+      <h2>4. Editorial Governance &amp; Corrections Policy</h2>
       <p>
         Data feeds and API responses are verified for structural integrity before publication. In the event of market data anomalies, stock split discrepancies, or pricing lag from upstream providers, data is automatically re-indexed during the subsequent session crawl.
       </p>
       <p>
-        For inquiries regarding our quantitative pipeline or to report data feed anomalies, contact the desk at <code>desk@tradeopportunities.trade</code>.
+        For inquiries regarding our momentum methodology or to report data feed anomalies, contact our team at <code>team@tradeopportunities.trade</code>.
       </p>
     </section>
   </div>

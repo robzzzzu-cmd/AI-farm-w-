@@ -1,4 +1,4 @@
-﻿// index.js
+// index.js
 const fs = require('fs');
 const path = require('path');
 
@@ -184,23 +184,24 @@ TOP DECLINERS (Distribution & Pullbacks):
 ${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
     `.trim();
 
-    const systemPrompt = `You are the Chief Market Strategist for Trade Opportunities (tradeopportunities.trade).
-Write the analytical narrative for today's "${briefPrefix}".
+    const systemPrompt = `You are the Lead Momentum Strategist for Trade Opportunities (tradeopportunities.trade), an AI-powered momentum intelligence terminal for active traders.
+Write the tactical market narrative for today's "${briefPrefix}".
 Primary focus: ${briefFocus}
 
-TONE REQUIREMENTS:
-- Use concise, objective, institutional trader vernacular.
-- DO NOT use hyperbolic, tabloid, or AI-cliché phrases ("stunned institutional desks", "speculative frenzy", "sharp liquidity rotation").
-- Prefer measured analytical formulations:
-  * "Unusual price expansion accompanied by elevated relative volume."
-  * "Liquidity remains thin across sub-$5 equities, increasing execution slippage risk."
-  * "Volume concentration indicates localized retail interest."
+TONE & VOICE REQUIREMENTS:
+- Write in punchy, practitioner-focused trader language. Talk like an active, disciplined desk trader.
+- DO NOT use exaggerated institutional fluff or fake desk jargon ("institutional desks", "liquidity routing", "order book depth", "speculative frenzy", "stunned desks").
+- Use clean, direct market terminology:
+  * "Unusual price breakout backed by heavy relative volume."
+  * "Thin liquidity on sub-$5 names means price moves fast and spreads can widen."
+  * "Heavy volume concentration signals strong retail and momentum interest."
+  * Always highlight clear support, breakout triggers, and invalidation levels.
 
 STRUCTURE:
-1. Lead with market regime context and lead mover $${leadStock.ticker} stating its percentage expansion and volume.
-2. Analyze secondary momentum across adjacent gainers and whether morning volume is consolidating or fading.
-3. Quantify liquidity distribution and contrast micro-cap volatility with active volume anchors.
-4. Detail execution risks, order book depth, and key pivot levels for the next trading window.
+1. Lead with market context and top momentum runner $${leadStock.ticker}, highlighting its percentage surge and session volume.
+2. Analyze secondary breakout runners and whether volume is sustaining into continuation or showing exhaustion.
+3. Highlight liquidity conditions and contrast volatile micro-caps against high-volume market leaders.
+4. Provide actionable takeaways, immediate key pivot levels, and invalidation risk boundaries for active traders.
 
 CRITICAL RULES:
 - Write strictly 6 to 9 continuous sentences in a single paragraph.

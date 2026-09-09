@@ -1,6 +1,7 @@
 ---
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
+import SignalTrackRecord from '../components/SignalTrackRecord.astro';
 import DiagnosticDrawer from '../components/DiagnosticDrawer.astro';
 
 interface StockItem {
@@ -727,6 +728,45 @@ const websiteSchema = {
         border-color: var(--brand-accent);
         background: var(--bg-surface-elevated);
       }
+      .hero-pillars-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.85rem;
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--border-subtle);
+      }
+      .hero-pillar-card {
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 0.85rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .pillar-tag {
+        font-size: 0.65rem;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--brand-accent);
+        letter-spacing: 0.05em;
+      }
+      .pillar-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .pillar-desc {
+        font-size: 0.72rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+      @media (max-width: 768px) {
+        .hero-pillars-grid {
+          grid-template-columns: 1fr;
+        }
+      }
 
       .section-label {
         font-size: 0.78125rem;
@@ -1381,8 +1421,8 @@ const websiteSchema = {
         </nav>
 
         <div class="sidebar-promo-card">
-          <div class="sidebar-promo-title">Weekly Market Intelligence</div>
-          <p class="sidebar-promo-desc">Receive weekly quantitative momentum scans, volume divergence logs, and breakout alerts.</p>
+          <div class="sidebar-promo-title">Weekly Momentum Dispatches</div>
+          <p class="sidebar-promo-desc">Receive high-conviction volume surge scans, breakout alerts, and catalyst breakdowns every week.</p>
           <a href="#alerts" class="sidebar-promo-btn">Subscribe Free</a>
         </div>
       </div>
@@ -1407,6 +1447,7 @@ const websiteSchema = {
           </a>
 
           <ul class="nav-links">
+            <li><a href="#track-record-section">Track Record</a></li>
             <li><a href="#news-feed" class="active">News Feed</a></li>
             <li><a href="/screener">Live Screener</a></li>
             <li><a href="#opportunities">Opportunities</a></li>
@@ -1451,7 +1492,7 @@ const websiteSchema = {
 
     <div class="app-wrapper">
       <div class="ad-leaderboard" style="margin: 1.5rem auto 1.5rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 0.75rem; text-align: center;">
-        <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Sponsored Quantitative Data Node</span>
+        <span style="font-size: 0.625rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Sponsored Trading Resource</span>
         <div style="width: 100%; margin: auto; position: relative;">
           <iframe 
             data-aa="2453491" 
@@ -1484,10 +1525,10 @@ const websiteSchema = {
 
         <div class="hero-text-container">
           <h1 class="hero-headline" id="hero-headline">
-            Catch Explosive RVOL Surges &amp; Opening Drive Breakouts in Real Time.
+            Find unusual momentum before it becomes obvious.
           </h1>
           <p class="hero-subheadline" id="hero-subheadline">
-            Stop chasing extended runners. Our algorithmic scanner flags sub-$10 and mid-cap runners the second Relative Volume crosses 3.0&times; with aggressive bid lifting.
+            Real-time algorithmic volume scanning catches surges (RVOL &ge; 3&times;), catalyst breakouts, and consolidation breaks across 10,000+ US stocks — with instant "Why Is It Moving?" context and defined invalidation levels.
           </p>
         </div>
 
@@ -1499,12 +1540,12 @@ const websiteSchema = {
             </svg>
             <span>Scan Live Breakouts &rarr;</span>
           </a>
-          <a href="/screener#watchlist-matrix" class="hero-secondary-btn">
+          <a href="#track-record-section" class="hero-secondary-btn">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
             </svg>
-            <span>Track Your First Ticker</span>
+            <span>View Auditable Track Record</span>
           </a>
         </div>
 
@@ -1529,7 +1570,31 @@ const websiteSchema = {
             </button>
           </div>
         </div>
+
+        <!-- The 3-Pillar Operational Architecture -->
+        <div class="hero-pillars-grid">
+          <div class="hero-pillar-card">
+            <span class="pillar-tag">01 // FIND &bull; DISCOVERY</span>
+            <div class="pillar-title">Algorithmic Anomaly Scan</div>
+            <p class="pillar-desc">Continuous real-time scanning across 10,000+ tickers flags explosive RVOL (&ge; 3.0x), opening drive volume, and multi-week range breakouts.</p>
+          </div>
+
+          <div class="hero-pillar-card">
+            <span class="pillar-tag">02 // UNDERSTAND &bull; CONTEXT</span>
+            <div class="pillar-title">Instant Causal Attribution</div>
+            <p class="pillar-desc">5-layer "Why Is It Moving?" diagnostic unpacks SEC 8-K filings, earnings surprises, float turnover, and S-3 dilution risk in under 3 seconds.</p>
+          </div>
+
+          <div class="hero-pillar-card">
+            <span class="pillar-tag">03 // ACT &bull; EXECUTION</span>
+            <div class="pillar-title">Invalidation &amp; Risk Rules</div>
+            <p class="pillar-desc">Every setup features an actionable trigger, Target 1, Target 2, and hard invalidation stop levels tracked continuously via MFE/MAE telemetry.</p>
+          </div>
+        </div>
       </section>
+
+      <!-- Transparent Signal Track Record Engine -->
+      <SignalTrackRecord />
 
       <!-- Section 01: News Feed -->
       <section id="news-feed">
@@ -1717,10 +1782,10 @@ const websiteSchema = {
           <div class="card" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
               <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
-                Third-Party Non-Custodial Spot Utility
+                Third-Party Non-Custodial Crypto Swap Utility
               </div>
               <p style="font-size: 0.78125rem; color: var(--text-secondary); margin-bottom: 0.85rem; line-height: 1.45;">
-                Trade Opportunities does not operate a broker or execution desk. Direct decentralized swap routing utility.
+                Trade Opportunities does not operate a brokerage. Fast direct crypto swap execution at current market rates.
               </p>
               <iframe
                 id="changenow-widget"
@@ -1772,14 +1837,14 @@ const websiteSchema = {
       <div class="newsletter-box" id="alerts">
         <div>
           <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Subscribe for Weekly News</h3>
-          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Receive weekly market intelligence, quantitative momentum breakdowns, and curated equity setups directly to your inbox.</p>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary);">Receive weekly momentum scans, volume surge breakdowns, and curated equity breakout setups directly to your inbox.</p>
         </div>
         <form id="resend-subscribe-form" class="newsletter-input-group">
           <input 
             type="email" 
             name="email" 
             id="subscriber-email" 
-            placeholder="analyst@firm.com" 
+            placeholder="trader@gmail.com" 
             class="newsletter-input" 
             required 
           />
@@ -1796,7 +1861,7 @@ const websiteSchema = {
 
       <!-- Section 04: Platforms -->
       <section id="platforms">
-        <div class="section-label">04 // Platforms &bull; Analytical Infrastructure</div>
+        <div class="section-label">04 // Platforms &bull; Trading Tools &amp; Execution</div>
         <div class="tools-grid">
           <div class="tool-card">
             <div>
@@ -1811,12 +1876,12 @@ const websiteSchema = {
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Spot Settlement</span>
+              <span class="tool-badge">Spot Swaps</span>
               <h3 class="tool-name">ChangeNOW</h3>
-              <p class="tool-desc">Non-custodial cross-chain liquidity routing with instant algorithmic rate discovery.</p>
+              <p class="tool-desc">Non-custodial crypto swaps with instant best-rate execution across multiple blockchains.</p>
             </div>
             <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Open Routing Utility &rarr;
+              Open Swap Tool &rarr;
             </a>
           </div>
 
@@ -1824,10 +1889,10 @@ const websiteSchema = {
             <div>
               <span class="tool-badge">Asset Pairs</span>
               <h3 class="tool-name">SimpleSwap</h3>
-              <p class="tool-desc">Low-friction settlement across 1,500+ cryptocurrency pairs and decentralized networks.</p>
+              <p class="tool-desc">Fast crypto swaps across 1,500+ coin pairs without account signups or custodial lockup.</p>
             </div>
             <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Launch Utility &rarr;
+              Launch SimpleSwap &rarr;
             </a>
           </div>
         </div>
@@ -2238,16 +2303,16 @@ const websiteSchema = {
       (function initHeroPersonaSwitcher() {
         const personaHeadlines = {
           momentum: {
-            headline: 'Catch Explosive RVOL Surges & Opening Drive Breakouts in Real Time.',
-            subheadline: 'Stop chasing extended runners. Our algorithmic scanner flags sub-$10 and mid-cap runners the second Relative Volume crosses 3.0× with aggressive bid lifting.'
+            headline: 'Find unusual momentum before it becomes obvious.',
+            subheadline: 'Real-time algorithmic volume scanning catches surges (RVOL ≥ 3x), catalyst breakouts, and consolidation breaks across 10,000+ US stocks — with instant "Why Is It Moving?" context and defined invalidation levels.'
           },
           swing: {
             headline: 'Identify Multi-Day Stage-2 Breakouts Backed by Verified Catalysts.',
-            subheadline: 'Filter out dead-cat bounces and toxic penny dilution. Isolate multi-week consolidation breaches backed by clean earnings surprises, institutional accumulation, and zero shelf-offering risk.'
+            subheadline: 'Filter out dead-cat bounces and toxic dilution traps. Isolate multi-week consolidation breaches backed by clean earnings surprises, heavy volume accumulation, and zero shelf-offering risk.'
           },
           quant: {
             headline: 'Systematic Momentum Discovery Powered by Volume Profiling & Attribution Layers.',
-            subheadline: 'Replace raw percentage noise with multi-variable market telemetry: float turnover distributions, relative volume standard deviations, order flow imbalance, and structured narrative classification.'
+            subheadline: 'Replace raw percentage noise with multi-variable market telemetry: float turnover distributions, relative volume standard deviations, order flow tilt, and structured narrative classification.'
           }
         };
 
