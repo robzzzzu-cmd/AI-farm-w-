@@ -144,22 +144,29 @@ const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
   }
   @media (max-width: 768px) {
     .ticker-ribbon-container {
-      height: 38px;
+      height: 72px;
+      min-height: 72px;
     }
     .session-badge {
-      padding: 0 0.45rem;
+      height: 100%;
+      padding: 0 0.5rem;
       border-right: 1px solid var(--border-subtle, #1e2638);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .session-text {
       display: none;
     }
     .tv-ref-pill {
-      font-size: 0.62rem;
-      padding: 0.15rem 0.35rem;
-      margin-right: 0.25rem;
+      font-size: 0.65rem;
+      padding: 0.22rem 0.45rem;
+      margin-right: 0.35rem;
+      align-self: center;
     }
     .tradingview-widget-container {
-      height: 38px;
+      height: 72px;
+      min-height: 72px;
     }
   }
 </style>

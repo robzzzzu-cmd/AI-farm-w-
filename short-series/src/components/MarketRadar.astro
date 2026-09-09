@@ -399,14 +399,27 @@
       padding: 0.15rem 0.45rem;
     }
 
-    /* 2x2 Grid: Cards sit NEXT TO EACH OTHER */
+    /* Horizontal swipeable card deck with snap alignment on mobile */
     .radar-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      gap: 0.45rem;
-      margin-bottom: 0.65rem;
+      display: flex !important;
+      flex-direction: row !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      scroll-snap-type: x mandatory !important;
+      gap: 0.65rem !important;
+      margin-bottom: 0.65rem !important;
+      scrollbar-width: none !important;
+      padding-bottom: 0.35rem !important;
+    }
+    .radar-grid::-webkit-scrollbar {
+      display: none !important;
     }
     .radar-card {
-      padding: 0.65rem 0.65rem;
+      flex: 0 0 82% !important;
+      min-width: 260px !important;
+      max-width: 320px !important;
+      scroll-snap-align: start !important;
+      padding: 0.75rem 0.85rem !important;
     }
     .card-header-mini {
       margin-bottom: 0.35rem;
@@ -486,12 +499,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     padding: 0.35rem 0.55rem;
     border-radius: 5px;
     background: var(--bg-surface, #111622) !important;
     border: 1px solid var(--border-subtle, #1e2638) !important;
     transition: border-color 0.12s ease;
+    white-space: nowrap !important;
+    gap: 0.35rem;
   }
   .candidate-row:hover {
     border-color: rgba(56, 189, 248, 0.4) !important;
@@ -508,6 +523,7 @@
     font-weight: 800;
     color: var(--text-primary, #f1f5f9);
     cursor: pointer;
+    white-space: nowrap !important;
     transition: color 0.12s ease;
   }
   .candidate-sym:hover { color: var(--brand-accent, #38bdf8); }
@@ -516,11 +532,16 @@
     font-size: 0.72rem;
     color: #f59e0b;
     font-weight: 700;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
   }
   .candidate-delta {
     font-family: var(--font-mono, monospace);
     font-weight: 700;
     font-size: 0.76rem;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    flex-shrink: 0 !important;
   }
   .candidate-delta.gain { color: #22c55e !important; }
   .candidate-delta.loss { color: #ef4444 !important; }
@@ -624,7 +645,7 @@
           breakoutList.innerHTML = data.breakoutSurges.map(b => `
             <div class="candidate-row">
               <span class="candidate-sym" data-open-diagnostic="${b.ticker}">$${b.ticker}</span>
-              <span class="candidate-rvol">${b.rvol.toFixed(1)}x Vol</span>
+              <span class="candidate-rvol">${b.rvol.toFixed(1)}x</span>
               <span class="candidate-delta gain">+${b.change.toFixed(1)}%</span>
             </div>
           `).join('');
@@ -644,7 +665,7 @@
             reversalList.innerHTML = data.reversalRisks.map(r => `
               <div class="candidate-row">
                 <span class="candidate-sym" data-open-diagnostic="${r.ticker}">$${r.ticker}</span>
-                <span class="candidate-rvol" style="color: #ef4444;">Fading VWAP</span>
+                <span class="candidate-rvol" style="color: #ef4444;">VWAP Fade</span>
                 <span class="candidate-delta loss">${r.vwapDiff}%</span>
               </div>
             `).join('');
