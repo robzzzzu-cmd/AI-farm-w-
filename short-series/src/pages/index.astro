@@ -1,7 +1,6 @@
 ---
 // short-series/src/pages/index.astro
 import MarketTicker from '../components/MarketTicker.astro';
-import SignalTrackRecord from '../components/SignalTrackRecord.astro';
 import DiagnosticDrawer from '../components/DiagnosticDrawer.astro';
 
 interface StockItem {
@@ -233,7 +232,7 @@ const websiteSchema = {
         inset: 0;
         background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(4px);
-        z-index: 1000;
+        z-index: 10000;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -251,7 +250,7 @@ const websiteSchema = {
         width: var(--sidebar-width);
         background: var(--bg-surface);
         border-right: 1px solid var(--border-subtle);
-        z-index: 1001;
+        z-index: 10001;
         display: flex;
         flex-direction: column;
         transform: translateX(-100%);
@@ -385,18 +384,20 @@ const websiteSchema = {
       .top-nav {
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 1000;
         background: var(--bg-page);
         border-bottom: 1px solid var(--border-subtle);
         width: 100%;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
       }
       .nav-inner {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        height: var(--nav-height);
         min-height: var(--nav-height);
-        flex-wrap: wrap;
-        gap: 0.75rem;
+        flex-wrap: nowrap;
+        gap: 1rem;
       }
       .brand-group {
         display: flex;
@@ -487,6 +488,8 @@ const websiteSchema = {
         display: flex;
         align-items: center;
         gap: 0.65rem;
+        margin-left: auto;
+        flex-shrink: 0;
       }
       .search-box {
         position: relative;
@@ -1335,20 +1338,25 @@ const websiteSchema = {
       .cookie-btn.accept { background: var(--brand-accent); color: #fff; }
       .cookie-btn.decline { background: var(--bg-surface-elevated); color: var(--text-secondary); }
 
+      @media (max-width: 1160px) {
+        .nav-links { display: none; }
+      }
+
       @media (max-width: 900px) {
         .grid-main, .tools-split-grid { grid-template-columns: minmax(0, 1fr); }
-        .nav-links { display: none; }
         .newsletter-box { flex-direction: column; align-items: flex-start; }
+      }
+
+      @media (max-width: 768px) {
+        .search-box { display: none; }
       }
 
       @media (max-width: 560px) {
         .app-wrapper { padding: 0 0.75rem; }
-        .nav-inner { flex-direction: column; align-items: stretch; padding: 0.6rem 0; gap: 0.5rem; }
-        .brand-group { width: 100%; justify-content: space-between; gap: 0.5rem; }
+        .nav-inner { padding: 0.4rem 0; gap: 0.5rem; }
+        .brand-group { gap: 0.5rem; }
         .logo { font-size: 0.92rem; }
         .dashboard-toggle-btn { padding: 0.35rem 0.55rem; font-size: 0.72rem; }
-        .nav-actions { width: 100%; justify-content: space-between; }
-        .search-box, .search-input { width: 100%; font-size: 16px; }
         .newsletter-box { padding: 1.15rem; }
         .newsletter-input-group { flex-direction: column; width: 100%; }
         .newsletter-input, #subscribe-btn { width: 100%; font-size: 16px; }
@@ -1367,9 +1375,16 @@ const websiteSchema = {
         .hero-chip-btn { flex-shrink: 0; }
         .footer-meta { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
       }
+
+      @media (max-width: 480px) {
+        .dashboard-toggle-btn span { display: none; }
+        .alerts-action-btn span { display: none; }
+        .alerts-action-btn { padding: 0.35rem 0.5rem; }
+      }
     </style>
   </head>
   <body>
+    <div id="top" style="position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;"></div>
     <MarketTicker />
 
     <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
@@ -1389,6 +1404,10 @@ const websiteSchema = {
           <a href="#top" class="sidebar-nav-item active">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Dashboard</span>
+          </a>
+          <a href="/track-record" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span>Track Record</span>
           </a>
           <a href="#news-feed" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -1428,7 +1447,7 @@ const websiteSchema = {
       </div>
     </aside>
 
-    <nav class="top-nav" id="top">
+    <nav class="top-nav">
       <div class="app-wrapper nav-inner">
         <div class="brand-group">
           <button id="sidebar-toggle-btn" class="dashboard-toggle-btn" aria-label="Toggle Side Dashboard">
@@ -1447,7 +1466,7 @@ const websiteSchema = {
           </a>
 
           <ul class="nav-links">
-            <li><a href="#track-record-section">Track Record</a></li>
+            <li><a href="/track-record">Track Record</a></li>
             <li><a href="#news-feed" class="active">News Feed</a></li>
             <li><a href="/screener">Live Screener</a></li>
             <li><a href="#opportunities">Opportunities</a></li>
@@ -1540,12 +1559,12 @@ const websiteSchema = {
             </svg>
             <span>Scan Live Breakouts &rarr;</span>
           </a>
-          <a href="#track-record-section" class="hero-secondary-btn">
+          <a href="/track-record" class="hero-secondary-btn">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
               <polyline points="17 6 23 6 23 12"></polyline>
             </svg>
-            <span>View Auditable Track Record</span>
+            <span>View Auditable Track Record &rarr;</span>
           </a>
         </div>
 
@@ -1592,9 +1611,6 @@ const websiteSchema = {
           </div>
         </div>
       </section>
-
-      <!-- Transparent Signal Track Record Engine -->
-      <SignalTrackRecord />
 
       <!-- Section 01: News Feed -->
       <section id="news-feed">

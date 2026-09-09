@@ -3,7 +3,6 @@
 import { SCREENER_CONFIG } from '../config/screenerConfig';
 import MarketRadar from './MarketRadar.astro';
 import WatchlistMatrix from './WatchlistMatrix.astro';
-import SignalTrackRecord from './SignalTrackRecord.astro';
 import DiagnosticDrawer from './DiagnosticDrawer.astro';
 
 const { categories, platformNotice, dataFeedNotice } = SCREENER_CONFIG;
@@ -13,9 +12,6 @@ const categoriesList = Object.values(categories);
 <div class="screener-wrapper" id="screener">
   <!-- Live Market Radar HUD -->
   <MarketRadar />
-
-  <!-- Signal Track Record: Transparent Proof Engine -->
-  <SignalTrackRecord />
 
   <!-- Retention Engine: Dynamic Watchlist & Alert Matrix -->
   <WatchlistMatrix />

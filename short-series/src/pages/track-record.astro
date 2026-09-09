@@ -1,0 +1,178 @@
+---
+// short-series/src/pages/track-record.astro
+import Layout from '../layouts/Layout.astro';
+import SignalTrackRecord from '../components/SignalTrackRecord.astro';
+
+const canonicalURL = new URL('/track-record/', Astro.site ?? 'https://tradeopportunities.trade').href;
+const pageTitle = "Auditable Signal Track Record // Trade Opportunities";
+const pageDescription = "Transparent rolling 30-day momentum signal performance: Hit Rate to Target 1, Median MFE, Median MAE, and immutable historical audit ledger.";
+
+const trackRecordSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemPage",
+  "name": "Signal Track Record & Verification Engine",
+  "url": canonicalURL,
+  "description": pageDescription,
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
+---
+
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  canonicalURL={canonicalURL}
+>
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script type="application/ld+json" set:html={JSON.stringify(trackRecordSchema)} />
+  </Fragment>
+
+  <div class="track-record-page-container">
+    <header class="page-intro-header">
+      <div class="breadcrumb">
+        <a href="/">Terminal</a> &rsaquo; <span>Signal Track Record</span>
+      </div>
+      <span class="hub-pill">AUDITABLE PROOF ENGINE</span>
+      <h1>Signal Track Record</h1>
+      <p class="subtitle">
+        Radical performance transparency. Every momentum alert is recorded immutably at the trigger moment with predefined profit targets and hard invalidation stops — with zero cherry-picking.
+      </p>
+    </header>
+
+    <!-- Dedicated Full-Page Signal Track Record Component -->
+    <SignalTrackRecord />
+
+    <!-- Anti-Cherry-Picking Protocol Documentation -->
+    <section class="methodology-note-card">
+      <h2>Audited Performance Framework &amp; Invalidation Rules</h2>
+      <div class="framework-grid">
+        <div class="framework-item">
+          <strong>Deterministic Immutability</strong>
+          <p>Each alert is cryptographically hashed with a deterministic SHA-256 identifier at trigger time. Alerts cannot be deleted, modified, or back-adjusted.</p>
+        </div>
+        <div class="framework-item">
+          <strong>Continuous Excursion (MFE / MAE)</strong>
+          <p>Maximum Favorable Excursion tracks peak unrealized profit potential; Maximum Adverse Excursion measures worst intra-trade drawdown before exit.</p>
+        </div>
+        <div class="framework-item">
+          <strong>Strict Invalidation Enforcement</strong>
+          <p>If price touches the predefined invalidation stop level before reaching Target 1, it is unconditionally recorded as a stopped-out loss.</p>
+        </div>
+      </div>
+      <p class="footer-clarification">
+        <em>Note: Track record metrics reflect rolling 30-day algorithmic alert logs. Trade Opportunities is an analytical research platform; past statistical performance does not guarantee future results.</em>
+      </p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .track-record-page-container {
+    max-width: 1240px;
+    margin: 2rem auto 4rem auto;
+    padding: 0 1.25rem;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .breadcrumb {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+  }
+  .breadcrumb a {
+    color: var(--brand-accent);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover {
+    text-decoration: underline;
+  }
+  .page-intro-header {
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  .hub-pill {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--brand-accent);
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-mono);
+  }
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+  .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 820px;
+  }
+  .methodology-note-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+  .methodology-note-card h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+  }
+  .framework-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .framework-item {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1rem;
+  }
+  .framework-item strong {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--brand-accent);
+    margin-bottom: 0.5rem;
+  }
+  .framework-item p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .footer-clarification {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 1rem;
+    margin: 0;
+  }
+</style>
