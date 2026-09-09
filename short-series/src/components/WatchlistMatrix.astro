@@ -137,6 +137,11 @@
     padding: 1.15rem 1.25rem;
     margin-bottom: 1.75rem;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .watchlist-card-header {
@@ -376,7 +381,12 @@
   /* Table Viewport */
   .watchlist-table-wrap {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: block;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
     border: 1px solid var(--border-subtle, #1e2638);
     border-radius: 6px;
     background: var(--bg-surface, #111622);
@@ -384,6 +394,7 @@
 
   .watchlist-table {
     width: 100%;
+    min-width: 720px;
     border-collapse: separate;
     border-spacing: 0;
     font-size: 0.78125rem;
@@ -433,6 +444,62 @@
 
   .footer-count {
     font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .watchlist-matrix-card {
+      padding: 0.85rem 0.75rem;
+    }
+    .watchlist-card-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+    .watchlist-aux-controls {
+      width: 100%;
+      justify-content: flex-start;
+      gap: 0.5rem;
+    }
+    .preset-buttons {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .preset-buttons::-webkit-scrollbar {
+      display: none;
+    }
+    .preset-btn {
+      flex-shrink: 0;
+    }
+    .watchlist-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.4rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .watchlist-matrix-card {
+      padding: 0.75rem 0.6rem;
+    }
+    .watchlist-title {
+      font-size: 1.05rem;
+    }
+    .watchlist-subtitle {
+      font-size: 0.72rem;
+    }
+    .aux-toggle-btn {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.68rem;
+    }
+    .track-btn {
+      padding: 0.45rem 0.75rem;
+    }
+    .watchlist-search-field {
+      font-size: 16px;
+    }
   }
 </style>
 
@@ -720,6 +787,23 @@
   @keyframes wlFlash {
     0% { background: rgba(56, 189, 248, 0.3) !important; }
     100% { background: transparent !important; }
+  }
+
+  @media (max-width: 768px) {
+    .watchlist-table th.th-symbol,
+    .watchlist-table td.th-symbol {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: var(--bg-surface-elevated, #161d2d);
+      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.4);
+    }
+    .watchlist-table th.th-symbol {
+      z-index: 3;
+    }
+    .wl-trig-btn {
+      padding: 0.28rem 0.45rem;
+    }
   }
 </style>
 

@@ -1,4 +1,4 @@
-﻿---
+---
 // short-series/src/components/DiagnosticDrawer.astro
 ---
 
@@ -513,6 +513,33 @@
   }
   .action-secondary:hover {
     border-color: var(--brand-accent, #3b82f6);
+  }
+
+  @media (max-width: 640px) {
+    .diagnostic-drawer {
+      max-width: 100%;
+      border-left: none;
+    }
+    .drawer-header {
+      padding: 0.9rem 1rem;
+    }
+    .drawer-body {
+      padding: 0.9rem 1rem;
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 24px));
+    }
+    .layer-grid-2 {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    .drawer-company-name {
+      max-width: 110px;
+    }
+    .header-ticker-row {
+      gap: 0.4rem;
+    }
+    .drawer-symbol {
+      font-size: 1.15rem;
+    }
   }
 </style>
 
