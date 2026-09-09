@@ -1,16 +1,16 @@
-﻿---
+---
 // short-series/src/components/MarketRadar.astro
 ---
 
 <div class="market-radar-hud" id="market-radar">
-  <!-- Top Telemetry Row -->
+  <!-- Top Telemetry Header -->
   <div class="radar-top-row">
     <div class="radar-brand-meta">
       <div class="radar-live-badge">
         <span class="pulse-core"></span>
         <span class="live-label">LIVE RADAR HUD</span>
       </div>
-      <span class="session-clock" id="radar-session-clock">SYNCING MARKET TIME...</span>
+      <span class="session-clock" id="radar-session-clock">SYNCING MARKET CLOCK...</span>
     </div>
 
     <!-- Macro Regime Gauge -->
@@ -26,7 +26,7 @@
     <!-- Card 1: Top Conviction Setup -->
     <div class="radar-card top-setup-card">
       <div class="card-header-mini">
-        <span class="card-tag">TOP SETUP</span>
+        <span class="card-tag">TOP CONVICTION SETUP</span>
         <span class="card-conviction" id="radar-top-conviction">Score: 92/100</span>
       </div>
       <div class="setup-content">
@@ -36,20 +36,24 @@
           <span class="setup-delta gain" id="radar-top-delta">+0.00%</span>
         </div>
         <p class="setup-note" id="radar-top-note">Leading volume expansion on session tape.</p>
-        <button class="radar-inspect-btn" id="radar-top-inspect-btn" data-open-diagnostic="" style="display: none;">
-          Why Is It Moving? &rarr;
+        <button type="button" class="radar-action-btn" id="radar-top-inspect-btn" data-open-diagnostic="" style="display: none;">
+          <span>Why Is It Moving?</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </button>
       </div>
     </div>
 
-    <!-- Card 2: Breakout Candidates -->
+    <!-- Card 2: Breakout Surges -->
     <div class="radar-card">
       <div class="card-header-mini">
         <span class="card-tag">BREAKOUT SURGES</span>
         <span class="card-hint">RVOL &ge; 2.5x</span>
       </div>
       <div class="candidates-list" id="radar-breakout-list">
-        <div class="candidate-row loading">Scanning live exchange tape...</div>
+        <div class="candidate-row loading">Synchronizing live breakout tape...</div>
       </div>
     </div>
 
@@ -68,16 +72,21 @@
     <div class="radar-card anchor-card">
       <div class="card-header-mini">
         <span class="card-tag">LARGE-CAP ANCHOR</span>
-        <span class="card-hint">&gt;$10B Cap</span>
+        <span class="card-hint">Megacap Tape</span>
       </div>
       <div class="anchor-content">
         <div class="anchor-symbol-row">
           <span class="anchor-symbol" id="radar-anchor-ticker">---</span>
-          <span class="anchor-delta" id="radar-anchor-delta">0.00%</span>
+          <span class="anchor-price" id="radar-anchor-price">$0.00</span>
+          <span class="anchor-delta gain" id="radar-anchor-delta">0.00%</span>
         </div>
-        <p class="anchor-desc" id="radar-anchor-desc">Institutional liquidity benchmark.</p>
-        <button class="radar-inspect-btn" id="radar-anchor-inspect-btn" data-open-diagnostic="" style="display: none;">
-          Analyze Flow &rarr;
+        <p class="anchor-desc" id="radar-anchor-desc">Primary market liquidity leader.</p>
+        <button type="button" class="radar-action-btn" id="radar-anchor-inspect-btn" data-open-diagnostic="" style="display: none;">
+          <span>Analyze Flow</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </button>
       </div>
     </div>
@@ -105,13 +114,16 @@
 
 <style>
   .market-radar-hud {
-    background: var(--bg-surface, #12141a);
-    border: 1px solid var(--border-subtle, #222632);
-    border-radius: 8px;
-    padding: 1.15rem 1.25rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    background: #0f131c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 1.15rem 1.35rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
+
+  /* Top Bar */
   .radar-top-row {
     display: flex;
     justify-content: space-between;
@@ -119,7 +131,7 @@
     flex-wrap: wrap;
     gap: 0.75rem;
     padding-bottom: 0.85rem;
-    border-bottom: 1px solid var(--border-subtle, #222632);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     margin-bottom: 1rem;
   }
   .radar-brand-meta {
@@ -146,31 +158,33 @@
   }
   @keyframes radar-pulse {
     0% { transform: scale(0.9); opacity: 0.8; }
-    50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 12px #22c55e; }
+    50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px #22c55e; }
     100% { transform: scale(0.9); opacity: 0.8; }
   }
   .live-label {
     font-size: 0.68rem;
-    font-family: var(--font-mono, monospace);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 800;
-    color: var(--brand-accent, #3b82f6);
+    color: #60a5fa;
     letter-spacing: 0.06em;
   }
   .session-clock {
-    font-size: 0.72rem;
-    font-family: var(--font-mono, monospace);
-    color: var(--text-muted, #9ca3af);
-    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #94a3b8;
+    letter-spacing: 0.02em;
   }
+
+  /* Macro Regime */
   .macro-regime-wrap {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.55rem;
   }
   .regime-title {
-    font-size: 0.68rem;
-    font-family: var(--font-mono, monospace);
-    color: var(--text-muted, #9ca3af);
+    font-size: 0.7rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #64748b;
     font-weight: 700;
   }
   .regime-badge {
@@ -196,142 +210,171 @@
     border: 1px solid rgba(234, 179, 8, 0.35);
   }
   .regime-metrics {
-    font-size: 0.7rem;
-    font-family: var(--font-mono, monospace);
-    color: var(--text-secondary, #9ca3af);
+    font-size: 0.72rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #cbd5e1;
   }
+
+  /* Grid & Cards */
   .radar-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 0.85rem;
     margin-bottom: 1rem;
   }
   .radar-card {
-    background: var(--bg-surface-elevated, #181b22);
-    border: 1px solid var(--border-subtle, #222632);
-    border-radius: 6px;
-    padding: 0.85rem 1rem;
+    background: #141824;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: border-color 0.15s ease;
+  }
+  .radar-card:hover {
+    border-color: rgba(255, 255, 255, 0.14);
   }
   .card-header-mini {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
-    padding-bottom: 0.35rem;
-    border-bottom: 1px solid var(--border-subtle, #222632);
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
   .card-tag {
-    font-size: 0.65rem;
-    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 800;
-    color: var(--brand-accent, #3b82f6);
+    color: #60a5fa;
     letter-spacing: 0.05em;
   }
   .card-conviction, .card-hint {
-    font-size: 0.65rem;
-    font-family: var(--font-mono, monospace);
-    color: var(--text-muted, #9ca3af);
+    font-size: 0.68rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #94a3b8;
     font-weight: 600;
   }
   .setup-symbol-row, .anchor-symbol-row {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
+    align-items: baseline;
+    gap: 0.55rem;
+    margin-bottom: 0.35rem;
+    flex-wrap: wrap;
   }
   .setup-symbol, .anchor-symbol {
-    font-size: 1.15rem;
-    font-family: var(--font-mono, monospace);
+    font-size: 1.2rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 800;
-    color: var(--text-primary, #f3f4f6);
+    color: #f8fafc;
   }
-  .setup-price {
-    font-size: 0.85rem;
-    font-family: var(--font-mono, monospace);
-    color: var(--text-secondary, #9ca3af);
+  .setup-price, .anchor-price {
+    font-size: 0.88rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #94a3b8;
+    font-weight: 600;
   }
   .setup-delta, .anchor-delta {
-    font-size: 0.82rem;
-    font-family: var(--font-mono, monospace);
+    font-size: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
   }
-  .setup-delta.gain, .anchor-delta.gain { color: var(--gain-color, #22c55e); }
-  .setup-delta.loss, .anchor-delta.loss { color: var(--loss-color, #ef4444); }
+  .setup-delta.gain, .anchor-delta.gain {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+  }
+  .setup-delta.loss, .anchor-delta.loss {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+  }
   .setup-note, .anchor-desc {
-    font-size: 0.74rem;
-    color: var(--text-muted, #9ca3af);
-    line-height: 1.35;
-    margin-bottom: 0.5rem;
+    font-size: 0.76rem;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin: 0 0 0.6rem 0;
   }
-  .radar-inspect-btn {
+  .radar-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     background: transparent;
     border: none;
     padding: 0;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 700;
-    color: var(--brand-accent, #3b82f6);
+    color: #3b82f6;
     cursor: pointer;
     text-align: left;
-    display: inline-block;
+    transition: color 0.12s ease;
   }
-  .radar-inspect-btn:hover { text-decoration: underline; }
+  .radar-action-btn:hover { color: #60a5fa; text-decoration: underline; }
+
+  /* Candidate Lists */
   .candidates-list {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.45rem;
   }
   .candidate-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.78rem;
-    padding: 0.25rem 0.4rem;
-    border-radius: 4px;
-    background: var(--bg-page, #0b0c10);
-    border: 1px solid var(--border-subtle, #222632);
+    font-size: 0.8rem;
+    padding: 0.35rem 0.55rem;
+    border-radius: 5px;
+    background: #0b0e15;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: border-color 0.12s ease;
+  }
+  .candidate-row:hover {
+    border-color: rgba(59, 130, 246, 0.4);
   }
   .candidate-row.loading {
-    color: var(--text-muted, #9ca3af);
-    font-size: 0.72rem;
+    color: #64748b;
+    font-size: 0.75rem;
     justify-content: center;
     background: transparent;
     border: none;
   }
   .candidate-sym {
-    font-family: var(--font-mono, monospace);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 800;
-    color: var(--text-primary, #f3f4f6);
+    color: #f1f5f9;
     cursor: pointer;
+    transition: color 0.12s ease;
   }
-  .candidate-sym:hover { color: var(--brand-accent, #3b82f6); }
+  .candidate-sym:hover { color: #60a5fa; }
   .candidate-rvol {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.7rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
     color: #f59e0b;
     font-weight: 700;
   }
   .candidate-delta {
-    font-family: var(--font-mono, monospace);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 700;
+    font-size: 0.76rem;
   }
-  .candidate-delta.gain { color: var(--gain-color, #22c55e); }
-  .candidate-delta.loss { color: var(--loss-color, #ef4444); }
+  .candidate-delta.gain { color: #22c55e; }
+  .candidate-delta.loss { color: #ef4444; }
+
+  /* Briefs Strip */
   .radar-briefs-strip {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
     padding-top: 0.75rem;
-    border-top: 1px solid var(--border-subtle, #222632);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
   }
   .briefs-label {
-    font-size: 0.65rem;
-    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 800;
-    color: var(--text-muted, #9ca3af);
+    color: #64748b;
     letter-spacing: 0.05em;
   }
   .briefs-links {
@@ -343,24 +386,24 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background: var(--bg-surface-elevated, #181b22);
-    border: 1px solid var(--border-subtle, #222632);
-    padding: 0.25rem 0.55rem;
+    background: #141824;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.25rem 0.6rem;
     border-radius: 4px;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 600;
-    color: var(--text-secondary, #9ca3af);
+    color: #94a3b8;
     text-decoration: none;
     transition: all 0.15s ease;
   }
   .brief-chip:hover {
-    color: var(--brand-accent, #3b82f6);
-    border-color: var(--brand-accent, #3b82f6);
+    color: #60a5fa;
+    border-color: #3b82f6;
   }
   .brief-time {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.65rem;
-    color: var(--brand-accent, #3b82f6);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.68rem;
+    color: #60a5fa;
     font-weight: 700;
   }
 </style>
@@ -374,10 +417,12 @@
     const topPriceEl = document.getElementById('radar-top-price');
     const topDeltaEl = document.getElementById('radar-top-delta');
     const topNoteEl = document.getElementById('radar-top-note');
+    const topConvictionEl = document.getElementById('radar-top-conviction');
     const topInspectBtn = document.getElementById('radar-top-inspect-btn');
     const breakoutList = document.getElementById('radar-breakout-list');
     const reversalList = document.getElementById('radar-reversal-list');
     const anchorTickerEl = document.getElementById('radar-anchor-ticker');
+    const anchorPriceEl = document.getElementById('radar-anchor-price');
     const anchorDeltaEl = document.getElementById('radar-anchor-delta');
     const anchorDescEl = document.getElementById('radar-anchor-desc');
     const anchorInspectBtn = document.getElementById('radar-anchor-inspect-btn');
@@ -387,8 +432,13 @@
       const now = new Date();
       const utcStr = now.toISOString().slice(11, 19) + ' UTC';
       
-      // Compute US EST time
-      const estTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const estTimeStr = now.toLocaleTimeString('en-US', { 
+        timeZone: 'America/New_York', 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+      });
       const estHour = parseInt(estTimeStr.slice(0, 2), 10);
       const estMin = parseInt(estTimeStr.slice(3, 5), 10);
       const day = now.getUTCDay(); // 0=Sun, 6=Sat
@@ -402,6 +452,8 @@
         } else if (estHour >= 16 && estHour < 20) {
           phase = 'AFTER-HOURS';
         }
+      } else {
+        phase = 'WEEKEND';
       }
 
       clockEl.textContent = `${estTimeStr} EST (${phase}) • ${utcStr}`;
@@ -410,145 +462,93 @@
     updateClock();
     setInterval(updateClock, 1000);
 
+    // Sync live radar data from server SSR API (avoids CORS)
     async function syncRadarData() {
       try {
-        // Query TradingView scanner for market anchors and top setups
-        const res = await fetch('https://scanner.tradingview.com/america/scan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            symbols: { query: { types: [] }, tickers: [] },
-            columns: [
-              'name',
-              'close',
-              'change',
-              'volume',
-              'relative_volume_10d_calc',
-              'market_cap_basic',
-              'VWAP',
-              'sector'
-            ],
-            sort: { sortBy: 'change', sortOrder: 'desc' },
-            range: [0, 40]
-          })
-        });
+        const res = await fetch('/api/radar');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!data.success) return;
 
-        // Also query SPY & QQQ for Macro Regime
-        const indexRes = await fetch('https://scanner.tradingview.com/america/scan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            symbols: { tickers: ['AMEX:SPY', 'NASDAQ:QQQ'] },
-            columns: ['name', 'change']
-          })
-        });
-
-        if (indexRes.ok) {
-          const indexJson = await indexRes.json();
-          const rows = indexJson?.data || [];
-          const spyRow = rows.find(r => r.s === 'AMEX:SPY');
-          const qqqRow = rows.find(r => r.s === 'NASDAQ:QQQ');
-          const spyDelta = typeof spyRow?.d?.[1] === 'number' ? spyRow.d[1] : 0.0;
-          const qqqDelta = typeof qqqRow?.d?.[1] === 'number' ? qqqRow.d[1] : 0.0;
-
-          if (regimeMetrics) {
-            regimeMetrics.textContent = `SPY ${spyDelta >= 0 ? '+' : ''}${spyDelta.toFixed(2)}% • QQQ ${qqqDelta >= 0 ? '+' : ''}${qqqDelta.toFixed(2)}%`;
-          }
-
+        // 1. Macro Regime
+        if (data.macroRegime) {
+          const mr = data.macroRegime;
           if (regimeBadge) {
-            if (spyDelta > 0.3 && qqqDelta > 0.3) {
-              regimeBadge.textContent = 'RISK-ON';
-              regimeBadge.className = 'regime-badge RISK-ON';
-            } else if (spyDelta < -0.4 || qqqDelta < -0.4) {
-              regimeBadge.textContent = 'RISK-OFF';
-              regimeBadge.className = 'regime-badge RISK-OFF';
-            } else {
-              regimeBadge.textContent = 'SELECTIVE ROTATION';
-              regimeBadge.className = 'regime-badge ROTATION';
-            }
+            regimeBadge.textContent = mr.label || mr.regime;
+            regimeBadge.className = `regime-badge ${mr.regime}`;
+          }
+          if (regimeMetrics && mr.spy && mr.qqq) {
+            const spyStr = `SPY ${mr.spy.change >= 0 ? '+' : ''}${mr.spy.change.toFixed(2)}%`;
+            const qqqStr = `QQQ ${mr.qqq.change >= 0 ? '+' : ''}${mr.qqq.change.toFixed(2)}%`;
+            regimeMetrics.textContent = `${spyStr} • ${qqqStr}`;
           }
         }
 
-        if (res.ok) {
-          const json = await res.json();
-          const rows = json?.data || [];
-          if (rows.length === 0) return;
-
-          const parsed = rows.map(r => {
-            const d = r.d || [];
-            return {
-              ticker: String(d[0] || r.s?.split(':')?.[1] || ''),
-              price: typeof d[1] === 'number' ? d[1] : parseFloat(d[1]) || 0,
-              change: typeof d[2] === 'number' ? d[2] : parseFloat(d[2]) || 0,
-              volume: typeof d[3] === 'number' ? d[3] : parseInt(d[3], 10) || 0,
-              rvol: typeof d[4] === 'number' ? parseFloat(d[4].toFixed(2)) : 1.0,
-              marketCap: typeof d[5] === 'number' ? d[5] : parseFloat(d[5]) || 0,
-              vwap: typeof d[6] === 'number' ? parseFloat(d[6].toFixed(2)) : 0
-            };
-          });
-
-          // 1. Top Conviction Setup (High change + RVOL >= 2.0)
-          const topSetup = parsed.find(p => p.rvol >= 2.0 && p.price >= 1.0) || parsed[0];
-          if (topSetup && topTickerEl) {
-            topTickerEl.textContent = '$' + topSetup.ticker;
-            topPriceEl.textContent = '$' + (topSetup.price < 1 ? topSetup.price.toFixed(4) : topSetup.price.toFixed(2));
-            topDeltaEl.textContent = (topSetup.change >= 0 ? '+' : '') + topSetup.change.toFixed(2) + '%';
-            topDeltaEl.className = 'setup-delta ' + (topSetup.change >= 0 ? 'gain' : 'loss');
-            topNoteEl.textContent = `RVOL ${topSetup.rvol.toFixed(1)}x surge &bull; High conviction breakout expansion.`;
-            if (topInspectBtn) {
-              topInspectBtn.setAttribute('data-open-diagnostic', topSetup.ticker);
-              topInspectBtn.style.display = 'inline-block';
-            }
+        // 2. Top Conviction Setup
+        if (data.topSetup && topTickerEl) {
+          const ts = data.topSetup;
+          topTickerEl.textContent = '$' + ts.ticker;
+          topPriceEl.textContent = '$' + (ts.price < 1 ? ts.price.toFixed(4) : ts.price.toFixed(2));
+          topDeltaEl.textContent = (ts.change >= 0 ? '+' : '') + ts.change.toFixed(2) + '%';
+          topDeltaEl.className = 'setup-delta ' + (ts.change >= 0 ? 'gain' : 'loss');
+          topNoteEl.textContent = `RVOL ${ts.rvol.toFixed(1)}x surge • Leading high conviction expansion tape.`;
+          if (topConvictionEl && ts.convictionScore) {
+            topConvictionEl.textContent = `Score: ${ts.convictionScore}/100`;
           }
+          if (topInspectBtn) {
+            topInspectBtn.setAttribute('data-open-diagnostic', ts.ticker);
+            topInspectBtn.style.display = 'inline-flex';
+          }
+        }
 
-          // 2. Breakout Surges (Top 3 by RVOL >= 2.0)
-          const breakouts = parsed.filter(p => p.change > 0 && p.rvol >= 2.0).slice(0, 3);
-          if (breakoutList && breakouts.length > 0) {
-            breakoutList.innerHTML = breakouts.map(b => `
+        // 3. Breakout Surges
+        if (breakoutList && Array.isArray(data.breakoutSurges) && data.breakoutSurges.length > 0) {
+          breakoutList.innerHTML = data.breakoutSurges.map(b => `
+            <div class="candidate-row">
+              <span class="candidate-sym" data-open-diagnostic="${b.ticker}">$${b.ticker}</span>
+              <span class="candidate-rvol">${b.rvol.toFixed(1)}x Vol</span>
+              <span class="candidate-delta gain">+${b.change.toFixed(1)}%</span>
+            </div>
+          `).join('');
+        }
+
+        // 4. Reversal Risks
+        if (reversalList && Array.isArray(data.reversalRisks)) {
+          if (data.reversalRisks[0]?.status) {
+            reversalList.innerHTML = `
               <div class="candidate-row">
-                <span class="candidate-sym" data-open-diagnostic="${b.ticker}">$${b.ticker}</span>
-                <span class="candidate-rvol">${b.rvol.toFixed(1)}x Vol</span>
-                <span class="candidate-delta gain">+${b.change.toFixed(1)}%</span>
+                <span class="candidate-sym">SPY / QQQ</span>
+                <span class="candidate-rvol" style="color: #22c55e;">Clean Holds</span>
+                <span class="candidate-delta gain">Low Fades</span>
+              </div>
+            `;
+          } else {
+            reversalList.innerHTML = data.reversalRisks.map(r => `
+              <div class="candidate-row">
+                <span class="candidate-sym" data-open-diagnostic="${r.ticker}">$${r.ticker}</span>
+                <span class="candidate-rvol" style="color: #ef4444;">Fading VWAP</span>
+                <span class="candidate-delta loss">${r.vwapDiff}%</span>
               </div>
             `).join('');
           }
+        }
 
-          // 3. Reversal / Fade Risks (Trading under VWAP with high change or negative delta)
-          const reversals = parsed.filter(p => p.vwap > 0 && p.price < p.vwap && p.change > 10.0).slice(0, 2);
-          if (reversalList) {
-            if (reversals.length > 0) {
-              reversalList.innerHTML = reversals.map(r => `
-                <div class="candidate-row">
-                  <span class="candidate-sym" data-open-diagnostic="${r.ticker}">$${r.ticker}</span>
-                  <span class="candidate-rvol" style="color: #ef4444;">Fading VWAP</span>
-                  <span class="candidate-delta loss">${((r.price - r.vwap)/r.vwap*100).toFixed(1)}% VWAP</span>
-                </div>
-              `).join('');
-            } else {
-              reversalList.innerHTML = `
-                <div class="candidate-row">
-                  <span class="candidate-sym">SPY/QQQ</span>
-                  <span class="candidate-rvol" style="color: #22c55e;">Clean Holds</span>
-                  <span class="candidate-delta gain">Low Fades</span>
-                </div>
-              `;
-            }
+        // 5. Large-Cap Anchor
+        if (data.largeCapAnchor && anchorTickerEl) {
+          const lca = data.largeCapAnchor;
+          anchorTickerEl.textContent = '$' + lca.ticker;
+          if (anchorPriceEl) {
+            anchorPriceEl.textContent = '$' + (lca.price < 1 ? lca.price.toFixed(4) : lca.price.toFixed(2));
           }
-
-          // 4. Large-Cap Anchor (> $10B)
-          const largeCap = parsed.find(p => p.marketCap >= 10_000_000_000) || { ticker: 'NVDA', change: 1.25, price: 128.0 };
-          if (anchorTickerEl) {
-            anchorTickerEl.textContent = '$' + largeCap.ticker;
-            anchorDeltaEl.textContent = (largeCap.change >= 0 ? '+' : '') + largeCap.change.toFixed(2) + '%';
-            anchorDeltaEl.className = 'anchor-delta ' + (largeCap.change >= 0 ? 'gain' : 'loss');
-            anchorDescEl.textContent = 'Primary large-cap institutional liquidity driver.';
-            if (anchorInspectBtn) {
-              anchorInspectBtn.setAttribute('data-open-diagnostic', largeCap.ticker);
-              anchorInspectBtn.style.display = 'inline-block';
-            }
+          anchorDeltaEl.textContent = (lca.change >= 0 ? '+' : '') + lca.change.toFixed(2) + '%';
+          anchorDeltaEl.className = 'anchor-delta ' + (lca.change >= 0 ? 'gain' : 'loss');
+          anchorDescEl.textContent = `Institutional tape benchmark (${lca.name || lca.ticker}).`;
+          if (anchorInspectBtn) {
+            anchorInspectBtn.setAttribute('data-open-diagnostic', lca.ticker);
+            anchorInspectBtn.style.display = 'inline-flex';
           }
         }
-      } catch(e) {}
+      } catch (err) {}
     }
 
     syncRadarData();

@@ -1,60 +1,33 @@
-﻿---
+---
 // short-series/src/components/WatchlistMatrix.astro
 ---
 
 <div class="watchlist-matrix-container" id="watchlist-matrix">
-  <!-- Matrix Header & Actions -->
+  <!-- Matrix Header -->
   <div class="watchlist-header">
     <div class="watchlist-header-left">
-      <div class="watchlist-title-row">
-        <span class="watchlist-kicker">RETENTION ENGINE &bull; TELEMETRY MATRIX</span>
-        <h3 class="watchlist-title">Dynamic Watchlist &amp; Alert Engine</h3>
+      <div class="watchlist-tag-badge">
+        <span class="pulse-dot"></span>
+        <span>LIVE TELEMETRY</span>
       </div>
+      <h3 class="watchlist-title">Live Watchlist &amp; Momentum Alerts</h3>
       <p class="watchlist-subtitle">
-        Pin tickers to monitor real-time relative volume spikes (RVOL), consolidation breaches, and catalyst filings.
+        Monitor real-time price action, relative volume surges (RVOL), and breaking catalyst alerts for premier market leaders.
       </p>
     </div>
 
     <div class="watchlist-controls">
-      <!-- Quick Add Form -->
-      <form id="watchlist-add-form" class="watchlist-add-form" onsubmit="return false;">
-        <div class="input-wrap">
-          <span class="dollar-prefix">$</span>
-          <input 
-            type="text" 
-            id="watchlist-ticker-input" 
-            class="ticker-input" 
-            placeholder="Add symbol (e.g. NVDA)" 
-            maxlength="8" 
-            autocomplete="off" 
-            spellcheck="false"
-          />
-        </div>
-        <button type="submit" id="watchlist-add-btn" class="watchlist-btn add-btn">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          <span>Track</span>
-        </button>
-      </form>
-
       <!-- Audio Alert Toggle -->
-      <button id="watchlist-sound-btn" class="icon-toggle-btn active" title="Toggle Audio Chimes on Trigger" aria-label="Toggle Audio Alerts">
-        <svg id="sound-icon-on" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+      <button id="watchlist-sound-btn" class="pill-toggle active" title="Toggle audio chimes on breakout alert">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-        <svg id="sound-icon-off" style="display: none;" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-          <line x1="23" y1="9" x2="17" y2="15"></line>
-          <line x1="17" y1="9" x2="23" y2="15"></line>
         </svg>
         <span id="sound-status-label">Chimes: ON</span>
       </button>
 
-      <!-- Browser Push Notification Permission Button -->
-      <button id="watchlist-notify-btn" class="icon-toggle-btn" title="Enable Desktop Breakout Notifications" aria-label="Enable Desktop Notifications">
+      <!-- Desktop Notifications Toggle -->
+      <button id="watchlist-notify-btn" class="pill-toggle" title="Enable browser push notifications for triggers">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -64,90 +37,157 @@
     </div>
   </div>
 
-  <!-- Alert Banner / Toast Container -->
-  <div id="watchlist-alert-banner" class="watchlist-alert-banner" style="display: none;">
-    <div class="banner-left">
-      <span class="bell-pulse">🔔</span>
-      <strong id="alert-banner-ticker">$NVDA</strong>
-      <span id="alert-banner-text">Alert triggered: Relative Volume 3.4x exceeded 3.0x threshold</span>
+  <!-- Search & Fast-Add Bar -->
+  <div class="watchlist-search-row">
+    <div class="search-input-container">
+      <form id="watchlist-add-form" class="search-form" onsubmit="return false;">
+        <div class="search-field-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="watchlist-ticker-input" 
+            class="watchlist-search-input" 
+            placeholder="Search &amp; add any US ticker (e.g. NVDA, AAPL, TSLA, GME)..." 
+            maxlength="15" 
+            autocomplete="off" 
+            spellcheck="false"
+          />
+          <button type="button" id="search-clear-btn" class="search-clear-btn" style="display: none;">&times;</button>
+        </div>
+        <button type="submit" id="watchlist-add-btn" class="add-symbol-btn">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Track</span>
+        </button>
+      </form>
+
+      <!-- Autocomplete Dropdown Menu -->
+      <div id="watchlist-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
     </div>
-    <button id="alert-banner-dismiss" class="banner-dismiss">&times;</button>
+
+    <!-- Quick Presets -->
+    <div class="quick-presets-strip">
+      <span class="preset-label">Quick Add:</span>
+      <div class="preset-chips">
+        <button type="button" class="preset-chip" data-quick-ticker="NVDA">+ NVDA</button>
+        <button type="button" class="preset-chip" data-quick-ticker="AAPL">+ AAPL</button>
+        <button type="button" class="preset-chip" data-quick-ticker="TSLA">+ TSLA</button>
+        <button type="button" class="preset-chip" data-quick-ticker="META">+ META</button>
+        <button type="button" class="preset-chip" data-quick-ticker="AMD">+ AMD</button>
+        <button type="button" class="preset-chip" data-quick-ticker="MSFT">+ MSFT</button>
+        <button type="button" class="preset-chip" data-quick-ticker="PLTR">+ PLTR</button>
+        <button type="button" class="preset-chip" data-quick-ticker="AMZN">+ AMZN</button>
+        <button type="button" class="preset-chip" data-quick-ticker="COIN">+ COIN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Banner Toast -->
+  <div id="watchlist-alert-banner" class="watchlist-alert-banner" style="display: none;">
+    <div class="banner-content">
+      <span class="bell-icon">🔔</span>
+      <span class="banner-ticker" id="alert-banner-ticker">$NVDA</span>
+      <span class="banner-msg" id="alert-banner-text">Breakout trigger fired</span>
+    </div>
+    <button id="alert-banner-dismiss" class="banner-close" aria-label="Dismiss alert">&times;</button>
   </div>
 
   <!-- Watchlist Table Matrix -->
-  <div class="watchlist-table-card">
-    <div class="table-responsive">
-      <table class="matrix-table">
-        <thead>
-          <tr>
-            <th class="col-symbol">Symbol</th>
-            <th class="col-price text-right">Price</th>
-            <th class="col-delta text-right">Intraday Delta</th>
-            <th class="col-rvol text-right">RVOL</th>
-            <th class="col-state text-center">Signal State</th>
-            <th class="col-triggers text-center">Active Alert Triggers</th>
-            <th class="col-actions text-center">Attribution</th>
-          </tr>
-        </thead>
-        <tbody id="watchlist-table-body">
-          <tr class="empty-placeholder-row">
-            <td colspan="7" class="matrix-empty-cell">
-              <span>Loading dynamic watchlist telemetry...</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="table-container">
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th class="col-symbol">Symbol / Company</th>
+          <th class="col-price text-right">Price</th>
+          <th class="col-delta text-right">Intraday Delta</th>
+          <th class="col-rvol text-right">Rel Vol</th>
+          <th class="col-state text-center">Signal</th>
+          <th class="col-triggers text-center">Alert Triggers (Click to Toggle)</th>
+          <th class="col-action text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody id="watchlist-table-body">
+        <tr>
+          <td colspan="7" class="loading-state">
+            <div class="loading-spinner"></div>
+            <span>Synchronizing live market quotes...</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
+  <!-- Matrix Footer -->
   <div class="matrix-footer">
-    <span class="matrix-status-text">
-      <span class="sync-dot"></span>
-      <span id="matrix-status-time">Telemetry Active &bull; Evaluating triggers in real time</span>
-    </span>
-    <span class="matrix-count" id="matrix-item-count">Tracking 4 symbols</span>
+    <div class="status-indicator">
+      <span class="live-dot"></span>
+      <span id="matrix-status-time">Telemetry active &bull; Live updates via exchange tape</span>
+    </div>
+    <span class="counter-badge" id="matrix-item-count">Tracking 8 leaders</span>
   </div>
 </div>
 
 <style>
   .watchlist-matrix-container {
-    background: var(--bg-surface, #12141a);
-    border: 1px solid var(--border-subtle, #222632);
-    border-radius: 8px;
-    padding: 1.25rem;
+    background: #0f131c;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 1.25rem 1.35rem;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   }
+
+  /* Header */
   .watchlist-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 1rem;
-    margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-subtle, #222632);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 1rem;
   }
-  .watchlist-kicker {
+  .watchlist-tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.28);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
     font-size: 0.65rem;
-    font-family: var(--font-mono, monospace);
     font-weight: 700;
-    color: var(--brand-accent, #3b82f6);
-    letter-spacing: 0.08em;
+    color: #60a5fa;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
+  }
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3b82f6;
+    box-shadow: 0 0 6px #3b82f6;
   }
   .watchlist-title {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: var(--text-primary, #f3f4f6);
-    letter-spacing: -0.01em;
-    margin-top: 0.15rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0;
+    letter-spacing: -0.015em;
   }
   .watchlist-subtitle {
-    font-size: 0.78rem;
-    color: var(--text-muted, #9ca3af);
-    margin-top: 0.25rem;
-    max-width: 580px;
-    line-height: 1.4;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin: 0.25rem 0 0 0;
+    max-width: 640px;
+    line-height: 1.45;
   }
   .watchlist-controls {
     display: flex;
@@ -155,374 +195,872 @@
     gap: 0.6rem;
     flex-wrap: wrap;
   }
-  .watchlist-add-form {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-  .input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  .dollar-prefix {
-    position: absolute;
-    left: 0.6rem;
-    color: var(--text-muted, #9ca3af);
-    font-family: var(--font-mono, monospace);
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-  .ticker-input {
-    background: var(--bg-page, #0b0c10);
-    border: 1px solid var(--border-subtle, #222632);
-    border-radius: 6px;
-    color: var(--text-primary, #f3f4f6);
-    font-family: var(--font-mono, monospace);
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 0.45rem 0.65rem 0.45rem 1.4rem;
-    width: 175px;
-    text-transform: uppercase;
-    transition: border-color 0.15s ease;
-  }
-  .ticker-input:focus {
-    outline: none;
-    border-color: var(--brand-accent, #3b82f6);
-  }
-  .watchlist-btn {
+  .pill-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.45rem 0.75rem;
+    gap: 0.45rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    padding: 0.35rem 0.75rem;
     border-radius: 6px;
-    font-size: 0.75rem;
+    font-size: 0.76rem;
     font-weight: 600;
     cursor: pointer;
-    border: none;
     transition: all 0.15s ease;
   }
-  .add-btn {
-    background: var(--brand-accent, #3b82f6);
-    color: #ffffff;
+  .pill-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
   }
-  .add-btn:hover { filter: brightness(1.1); }
-  .icon-toggle-btn {
-    background: var(--bg-surface-elevated, #181b22);
-    border: 1px solid var(--border-subtle, #222632);
-    color: var(--text-secondary, #9ca3af);
+  .pill-toggle.active {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.35);
+    color: #60a5fa;
+  }
+
+  /* Search & Presets */
+  .watchlist-search-row {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .search-input-container {
+    position: relative;
+    width: 100%;
+  }
+  .search-form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+  }
+  .search-field-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    color: #64748b;
+    pointer-events: none;
+  }
+  .watchlist-search-input {
+    width: 100%;
+    background: #080b11;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 0.55rem 2rem 0.55rem 2.35rem;
+    color: #f1f5f9;
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .watchlist-search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  .search-clear-btn {
+    position: absolute;
+    right: 0.65rem;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0 0.2rem;
+  }
+  .search-clear-btn:hover { color: #f1f5f9; }
+  .add-symbol-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.45rem 0.65rem;
-    border-radius: 6px;
-    font-size: 0.72rem;
+    background: #2563eb;
+    border: 1px solid #3b82f6;
+    color: #ffffff;
+    font-size: 0.82rem;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .icon-toggle-btn:hover {
-    color: var(--text-primary, #f3f4f6);
-    border-color: var(--border-strong, #2f3545);
-  }
-  .icon-toggle-btn.active {
-    border-color: rgba(59, 130, 246, 0.4);
-    color: var(--brand-accent, #3b82f6);
-    background: rgba(59, 130, 246, 0.08);
-  }
-  .watchlist-alert-banner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid var(--brand-accent, #3b82f6);
+    padding: 0.55rem 1.15rem;
     border-radius: 6px;
-    padding: 0.6rem 0.9rem;
-    margin-bottom: 1rem;
-    animation: alert-fade-in 0.3s ease;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    white-space: nowrap;
   }
-  @keyframes alert-fade-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-  .banner-left {
+  .add-symbol-btn:hover { background: #1d4ed8; }
+
+  /* Autocomplete Dropdown */
+  .autocomplete-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #131824;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .autocomplete-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .autocomplete-item:hover, .autocomplete-item.selected {
+    background: rgba(59, 130, 246, 0.15);
+  }
+  .auto-left {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+  }
+  .auto-ticker {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #60a5fa;
+  }
+  .auto-name {
     font-size: 0.8rem;
-    color: var(--text-primary, #f3f4f6);
+    color: #94a3b8;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .bell-pulse {
-    animation: bell-ring 1s infinite alternate;
+  .auto-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem;
   }
-  @keyframes bell-ring { from { transform: rotate(-15deg); } to { transform: rotate(15deg); } }
-  .banner-dismiss {
+  .auto-price { color: #f8fafc; font-weight: 600; }
+  .auto-delta.gain { color: #22c55e; }
+  .auto-delta.loss { color: #ef4444; }
+
+  /* Quick Presets Strip */
+  .quick-presets-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .preset-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .preset-chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .preset-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .preset-chip:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.35);
+    color: #93c5fd;
+  }
+
+  /* Alert Toast */
+  .watchlist-alert-banner {
+    background: rgba(234, 179, 8, 0.12);
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .banner-ticker {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 800;
+    color: #facc15;
+  }
+  .banner-msg {
+    font-size: 0.8rem;
+    color: #fef08a;
+  }
+  .banner-close {
     background: transparent;
     border: none;
-    color: var(--text-muted, #9ca3af);
+    color: #facc15;
     font-size: 1.2rem;
     cursor: pointer;
-    line-height: 1;
   }
-  .watchlist-table-card {
-    background: var(--bg-page, #0b0c10);
-    border: 1px solid var(--border-subtle, #222632);
-    border-radius: 6px;
+
+  /* Table */
+  .table-container {
     overflow-x: auto;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    background: #090c13;
   }
   .matrix-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8125rem;
-    min-width: 780px;
+    font-size: 0.84rem;
+    color: #f1f5f9;
   }
   .matrix-table th {
-    background: var(--bg-surface-elevated, #181b22);
-    color: var(--text-muted, #9ca3af);
-    font-size: 0.7rem;
+    background: #111622;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.72rem;
     font-weight: 700;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding: 0.65rem 0.85rem;
-    border-bottom: 1px solid var(--border-subtle, #222632);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
   }
   .matrix-table td {
-    padding: 0.65rem 0.85rem;
-    border-bottom: 1px solid var(--border-subtle, #222632);
-    color: var(--text-secondary, #9ca3af);
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     vertical-align: middle;
   }
-  .matrix-table tbody tr {
-    transition: background-color 0.15s ease;
-  }
-  .matrix-table tbody tr:hover {
+  .matrix-table tr:hover {
     background: rgba(255, 255, 255, 0.02);
   }
-  .matrix-table tbody tr.row-alert-flash {
-    animation: row-flash 2.5s ease-out;
-  }
-  @keyframes row-flash {
-    0% { background: rgba(59, 130, 246, 0.35); }
-    100% { background: transparent; }
-  }
-  .ticker-cell {
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+
+  /* Row Cells */
+  .cell-symbol-wrap {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.15rem;
   }
-  .ticker-name {
-    font-family: var(--font-mono, monospace);
+  .sym-ticker {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 800;
-    color: var(--text-primary, #f3f4f6);
+    font-size: 0.95rem;
+    color: #f8fafc;
+  }
+  .sym-company {
+    font-size: 0.72rem;
+    color: #64748b;
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .price-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
     font-size: 0.88rem;
+    color: #f8fafc;
   }
-  .price-val {
-    font-family: var(--font-mono, monospace);
-    font-weight: 700;
-    color: var(--text-primary, #f3f4f6);
-  }
-  .delta-val {
-    font-family: var(--font-mono, monospace);
-    font-weight: 700;
-  }
-  .delta-val.gain { color: var(--gain-color, #22c55e); }
-  .delta-val.loss { color: var(--loss-color, #ef4444); }
-  .rvol-val {
-    font-family: var(--font-mono, monospace);
-    font-weight: 700;
-  }
-  .rvol-val.surge { color: #f59e0b; font-weight: 800; }
-  .signal-badge {
+  .delta-pill {
     display: inline-block;
-    padding: 0.15rem 0.5rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    min-width: 65px;
+    text-align: right;
+  }
+  .delta-pill.gain {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+  }
+  .delta-pill.loss {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+  .rvol-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: #94a3b8;
+  }
+  .rvol-text.surge {
+    color: #f59e0b;
+    font-weight: 800;
+  }
+  .signal-pill {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
     border-radius: 4px;
     font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
-  .signal-badge.BREAKOUT {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+  .signal-pill.BREAKOUT { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+  .signal-pill.MOMENTUM { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+  .signal-pill.VOLUME_SURGE { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+  .signal-pill.PULLBACK { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+  .signal-pill.NEUTRAL { background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); }
+
+  /* Trigger Chip Buttons */
+  .triggers-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
   }
-  .signal-badge.MOMENTUM {
+  .trigger-toggle-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    user-select: none;
+  }
+  .trigger-toggle-btn:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #cbd5e1;
+  }
+  .trigger-toggle-btn.active {
     background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
   }
-  .signal-badge.WEAKNESS {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-  }
-  .signal-badge.NEUTRAL {
-    background: rgba(156, 163, 175, 0.12);
-    color: #9ca3af;
-    border: 1px solid rgba(156, 163, 175, 0.25);
-  }
-  .triggers-cell {
+
+  /* Actions */
+  .actions-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.65rem;
-    flex-wrap: wrap;
+    gap: 0.45rem;
   }
-  .trigger-checkbox-label {
+  .why-inspect-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.7rem;
-    cursor: pointer;
-    color: var(--text-secondary, #9ca3af);
-    user-select: none;
-  }
-  .trigger-checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-    accent-color: var(--brand-accent, #3b82f6);
-  }
-  .row-action-group {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.35rem;
-  }
-  .why-btn {
-    background: var(--bg-surface-elevated, #181b22);
-    border: 1px solid var(--border-subtle, #222632);
-    color: var(--brand-accent, #3b82f6);
-    border-radius: 4px;
-    padding: 0.25rem 0.55rem;
-    font-size: 0.7rem;
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+    font-size: 0.75rem;
     font-weight: 700;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
-  .why-btn:hover {
-    background: var(--brand-accent, #3b82f6);
+  .why-inspect-btn:hover {
+    background: #2563eb;
     color: #ffffff;
   }
-  .remove-ticker-btn {
+  .remove-row-btn {
     background: transparent;
     border: none;
-    color: var(--text-muted, #9ca3af);
+    color: #64748b;
     font-size: 1.15rem;
-    cursor: pointer;
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
     line-height: 1;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    transition: all 0.12s ease;
   }
-  .remove-ticker-btn:hover {
+  .remove-row-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
     color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
   }
+
+  /* Loading & Empty */
+  .loading-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #94a3b8;
+  }
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 0.6rem auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .row-alert-flash {
+    animation: rowFlash 1.5s ease-out;
+  }
+  @keyframes rowFlash {
+    0% { background: rgba(59, 130, 246, 0.35); }
+    100% { background: transparent; }
+  }
+
+  /* Footer */
   .matrix-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 0.75rem;
-    font-size: 0.72rem;
-    color: var(--text-muted, #9ca3af);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+    font-size: 0.75rem;
+    color: #64748b;
   }
-  .matrix-status-text {
-    display: inline-flex;
+  .status-indicator {
+    display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
   }
-  .sync-dot {
+  .live-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: #22c55e;
-    display: inline-block;
+    box-shadow: 0 0 6px #22c55e;
+  }
+  .counter-badge {
+    font-weight: 600;
+    color: #94a3b8;
   }
 </style>
 
 <script is:inline>
   (function initWatchlistMatrix() {
-    const STORAGE_KEY = 'to_watchlist_v1';
-    const DEFAULT_TICKERS = ['NVDA', 'TSLA', 'AMD', 'PLTR'];
+    const STORAGE_KEY = 'to_watchlist_v2';
+    const DEFAULT_LEADERS = ['NVDA', 'AAPL', 'MSFT', 'TSLA', 'META', 'AMD', 'PLTR', 'AMZN'];
+
+    // State
+    let items = [];
+    let quotesData = {};
     let soundEnabled = true;
     let notificationsEnabled = false;
-    let watchlistData = {};
-    let debounceTimestamps = {}; // ticker -> timestamp
+    const debounceMap = {};
+
+    // DOM Elements
+    const tableBody = document.getElementById('watchlist-table-body');
+    const tickerInput = document.getElementById('watchlist-ticker-input');
+    const searchForm = document.getElementById('watchlist-add-form');
+    const clearBtn = document.getElementById('search-clear-btn');
+    const autocompleteBox = document.getElementById('watchlist-autocomplete');
+    const soundBtn = document.getElementById('watchlist-sound-btn');
+    const soundLabel = document.getElementById('sound-status-label');
+    const notifyBtn = document.getElementById('watchlist-notify-btn');
+    const notifyLabel = document.getElementById('notify-status-label');
+    const itemCountEl = document.getElementById('matrix-item-count');
+    const alertBanner = document.getElementById('watchlist-alert-banner');
+    const alertTicker = document.getElementById('alert-banner-ticker');
+    const alertText = document.getElementById('alert-banner-text');
+    const alertDismiss = document.getElementById('alert-banner-dismiss');
 
     // Web Audio Chime Generator
     function playChime() {
       if (!soundEnabled) return;
       try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) return;
-        const ctx = new AudioContextClass();
-        const osc = ctx.createOscillator();
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
-        gain.gain.setValueAtTime(0.12, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-        osc.connect(gain);
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, now); // D5
+        osc1.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(440, now);
+        osc2.frequency.exponentialRampToValueAtTime(659.25, now + 0.2);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
         gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.4);
-      } catch(e) {}
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.45);
+        osc2.stop(now + 0.45);
+      } catch (e) {}
     }
 
-    // Read stored watchlist
-    function loadStoredWatchlist() {
+    // Load Items from localStorage
+    function loadSavedItems() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            items = parsed;
+            return;
+          }
         }
-      } catch(e) {}
-      return DEFAULT_TICKERS.map(t => ({
-        ticker: t,
+      } catch (e) {}
+
+      // Default to premier US mega-caps
+      items = DEFAULT_LEADERS.map(ticker => ({
+        ticker,
         triggers: { pctMove: true, rvol: true, breakout: true, catalyst: true }
       }));
+      saveItems();
     }
 
-    let items = loadStoredWatchlist();
-
-    function saveWatchlist() {
+    function saveItems() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-      } catch(e) {}
-      updateItemCount();
+      } catch (e) {}
+      if (itemCountEl) {
+        itemCountEl.textContent = `Tracking ${items.length} symbol${items.length === 1 ? '' : 's'}`;
+      }
     }
 
-    const tableBody = document.getElementById('watchlist-table-body');
-    const itemCountEl = document.getElementById('matrix-item-count');
-    const tickerInput = document.getElementById('watchlist-ticker-input');
-    const soundBtn = document.getElementById('watchlist-sound-btn');
-    const soundLabel = document.getElementById('sound-status-label');
-    const soundIconOn = document.getElementById('sound-icon-on');
-    const soundIconOff = document.getElementById('sound-icon-off');
-    const notifyBtn = document.getElementById('watchlist-notify-btn');
-    const notifyLabel = document.getElementById('notify-status-label');
-    const alertBanner = document.getElementById('watchlist-alert-banner');
-    const alertBannerTicker = document.getElementById('alert-banner-ticker');
-    const alertBannerText = document.getElementById('alert-banner-text');
-    const alertBannerDismiss = document.getElementById('alert-banner-dismiss');
+    // Fetch Live Quotes from server endpoint
+    async function syncQuotes() {
+      if (items.length === 0) {
+        renderTable();
+        return;
+      }
 
-    if (alertBannerDismiss) {
-      alertBannerDismiss.addEventListener('click', () => {
-        alertBanner.style.display = 'none';
+      const tickersParam = items.map(i => i.ticker).join(',');
+      try {
+        const res = await fetch(`/api/quotes?tickers=${encodeURIComponent(tickersParam)}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            for (const item of json.data) {
+              quotesData[item.ticker] = item;
+              evaluateTriggers(item.ticker, item);
+            }
+            renderTable();
+          }
+        }
+      } catch (e) {}
+    }
+
+    // Evaluate Alert Triggers
+    function evaluateTriggers(ticker, data) {
+      const item = items.find(i => i.ticker === ticker);
+      if (!item || !item.triggers) return;
+
+      const now = Date.now();
+      const lastFired = debounceMap[ticker] || 0;
+      if (now - lastFired < 15 * 60 * 1000) return; // 15m debounce
+
+      const reasons = [];
+      const trigs = item.triggers;
+
+      if (trigs.pctMove && typeof data.changePercent === 'number' && Math.abs(data.changePercent) >= 5.0) {
+        reasons.push(`${data.changePercent > 0 ? '+' : ''}${data.changePercent.toFixed(2)}% move crossed ±5% threshold`);
+      }
+      if (trigs.rvol && typeof data.rvol === 'number' && data.rvol >= 3.0) {
+        reasons.push(`RVOL crossed ${data.rvol.toFixed(2)}x (≥3.0x threshold)`);
+      }
+      if (trigs.breakout && data.changePercent >= 3.5 && (data.rvol || 1) >= 2.0) {
+        reasons.push(`Momentum breakout surge detected`);
+      }
+
+      if (reasons.length > 0) {
+        debounceMap[ticker] = now;
+        playChime();
+
+        // Flash row
+        const row = document.getElementById(`row-ticker-${ticker}`);
+        if (row) {
+          row.classList.remove('row-alert-flash');
+          void row.offsetWidth;
+          row.classList.add('row-alert-flash');
+        }
+
+        // Show banner toast
+        if (alertBanner && alertTicker && alertText) {
+          alertTicker.textContent = `$${ticker}`;
+          alertText.textContent = reasons.join(' • ');
+          alertBanner.style.display = 'flex';
+        }
+
+        // Desktop push notification
+        if (notificationsEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          new Notification(`Breakout Alert: $${ticker}`, {
+            body: reasons[0],
+            icon: '/favicon.svg'
+          });
+        }
+      }
+    }
+
+    // Render Table
+    function renderTable() {
+      if (!tableBody) return;
+
+      if (items.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 2rem 1rem; color: #64748b;">
+              Watchlist is empty. Search any ticker above (e.g. NVDA, AAPL, TSLA) or click a Quick Add chip to track.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tableBody.innerHTML = items.map(item => {
+        const t = item.ticker;
+        const q = quotesData[t] || {};
+        const price = typeof q.price === 'number' 
+          ? (q.price < 1 ? '$' + q.price.toFixed(4) : '$' + q.price.toFixed(2)) 
+          : 'Syncing...';
+        const changePercent = typeof q.changePercent === 'number' ? q.changePercent : null;
+        const isPos = changePercent !== null && changePercent >= 0;
+        const deltaStr = changePercent !== null ? (isPos ? '+' : '') + changePercent.toFixed(2) + '%' : '--';
+        const deltaClass = changePercent !== null ? (isPos ? 'gain' : 'loss') : '';
+        const rvol = typeof q.rvol === 'number' ? q.rvol.toFixed(2) + 'x' : '1.0x';
+        const rvolSurge = typeof q.rvol === 'number' && q.rvol >= 2.0;
+        const signal = q.signal || 'NEUTRAL';
+        const name = q.name || t;
+
+        const trigs = item.triggers || { pctMove: true, rvol: true, breakout: true, catalyst: true };
+
+        return `
+          <tr id="row-ticker-${t}">
+            <td class="col-symbol">
+              <div class="cell-symbol-wrap">
+                <span class="sym-ticker">$${t}</span>
+                <span class="sym-company">${name}</span>
+              </div>
+            </td>
+            <td class="col-price text-right">
+              <span class="price-text">${price}</span>
+            </td>
+            <td class="col-delta text-right">
+              <span class="delta-pill ${deltaClass}">${deltaStr}</span>
+            </td>
+            <td class="col-rvol text-right">
+              <span class="rvol-text ${rvolSurge ? 'surge' : ''}">${rvol}</span>
+            </td>
+            <td class="col-state text-center">
+              <span class="signal-pill ${signal}">${signal}</span>
+            </td>
+            <td class="col-triggers text-center">
+              <div class="triggers-wrap">
+                <button type="button" class="trigger-toggle-btn ${trigs.pctMove ? 'active' : ''}" data-ticker="${t}" data-trigger="pctMove" title="Alert on ±5% move">&plusmn;5%</button>
+                <button type="button" class="trigger-toggle-btn ${trigs.rvol ? 'active' : ''}" data-ticker="${t}" data-trigger="rvol" title="Alert on 3x volume surge">3x Vol</button>
+                <button type="button" class="trigger-toggle-btn ${trigs.breakout ? 'active' : ''}" data-ticker="${t}" data-trigger="breakout" title="Alert on technical breakout">Breakout</button>
+                <button type="button" class="trigger-toggle-btn ${trigs.catalyst ? 'active' : ''}" data-ticker="${t}" data-trigger="catalyst" title="Alert on news catalyst">Catalyst</button>
+              </div>
+            </td>
+            <td class="col-action text-center">
+              <div class="actions-wrap">
+                <button type="button" class="why-inspect-btn" data-open-diagnostic="${t}" title="5-Layer Why Is It Moving diagnostic">Why?</button>
+                <button type="button" class="remove-row-btn" data-remove-ticker="${t}" title="Remove $${t} from watchlist">&times;</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Add Ticker Method
+    function addTicker(ticker) {
+      if (!ticker) return;
+      const clean = ticker.trim().toUpperCase().replace(/[^A-Z0-9.]/g, '');
+      if (!clean) return;
+
+      if (items.some(i => i.ticker === clean)) {
+        // Flash existing row
+        const row = document.getElementById(`row-ticker-${clean}`);
+        if (row) {
+          row.classList.remove('row-alert-flash');
+          void row.offsetWidth;
+          row.classList.add('row-alert-flash');
+          row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        return;
+      }
+
+      items.unshift({
+        ticker: clean,
+        triggers: { pctMove: true, rvol: true, breakout: true, catalyst: true }
+      });
+      saveItems();
+      renderTable();
+      syncQuotes();
+    }
+
+    // Expose Global Helper
+    window.__addToWatchlist = addTicker;
+
+    // Autocomplete Search Handler
+    let searchDebounce = null;
+    if (tickerInput && autocompleteBox) {
+      tickerInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        if (clearBtn) clearBtn.style.display = query.length > 0 ? 'inline-block' : 'none';
+
+        clearTimeout(searchDebounce);
+        if (query.length === 0) {
+          autocompleteBox.style.display = 'none';
+          return;
+        }
+
+        searchDebounce = setTimeout(async () => {
+          try {
+            const res = await fetch(`/api/quotes?search=${encodeURIComponent(query)}`);
+            if (!res.ok) return;
+            const json = await res.json();
+            const results = json.data || [];
+
+            if (results.length === 0) {
+              autocompleteBox.innerHTML = `
+                <div class="autocomplete-item" data-add-ticker="${query.toUpperCase()}">
+                  <div class="auto-left">
+                    <span class="auto-ticker">+$${query.toUpperCase()}</span>
+                    <span class="auto-name">Add custom symbol to watchlist</span>
+                  </div>
+                </div>
+              `;
+              autocompleteBox.style.display = 'block';
+              return;
+            }
+
+            autocompleteBox.innerHTML = results.map(r => `
+              <div class="autocomplete-item" data-add-ticker="${r.ticker}">
+                <div class="auto-left">
+                  <span class="auto-ticker">$${r.ticker}</span>
+                  <span class="auto-name">${r.name}</span>
+                </div>
+                <div class="auto-right">
+                  <span class="auto-price">$${r.price < 1 ? r.price.toFixed(4) : r.price.toFixed(2)}</span>
+                  <span class="auto-delta ${r.changePercent >= 0 ? 'gain' : 'loss'}">${r.changePercent >= 0 ? '+' : ''}${r.changePercent.toFixed(2)}%</span>
+                </div>
+              </div>
+            `).join('');
+            autocompleteBox.style.display = 'block';
+          } catch (err) {
+            autocompleteBox.style.display = 'none';
+          }
+        }, 220);
+      });
+
+      // Close autocomplete on click outside
+      document.addEventListener('click', (e) => {
+        if (!autocompleteBox.contains(e.target) && e.target !== tickerInput) {
+          autocompleteBox.style.display = 'none';
+        }
+      });
+
+      // Clear input button
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          tickerInput.value = '';
+          clearBtn.style.display = 'none';
+          autocompleteBox.style.display = 'none';
+          tickerInput.focus();
+        });
+      }
+
+      // Autocomplete click delegation
+      autocompleteBox.addEventListener('click', (e) => {
+        const item = e.target.closest('[data-add-ticker]');
+        if (item) {
+          const sym = item.getAttribute('data-add-ticker');
+          if (sym) addTicker(sym);
+          tickerInput.value = '';
+          autocompleteBox.style.display = 'none';
+          if (clearBtn) clearBtn.style.display = 'none';
+        }
       });
     }
 
-    // Toggle Sound
-    if (soundBtn) {
+    // Form Submit
+    if (searchForm && tickerInput) {
+      searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const sym = tickerInput.value.trim();
+        if (sym) addTicker(sym);
+        tickerInput.value = '';
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (autocompleteBox) autocompleteBox.style.display = 'none';
+      });
+    }
+
+    // Quick Presets Click
+    document.querySelectorAll('[data-quick-ticker]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const sym = chip.getAttribute('data-quick-ticker');
+        if (sym) addTicker(sym);
+      });
+    });
+
+    // Table Delegated Clicks: Trigger toggles, removal, inspect
+    if (tableBody) {
+      tableBody.addEventListener('click', (e) => {
+        // Toggle trigger chip
+        const trigBtn = e.target.closest('.trigger-toggle-btn');
+        if (trigBtn) {
+          const ticker = trigBtn.getAttribute('data-ticker');
+          const trigger = trigBtn.getAttribute('data-trigger');
+          const item = items.find(i => i.ticker === ticker);
+          if (item && item.triggers && trigger) {
+            item.triggers[trigger] = !item.triggers[trigger];
+            trigBtn.classList.toggle('active', item.triggers[trigger]);
+            saveItems();
+          }
+          return;
+        }
+
+        // Remove row
+        const removeBtn = e.target.closest('[data-remove-ticker]');
+        if (removeBtn) {
+          const ticker = removeBtn.getAttribute('data-remove-ticker');
+          if (ticker) {
+            items = items.filter(i => i.ticker !== ticker);
+            saveItems();
+            renderTable();
+          }
+          return;
+        }
+      });
+    }
+
+    // Sound toggle
+    if (soundBtn && soundLabel) {
       soundBtn.addEventListener('click', () => {
         soundEnabled = !soundEnabled;
         soundBtn.classList.toggle('active', soundEnabled);
-        soundIconOn.style.display = soundEnabled ? 'inline' : 'none';
-        soundIconOff.style.display = soundEnabled ? 'none' : 'inline';
-        soundLabel.textContent = `Chimes: ${soundEnabled ? 'ON' : 'MUTED'}`;
+        soundLabel.textContent = soundEnabled ? 'Chimes: ON' : 'Chimes: OFF';
         if (soundEnabled) playChime();
       });
     }
 
-    // Notification Permission
-    if (notifyBtn) {
+    // Desktop Notification toggle
+    if (notifyBtn && notifyLabel) {
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
         notificationsEnabled = true;
         notifyBtn.classList.add('active');
@@ -550,252 +1088,17 @@
       });
     }
 
-    function updateItemCount() {
-      if (itemCountEl) {
-        itemCountEl.textContent = `Tracking ${items.length} symbol${items.length === 1 ? '' : 's'}`;
-      }
-    }
-
-    function renderRows() {
-      if (!tableBody) return;
-      if (items.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="7" class="matrix-empty-cell" style="text-align: center; padding: 2rem; color: var(--text-muted);">
-              Watchlist is empty. Add a ticker above (e.g. $NVDA, $TSLA) to monitor real-time breakout triggers.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      tableBody.innerHTML = items.map(item => {
-        const t = item.ticker;
-        const d = watchlistData[t] || {};
-        const price = typeof d.price === 'number' ? (d.price < 1 ? '$' + d.price.toFixed(4) : '$' + d.price.toFixed(2)) : '$--';
-        const changePct = typeof d.changePercent === 'number' ? d.changePercent : null;
-        const isPos = changePct !== null && changePct >= 0;
-        const deltaStr = changePct !== null ? (isPos ? '+' : '') + changePct.toFixed(2) + '%' : '--';
-        const deltaClass = changePct !== null ? (isPos ? 'gain' : 'loss') : '';
-        const rvol = typeof d.rvol === 'number' ? d.rvol.toFixed(2) + 'x' : '1.0x';
-        const rvolClass = typeof d.rvol === 'number' && d.rvol >= 2.5 ? 'surge' : '';
-
-        // Compute Signal State
-        let signal = 'NEUTRAL';
-        if (changePct !== null) {
-          if (changePct >= 4.0 && (d.rvol || 1) >= 2.0) signal = 'BREAKOUT';
-          else if (changePct >= 2.0) signal = 'MOMENTUM';
-          else if (changePct <= -2.5) signal = 'WEAKNESS';
-        }
-
-        const trigs = item.triggers || { pctMove: true, rvol: true, breakout: true, catalyst: true };
-
-        return `
-          <tr id="watchlist-row-${t}">
-            <td class="col-symbol">
-              <div class="ticker-cell">
-                <span class="ticker-name">$${t}</span>
-              </div>
-            </td>
-            <td class="col-price text-right">
-              <span class="price-val">${price}</span>
-            </td>
-            <td class="col-delta text-right">
-              <span class="delta-val ${deltaClass}">${deltaStr}</span>
-            </td>
-            <td class="col-rvol text-right">
-              <span class="rvol-val ${rvolClass}">${rvol}</span>
-            </td>
-            <td class="col-state text-center">
-              <span class="signal-badge ${signal}">${signal}</span>
-            </td>
-            <td class="col-triggers text-center">
-              <div class="triggers-cell">
-                <label class="trigger-checkbox-label" title="Alert on ±5% intraday move">
-                  <input type="checkbox" data-ticker="${t}" data-trigger="pctMove" ${trigs.pctMove ? 'checked' : ''} />
-                  <span>&plusmn;5%</span>
-                </label>
-                <label class="trigger-checkbox-label" title="Alert on RVOL ≥ 3.0x">
-                  <input type="checkbox" data-ticker="${t}" data-trigger="rvol" ${trigs.rvol ? 'checked' : ''} />
-                  <span>3x Vol</span>
-                </label>
-                <label class="trigger-checkbox-label" title="Alert on range breakout">
-                  <input type="checkbox" data-ticker="${t}" data-trigger="breakout" ${trigs.breakout ? 'checked' : ''} />
-                  <span>Breakout</span>
-                </label>
-                <label class="trigger-checkbox-label" title="Alert on SEC/News catalyst indexed">
-                  <input type="checkbox" data-ticker="${t}" data-trigger="catalyst" ${trigs.catalyst ? 'checked' : ''} />
-                  <span>Catalyst</span>
-                </label>
-              </div>
-            </td>
-            <td class="col-actions text-center">
-              <div class="row-action-group">
-                <button class="why-btn" data-open-diagnostic="${t}" title="Inspect 5-layer diagnostic for ${t}">Why?</button>
-                <button class="remove-ticker-btn" data-remove-ticker="${t}" title="Remove from watchlist">&times;</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // Trigger Evaluation Engine
-    function evaluateTriggers(ticker, data) {
-      const item = items.find(i => i.ticker === ticker);
-      if (!item || !item.triggers) return;
-
-      const now = Date.now();
-      const lastTriggered = debounceTimestamps[ticker] || 0;
-      if (now - lastTriggered < 15 * 60 * 1000) return; // 15m cooldown
-
-      const reasons = [];
-      const trigs = item.triggers;
-
-      if (trigs.pctMove && typeof data.changePercent === 'number' && Math.abs(data.changePercent) >= 5.0) {
-        reasons.push(`Move of ${data.changePercent > 0 ? '+' : ''}${data.changePercent.toFixed(2)}% passed ±5.0% threshold`);
-      }
-      if (trigs.rvol && typeof data.rvol === 'number' && data.rvol >= 3.0) {
-        reasons.push(`RVOL crossed ${data.rvol.toFixed(2)}x (≥3.0x baseline)`);
-      }
-      if (trigs.breakout && data.changePercent >= 4.0 && (data.rvol || 1) >= 2.0) {
-        reasons.push(`Momentum breakout breach detected`);
-      }
-
-      if (reasons.length > 0) {
-        debounceTimestamps[ticker] = now;
-        playChime();
-
-        // Flash row
-        const row = document.getElementById(`watchlist-row-${ticker}`);
-        if (row) {
-          row.classList.remove('row-alert-flash');
-          void row.offsetWidth; // trigger reflow
-          row.classList.add('row-alert-flash');
-        }
-
-        // Show banner
-        if (alertBanner && alertBannerTicker && alertBannerText) {
-          alertBannerTicker.textContent = `$${ticker}`;
-          alertBannerText.textContent = reasons.join(' &bull; ');
-          alertBanner.style.display = 'flex';
-        }
-
-        // Desktop Push
-        if (notificationsEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-          new Notification(`Breakout Alert: $${ticker}`, {
-            body: reasons[0],
-            icon: '/favicon.svg'
-          });
-        }
-      }
-    }
-
-    // Poll live quotes for watchlisted tickers
-    async function syncWatchlistQuotes() {
-      if (items.length === 0) return;
-      const symbols = items.map(i => i.ticker);
-
-      try {
-        const candidateTickers = symbols.flatMap(s => [s, `NASDAQ:${s}`, `NYSE:${s}`, `AMEX:${s}`]);
-        const res = await fetch('https://scanner.tradingview.com/america/scan', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            symbols: { tickers: candidateTickers },
-            columns: ['name', 'close', 'change', 'relative_volume_10d_calc']
-          })
-        });
-
-        if (res.ok) {
-          const json = await res.json();
-          const rows = json?.data || [];
-          for (const s of symbols) {
-            const row = rows.find(r => r.s.toUpperCase().includes(s) || r.d?.[0]?.toUpperCase() === s);
-            if (row && row.d) {
-              const d = row.d;
-              const price = typeof d[1] === 'number' ? d[1] : parseFloat(d[1]) || 0;
-              const changePercent = typeof d[2] === 'number' ? d[2] : parseFloat(d[2]) || 0;
-              const rvol = typeof d[3] === 'number' ? parseFloat(d[3].toFixed(2)) : 1.0;
-              
-              watchlistData[s] = { price, changePercent, rvol };
-              evaluateTriggers(s, watchlistData[s]);
-            }
-          }
-          renderRows();
-        }
-      } catch(e) {}
-    }
-
-    // Add ticker method
-    function addTicker(ticker) {
-      if (!ticker) return;
-      const clean = ticker.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-      if (!clean) return;
-
-      if (items.some(i => i.ticker === clean)) {
-        // Flash existing row
-        const row = document.getElementById(`watchlist-row-${clean}`);
-        if (row) {
-          row.classList.remove('row-alert-flash');
-          void row.offsetWidth;
-          row.classList.add('row-alert-flash');
-        }
-        return;
-      }
-
-      items.unshift({
-        ticker: clean,
-        triggers: { pctMove: true, rvol: true, breakout: true, catalyst: true }
-      });
-      saveWatchlist();
-      renderRows();
-      syncWatchlistQuotes();
-    }
-
-    // Expose global adder
-    window.__addToWatchlist = addTicker;
-
-    // Handle form submit
-    const form = document.getElementById('watchlist-add-form');
-    if (form && tickerInput) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        addTicker(tickerInput.value);
-        tickerInput.value = '';
+    // Alert Banner Dismiss
+    if (alertDismiss && alertBanner) {
+      alertDismiss.addEventListener('click', () => {
+        alertBanner.style.display = 'none';
       });
     }
 
-    // Table delegate events
-    if (tableBody) {
-      tableBody.addEventListener('change', (e) => {
-        const target = e.target;
-        if (target && target.matches('input[type="checkbox"]')) {
-          const ticker = target.getAttribute('data-ticker');
-          const trigger = target.getAttribute('data-trigger');
-          const item = items.find(i => i.ticker === ticker);
-          if (item && item.triggers && trigger) {
-            item.triggers[trigger] = target.checked;
-            saveWatchlist();
-          }
-        }
-      });
-
-      tableBody.addEventListener('click', (e) => {
-        const removeBtn = e.target.closest('[data-remove-ticker]');
-        if (removeBtn) {
-          const ticker = removeBtn.getAttribute('data-remove-ticker');
-          items = items.filter(i => i.ticker !== ticker);
-          saveWatchlist();
-          renderRows();
-        }
-      });
-    }
-
-    // Initial render and recurring sync
-    renderRows();
-    updateItemCount();
-    syncWatchlistQuotes();
-    setInterval(syncWatchlistQuotes, 8000);
+    // Start
+    loadSavedItems();
+    renderTable();
+    syncQuotes();
+    setInterval(syncQuotes, 10000);
   })();
 </script>
