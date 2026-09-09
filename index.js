@@ -80,10 +80,17 @@ function sanitizeAndLinkify(text, tickers) {
 
 async function run() {
   const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
+  const polygonKey = process.env.POLYGON_API;
+  const finnhubKey = process.env.FINHUB_API || process.env.FINNHUB_API;
   const llmApiKey = process.env.LLM_API_KEY;
 
-  if (!alphaVantageKey || !llmApiKey) {
-    console.error('Missing required API keys.');
+  if (!llmApiKey) {
+    console.error('Missing required LLM_API_KEY.');
+    process.exit(1);
+  }
+
+  if (!alphaVantageKey && !polygonKey) {
+    console.error('Missing market data API keys. Provide either ALPHA_VANTAGE_API_KEY or POLYGON_API.');
     process.exit(1);
   }
 
@@ -142,16 +149,53 @@ async function run() {
       process.exit(0);
     }
 
-    console.log(`1. Fetching live market movers from Alpha Vantage for ${briefPrefix}...`);
-    const avUrl = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${alphaVantageKey}`;
-    const marketData = await fetchWithRetry(avUrl);
+    let marketData = null;
 
-    if (marketData.Note || marketData.Information) {
-      throw new Error(`Alpha Vantage rate-limited: ${marketData.Note || marketData.Information}`);
+    // 1a. Try Alpha Vantage if available
+    if (alphaVantageKey) {
+      try {
+        console.log(`1a. Fetching market movers from Alpha Vantage for ${briefPrefix}...`);
+        const avUrl = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${alphaVantageKey}`;
+        const avData = await fetchWithRetry(avUrl);
+
+        if (!avData.Note && !avData.Information && avData.top_gainers && avData.top_gainers.length > 0) {
+          marketData = avData;
+        } else {
+          console.warn(`Alpha Vantage rate-limited or empty. Checking Polygon fallback...`);
+        }
+      } catch (err) {
+        console.warn(`Alpha Vantage error: ${err.message}. Checking Polygon fallback...`);
+      }
     }
 
-    if (!marketData.top_gainers || marketData.top_gainers.length === 0) {
-      throw new Error(`Invalid Alpha Vantage payload: ${JSON.stringify(marketData)}`);
+    // 1b. Fallback or Primary with Polygon.io (massive.com)
+    if (!marketData && polygonKey) {
+      try {
+        console.log(`1b. Fetching real-time market movers from Polygon.io for ${briefPrefix}...`);
+        const polyUrl = `https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/gainers?apiKey=${polygonKey}`;
+        const polyData = await fetchWithRetry(polyUrl);
+
+        if (polyData.tickers && polyData.tickers.length > 0) {
+          const mappedGainers = polyData.tickers.slice(0, 15).map((t) => ({
+            ticker: t.ticker,
+            price: String((t.lastTrade?.p || t.day?.c || t.prevDay?.c || 0).toFixed(2)),
+            change_percentage: String((t.todaysChangePerc || 0).toFixed(2)) + '%',
+            volume: String(t.day?.v || 0)
+          }));
+
+          marketData = {
+            top_gainers: mappedGainers,
+            top_losers: [],
+            most_actively_traded: mappedGainers.slice(0, 5)
+          };
+        }
+      } catch (err) {
+        console.warn(`Polygon movers fetch error: ${err.message}`);
+      }
+    }
+
+    if (!marketData || !marketData.top_gainers || marketData.top_gainers.length === 0) {
+      throw new Error(`Unable to fetch market movers from Alpha Vantage or Polygon.io.`);
     }
 
     // Filter out illiquid sub-penny warrants
@@ -170,7 +214,37 @@ async function run() {
     const topLosers = (marketData.top_losers || []).slice(0, 5);
     const mostActive = (marketData.most_actively_traded || []).slice(0, 5);
 
-    const stockDataSummary = `
+    // Fetch real breaking news headlines for the lead runner from Finnhub or Polygon
+    let liveCatalystHeadlines = [];
+    if (finnhubKey) {
+      try {
+        console.log(`1c. Fetching live news headlines for lead runner $${leadStock.ticker} from Finnhub...`);
+        const past2Days = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+        const todayStr = now.toISOString().split('T')[0];
+        const fnUrl = `https://finnhub.io/api/v1/company-news?symbol=${leadStock.ticker}&from=${past2Days}&to=${todayStr}&token=${finnhubKey}`;
+        const fnData = await fetchWithRetry(fnUrl);
+        if (Array.isArray(fnData) && fnData.length > 0) {
+          liveCatalystHeadlines = fnData.slice(0, 3).map(n => `"${n.headline}" (${n.source || 'Finnhub Wire'})`);
+        }
+      } catch (err) {
+        console.warn(`Finnhub news error: ${err.message}`);
+      }
+    }
+
+    if (liveCatalystHeadlines.length === 0 && polygonKey) {
+      try {
+        console.log(`1d. Fetching live news headlines for lead runner $${leadStock.ticker} from Polygon.io...`);
+        const polyNewsUrl = `https://api.polygon.io/v2/reference/news?ticker=${leadStock.ticker}&limit=3&apiKey=${polygonKey}`;
+        const polyNews = await fetchWithRetry(polyNewsUrl);
+        if (polyNews.results && Array.isArray(polyNews.results) && polyNews.results.length > 0) {
+          liveCatalystHeadlines = polyNews.results.slice(0, 3).map(n => `"${n.title}" (${n.publisher?.name || 'Polygon Wire'})`);
+        }
+      } catch (err) {
+        console.warn(`Polygon news error: ${err.message}`);
+      }
+    }
+
+    let stockDataSummary = `
 SESSION MOVERS FOR ${briefPrefix}:
 LEAD MOVER: $${leadStock.ticker} (Price: $${parseFloat(leadStock.price).toFixed(2)}, Change: +${parseFloat(leadStock.change_percentage).toFixed(2)}%, Vol: ${formatCompactNumber(leadStock.volume)})
 
@@ -183,6 +257,10 @@ ${mostActive.slice(0, 3).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat
 TOP DECLINERS (Distribution & Pullbacks):
 ${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
     `.trim();
+
+    if (liveCatalystHeadlines.length > 0) {
+      stockDataSummary += `\n\nVERIFIED BREAKING CATALYSTS FOR $${leadStock.ticker} (Finnhub / Polygon):\n${liveCatalystHeadlines.map(h => `- ${h}`).join('\n')}`;
+    }
 
     const systemPrompt = `You are the Lead Momentum Strategist for Trade Opportunities (tradeopportunities.trade), an AI-powered momentum intelligence terminal for active traders.
 Write the tactical market narrative for today's "${briefPrefix}".

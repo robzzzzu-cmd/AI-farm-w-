@@ -1,5 +1,6 @@
-﻿// short-series/src/pages/api/diagnostic.ts
+// short-series/src/pages/api/diagnostic.ts
 import type { APIRoute } from 'astro';
+import { fetchLiveNews } from '../../utils/apiProviders';
 
 export const prerender = false;
 
@@ -290,7 +291,7 @@ export const GET: APIRoute = async ({ request }) => {
   try {
     const [tvData, newsItems, secFilings] = await Promise.all([
       fetchTradingViewTelemetry(tickerParam),
-      fetchGoogleNews(tickerParam),
+      fetchLiveNews(tickerParam, 6),
       fetchSecFilings(tickerParam)
     ]);
 
