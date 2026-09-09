@@ -17,6 +17,12 @@ const {
   image = "https://tradeopportunities.trade/favicon.svg",
   articleDate
 } = Astro.props;
+
+const currentPath = Astro.url.pathname;
+const isHome = currentPath === '/' || currentPath === '';
+const isScreener = currentPath.startsWith('/screener');
+const isTrackRecord = currentPath.startsWith('/track-record');
+const isAbout = currentPath.startsWith('/about');
 ---
 
 <!doctype html>
@@ -83,19 +89,15 @@ const {
       <div class="sidebar-body">
         <div class="sidebar-group-label">WORKSPACE HUBS</div>
         <nav class="sidebar-nav">
-          <a href="/" class="sidebar-nav-item">
+          <a href="/" class:list={['sidebar-nav-item', { active: isHome }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Dashboard</span>
-          </a>
-          <a href="/#catalyst-wire" class="sidebar-nav-item">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-            <span>Catalysts &amp; Wire (Finnhub/Polygon)</span>
           </a>
           <a href="/#news-feed" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             <span>News Feed</span>
           </a>
-          <a href="/screener" class="sidebar-nav-item">
+          <a href="/screener" class:list={['sidebar-nav-item', { active: isScreener }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             <span>Live Screener</span>
           </a>
@@ -107,11 +109,15 @@ const {
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Tools</span>
           </a>
+          <a href="/#catalyst-wire" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <span>Catalysts &amp; Calendar</span>
+          </a>
           <a href="/#platforms" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <span>Platforms</span>
           </a>
-          <a href="/track-record" class="sidebar-nav-item">
+          <a href="/track-record" class:list={['sidebar-nav-item', { active: isTrackRecord }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
             <span>Track Record</span>
           </a>
@@ -122,22 +128,22 @@ const {
             </svg>
             <span>Weekly News</span>
           </a>
-          <a href="/about" class="sidebar-nav-item">
+          <a href="/about" class:list={['sidebar-nav-item', { active: isAbout }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
             <span>Methodology</span>
           </a>
         </nav>
 
         <div class="sidebar-promo-card">
-          <div class="sidebar-promo-title">Weekly Market Intelligence</div>
-          <p class="sidebar-promo-desc">Direct market dispatches, volume anomaly alerts, and weekly quantitative digests.</p>
+          <div class="sidebar-promo-title">Weekly Momentum Dispatches</div>
+          <p class="sidebar-promo-desc">Receive high-conviction volume surge scans, breakout alerts, and catalyst breakdowns every week.</p>
           <a href="/#alerts" class="sidebar-promo-btn">Subscribe Free</a>
         </div>
       </div>
     </aside>
 
-    <header class="top-nav">
-      <div class="nav-inner">
+    <nav class="top-nav">
+      <div class="app-wrapper nav-inner">
         <div class="brand-group">
           <button id="sidebar-toggle-btn" class="dashboard-toggle-btn" aria-label="Toggle Side Dashboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -155,13 +161,13 @@ const {
           </a>
 
           <ul class="nav-links">
-            <li><a href="/#catalyst-wire">Catalysts &amp; Wire</a></li>
-            <li><a href="/#news-feed">News Feed</a></li>
-            <li><a href="/screener">Live Screener</a></li>
+            <li><a href="/#news-feed" class:list={[{ active: isHome }]}>News Feed</a></li>
+            <li><a href="/screener" class:list={[{ active: isScreener }]}>Live Screener</a></li>
             <li><a href="/#opportunities">Opportunities</a></li>
             <li><a href="/#tools">Tools</a></li>
+            <li><a href="/#catalyst-wire">Catalysts</a></li>
             <li><a href="/#platforms">Platforms</a></li>
-            <li><a href="/track-record">Track Record</a></li>
+            <li><a href="/track-record" class:list={[{ active: isTrackRecord }]}>Track Record</a></li>
           </ul>
         </div>
 
@@ -194,10 +200,11 @@ const {
               <polyline points="22,6 12,13 2,6"></polyline>
             </svg>
             <span>Weekly News</span>
+            <span class="alerts-badge-num">NEW</span>
           </a>
         </div>
       </div>
-    </header>
+    </nav>
 
     <main>
       <slot />
@@ -572,6 +579,15 @@ const {
     text-decoration: none;
   }
 
+  .app-wrapper {
+    width: 100%;
+    max-width: 1240px;
+    min-width: 0;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    box-sizing: border-box;
+  }
+
   /* Top Sticky Navigation */
   .top-nav {
     position: sticky;
@@ -589,37 +605,33 @@ const {
     justify-content: space-between;
     align-items: center;
     height: var(--nav-height);
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 0 1.25rem;
-    box-sizing: border-box;
+    min-height: var(--nav-height);
     flex-wrap: nowrap;
     gap: 1rem;
   }
   .brand-group {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.25rem;
     flex-shrink: 0;
   }
   .dashboard-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
-    font-family: inherit;
-    font-size: 0.78125rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.35rem 0.65rem;
-    border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
   .dashboard-toggle-btn:hover {
     background: var(--bg-surface-elevated);
-    border-color: var(--border-strong);
+    border-color: var(--brand-accent);
   }
   .dashboard-toggle-btn svg {
     width: 14px;
@@ -662,6 +674,25 @@ const {
   .nav-links a:hover {
     color: var(--text-primary);
   }
+  .nav-links a.active {
+    color: var(--brand-accent);
+    font-weight: 600;
+  }
+  .nav-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--brand-accent);
+    border-radius: 2px;
+    animation: navUnderlineFade 0.2s ease-out;
+  }
+  @keyframes navUnderlineFade {
+    from { opacity: 0; transform: scaleX(0.7); }
+    to { opacity: 1; transform: scaleX(1); }
+  }
 
   .nav-actions {
     display: flex;
@@ -689,56 +720,59 @@ const {
     color: var(--text-primary);
     font-family: inherit;
     font-size: 0.8125rem;
-    padding: 0.4rem 0.75rem 0.4rem 1.9rem;
-    border-radius: 4px;
-    width: 170px;
+    padding: 0.35rem 0.65rem 0.35rem 1.85rem;
+    border-radius: 6px;
     outline: none;
-    transition: width 0.2s ease, border-color 0.2s ease;
+    width: 180px;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
   }
-  .search-input:focus {
-    width: 210px;
-    border-color: var(--brand-accent);
-  }
+  .search-input:focus { border-color: var(--brand-accent); }
 
   .icon-action-btn {
-    display: flex;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: 4px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
+    border-radius: 6px;
     cursor: pointer;
+    text-decoration: none;
     transition: all 0.15s ease;
   }
   .icon-action-btn:hover {
     color: var(--text-primary);
-    background: var(--bg-surface-elevated);
-    border-color: var(--border-strong);
+    border-color: var(--brand-accent);
   }
-
   .alerts-action-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    height: 32px;
+    border-radius: 6px;
+    text-decoration: none;
     font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.4rem 0.65rem;
-    border-radius: 4px;
-    text-decoration: none;
     transition: all 0.15s ease;
   }
   .alerts-action-btn:hover {
-    background: var(--bg-surface-elevated);
-    border-color: var(--border-strong);
+    color: var(--text-primary);
+    border-color: var(--brand-accent);
   }
-  .alerts-action-btn svg {
-    color: var(--brand-accent);
+  .alerts-badge-num {
+    background: var(--brand-accent);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.35rem;
+    border-radius: 10px;
   }
 
   /* Footer */
@@ -857,27 +891,19 @@ const {
     opacity: 0.9;
   }
 
-  @media (max-width: 1160px) {
+  @media (max-width: 1024px) {
     .nav-links { display: none; }
+    .search-input { width: 140px; }
+  }
+
+  @media (max-width: 768px) {
+    .app-wrapper { padding: 0 0.75rem; }
+    .search-box { display: none; }
+    .logo { font-size: 0.92rem; }
+    .dashboard-toggle-btn { padding: 0.35rem 0.55rem; font-size: 0.72rem; }
   }
 
   @media (max-width: 640px) {
-    .nav-inner {
-      padding: 0.6rem 0.75rem;
-    }
-    .brand-group {
-      gap: 0.6rem;
-    }
-    .logo {
-      font-size: 0.92rem;
-    }
-    .dashboard-toggle-btn {
-      padding: 0.35rem 0.5rem;
-      font-size: 0.72rem;
-    }
-    .search-box {
-      display: none;
-    }
     .site-footer {
       padding: 2rem 0.75rem;
     }
@@ -888,12 +914,12 @@ const {
     }
   }
 
-  @media (max-width: 440px) {
-    .alerts-action-btn span {
+  @media (max-width: 480px) {
+    .alerts-action-btn span:not(.alerts-badge-num) {
       display: none;
     }
     .alerts-action-btn {
-      padding: 0.35rem 0.45rem;
+      padding: 0.35rem 0.5rem;
     }
   }
 </style>
