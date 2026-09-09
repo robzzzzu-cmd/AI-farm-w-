@@ -238,7 +238,7 @@ const categoriesList = Object.values(categories);
       <table class="screener-table" id="screener-live-table">
         <thead>
           <tr>
-            <th data-sort="name" class="cell-symbol">Ticker / Company</th>
+            <th data-sort="name" class="cell-symbol">Ticker<span class="desktop-company-label"> / Company</span></th>
             <th data-sort="price" class="text-right">Price</th>
             <th data-sort="change_abs" class="text-right">Change ($)</th>
             <th data-sort="change_desc" class="text-center">Change (%)</th>
@@ -1766,94 +1766,220 @@ const categoriesList = Object.values(categories);
 
   @media (max-width: 768px) {
     .screener-header-card {
-      padding: 0.85rem;
+      padding: 0.65rem 0.75rem;
     }
+
+    /* Single-line header: Title on left, Live Sync on right (NEXT TO EACH OTHER) */
     .screener-title-row {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+    .screener-pill-badge {
+      font-size: 0.58rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.1rem;
     }
     .screener-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
+      line-height: 1.2;
     }
     .screener-sync-box {
-      width: 100%;
-      justify-content: space-between;
+      width: auto;
+      padding: 0.2rem 0.45rem;
+      gap: 0.35rem;
+      flex-shrink: 0;
     }
+    .sync-timer {
+      display: none;
+    }
+    .sync-status {
+      font-size: 0.65rem;
+    }
+
+    /* Compact info callout */
     .classification-callout {
-      padding: 0.5rem 0.65rem;
-      font-size: 0.72rem;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.68rem;
+      margin-bottom: 0.5rem;
     }
+    .classification-callout p {
+      font-size: 0.68rem;
+      line-height: 1.3;
+    }
+
+    /* Category tabs: sleek horizontal pill ribbon NEXT TO EACH OTHER */
     .screener-tabs {
+      display: flex;
+      flex-direction: row;
+      gap: 0.35rem;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: 0.5rem;
+      padding-bottom: 0.4rem;
       scrollbar-width: none;
     }
     .screener-tabs::-webkit-scrollbar {
       display: none;
     }
     .screener-tab-btn {
-      padding: 0.45rem 0.75rem;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 0.35rem 0.65rem;
+      border-radius: 20px;
       flex-shrink: 0;
     }
+    .tab-title {
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+    .tab-sub {
+      display: none;
+    }
+
+    /* Category meta row: compact, hide description */
+    .category-meta-row {
+      margin-top: 0.25rem;
+      justify-content: flex-end;
+    }
+    .category-description-text {
+      display: none;
+    }
+    .category-count-badge {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+    }
+
+    /* Toolbar: Controls sit NEXT TO EACH OTHER */
     .screener-toolbar {
-      padding: 0.75rem 0.85rem;
+      padding: 0.5rem 0.65rem;
     }
     .toolbar-primary {
+      display: flex;
       flex-direction: column;
-      align-items: stretch;
-      gap: 0.65rem;
+      gap: 0.45rem;
     }
     .search-field {
+      width: 100%;
       max-width: 100%;
       min-width: 0;
-      width: 100%;
     }
+    .screener-input {
+      font-size: 16px; /* Prevents iOS Safari auto-zoom */
+      padding: 0.35rem 1.6rem 0.35rem 1.85rem;
+      height: 34px;
+    }
+
+    /* Row 2 of Toolbar: Sector, Sort, and More Filters NEXT TO EACH OTHER */
     .toolbar-controls {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.35rem;
       width: 100%;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.5rem;
     }
     .control-group {
-      width: 100%;
-      justify-content: space-between;
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+    .control-group label {
+      display: none; /* Hide label so select fits nicely */
     }
     .control-group .screener-select {
-      flex: 1;
-      max-width: 70%;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      font-size: 0.72rem;
+      padding: 0.35rem 0.35rem;
+      height: 32px;
+      border-radius: 5px;
     }
     .toggle-filters-btn {
-      width: 100%;
-      justify-content: center;
+      width: auto;
+      flex-shrink: 0;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      height: 32px;
     }
+
+    /* Advanced filter panel: 2 columns NEXT TO EACH OTHER instead of 1 vertical column */
     .advanced-filter-panel {
-      padding: 0.75rem;
+      padding: 0.6rem;
     }
     .filter-grid {
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.4rem;
     }
-    .screener-table td, .screener-table th {
-      padding: 0.5rem 0.45rem;
+    .filter-cell .screener-select {
+      font-size: 0.72rem;
+      padding: 0.3rem 0.35rem;
+    }
+
+    /* Company Symbols & Tickers taking too much room: Slim down to ~68px */
+    .desktop-company-label {
+      display: none;
+    }
+    .screener-table th.cell-symbol,
+    .screener-table td.cell-symbol {
+      min-width: 62px !important;
+      max-width: 76px !important;
+      width: 68px !important;
+      padding: 0.45rem 0.3rem !important;
+    }
+    .symbol-flex {
+      min-width: 0 !important;
+      width: 100%;
+    }
+    .ticker-link {
+      font-size: 0.78rem !important;
+      font-weight: 800;
+    }
+    .company-subname {
+      display: none !important; /* Eliminates the bloated company name taking up the screen */
+    }
+
+    /* Tightly spaced compact table cells NEXT TO EACH OTHER */
+    .screener-table {
+      min-width: 640px !important;
+    }
+    .screener-table td, 
+    .screener-table th {
+      padding: 0.45rem 0.3rem !important;
+      font-size: 0.72rem;
+    }
+    .cell-price {
+      font-size: 0.75rem !important;
+    }
+    .delta-pill {
+      min-width: 48px !important;
+      padding: 0.15rem 0.3rem !important;
+      font-size: 0.68rem !important;
     }
     .cell-action .row-btn-group {
-      gap: 0.25rem;
+      gap: 0.2rem;
     }
     .row-why-btn, .row-watch-btn, .row-chart-btn {
-      padding: 0.2rem 0.4rem;
-      font-size: 0.68rem;
+      padding: 0.18rem 0.35rem;
+      font-size: 0.65rem;
     }
+
     .screener-table-footer {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.6rem;
-      padding: 0.75rem;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.7rem;
     }
     .footer-aux-actions {
-      width: 100%;
-      justify-content: space-between;
+      width: auto;
+      gap: 0.5rem;
     }
   }
 </style>

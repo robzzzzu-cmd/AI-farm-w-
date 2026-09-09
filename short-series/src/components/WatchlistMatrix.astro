@@ -99,7 +99,7 @@
     <table class="watchlist-table" id="watchlist-table">
       <thead>
         <tr>
-          <th class="th-symbol">Symbol / Company</th>
+          <th class="th-symbol">Symbol<span class="wl-desktop-sub"> / Company</span></th>
           <th class="th-price text-right">Price</th>
           <th class="th-delta text-center">Intraday Delta</th>
           <th class="th-rvol text-right">Rel Vol</th>
@@ -448,57 +448,97 @@
 
   @media (max-width: 768px) {
     .watchlist-matrix-card {
-      padding: 0.85rem 0.75rem;
+      padding: 0.65rem 0.75rem;
     }
+    /* Single-line header: Title on left, Aux toggles on right (NEXT TO EACH OTHER) */
     .watchlist-card-header {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
-    }
-    .watchlist-aux-controls {
-      width: 100%;
-      justify-content: flex-start;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
       gap: 0.5rem;
+      padding-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
     }
-    .preset-buttons {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      flex-wrap: nowrap;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-    }
-    .preset-buttons::-webkit-scrollbar {
-      display: none;
-    }
-    .preset-btn {
-      flex-shrink: 0;
-    }
-    .watchlist-footer {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.4rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .watchlist-matrix-card {
-      padding: 0.75rem 0.6rem;
+    .watchlist-pill-badge {
+      font-size: 0.58rem;
+      letter-spacing: 0.04em;
     }
     .watchlist-title {
       font-size: 1.05rem;
     }
     .watchlist-subtitle {
-      font-size: 0.72rem;
+      display: none; /* Hide bulky text on mobile */
+    }
+    .watchlist-aux-controls {
+      width: auto;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.35rem;
     }
     .aux-toggle-btn {
-      padding: 0.3rem 0.5rem;
+      padding: 0.25rem 0.45rem;
       font-size: 0.68rem;
     }
-    .track-btn {
-      padding: 0.45rem 0.75rem;
+    .quick-presets-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .quick-presets-row::-webkit-scrollbar {
+      display: none;
+    }
+    .preset-title {
+      flex-shrink: 0;
+      font-size: 0.65rem;
+    }
+    .preset-buttons {
+      display: flex;
+      flex-direction: row;
+      gap: 0.25rem;
+      flex-wrap: nowrap;
+    }
+    .preset-btn {
+      flex-shrink: 0;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.68rem;
     }
     .watchlist-search-field {
       font-size: 16px;
+      padding: 0.35rem 1.6rem 0.35rem 2rem;
+      height: 34px;
+    }
+    .track-btn {
+      padding: 0.35rem 0.75rem;
+      height: 34px;
+      font-size: 0.75rem;
+    }
+    .watchlist-footer {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.68rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .watchlist-matrix-card {
+      padding: 0.55rem 0.6rem;
+    }
+    .watchlist-title {
+      font-size: 0.98rem;
+    }
+    .aux-toggle-btn {
+      padding: 0.2rem 0.35rem;
+      font-size: 0.65rem;
     }
   }
 </style>
@@ -790,19 +830,61 @@
   }
 
   @media (max-width: 768px) {
+    .wl-desktop-sub {
+      display: none;
+    }
     .watchlist-table th.th-symbol,
     .watchlist-table td.th-symbol {
       position: sticky;
       left: 0;
       z-index: 2;
+      min-width: 62px !important;
+      max-width: 76px !important;
+      width: 68px !important;
+      padding: 0.45rem 0.3rem !important;
       background: var(--bg-surface-elevated, #161d2d);
       box-shadow: 2px 0 6px rgba(0, 0, 0, 0.4);
     }
     .watchlist-table th.th-symbol {
       z-index: 3;
     }
+    .wl-symbol-box {
+      min-width: 0 !important;
+      width: 100%;
+    }
+    .wl-company-sub {
+      display: none !important;
+    }
+    .wl-ticker-text {
+      font-size: 0.78rem !important;
+    }
+    .watchlist-table {
+      min-width: 540px !important;
+    }
+    .watchlist-table th,
+    .watchlist-table td {
+      padding: 0.45rem 0.3rem !important;
+      font-size: 0.72rem;
+    }
+    .wl-cell-price {
+      font-size: 0.75rem !important;
+    }
+    .wl-delta-pill {
+      min-width: 48px !important;
+      padding: 0.15rem 0.3rem !important;
+      font-size: 0.68rem !important;
+    }
+    .wl-triggers-group {
+      gap: 0.2rem;
+      flex-wrap: nowrap;
+    }
     .wl-trig-btn {
-      padding: 0.28rem 0.45rem;
+      padding: 0.18rem 0.32rem !important;
+      font-size: 0.65rem !important;
+    }
+    .wl-why-btn, .wl-remove-btn {
+      padding: 0.18rem 0.35rem !important;
+      font-size: 0.65rem !important;
     }
   }
 </style>

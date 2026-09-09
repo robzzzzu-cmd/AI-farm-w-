@@ -365,30 +365,95 @@
 
   @media (max-width: 768px) {
     .market-radar-hud {
-      padding: 0.85rem 0.85rem;
+      padding: 0.65rem 0.75rem;
     }
+    /* Single-line header: Live Badge on left, Macro Regime on right (NEXT TO EACH OTHER) */
     .radar-top-row {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.65rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.4rem;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.65rem;
     }
     .radar-brand-meta {
-      justify-content: space-between;
-      width: 100%;
+      width: auto;
+      gap: 0.4rem;
+    }
+    .session-clock {
+      display: none;
     }
     .macro-regime-wrap {
-      width: 100%;
-      justify-content: space-between;
-      flex-wrap: wrap;
+      width: auto;
+      gap: 0.35rem;
     }
+    .regime-title {
+      display: none;
+    }
+    .regime-metrics {
+      display: none;
+    }
+    .regime-badge {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+    }
+
+    /* 2x2 Grid: Cards sit NEXT TO EACH OTHER */
     .radar-grid {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 0.65rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 0.45rem;
+      margin-bottom: 0.65rem;
     }
+    .radar-card {
+      padding: 0.65rem 0.65rem;
+    }
+    .card-header-mini {
+      margin-bottom: 0.35rem;
+      padding-bottom: 0.25rem;
+    }
+    .card-tag {
+      font-size: 0.62rem;
+    }
+    .card-conviction, .card-hint {
+      font-size: 0.6rem;
+    }
+    .setup-symbol-row, .anchor-symbol-row {
+      gap: 0.35rem;
+      margin-bottom: 0.25rem;
+    }
+    .setup-symbol, .anchor-symbol {
+      font-size: 0.95rem;
+    }
+    .setup-price, .anchor-price {
+      font-size: 0.75rem;
+    }
+    .setup-delta, .anchor-delta {
+      font-size: 0.72rem;
+      padding: 0.1rem 0.3rem;
+    }
+    .setup-note, .anchor-desc {
+      font-size: 0.68rem;
+      margin: 0 0 0.35rem 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+    }
+    .radar-action-btn {
+      font-size: 0.68rem;
+    }
+
     .radar-briefs-strip {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.45rem;
+      padding-top: 0.5rem;
+    }
+    .briefs-label {
+      font-size: 0.62rem;
+      flex-shrink: 0;
     }
     .briefs-links {
       width: 100%;
@@ -397,25 +462,15 @@
       flex-wrap: nowrap;
       scrollbar-width: none;
       padding-bottom: 2px;
+      gap: 0.35rem;
     }
     .briefs-links::-webkit-scrollbar {
       display: none;
     }
     .brief-chip {
       flex-shrink: 0;
-    }
-  }
-
-  @media (max-width: 500px) {
-    .radar-grid {
-      grid-template-columns: 1fr;
-    }
-    .setup-symbol-row, .anchor-symbol-row {
-      align-items: center;
-      gap: 0.45rem;
-    }
-    .setup-symbol, .anchor-symbol {
-      font-size: 1.1rem;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.68rem;
     }
   }
 </style>
