@@ -550,6 +550,7 @@
 <script is:inline>
   (function initDiagnosticDrawer() {
     let currentTicker = '';
+    let currentSeedData = null;
     const backdrop = document.getElementById('diagnostic-backdrop');
     const closeBtn = document.getElementById('diagnostic-close-btn');
     const loadingState = document.getElementById('diagnostic-loading');
@@ -582,27 +583,35 @@
     async function loadDiagnostic(ticker, seedData) {
       if (!ticker) return;
       currentTicker = ticker.toUpperCase();
+      if (seedData) currentSeedData = seedData;
 
       if (!backdrop) return;
       backdrop.classList.add('active');
       backdrop.setAttribute('aria-hidden', 'false');
 
-      // Update header placeholders with seedData if available
-      document.getElementById('diagnostic-title').textContent = '$' + currentTicker;
+      // Declare and update header placeholders
+      const titleEl = document.getElementById('diagnostic-title');
+      const nameEl = document.getElementById('diagnostic-name');
+      const pricePillEl = document.getElementById('diagnostic-price-pill');
+      const deltaPillEl = document.getElementById('diagnostic-delta-pill');
+
+      if (titleEl) titleEl.textContent = '$' + currentTicker;
       if (seedData && seedData.price !== undefined && seedData.price !== '') {
         const seedPrice = parseFloat(seedData.price) || 0;
         const seedChange = parseFloat(seedData.changePercent || seedData.change || 0) || 0;
-        document.getElementById('diagnostic-name').textContent = seedData.name || currentTicker;
-        document.getElementById('diagnostic-price-pill').textContent = '$' + (seedPrice < 0.01 && seedPrice > 0 ? seedPrice.toFixed(4) : (seedPrice < 1 && seedPrice > 0 ? seedPrice.toFixed(4) : seedPrice.toFixed(2)));
-        const deltaPill = document.getElementById('diagnostic-delta-pill');
-        deltaPill.textContent = (seedChange >= 0 ? '+' : '') + seedChange.toFixed(2) + '%';
-        deltaPill.className = 'drawer-delta-pill' + (seedChange >= 0 ? '' : ' neg');
+        if (nameEl) nameEl.textContent = seedData.name || currentTicker;
+        if (pricePillEl) pricePillEl.textContent = '$' + (seedPrice < 0.01 && seedPrice > 0 ? seedPrice.toFixed(4) : (seedPrice < 1 && seedPrice > 0 ? seedPrice.toFixed(4) : seedPrice.toFixed(2)));
+        if (deltaPillEl) {
+          deltaPillEl.textContent = (seedChange >= 0 ? '+' : '') + seedChange.toFixed(2) + '%';
+          deltaPillEl.className = 'drawer-delta-pill' + (seedChange >= 0 ? '' : ' neg');
+        }
       } else {
-        document.getElementById('diagnostic-name').textContent = 'Loading company...';
-        document.getElementById('diagnostic-price-pill').textContent = '$--';
-        const deltaPill = document.getElementById('diagnostic-delta-pill');
-        deltaPill.textContent = '0.00%';
-        deltaPill.className = 'drawer-delta-pill';
+        if (nameEl) nameEl.textContent = 'Loading company...';
+        if (pricePillEl) pricePillEl.textContent = '$--';
+        if (deltaPillEl) {
+          deltaPillEl.textContent = '0.00%';
+          deltaPillEl.className = 'drawer-delta-pill';
+        }
       }
 
       loadingState.style.display = 'flex';
@@ -632,82 +641,106 @@
         }
 
         const d = json.data;
-        document.getElementById('diagnostic-name').textContent = d.name || currentTicker;
-        document.getElementById('diagnostic-price-pill').textContent = '$' + (d.price < 0.01 && d.price > 0 ? d.price.toFixed(4) : (d.price < 1 && d.price > 0 ? d.price.toFixed(4) : d.price.toFixed(2)));
+        if (nameEl) nameEl.textContent = d.name || currentTicker;
+        if (pricePillEl) pricePillEl.textContent = '$' + (d.price < 0.01 && d.price > 0 ? d.price.toFixed(4) : (d.price < 1 && d.price > 0 ? d.price.toFixed(4) : d.price.toFixed(2)));
         
-        const isGain = d.changePercent >= 0;
-        deltaPill.textContent = (isGain ? '+' : '') + d.changePercent.toFixed(2) + '%';
-        deltaPill.className = 'drawer-delta-pill' + (isGain ? '' : ' neg');
+        if (deltaPillEl) {
+          const isGain = d.changePercent >= 0;
+          deltaPillEl.textContent = (isGain ? '+' : '') + d.changePercent.toFixed(2) + '%';
+          deltaPillEl.className = 'drawer-delta-pill' + (isGain ? '' : ' neg');
+        }
 
         // Synthesis Verdict
         const verdictBadge = document.getElementById('verdict-badge');
-        verdictBadge.textContent = d.synthesisVerdict;
-        verdictBadge.className = 'verdict-badge ' + (d.verdictColor || 'GRAY');
+        if (verdictBadge) {
+          verdictBadge.textContent = d.synthesisVerdict;
+          verdictBadge.className = 'verdict-badge ' + (d.verdictColor || 'GRAY');
+        }
 
         // Layer 1: Catalyst
-        document.getElementById('catalyst-category-badge').textContent = d.catalyst.category.replace(/_/g, ' ');
-        document.getElementById('catalyst-summary').textContent = d.catalyst.summary;
-        document.getElementById('catalyst-source-tag').textContent = 'Source: ' + d.catalyst.source;
+        const catBadge = document.getElementById('catalyst-category-badge');
+        if (catBadge) catBadge.textContent = d.catalyst.category.replace(/_/g, ' ');
+        const catSummary = document.getElementById('catalyst-summary');
+        if (catSummary) catSummary.textContent = d.catalyst.summary;
+        const catSource = document.getElementById('catalyst-source-tag');
+        if (catSource) catSource.textContent = 'Source: ' + d.catalyst.source;
         const catLink = document.getElementById('catalyst-link');
-        if (d.catalyst.link) {
-          catLink.href = d.catalyst.link;
-          catLink.style.display = 'inline-block';
-        } else {
-          catLink.style.display = 'none';
+        if (catLink) {
+          if (d.catalyst.link) {
+            catLink.href = d.catalyst.link;
+            catLink.style.display = 'inline-block';
+          } else {
+            catLink.style.display = 'none';
+          }
         }
 
         // Layer 2: Technical
-        document.getElementById('tech-rvol').textContent = d.technical.rvolMultiplier.toFixed(2) + 'x';
+        const techRvol = document.getElementById('tech-rvol');
+        if (techRvol) techRvol.textContent = d.technical.rvolMultiplier.toFixed(2) + 'x';
         const vwapDelta = d.technical.pctFromVWAP;
-        document.getElementById('tech-vwap-delta').textContent = (vwapDelta >= 0 ? '+' : '') + vwapDelta.toFixed(2) + '%';
-        document.getElementById('tech-52w-status').textContent = d.technical.is52WeekHighBreach ? '🔥 52W High Breach' : 'Within Range';
-        document.getElementById('tech-rsi').textContent = d.technical.rsi || '50';
+        const techVwap = document.getElementById('tech-vwap-delta');
+        if (techVwap) techVwap.textContent = (vwapDelta >= 0 ? '+' : '') + vwapDelta.toFixed(2) + '%';
+        const tech52w = document.getElementById('tech-52w-status');
+        if (tech52w) tech52w.textContent = d.technical.is52WeekHighBreach ? '🔥 52W High Breach' : 'Within Range';
+        const techRsi = document.getElementById('tech-rsi');
+        if (techRsi) techRsi.textContent = d.technical.rsi || '50';
 
         // Layer 3: Liquidity
-        document.getElementById('liq-float-tier').textContent = d.liquidity.floatCategory.replace(/_/g, ' ');
-        document.getElementById('liq-float-turnover').textContent = d.liquidity.floatTurnoverPct.toFixed(1) + '%';
-        document.getElementById('liq-dollar-volume').textContent = '$' + (d.liquidity.dollarVolume >= 1e6 ? (d.liquidity.dollarVolume / 1e6).toFixed(1) + 'M' : (d.liquidity.dollarVolume >= 1e3 ? (d.liquidity.dollarVolume / 1e3).toFixed(1) + 'K' : d.liquidity.dollarVolume));
-        document.getElementById('liq-adv-ratio').textContent = (d.rvol >= 2.5 ? 'Surge (>2.5x)' : 'Standard Flow');
+        const liqFloat = document.getElementById('liq-float-tier');
+        if (liqFloat) liqFloat.textContent = d.liquidity.floatCategory.replace(/_/g, ' ');
+        const liqTurnover = document.getElementById('liq-float-turnover');
+        if (liqTurnover) liqTurnover.textContent = d.liquidity.floatTurnoverPct.toFixed(1) + '%';
+        const liqDollar = document.getElementById('liq-dollar-volume');
+        if (liqDollar) liqDollar.textContent = '$' + (d.liquidity.dollarVolume >= 1e6 ? (d.liquidity.dollarVolume / 1e6).toFixed(1) + 'M' : (d.liquidity.dollarVolume >= 1e3 ? (d.liquidity.dollarVolume / 1e3).toFixed(1) + 'K' : d.liquidity.dollarVolume));
+        const liqAdv = document.getElementById('liq-adv-ratio');
+        if (liqAdv) liqAdv.textContent = (d.rvol >= 2.5 ? 'Surge (>2.5x)' : 'Standard Flow');
 
         // Layer 4: Behavior
-        document.getElementById('flow-bias').textContent = d.marketBehavior.orderFlowBias.replace(/_/g, ' ');
-        document.getElementById('flow-ask-lift').textContent = d.marketBehavior.aggressiveAskLiftPct + '% Ask Lifting';
-        document.getElementById('flow-short-interest').textContent = d.marketBehavior.shortInterestPct > 0 ? d.marketBehavior.shortInterestPct.toFixed(1) + '% Float' : 'N/A';
-        document.getElementById('flow-squeeze-rating').textContent = (d.marketBehavior.shortInterestPct >= 20 ? 'High' : 'Normal');
+        const flowBias = document.getElementById('flow-bias');
+        if (flowBias) flowBias.textContent = d.marketBehavior.orderFlowBias.replace(/_/g, ' ');
+        const flowAsk = document.getElementById('flow-ask-lift');
+        if (flowAsk) flowAsk.textContent = d.marketBehavior.aggressiveAskLiftPct + '% Ask Lifting';
+        const flowShort = document.getElementById('flow-short-interest');
+        if (flowShort) flowShort.textContent = d.marketBehavior.shortInterestPct > 0 ? d.marketBehavior.shortInterestPct.toFixed(1) + '% Float' : 'N/A';
+        const flowSqueeze = document.getElementById('flow-squeeze-rating');
+        if (flowSqueeze) flowSqueeze.textContent = (d.marketBehavior.shortInterestPct >= 20 ? 'High' : 'Normal');
 
         // Layer 5: Risk
         const riskScore = d.riskRating.overallRiskScore;
         const riskBadge = document.getElementById('risk-score-badge');
-        riskBadge.textContent = `Risk Score: ${riskScore}/100`;
-        if (riskScore >= 70) {
-          riskBadge.style.color = '#ef4444';
-        } else if (riskScore >= 40) {
-          riskBadge.style.color = '#eab308';
-        } else {
-          riskBadge.style.color = '#22c55e';
+        if (riskBadge) {
+          riskBadge.textContent = `Risk Score: ${riskScore}/100`;
+          if (riskScore >= 70) {
+            riskBadge.style.color = '#ef4444';
+          } else if (riskScore >= 40) {
+            riskBadge.style.color = '#eab308';
+          } else {
+            riskBadge.style.color = '#22c55e';
+          }
         }
 
         const flagsContainer = document.getElementById('risk-flags-container');
-        flagsContainer.innerHTML = '';
-
-        if (Array.isArray(d.riskRating.flags) && d.riskRating.flags.length > 0) {
-          d.riskRating.flags.forEach(f => {
-            const cls = f.severity === 'safe' ? 'safe' : (f.severity === 'warning' ? 'warning' : '');
-            const icon = f.severity === 'safe' ? '✅' : '⚠️';
-            flagsContainer.innerHTML += `<div class="risk-flag-item ${cls}">${icon} <strong>${f.label}:</strong> ${f.description}</div>`;
-          });
-        } else {
-          if (d.riskRating.hasActiveS3Shelf) {
-            flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Active Shelf Registration (S-3/424B):</strong> Company has active financing or ATM capacity on file. Extreme dilution risk upon momentum spikes.</div>`;
-          }
-          if (d.riskRating.isSubDollarPenny) {
-            flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Sub-Dollar Penny Stock:</strong> Ticker trades under $1.00. Subject to OTC/reverse-split listing compliance hazards.</div>`;
-          }
-          if (d.riskRating.spreadWarning) {
-            flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Wide Bid/Ask Spread Warning:</strong> Session volume is light relative to quotation depth. High slippage on market orders.</div>`;
-          }
-          if (!d.riskRating.hasActiveS3Shelf && !d.riskRating.isSubDollarPenny && !d.riskRating.spreadWarning) {
-            flagsContainer.innerHTML += `<div class="risk-flag-item safe">✅ <strong>No Toxic Dilution Red Flags:</strong> Clean structure without pending S-3 ATM shelf offerings or extreme spread anomalies.</div>`;
+        if (flagsContainer) {
+          flagsContainer.innerHTML = '';
+          if (Array.isArray(d.riskRating.flags) && d.riskRating.flags.length > 0) {
+            d.riskRating.flags.forEach(f => {
+              const cls = f.severity === 'safe' ? 'safe' : (f.severity === 'warning' ? 'warning' : '');
+              const icon = f.severity === 'safe' ? '✅' : '⚠️';
+              flagsContainer.innerHTML += `<div class="risk-flag-item ${cls}">${icon} <strong>${f.label}:</strong> ${f.description}</div>`;
+            });
+          } else {
+            if (d.riskRating.hasActiveS3Shelf) {
+              flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Active Shelf Registration (S-3/424B):</strong> Company has active financing or ATM capacity on file. Extreme dilution risk upon momentum spikes.</div>`;
+            }
+            if (d.riskRating.isSubDollarPenny) {
+              flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Sub-Dollar Penny Stock:</strong> Ticker trades under $1.00. Subject to OTC/reverse-split listing compliance hazards.</div>`;
+            }
+            if (d.riskRating.spreadWarning) {
+              flagsContainer.innerHTML += `<div class="risk-flag-item">⚠️ <strong>Wide Bid/Ask Spread Warning:</strong> Session volume is light relative to quotation depth. High slippage on market orders.</div>`;
+            }
+            if (!d.riskRating.hasActiveS3Shelf && !d.riskRating.isSubDollarPenny && !d.riskRating.spreadWarning) {
+              flagsContainer.innerHTML += `<div class="risk-flag-item safe">✅ <strong>No Toxic Dilution Red Flags:</strong> Clean structure without pending S-3 ATM shelf offerings or extreme spread anomalies.</div>`;
+            }
           }
         }
 
@@ -721,7 +754,7 @@
     }
 
     if (retryBtn) {
-      retryBtn.addEventListener('click', () => loadDiagnostic(currentTicker));
+      retryBtn.addEventListener('click', () => loadDiagnostic(currentTicker, currentSeedData));
     }
 
     if (addWatchlistBtn) {
