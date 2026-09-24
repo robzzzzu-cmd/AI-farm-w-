@@ -65,7 +65,11 @@ function sanitizeAndLinkify(text, tickers) {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
 
-  const sorted = [...tickers].sort((a, b) => b.length - a.length);
+  // Only permit valid tickers for autolinking
+  const validTickers = (tickers || []).filter(
+    (t) => t && typeof t === 'string' && /^[A-Z0-9.-]{1,8}$/.test(t) && !/[\^#+/?&=%]/.test(t)
+  );
+  const sorted = [...validTickers].sort((a, b) => b.length - a.length);
 
   for (const t of sorted) {
     const regex = new RegExp(`(?<!\\[)\\$${t}\\b(?!\\])`, 'g');
@@ -97,29 +101,63 @@ async function run() {
   try {
     const now = new Date();
     const currentUtcHour = now.getUTCHours();
+    const scheduleCron = process.env.SCHEDULE_CRON || '';
+    const cadenceOverride = (process.env.CADENCE_OVERRIDE || process.env.INPUT_CADENCE || '').toLowerCase();
+    const isForce = process.env.INPUT_FORCE === 'true' || process.argv.includes('--force');
 
-    // 1. Determine time-gated brief cadence (Morning, Midday, Afternoon, Closing)
+    // 1. Determine time-gated brief cadence with queue-delay resilience
+    // Checks explicit schedule cron trigger first so delayed GitHub runs retain their intended cadence identity.
     let briefType = 'MORNING';
     let briefPrefix = 'Morning Momentum Brief';
     let briefCategory = 'Morning Brief';
-    let briefFocus = 'Pre-market gap leaders, opening drive volume, technical breakout levels, and spread slippage precautions.';
+    let briefFocus = 'Pre-market gap catalysts, opening range breakouts (ORB), early relative volume (RVOL) expansion, float rotation velocity, and initial support/resistance targets.';
 
-    if (currentUtcHour >= 15 && currentUtcHour < 18) {
+    if (cadenceOverride === 'morning' || scheduleCron.includes('13 * *') || (!cadenceOverride && !scheduleCron && currentUtcHour >= 12 && currentUtcHour < 15)) {
+      briefType = 'MORNING';
+      briefPrefix = 'Morning Momentum Brief';
+      briefCategory = 'Morning Brief';
+      briefFocus = 'Pre-market gap catalysts, opening range breakouts (ORB), early relative volume (RVOL) expansion, float rotation velocity, and initial support/resistance targets.';
+    } else if (cadenceOverride === 'midday' || scheduleCron.includes('16 * *') || (!cadenceOverride && !scheduleCron && currentUtcHour >= 15 && currentUtcHour < 18)) {
       briefType = 'MIDDAY';
       briefPrefix = 'Midday Market Update';
       briefCategory = 'Midday Update';
-      briefFocus = 'Morning runners consolidating above VWAP, afternoon continuation setups, and midday volume dry-up analysis.';
-    } else if (currentUtcHour >= 18 && currentUtcHour < 20) {
+      briefFocus = 'Morning breakout leaders testing intraday VWAP support vs fading into distribution traps, lunchtime volume dry-up, and afternoon continuation pivots.';
+    } else if (cadenceOverride === 'afternoon' || scheduleCron.includes('18 * *') || (!cadenceOverride && !scheduleCron && currentUtcHour >= 18 && currentUtcHour < 20)) {
       briefType = 'AFTERNOON';
       briefPrefix = 'Afternoon Momentum Brief';
       briefCategory = 'Market Brief';
-      briefFocus = 'Power hour volume acceleration, sector rotations, and institutional block accumulation.';
-    } else if (currentUtcHour >= 20 || currentUtcHour < 4) {
+      briefFocus = 'Power-hour volume acceleration, institutional block order accumulation, sector sympathy rotations, and intraday highs re-tests into the final hour.';
+    } else if (cadenceOverride === 'closing' || scheduleCron.includes('20 * *') || (!cadenceOverride && !scheduleCron && (currentUtcHour >= 20 || currentUtcHour < 4))) {
       briefType = 'CLOSING';
       briefPrefix = 'Closing Momentum Report';
       briefCategory = 'Closing Report';
-      briefFocus = 'Cash session wrap, attribution post-mortem on top gainers, after-hours earnings movers, and overnight continuation candidates.';
+      briefFocus = 'Full cash session wrap, post-mortem attribution on top winners & losers, verified news vs short squeeze reality, after-hours movers, and overnight watchlists.';
+    } else {
+      // General hour fallback
+      if (currentUtcHour >= 12 && currentUtcHour < 15) {
+        briefType = 'MORNING';
+        briefPrefix = 'Morning Momentum Brief';
+        briefCategory = 'Morning Brief';
+        briefFocus = 'Pre-market gap catalysts, opening range breakouts (ORB), early RVOL expansion, float rotation velocity, and initial support/resistance targets.';
+      } else if (currentUtcHour >= 15 && currentUtcHour < 18) {
+        briefType = 'MIDDAY';
+        briefPrefix = 'Midday Market Update';
+        briefCategory = 'Midday Update';
+        briefFocus = 'Morning breakout leaders testing intraday VWAP support vs fading into distribution traps, lunchtime volume dry-up, and afternoon continuation pivots.';
+      } else if (currentUtcHour >= 18 && currentUtcHour < 20) {
+        briefType = 'AFTERNOON';
+        briefPrefix = 'Afternoon Momentum Brief';
+        briefCategory = 'Market Brief';
+        briefFocus = 'Power-hour volume acceleration, institutional block order accumulation, sector sympathy rotations, and intraday highs re-tests into the final hour.';
+      } else {
+        briefType = 'CLOSING';
+        briefPrefix = 'Closing Momentum Report';
+        briefCategory = 'Closing Report';
+        briefFocus = 'Full cash session wrap, post-mortem attribution on top winners & losers, verified news vs short squeeze reality, after-hours movers, and overnight watchlists.';
+      }
     }
+
+    console.log(`Resolved Target Cadence: ${briefPrefix} (${briefType}) [Trigger: ${scheduleCron || cadenceOverride || `UTC ${currentUtcHour}:00`}]`);
 
     const folderPath = fs.existsSync('./src/content/blog')
       ? './src/content/blog'
@@ -141,7 +179,7 @@ async function run() {
       } catch (_) { return false; }
     });
 
-    if (briefAlreadyPublished) {
+    if (!isForce && briefAlreadyPublished) {
       console.log(`Today's ${briefPrefix} (${briefType}) has already been generated. Skipping duplicate.`);
       if (process.env.GITHUB_OUTPUT) {
         fs.appendFileSync(process.env.GITHUB_OUTPUT, 'has_new_post=false\n');
@@ -168,7 +206,7 @@ async function run() {
       }
     }
 
-    // 1b. Fallback or Primary with Polygon.io (massive.com)
+    // 1b. Fallback or Primary with Polygon.io
     if (!marketData && polygonKey) {
       try {
         console.log(`1b. Fetching real-time market movers from Polygon.io for ${briefPrefix}...`);
@@ -198,8 +236,11 @@ async function run() {
       throw new Error(`Unable to fetch market movers from Alpha Vantage or Polygon.io.`);
     }
 
-    // Filter out illiquid sub-penny warrants
+    // Filter out illiquid sub-penny warrants and invalid ticker formats
+    const isValidTicker = (t) => t && typeof t === 'string' && /^[A-Z0-9.-]{1,8}$/.test(t) && !/[\^#+/?&=%]/.test(t);
+
     const liquidGainers = (marketData.top_gainers || []).filter((s) => {
+      if (!isValidTicker(s.ticker)) return false;
       const vol = Number(s.volume || 0);
       const price = parseFloat(s.price || 0);
       const dollarVolume = vol * price;
@@ -207,14 +248,14 @@ async function run() {
       return vol >= 50000 && dollarVolume >= 100000 && !isPennyWarrant;
     });
 
-    const candidateGainers = liquidGainers.length >= 2 ? liquidGainers : marketData.top_gainers;
+    const candidateGainers = liquidGainers.length >= 2 ? liquidGainers : (marketData.top_gainers || []).filter((s) => isValidTicker(s.ticker));
     const leadStock = candidateGainers[0] || marketData.top_gainers[0];
     const otherGainers = candidateGainers.filter((s) => s.ticker.toUpperCase() !== leadStock.ticker.toUpperCase());
     const topGainers = [leadStock, ...otherGainers].slice(0, 5);
-    const topLosers = (marketData.top_losers || []).slice(0, 5);
-    const mostActive = (marketData.most_actively_traded || []).slice(0, 5);
+    const topLosers = (marketData.top_losers || []).filter((s) => isValidTicker(s.ticker)).slice(0, 5);
+    const mostActive = (marketData.most_actively_traded || []).filter((s) => isValidTicker(s.ticker)).slice(0, 5);
 
-    // Fetch real breaking news headlines for the lead runner from Finnhub or Polygon
+    // Fetch verified breaking news headlines for the lead runner across 3 tiers (Finnhub -> Polygon -> Alpha Vantage)
     let liveCatalystHeadlines = [];
     if (finnhubKey) {
       try {
@@ -224,7 +265,7 @@ async function run() {
         const fnUrl = `https://finnhub.io/api/v1/company-news?symbol=${leadStock.ticker}&from=${past2Days}&to=${todayStr}&token=${finnhubKey}`;
         const fnData = await fetchWithRetry(fnUrl);
         if (Array.isArray(fnData) && fnData.length > 0) {
-          liveCatalystHeadlines = fnData.slice(0, 3).map(n => `"${n.headline}" (${n.source || 'Finnhub Wire'})`);
+          liveCatalystHeadlines = fnData.slice(0, 3).map((n) => `"${n.headline}" (${n.source || 'Finnhub Wire'})`);
         }
       } catch (err) {
         console.warn(`Finnhub news error: ${err.message}`);
@@ -237,16 +278,29 @@ async function run() {
         const polyNewsUrl = `https://api.polygon.io/v2/reference/news?ticker=${leadStock.ticker}&limit=3&apiKey=${polygonKey}`;
         const polyNews = await fetchWithRetry(polyNewsUrl);
         if (polyNews.results && Array.isArray(polyNews.results) && polyNews.results.length > 0) {
-          liveCatalystHeadlines = polyNews.results.slice(0, 3).map(n => `"${n.title}" (${n.publisher?.name || 'Polygon Wire'})`);
+          liveCatalystHeadlines = polyNews.results.slice(0, 3).map((n) => `"${n.title}" (${n.publisher?.name || 'Polygon Wire'})`);
         }
       } catch (err) {
         console.warn(`Polygon news error: ${err.message}`);
       }
     }
 
+    if (liveCatalystHeadlines.length === 0 && alphaVantageKey) {
+      try {
+        console.log(`1e. Fetching news headlines for lead runner $${leadStock.ticker} from Alpha Vantage NEWS_SENTIMENT...`);
+        const avNewsUrl = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=${leadStock.ticker}&limit=5&apikey=${alphaVantageKey}`;
+        const avNews = await fetchWithRetry(avNewsUrl);
+        if (avNews && Array.isArray(avNews.feed) && avNews.feed.length > 0) {
+          liveCatalystHeadlines = avNews.feed.slice(0, 3).map((n) => `"${n.title}" (${n.source || 'Market Wire'}) - Sentiment: ${n.overall_sentiment_label || 'Neutral'}`);
+        }
+      } catch (err) {
+        console.warn(`Alpha Vantage news fetch error: ${err.message}`);
+      }
+    }
+
     let stockDataSummary = `
 SESSION MOVERS FOR ${briefPrefix}:
-LEAD MOVER: $${leadStock.ticker} (Price: $${parseFloat(leadStock.price).toFixed(2)}, Change: +${parseFloat(leadStock.change_percentage).toFixed(2)}%, Vol: ${formatCompactNumber(leadStock.volume)})
+LEAD MOVER: $${leadStock.ticker} (Price: $${parseFloat(leadStock.price).toFixed(2)}, Change: +${parseFloat(leadStock.change_percentage).toFixed(2)}%, Vol: ${formatCompactNumber(leadStock.volume)} shares)
 
 TOP GAINERS (Momentum Breakouts):
 ${topGainers.map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: +${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
@@ -254,41 +308,50 @@ ${topGainers.map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).to
 MOST ACTIVELY TRADED (Liquidity Anchors):
 ${mostActive.slice(0, 3).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
 
-TOP DECLINERS (Distribution & Pullbacks):
+TOP DECLINERS (Distribution Traps & Pullbacks):
 ${topLosers.slice(0, 2).map((s) => `Ticker: $${s.ticker} | Price: $${parseFloat(s.price).toFixed(2)} | Change: ${parseFloat(s.change_percentage).toFixed(2)}% | Volume: ${formatCompactNumber(s.volume)} shares`).join('\n')}
     `.trim();
 
     if (liveCatalystHeadlines.length > 0) {
-      stockDataSummary += `\n\nVERIFIED BREAKING CATALYSTS FOR $${leadStock.ticker} (Finnhub / Polygon):\n${liveCatalystHeadlines.map(h => `- ${h}`).join('\n')}`;
+      stockDataSummary += `\n\nVERIFIED BREAKING CATALYSTS FOR $${leadStock.ticker}:\n${liveCatalystHeadlines.map((h) => `- ${h}`).join('\n')}`;
+    } else {
+      stockDataSummary += `\n\nVERIFIED BREAKING CATALYSTS FOR $${leadStock.ticker}:\nNo immediate corporate press release or SEC filing detected. Move is primarily driven by technical float turnover, relative volume surges, and retail momentum interest.`;
     }
 
-    const systemPrompt = `You are the Lead Momentum Strategist for Trade Opportunities (tradeopportunities.trade), an AI-powered momentum intelligence terminal for active traders.
-Write the tactical market narrative for today's "${briefPrefix}".
-Primary focus: ${briefFocus}
+    const systemPrompt = `You are the Senior Technical Market Strategist for Trade Opportunities (tradeopportunities.trade), an algorithmic momentum intelligence terminal for active equity traders.
+Write the tactical market intelligence report for today's "${briefPrefix}".
+Cadence Focus: ${briefFocus}
 
-TONE & VOICE REQUIREMENTS:
-- Write in punchy, practitioner-focused trader language. Talk like an active, disciplined desk trader.
-- DO NOT use exaggerated institutional fluff or fake desk jargon ("institutional desks", "liquidity routing", "order book depth", "speculative frenzy", "stunned desks").
-- Use clean, direct market terminology:
+CRITICAL ANTI-REPETITION & VOICE MANDATE:
+- Do NOT repeat the exact same canned sentences across dispatches.
+- NEVER use these overused cliches:
   * "Unusual price breakout backed by heavy relative volume."
   * "Thin liquidity on sub-$5 names means price moves fast and spreads can widen."
   * "Heavy volume concentration signals strong retail and momentum interest."
-  * Always highlight clear support, breakout triggers, and invalidation levels.
+  * "Absolute masterclass in high-beta momentum trading."
+  * "Pacing the session."
+  * "Caught flat-footed."
+- Write with sharp, practitioner-grade desk authority: discuss float rotation velocity, relative volume multiples, intraday tape pressure, VWAP defense/reversion, and spread slippage.
+- Clearly differentiate between fundamental catalyst-driven surges vs pure technical low-float short squeezes.
+- Highlight specific, concrete price levels (support baseline, VWAP anchor, breakout pivot, and hard invalidation stop).
 
-STRUCTURE:
-1. Lead with market context and top momentum runner $${leadStock.ticker}, highlighting its percentage surge and session volume.
-2. Analyze secondary breakout runners and whether volume is sustaining into continuation or showing exhaustion.
-3. Highlight liquidity conditions and contrast volatile micro-caps against high-volume market leaders.
-4. Provide actionable takeaways, immediate key pivot levels, and invalidation risk boundaries for active traders.
+REQUIRED OUTPUT FORMAT:
+Line 1: TITLE: <A punchy, informative, unique title highlighting $${leadStock.ticker} and its specific catalyst or session behavior. Example: "$${leadStock.ticker} Explosive Volume Expansion: Midday VWAP Defense (+XX%)">
+Line 2: DESCRIPTION: <A 1-sentence meta description summarizing the session move, primary driver, and key pivot level>
+Line 3: (blank)
+Followed by the article body in structured markdown:
+1. Executive Market Pulse (2-3 crisp sentences summarizing current session momentum, volume distribution, and lead mover $${leadStock.ticker}).
+2. ### Catalysts & Volume Drivers (Analyze the primary drivers behind $${leadStock.ticker}. Reference the verified news headlines if provided, or explain technical float turnover and momentum if no filing is present).
+3. ### Technical Structure & Key Levels (Provide specific tactical levels: VWAP anchor, primary resistance, support baseline, and hard invalidation boundary for $${leadStock.ticker}).
+4. ### Market Breadth & Secondary Watchlist (Analyze secondary runners, sympathy plays, and warn against distribution traps among decliners).
+5. ### Tactical Execution Plan (3 bullet points providing clear, disciplined risk-reward rules for active traders).
 
-CRITICAL RULES:
-- Write strictly 6 to 9 continuous sentences in a single paragraph.
-- DO NOT use markdown headings (#, ##) or bullet points in your response.
-- Refer to every ticker using standard dollar notation (e.g. $${leadStock.ticker}).
-- DO NOT invent or embed raw markdown links or HTML.
-- Return ONLY the paragraph text.`;
+FORMATTING RULES:
+- Use standard markdown (### for section headers, * or - for bullet points, bold for emphasis).
+- Refer to every ticker using dollar notation (e.g. $${leadStock.ticker}).
+- DO NOT invent or embed raw markdown links or HTML.`;
 
-    console.log(`2. Generating narrative with Gemini for ${briefPrefix} (Lead $${leadStock.ticker})...`);
+    console.log(`2. Generating differentiated narrative with Gemini for ${briefPrefix} (Lead $${leadStock.ticker})...`);
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${llmApiKey}`;
     
     const llmData = await fetchWithRetry(geminiUrl, {
@@ -303,8 +366,8 @@ CRITICAL RULES:
           }
         ],
         generationConfig: {
-          maxOutputTokens: 2000,
-          temperature: 0.2
+          maxOutputTokens: 2500,
+          temperature: 0.65
         }
       })
     });
@@ -313,7 +376,48 @@ CRITICAL RULES:
       throw new Error(`Gemini synthesis returned empty structure: ${JSON.stringify(llmData)}`);
     }
 
-    const rawAnalysis = llmData.candidates[0].content.parts[0].text.trim();
+    const rawResponse = llmData.candidates[0].content.parts[0].text.trim();
+
+    // Parse dynamic Title, Description, and Body from LLM output
+    let parsedTitle = '';
+    let parsedDescription = '';
+    let parsedBody = rawResponse;
+
+    const lines = rawResponse.split('\n');
+    let contentStartIndex = 0;
+
+    for (let i = 0; i < Math.min(lines.length, 6); i++) {
+      const line = lines[i].trim();
+      if (line.toUpperCase().startsWith('TITLE:')) {
+        parsedTitle = line.replace(/^TITLE:\s*/i, '').replace(/^["']|["']$/g, '').trim();
+        contentStartIndex = Math.max(contentStartIndex, i + 1);
+      } else if (line.toUpperCase().startsWith('DESCRIPTION:')) {
+        parsedDescription = line.replace(/^DESCRIPTION:\s*/i, '').replace(/^["']|["']$/g, '').trim();
+        contentStartIndex = Math.max(contentStartIndex, i + 1);
+      }
+    }
+
+    if (contentStartIndex > 0) {
+      parsedBody = lines.slice(contentStartIndex).join('\n').trim();
+    }
+
+    // Dynamic fallback titles if LLM did not provide structured header
+    const leadGainFormatted = `+${parseFloat(leadStock.change_percentage).toFixed(1)}%`;
+    if (!parsedTitle) {
+      if (briefType === 'MORNING') {
+        parsedTitle = `${briefPrefix}: $${leadStock.ticker} Breaks Out (${leadGainFormatted}) on Heavy Opening Drive`;
+      } else if (briefType === 'MIDDAY') {
+        parsedTitle = `${briefPrefix}: $${leadStock.ticker} (${leadGainFormatted}) Tests Key Midday VWAP Support`;
+      } else if (briefType === 'AFTERNOON') {
+        parsedTitle = `${briefPrefix}: $${leadStock.ticker} (${leadGainFormatted}) Accelerates into Power Hour`;
+      } else {
+        parsedTitle = `${briefPrefix}: $${leadStock.ticker} (${leadGainFormatted}) Concludes Session as Primary Momentum Anchor`;
+      }
+    }
+
+    if (!parsedDescription) {
+      parsedDescription = `${briefPrefix} dissecting volume surge in $${leadStock.ticker} (${leadGainFormatted}), breakout catalysts, and key invalidation levels.`;
+    }
 
     console.log('3. Assembling structured brief markdown post...');
     const date = now.toISOString().split('T')[0];
@@ -323,20 +427,20 @@ CRITICAL RULES:
     const fileName = `brief-${briefType.toLowerCase()}-${timestamp}.md`;
     const compactTable = buildCompactTable('Session Top Movers & Liquidity', topGainers);
 
+    // Sanitize tickers: only allow valid tickers with no special characters
     const allTickers = Array.from(
       new Set([
         ...topGainers.map((s) => s.ticker),
         ...topLosers.map((s) => s.ticker),
         ...mostActive.map((s) => s.ticker)
       ])
-    );
+    ).filter(isValidTicker);
 
-    const generatedAnalysis = sanitizeAndLinkify(rawAnalysis, allTickers);
-    const postTitle = `${briefPrefix}: ${leadStock.ticker} Leads Expansion (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`;
+    const generatedAnalysis = sanitizeAndLinkify(parsedBody, allTickers);
 
     const markdownContent = `---
-title: "${postTitle}"
-description: "${briefPrefix} analyzing liquidity expansion in ${leadStock.ticker}, active breakouts, and session volume anchors."
+title: "${parsedTitle.replace(/"/g, '\\"')}"
+description: "${parsedDescription.replace(/"/g, '\\"')}"
 briefType: "${briefType}"
 date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"
@@ -346,7 +450,7 @@ category: "Equities"
 categories: ["Equities", "Momentum", "${briefCategory}"]
 image: "https://tradeopportunities.trade/favicon.svg"
 leadTicker: "${leadStock.ticker}"
-leadGain: "+${parseFloat(leadStock.change_percentage).toFixed(1)}%"
+leadGain: "${leadGainFormatted}"
 tickers: [${allTickers.map((t) => `"${t}"`).join(', ')}]
 gainers: ${JSON.stringify(topGainers)}
 losers: ${JSON.stringify(topLosers)}

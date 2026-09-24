@@ -19,7 +19,9 @@ export async function getStaticPaths() {
     for (const rawTicker of mentioned) {
       if (!rawTicker || typeof rawTicker !== 'string') continue;
       const cleanTicker = rawTicker.trim().toUpperCase().replace(/^\$/, '');
-      if (!cleanTicker) continue;
+      // Only permit clean standard ticker symbols (letters, digits, dots, hyphens)
+      // Exclude invalid URL characters like ^, #, +, /, ?, &
+      if (!cleanTicker || !/^[A-Z0-9.-]{1,8}$/.test(cleanTicker) || /[\^#+/?&=%]/.test(cleanTicker)) continue;
 
       if (!tickerMap.has(cleanTicker)) {
         tickerMap.set(cleanTicker, {

@@ -2,15 +2,32 @@ name: Automated Market Analysis & Site Deploy
 
 on:
   schedule:
-    # 13:45 UTC: 15 mins after US Market Open (Opening breakout surge)
-    - cron: '45 13 * * 1-5'
-    # 16:30 UTC: Midday liquidity transition
-    - cron: '30 16 * * 1-5'
-    # 18:30 UTC: Afternoon rotation & volume concentration
-    - cron: '30 18 * * 1-5'
-    # 20:15 UTC: 15 mins after US Market Close (Closing auction liquidity)
-    - cron: '15 20 * * 1-5'
+    # 13:41 UTC: ~11 mins after US Market Open (Opening breakout surge)
+    - cron: '41 13 * * 1-5'
+    # 16:23 UTC: Midday liquidity transition
+    - cron: '23 16 * * 1-5'
+    # 18:17 UTC: Afternoon rotation & volume concentration
+    - cron: '17 18 * * 1-5'
+    # 20:08 UTC: ~8 mins after US Market Close (Closing auction liquidity)
+    - cron: '08 20 * * 1-5'
   workflow_dispatch:
+    inputs:
+      cadence:
+        description: 'Target Brief Cadence'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - morning
+          - midday
+          - afternoon
+          - closing
+      force:
+        description: 'Force generation even if brief already exists today'
+        required: false
+        default: false
+        type: boolean
   push:
     branches: ["main"]
     paths-ignore:
@@ -45,6 +62,12 @@ jobs:
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          POLYGON_API: ${{ secrets.POLYGON_API }}
+          FINHUB_API: ${{ secrets.FINHUB_API }}
+          FINNHUB_API: ${{ secrets.FINNHUB_API }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
+          CADENCE_OVERRIDE: ${{ github.event.inputs.cadence }}
+          INPUT_FORCE: ${{ github.event.inputs.force }}
         run: node index.js
 
       - name: Dispatch Daily Newsletter Broadcast

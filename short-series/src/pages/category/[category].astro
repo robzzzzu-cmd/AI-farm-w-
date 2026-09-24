@@ -55,12 +55,34 @@ export async function getStaticPaths() {
 
 const { categorySlug, categoryName, posts } = Astro.props;
 const canonicalURL = new URL(`/category/${categorySlug}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
+const pageDescription = `Curated ${categoryName} market intelligence reports, momentum breakout tracking, and quantitative liquidity scans on Trade Opportunities.`;
+
+const categorySchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": `${categoryName} Market Intelligence Hub`,
+  "url": canonicalURL,
+  "description": pageDescription,
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
 ---
 
 <Layout 
-  title={`${categoryName} Market Intelligence Hub`}
+  title={`${categoryName} Market Intelligence Hub | Trade Opportunities`}
+  description={pageDescription}
   canonicalURL={canonicalURL}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(categorySchema)} />
+  </Fragment>
   <main class="max-w-4xl mx-auto px-4 py-10">
     <header class="border-b border-gray-200 dark:border-gray-800 pb-6 mb-8">
       <span class="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 rounded">

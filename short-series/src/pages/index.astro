@@ -105,6 +105,8 @@ const websiteSchema = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href={canonicalURL} />
     <meta name="bitmedia-site-verification" content="07522f1ef9d6b60ae5363fe10b37f8c5" />
 
@@ -1673,7 +1675,9 @@ const websiteSchema = {
 
               {featuredPost.frontmatter.tickers && (
                 <div class="ticker-tags">
-                  {featuredPost.frontmatter.tickers.map((t: string) => (
+                  {featuredPost.frontmatter.tickers
+                    .filter((t: string) => /^[A-Za-z0-9.-]{1,8}$/.test(t) && !/[\^#+/?&=%]/.test(t))
+                    .map((t: string) => (
                     <a href={`/ticker/${t.toLowerCase()}/`} class="ticker-pill" title={`View ${t} Breakout Hub`}>
                       ${t}
                     </a>
