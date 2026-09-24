@@ -132,7 +132,10 @@ async function fetchTradingViewTelemetry(ticker: string): Promise<any | null> {
       cleanTicker,
       `NASDAQ:${cleanTicker}`,
       `NYSE:${cleanTicker}`,
-      `AMEX:${cleanTicker}`
+      `AMEX:${cleanTicker}`,
+      `OTC:${cleanTicker}`,
+      `BATS:${cleanTicker}`,
+      `ARCA:${cleanTicker}`
     ];
 
     const columns = [
@@ -157,7 +160,7 @@ async function fetchTradingViewTelemetry(ticker: string): Promise<any | null> {
       'VWAP'
     ];
 
-    const res = await fetch('https://scanner.tradingview.com/america/scan', {
+    let res = await fetch('https://scanner.tradingview.com/america/scan', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -169,14 +172,35 @@ async function fetchTradingViewTelemetry(ticker: string): Promise<any | null> {
       })
     });
 
-    if (!res.ok) return null;
-    const json = await res.json();
-    const row = json?.data?.[0];
+    let json = res.ok ? await res.json() : null;
+    let row = json?.data?.[0];
+
+    // Fallback: If candidate symbols didn't match (e.g. non-standard prefix), fallback to exact name filter
+    if (!row) {
+      const fallbackRes = await fetch('https://scanner.tradingview.com/america/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        },
+        body: JSON.stringify({
+          filter: [{ left: 'name', operation: 'equal', right: cleanTicker }],
+          columns: columns
+        })
+      });
+      if (fallbackRes.ok) {
+        const fallbackJson = await fallbackRes.json();
+        row = fallbackJson?.data?.[0];
+      }
+    }
+
     if (!row) return null;
 
     const d = row.d || [];
+    const exchange = String(row.s?.split(':')?.[0] || '');
     return {
       ticker: cleanTicker,
+      exchange,
       name: String(d[1] || cleanTicker),
       price: typeof d[2] === 'number' ? d[2] : parseFloat(d[2]) || 0,
       changeAbs: typeof d[3] === 'number' ? d[3] : parseFloat(d[3]) || 0,
@@ -276,9 +300,16 @@ export const GET: APIRoute = async ({ request }) => {
     });
   }
 
+  const fallbackPrice = parseFloat(url.searchParams.get('price') || '0') || 0;
+  const fallbackChange = parseFloat(url.searchParams.get('change') || '0') || 0;
+  const fallbackVolume = parseInt(url.searchParams.get('volume') || '0', 10) || 0;
+  const fallbackRvol = parseFloat(url.searchParams.get('rvol') || '1.0') || 1.0;
+  const fallbackMarketCap = parseFloat(url.searchParams.get('marketCap') || '0') || 0;
+  const fallbackName = url.searchParams.get('name') ? decodeURIComponent(url.searchParams.get('name') || '') : '';
+
   const now = Date.now();
   const cached = cache.get(tickerParam);
-  if (cached && (now - cached.timestamp < CACHE_TTL_MS)) {
+  if (cached && (now - cached.timestamp < CACHE_TTL_MS) && !(cached.payload?.data?.price === 0 && fallbackPrice > 0)) {
     return new Response(JSON.stringify(cached.payload), {
       status: 200,
       headers: {
@@ -295,22 +326,24 @@ export const GET: APIRoute = async ({ request }) => {
       fetchSecFilings(tickerParam)
     ]);
 
-    const price = tvData?.price || 0;
-    const changePercent = tvData?.changePercent || 0;
-    const volume = tvData?.volume || 0;
-    const rvol = tvData?.rvol || 1.0;
-    const marketCap = tvData?.marketCap || 0;
+    const exchange = tvData?.exchange || (tickerParam.endsWith('Q') ? 'OTC' : '');
+    const price = tvData?.price || fallbackPrice;
+    const changePercent = tvData?.changePercent ?? fallbackChange;
+    const volume = tvData?.volume || fallbackVolume;
+    const rvol = tvData?.rvol || fallbackRvol;
+    const marketCap = tvData?.marketCap || fallbackMarketCap;
     const floatShares = tvData?.floatShares || (marketCap && price ? Math.round(marketCap / price * 0.85) : 0);
     const high52w = tvData?.high52w || 0;
     const vwap = tvData?.vwap || price;
     const shortInterest = tvData?.shortPercent || 0;
     const adv = tvData?.adv30d || volume || 1;
+    const rsi = tvData?.rsi || 50;
+    const name = tvData?.name || fallbackName || tickerParam;
 
     const catalyst = categorizeCatalyst(newsItems, secFilings);
 
     const is52WeekHighBreach = high52w > 0 && price >= (high52w * 0.985);
     const pctFromVWAP = vwap > 0 ? parseFloat((((price - vwap) / vwap) * 100).toFixed(2)) : 0;
-    const rsi = tvData?.rsi || 50;
 
     let floatCategory: 'MICRO_FLOAT' | 'LOW_FLOAT' | 'MID_FLOAT' | 'LARGE_FLOAT' = 'MID_FLOAT';
     if (floatShares > 0) {
@@ -326,20 +359,147 @@ export const GET: APIRoute = async ({ request }) => {
     const orderFlowBias = changePercent >= 3.0 ? 'AGGRESSIVE_BUYING' : changePercent <= -3.0 ? 'DISTRIBUTION' : 'BALANCED';
 
     const hasActiveS3Shelf = secFilings.some(f => f.form.startsWith('S-3') || f.form.startsWith('424B'));
-    const isSubDollarPenny = price > 0 && price < 1.0;
-    const spreadWarning = price < 3.0 && volume < 100_000;
-    let overallRiskScore = 30;
+    const isBankruptcyOrOTC = exchange === 'OTC' || tickerParam.endsWith('Q');
+    const isSubPenny = price > 0 && price < 0.05;
+    const isSubDollarPenny = price >= 0.05 && price < 1.0;
+    const isLowPriced = price >= 1.0 && price < 3.0;
+    const spreadWarning = (price < 3.0 && volume < 100_000) || (dollarVolume > 0 && dollarVolume < 100_000);
+    const isSevereIlliquidity = dollarVolume > 0 && dollarVolume < 50_000;
+    const isLowLiquidity = dollarVolume >= 50_000 && dollarVolume < 250_000;
+    const isNanoCap = marketCap > 0 && marketCap < 5_000_000;
+
+    const isParabolic = changePercent >= 100.0;
+    const isHighMomentum = changePercent >= 40.0 && changePercent < 100.0;
+    const isElevatedMomentum = changePercent >= 20.0 && changePercent < 40.0;
+    const isOverbought = rsi >= 80;
+
+    let overallRiskScore = 20; // baseline market risk
     if (hasActiveS3Shelf) overallRiskScore += 35;
-    if (isSubDollarPenny) overallRiskScore += 25;
-    if (spreadWarning) overallRiskScore += 15;
-    if (floatCategory === 'MICRO_FLOAT') overallRiskScore += 15;
+    if (isBankruptcyOrOTC) overallRiskScore += 25;
+    if (isSubPenny) overallRiskScore += 25;
+    else if (isSubDollarPenny) overallRiskScore += 18;
+    else if (isLowPriced) overallRiskScore += 8;
+
+    if (isParabolic) overallRiskScore += 30;
+    else if (isHighMomentum) overallRiskScore += 20;
+    else if (isElevatedMomentum) overallRiskScore += 10;
+    else if (changePercent <= -20.0) overallRiskScore += 25;
+
+    if (isOverbought) overallRiskScore += 15;
+    else if (rsi >= 70) overallRiskScore += 8;
+
+    if (pctFromVWAP >= 15.0) overallRiskScore += 10;
+
+    if (isSevereIlliquidity) overallRiskScore += 25;
+    else if (isLowLiquidity || spreadWarning) overallRiskScore += 15;
+
+    if (isNanoCap) overallRiskScore += 15;
+    else if (floatCategory === 'MICRO_FLOAT') overallRiskScore += 12;
+
     overallRiskScore = Math.max(5, Math.min(99, overallRiskScore));
+
+    let riskTier: 'EXTREME_HAZARD' | 'HIGH_RISK' | 'MODERATE_RISK' | 'LOW_RISK' = 'LOW_RISK';
+    if (overallRiskScore >= 80) riskTier = 'EXTREME_HAZARD';
+    else if (overallRiskScore >= 65) riskTier = 'HIGH_RISK';
+    else if (overallRiskScore >= 40) riskTier = 'MODERATE_RISK';
+
+    const flags: Array<{ label: string; description: string; severity: 'hazard' | 'warning' | 'safe' }> = [];
+
+    if (hasActiveS3Shelf) {
+      flags.push({
+        label: 'Active Shelf Registration (S-3/424B)',
+        description: 'Company has active financing or ATM capacity on file. Extreme dilution risk upon momentum spikes.',
+        severity: 'hazard'
+      });
+    }
+    if (isBankruptcyOrOTC) {
+      flags.push({
+        label: `OTC / Bankruptcy Classification (${exchange || 'OTC'})`,
+        description: 'Ticker trades on OTC pink sheets or carries Chapter 11 bankruptcy classification (Q-suffix). Extreme capital impairment hazard.',
+        severity: 'hazard'
+      });
+    }
+    if (isSubPenny) {
+      flags.push({
+        label: `Sub-Penny Asset ($${price < 0.01 ? price.toFixed(4) : price.toFixed(2)})`,
+        description: 'Trades in sub-cent quotation territory. Characterized by wide bid-ask spreads, low float control, and severe order execution slippage.',
+        severity: 'hazard'
+      });
+    } else if (isSubDollarPenny) {
+      flags.push({
+        label: `Sub-Dollar Penny Stock ($${price.toFixed(2)})`,
+        description: 'Trades under $1.00 minimum bid requirement. Subject to exchange compliance, reverse splits, or delisting risk.',
+        severity: 'warning'
+      });
+    }
+    if (isParabolic) {
+      flags.push({
+        label: `Parabolic Vertical Surge (+${changePercent.toFixed(1)}%)`,
+        description: 'Asset is experiencing an extreme vertical price spike. Severe vulnerability to liquidity exhaustion, circuit halts, and violent gap-fill pullbacks.',
+        severity: 'hazard'
+      });
+    } else if (isHighMomentum) {
+      flags.push({
+        label: `High Momentum Expansion (+${changePercent.toFixed(1)}%)`,
+        description: 'Substantial intraday expansion. Increased vulnerability to rapid profit-taking and mean reversion.',
+        severity: 'warning'
+      });
+    } else if (isElevatedMomentum) {
+      flags.push({
+        label: `Elevated Intraday Volatility (+${changePercent.toFixed(1)}%)`,
+        description: 'Price velocity is trading well above typical daily bands.',
+        severity: 'warning'
+      });
+    }
+    if (isOverbought) {
+      flags.push({
+        label: `Technical Overbought Exhaustion (RSI ${rsi})`,
+        description: 'Momentum is severely stretched above normal oscillators, increasing the likelihood of an intraday pullback.',
+        severity: 'warning'
+      });
+    }
+    if (isSevereIlliquidity) {
+      flags.push({
+        label: `Micro Dollar Volume ($${(dollarVolume / 1000).toFixed(1)}K)`,
+        description: 'Total session turnover is under $50,000. Low quotation depth creates high slippage on market orders.',
+        severity: 'hazard'
+      });
+    } else if (spreadWarning) {
+      flags.push({
+        label: 'Wide Bid/Ask Spread Warning',
+        description: 'Session volume is light relative to quotation depth. High slippage on market orders.',
+        severity: 'warning'
+      });
+    }
+    if (isNanoCap) {
+      flags.push({
+        label: `Nano-Cap Valuation ($${marketCap >= 1e6 ? (marketCap / 1e6).toFixed(1) + 'M' : (marketCap / 1e3).toFixed(0) + 'K'})`,
+        description: 'Microscopic market valuation allows small capital flows to distort market pricing unpredictably.',
+        severity: 'warning'
+      });
+    } else if (floatCategory === 'MICRO_FLOAT') {
+      flags.push({
+        label: 'Micro-Float Structure (< 5M Float)',
+        description: 'Constrained supply can trigger violent price swings in both directions.',
+        severity: 'warning'
+      });
+    }
+    if (flags.length === 0) {
+      flags.push({
+        label: 'Clean Structural Profile',
+        description: 'No active S-3 dilution shelves, extreme parabolic extension, or micro-liquidity warnings detected.',
+        severity: 'safe'
+      });
+    }
 
     let verdict: SynthesisVerdict = 'BALANCED FLOW / RANGEBOUND';
     let verdictColor: 'GREEN' | 'YELLOW' | 'RED' | 'BLUE' | 'GRAY' = 'GRAY';
 
-    if (hasActiveS3Shelf && (floatCategory === 'MICRO_FLOAT' || floatCategory === 'LOW_FLOAT' || isSubDollarPenny)) {
+    if (hasActiveS3Shelf && (floatCategory === 'MICRO_FLOAT' || floatCategory === 'LOW_FLOAT' || isSubDollarPenny || isSubPenny)) {
       verdict = 'DILUTION RISK / OFFERING PENDING';
+      verdictColor = 'RED';
+    } else if (isParabolic || (overallRiskScore >= 75 && changePercent >= 15.0)) {
+      verdict = 'HIGH MOMENTUM / HIGH RISK';
       verdictColor = 'RED';
     } else if (pctFromVWAP < -3.5 && rvol > 3.0) {
       verdict = 'EXHAUSTION GAP / FADE BIAS';
@@ -356,9 +516,9 @@ export const GET: APIRoute = async ({ request }) => {
     } else if (dollarVolume >= 40_000_000 && is52WeekHighBreach && pctFromVWAP > 0) {
       verdict = 'INSTITUTIONAL ACCUMULATION';
       verdictColor = 'GREEN';
-    } else if (rvol >= 3.0 && floatCategory !== 'LARGE_FLOAT' && changePercent >= 5.0) {
+    } else if (rvol >= 2.0 && changePercent >= 5.0) {
       verdict = 'HIGH MOMENTUM / HIGH RISK';
-      verdictColor = 'YELLOW';
+      verdictColor = overallRiskScore >= 60 ? 'RED' : 'YELLOW';
     } else if (catalyst.category === 'NONE_DETECTED' && rvol >= 2.0 && changePercent >= 3.0) {
       verdict = 'SYMPATHY ROTATION / SECTOR FLOW';
       verdictColor = 'BLUE';
@@ -368,7 +528,8 @@ export const GET: APIRoute = async ({ request }) => {
       success: true,
       data: {
         ticker: tickerParam,
-        name: tvData?.name || tickerParam,
+        exchange,
+        name,
         timestamp: now,
         price,
         changePercent,
@@ -406,9 +567,11 @@ export const GET: APIRoute = async ({ request }) => {
         },
         riskRating: {
           hasActiveS3Shelf,
-          isSubDollarPenny,
+          isSubDollarPenny: isSubDollarPenny || isSubPenny,
           spreadWarning,
-          overallRiskScore
+          overallRiskScore,
+          riskTier,
+          flags
         },
         recentNews: newsItems.slice(0, 3),
         recentFilings: secFilings.slice(0, 3)

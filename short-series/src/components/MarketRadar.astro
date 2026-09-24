@@ -644,7 +644,7 @@
         if (breakoutList && Array.isArray(data.breakoutSurges) && data.breakoutSurges.length > 0) {
           breakoutList.innerHTML = data.breakoutSurges.map(b => `
             <div class="candidate-row">
-              <span class="candidate-sym" data-open-diagnostic="${b.ticker}">$${b.ticker}</span>
+              <span class="candidate-sym" data-open-diagnostic="${b.ticker}" data-change="${b.change}" data-rvol="${b.rvol}">$${b.ticker}</span>
               <span class="candidate-rvol">${b.rvol.toFixed(1)}x</span>
               <span class="candidate-delta gain">+${b.change.toFixed(1)}%</span>
             </div>
@@ -684,6 +684,9 @@
           anchorDescEl.textContent = `Institutional tape benchmark (${lca.name || lca.ticker}).`;
           if (anchorInspectBtn) {
             anchorInspectBtn.setAttribute('data-open-diagnostic', lca.ticker);
+            anchorInspectBtn.setAttribute('data-name', encodeURIComponent(lca.name || ''));
+            anchorInspectBtn.setAttribute('data-price', lca.price);
+            anchorInspectBtn.setAttribute('data-change', lca.change);
             anchorInspectBtn.style.display = 'inline-flex';
           }
         }
