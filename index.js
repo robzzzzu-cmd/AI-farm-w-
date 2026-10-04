@@ -105,41 +105,46 @@ async function run() {
     const cadenceOverride = (process.env.CADENCE_OVERRIDE || process.env.INPUT_CADENCE || '').toLowerCase();
     const isForce = process.env.INPUT_FORCE === 'true' || process.argv.includes('--force');
 
-    // 1. Determine time-gated brief cadence with queue-delay resilience
-    // Checks explicit schedule cron trigger first so delayed GitHub runs retain their intended cadence identity.
+    // 1. Determine time-gated brief cadence aligned with actual US market trading hours (UTC)
+    // Morning: 12:00-15:59 UTC (9:00 AM - 11:59 AM ET)
+    // Midday: 16:00-17:59 UTC (12:00 PM - 1:59 PM ET)
+    // Afternoon: 18:00-19:59 UTC (2:00 PM - 3:59 PM ET)
+    // Closing: >= 20:00 UTC or < 04:00 UTC (4:00 PM ET and post-market)
     let briefType = 'MORNING';
     let briefPrefix = 'Morning Momentum Brief';
     let briefCategory = 'Morning Brief';
     let briefFocus = 'Pre-market gap catalysts, opening range breakouts (ORB), early relative volume (RVOL) expansion, float rotation velocity, and initial support/resistance targets.';
 
-    if (cadenceOverride === 'morning' || scheduleCron.includes('13 * *') || (!cadenceOverride && !scheduleCron && currentUtcHour >= 12 && currentUtcHour < 15)) {
-      briefType = 'MORNING';
-      briefPrefix = 'Morning Momentum Brief';
-      briefCategory = 'Morning Brief';
-      briefFocus = 'Pre-market gap catalysts, opening range breakouts (ORB), early relative volume (RVOL) expansion, float rotation velocity, and initial support/resistance targets.';
-    } else if (cadenceOverride === 'midday' || scheduleCron.includes('16 * *') || (!cadenceOverride && !scheduleCron && currentUtcHour >= 15 && currentUtcHour < 18)) {
-      briefType = 'MIDDAY';
-      briefPrefix = 'Midday Market Update';
-      briefCategory = 'Midday Update';
-      briefFocus = 'Morning breakout leaders testing intraday VWAP support vs fading into distribution traps, lunchtime volume dry-up, and afternoon continuation pivots.';
-    } else if (cadenceOverride === 'afternoon' || scheduleCron.includes('18 * *') || (!cadenceOverride && !scheduleCron && currentUtcHour >= 18 && currentUtcHour < 20)) {
-      briefType = 'AFTERNOON';
-      briefPrefix = 'Afternoon Momentum Brief';
-      briefCategory = 'Market Brief';
-      briefFocus = 'Power-hour volume acceleration, institutional block order accumulation, sector sympathy rotations, and intraday highs re-tests into the final hour.';
-    } else if (cadenceOverride === 'closing' || scheduleCron.includes('20 * *') || (!cadenceOverride && !scheduleCron && (currentUtcHour >= 20 || currentUtcHour < 4))) {
-      briefType = 'CLOSING';
-      briefPrefix = 'Closing Momentum Report';
-      briefCategory = 'Closing Report';
-      briefFocus = 'Full cash session wrap, post-mortem attribution on top winners & losers, verified news vs short squeeze reality, after-hours movers, and overnight watchlists.';
+    if (cadenceOverride) {
+      if (cadenceOverride === 'morning') {
+        briefType = 'MORNING';
+        briefPrefix = 'Morning Momentum Brief';
+        briefCategory = 'Morning Brief';
+        briefFocus = 'Pre-market gap catalysts, opening range breakouts (ORB), early relative volume (RVOL) expansion, float rotation velocity, and initial support/resistance targets.';
+      } else if (cadenceOverride === 'midday') {
+        briefType = 'MIDDAY';
+        briefPrefix = 'Midday Market Update';
+        briefCategory = 'Midday Update';
+        briefFocus = 'Morning breakout leaders testing intraday VWAP support vs fading into distribution traps, lunchtime volume dry-up, and afternoon continuation pivots.';
+      } else if (cadenceOverride === 'afternoon') {
+        briefType = 'AFTERNOON';
+        briefPrefix = 'Afternoon Momentum Brief';
+        briefCategory = 'Market Brief';
+        briefFocus = 'Power-hour volume acceleration, institutional block order accumulation, sector sympathy rotations, and intraday highs re-tests into the final hour.';
+      } else if (cadenceOverride === 'closing') {
+        briefType = 'CLOSING';
+        briefPrefix = 'Closing Momentum Report';
+        briefCategory = 'Closing Report';
+        briefFocus = 'Full cash session wrap, post-mortem attribution on top winners & losers, verified news vs short squeeze reality, after-hours movers, and overnight watchlists.';
+      }
     } else {
-      // General hour fallback
-      if (currentUtcHour >= 12 && currentUtcHour < 15) {
+      // Resolve cadence by real-time execution hour so delayed runner queues do not mislabel dispatches
+      if (currentUtcHour >= 12 && currentUtcHour < 16) {
         briefType = 'MORNING';
         briefPrefix = 'Morning Momentum Brief';
         briefCategory = 'Morning Brief';
         briefFocus = 'Pre-market gap catalysts, opening range breakouts (ORB), early RVOL expansion, float rotation velocity, and initial support/resistance targets.';
-      } else if (currentUtcHour >= 15 && currentUtcHour < 18) {
+      } else if (currentUtcHour >= 16 && currentUtcHour < 18) {
         briefType = 'MIDDAY';
         briefPrefix = 'Midday Market Update';
         briefCategory = 'Midday Update';
@@ -157,7 +162,7 @@ async function run() {
       }
     }
 
-    console.log(`Resolved Target Cadence: ${briefPrefix} (${briefType}) [Trigger: ${scheduleCron || cadenceOverride || `UTC ${currentUtcHour}:00`}]`);
+    console.log(`Resolved Target Cadence: ${briefPrefix} (${briefType}) [Execution Time: UTC ${currentUtcHour}:${String(now.getUTCMinutes()).padStart(2, '0')}]`);
 
     const folderPath = fs.existsSync('./src/content/blog')
       ? './src/content/blog'
@@ -249,7 +254,42 @@ async function run() {
     });
 
     const candidateGainers = liquidGainers.length >= 2 ? liquidGainers : (marketData.top_gainers || []).filter((s) => isValidTicker(s.ticker));
-    const leadStock = candidateGainers[0] || marketData.top_gainers[0];
+
+    // Anti-repetition: Inspect recent dispatches to avoid covering the same lead ticker repeatedly
+    const recentLeadTickers = new Set();
+    try {
+      const recentPostFiles = fs.readdirSync(folderPath)
+        .filter((file) => file.endsWith('.md'))
+        .sort()
+        .reverse()
+        .slice(0, 8); // Review last 8 dispatches (covering last 1-2 trading days)
+
+      for (const file of recentPostFiles) {
+        try {
+          const content = fs.readFileSync(path.join(folderPath, file), 'utf-8');
+          const match = content.match(/leadTicker:\s*["']?([A-Za-z0-9.-]+)["']?/i);
+          if (match && match[1]) {
+            recentLeadTickers.add(match[1].toUpperCase());
+          }
+        } catch (_) {}
+      }
+      console.log(`Recent lead tickers to avoid duplicate coverage:`, Array.from(recentLeadTickers));
+    } catch (e) {
+      console.warn('Could not inspect recent lead tickers:', e.message);
+    }
+
+    // Select leadStock: prioritize the highest-ranked candidate not yet featured in recent dispatches
+    let leadStock = candidateGainers.find(
+      (s) => !recentLeadTickers.has(s.ticker.toUpperCase())
+    );
+
+    // Fallback if all candidates have been covered
+    if (!leadStock) {
+      leadStock = candidateGainers[0] || marketData.top_gainers[0];
+    }
+
+    console.log(`Selected Lead Mover for ${briefPrefix}: $${leadStock.ticker} (+${parseFloat(leadStock.change_percentage).toFixed(1)}%)`);
+
     const otherGainers = candidateGainers.filter((s) => s.ticker.toUpperCase() !== leadStock.ticker.toUpperCase());
     const topGainers = [leadStock, ...otherGainers].slice(0, 5);
     const topLosers = (marketData.top_losers || []).filter((s) => isValidTicker(s.ticker)).slice(0, 5);
@@ -323,7 +363,12 @@ Write the tactical market intelligence report for today's "${briefPrefix}".
 Cadence Focus: ${briefFocus}
 
 CRITICAL ANTI-REPETITION & VOICE MANDATE:
-- Do NOT repeat the exact same canned sentences across dispatches.
+- Do NOT repeat the exact same canned sentences or structure across dispatches.
+- Write with sharp, practitioner-grade desk authority tailored specifically to the ${briefType} market session:
+  * Morning Brief: Focus on pre-market gap catalysts, opening bell liquidity, opening range breakouts (ORB), early RVOL expansion, and initial supply-demand boundaries.
+  * Midday Update: Focus on intraday VWAP tests, distinguishing false breakouts from healthy consolidation bases, lunchtime volume dry-ups, and afternoon setups.
+  * Afternoon Brief: Focus on power-hour volume acceleration, institutional block orders, sympathy sector momentum, and late-session highs tests.
+  * Closing Report: Focus on daily candle close wrap, attribution of top movers vs distribution traps, closing auction liquidity, after-hours movers, and next-day watchlist.
 - NEVER use these overused cliches:
   * "Unusual price breakout backed by heavy relative volume."
   * "Thin liquidity on sub-$5 names means price moves fast and spreads can widen."
@@ -441,6 +486,7 @@ FORMATTING RULES:
     const markdownContent = `---
 title: "${parsedTitle.replace(/"/g, '\\"')}"
 description: "${parsedDescription.replace(/"/g, '\\"')}"
+summary: "${parsedDescription.replace(/"/g, '\\"')}"
 briefType: "${briefType}"
 date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"

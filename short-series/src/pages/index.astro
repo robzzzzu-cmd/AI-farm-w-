@@ -65,6 +65,29 @@ const secondaryPosts = posts.slice(1, 5);
 const displayGainers = featuredPost?.frontmatter?.gainers || [];
 const displayLosers = featuredPost?.frontmatter?.losers || [];
 
+function getPostSummary(post: MarkdownPost | undefined): string {
+  if (!post) return '';
+  if (post.rawContent) {
+    try {
+      const raw = post.rawContent();
+      const pulseMatch = raw.match(/###?\s*Executive Market Pulse\s*([\s\S]*?)(?=###?|$)/i);
+      if (pulseMatch && pulseMatch[1].trim()) {
+        const cleanPulse = pulseMatch[1]
+          .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+          .replace(/[*_#]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (cleanPulse.length > 20) {
+          return cleanPulse;
+        }
+      }
+    } catch (_) {}
+  }
+  return post.frontmatter?.description || '';
+}
+
+const featuredSummary = getPostSummary(featuredPost);
+
 // Initial server-side sector render (ensures the container is never blank)
 const defaultSectors = [
   { name: "Technology", symbol: "XLK", change: 1.32 },
@@ -961,6 +984,55 @@ const websiteSchema = {
         transform: translateY(-1px);
       }
 
+      .featured-summary-text {
+        font-size: 0.9375rem;
+        line-height: 1.65;
+        color: var(--text-secondary);
+        margin: 0.75rem 0 1rem 0;
+      }
+      .featured-summary-text p {
+        margin: 0;
+      }
+      .table-section-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin: 1rem 0 0.4rem 0;
+      }
+      .featured-card-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .featured-card-actions .primary-read-btn {
+        flex: 1.2;
+        min-width: 180px;
+        background: var(--brand-accent);
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+        margin-top: 0;
+      }
+      .featured-card-actions .secondary-chart-btn {
+        flex: 1;
+        min-width: 180px;
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-secondary) !important;
+        font-weight: 600;
+        font-size: 0.8125rem;
+        padding: 0.75rem 1rem;
+        margin-top: 0;
+      }
+      .featured-card-actions .secondary-chart-btn:hover {
+        border-color: var(--brand-accent);
+        color: var(--text-primary) !important;
+      }
+
       .ticker-tags {
         display: flex;
         flex-wrap: wrap;
@@ -1637,13 +1709,13 @@ const websiteSchema = {
                 </a>
               </h2>
               
-              <div class="card-body" id="featured-content">
-                <featuredPost.Content />
+              <div class="featured-summary-text">
+                <p>{featuredSummary}</p>
               </div>
 
               {featuredPost.frontmatter.gainers && featuredPost.frontmatter.gainers.length > 0 && (
-                <div class="fallback-table-wrapper" style="display: none;">
-                  <h4>Session Top Movers &amp; Liquidity</h4>
+                <div class="table-responsive-wrapper">
+                  <h4 class="table-section-title">Session Top Movers &amp; Liquidity</h4>
                   <table class="compact-table">
                     <thead>
                       <tr>
@@ -1685,12 +1757,18 @@ const websiteSchema = {
                 </div>
               )}
 
-              <a href={featuredPost.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
-                 target="_blank" 
-                 rel="noopener noreferrer" 
-                 class="card-action-btn">
-                {featuredPost.frontmatter.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
-              </a>
+              <div class="featured-card-actions">
+                <a href={`/blog/${featuredPost.slug}/`} 
+                   class="card-action-btn primary-read-btn">
+                  Read More &rarr;
+                </a>
+                <a href={featuredPost.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="card-action-btn secondary-chart-btn">
+                  {featuredPost.frontmatter.refLabel || "Analyze Lead Mover on TradingView"} &rarr;
+                </a>
+              </div>
             </article>
           ) : (
             <div class="card">
@@ -1708,12 +1786,12 @@ const websiteSchema = {
                   </a>
                 </h3>
                 <div class="stream-body">
-                  <post.Content />
+                  <p>{getPostSummary(post)}</p>
                 </div>
                 <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap;">
                   <a href={`/blog/${post.slug}/`} 
                      style="font-size: 0.75rem; font-weight: 600; color: var(--brand-accent); text-decoration: none;">
-                    Read Full Report &rarr;
+                    Read More &rarr;
                   </a>
                   <a href={post.frontmatter.refUrl || "https://www.tradingview.com/?aff_id=170147"} 
                      target="_blank" 
@@ -2144,15 +2222,7 @@ const websiteSchema = {
         const featuredCard = document.querySelector('.dispatch-card');
         if (!featuredCard) return;
 
-        const bodyContainer = featuredCard.querySelector('.card-body');
-        const fallbackWrapper = featuredCard.querySelector('.fallback-table-wrapper');
-        
-        let targetTable = bodyContainer ? bodyContainer.querySelector('table') : null;
-
-        if (!targetTable && fallbackWrapper) {
-          fallbackWrapper.style.display = 'block';
-          targetTable = fallbackWrapper.querySelector('table');
-        }
+        let targetTable = featuredCard.querySelector('table');
 
         if (targetTable) {
           let insertAnchor = targetTable;
