@@ -34,9 +34,45 @@ export async function GET({ params, props }: { params: { slug?: string }; props:
   const dateStr = post?.data?.displayDate || (post?.data?.date ? new Date(post.data.date).toISOString().slice(0, 10) : 'Live Scan');
   const category = escapeXml(post?.data?.category || 'Equities');
 
-  const truncatedTitle = title.length > 58 ? title.slice(0, 55) + '...' : title;
-  const cleanTitle = escapeXml(truncatedTitle);
   const cleanDateStr = escapeXml(dateStr.slice(0, 10));
+  const pillText = `${category.toUpperCase()} • ${cleanDateStr}`;
+  const pillWidth = Math.max(260, pillText.length * 10 + 36);
+
+  // Smart word-wrapping into 1 or 2 lines to prevent text clipping
+  const words = title.split(/\s+/);
+  const titleLines: string[] = [];
+  let currentLine = '';
+  for (const word of words) {
+    if ((currentLine ? currentLine + ' ' + word : word).length <= 40) {
+      currentLine = currentLine ? currentLine + ' ' + word : word;
+    } else {
+      if (currentLine) titleLines.push(currentLine);
+      currentLine = word;
+      if (titleLines.length === 2) break;
+    }
+  }
+  if (currentLine && titleLines.length < 2) titleLines.push(currentLine);
+  if (titleLines.length === 2 && words.length > titleLines.join(' ').split(/\s+/).length) {
+    titleLines[1] = titleLines[1].length > 36 ? titleLines[1].slice(0, 33) + '...' : titleLines[1] + '...';
+  }
+  if (titleLines.length === 0) titleLines.push(title);
+
+  const isTwoLines = titleLines.length > 1;
+
+  const titleSvg = isTwoLines
+    ? `
+  <text x="80" y="240" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="36" font-weight="800" letter-spacing="-0.5">
+    ${escapeXml(titleLines[0])}
+  </text>
+  <text x="80" y="286" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="36" font-weight="800" letter-spacing="-0.5">
+    ${escapeXml(titleLines[1])}
+  </text>`
+    : `
+  <text x="80" y="260" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="42" font-weight="800" letter-spacing="-0.5">
+    ${escapeXml(titleLines[0])}
+  </text>`;
+
+  const assetBoxY = isTwoLines ? 330 : 315;
 
   const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
@@ -78,16 +114,14 @@ export async function GET({ params, props }: { params: { slug?: string }; props:
   </text>
   <rect x="80" y="100" width="80" height="3" fill="url(#accent)" />
 
-  <rect x="80" y="160" width="220" height="42" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
-  <text x="96" y="187" fill="#38bdf8" font-family="monospace" font-size="16" font-weight="700">
-    ${category.toUpperCase()} • ${cleanDateStr}
+  <rect x="80" y="155" width="${pillWidth}" height="42" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+  <text x="96" y="182" fill="#38bdf8" font-family="monospace" font-size="16" font-weight="700">
+    ${pillText}
   </text>
 
-  <text x="80" y="260" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="44" font-weight="800" letter-spacing="-1">
-    ${cleanTitle}
-  </text>
+  ${titleSvg}
 
-  <g transform="translate(80, 320)">
+  <g transform="translate(80, ${assetBoxY})">
     <rect width="360" height="150" rx="12" fill="#0b1120" stroke="#1e293b" stroke-width="2" />
     <text x="28" y="55" fill="#64748b" font-family="monospace" font-size="16" font-weight="700">LEAD BREAKOUT ASSET</text>
     <text x="28" y="115" fill="#ffffff" font-family="monospace" font-size="52" font-weight="900">$${leadTicker}</text>
