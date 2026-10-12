@@ -1,0 +1,973 @@
+---
+// short-series/src/pages/rvol-screener.astro
+import Layout from '../layouts/Layout.astro';
+import DiagnosticDrawer from '../components/DiagnosticDrawer.astro';
+
+const canonicalURL = new URL('/rvol-screener/', Astro.site ?? 'https://tradeopportunities.trade').href;
+const pageTitle = "Relative Volume (RVOL) Screener & Unusual Trading Volume Scanner | Trade Opportunities";
+const pageDescription = "Live screener tracking US stocks with unusual relative volume (RVOL). Learn the mathematical RVOL formula, time-of-day baselines, and screen high-liquidity breakouts in real time.";
+
+const rvolSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemPage",
+  "name": pageTitle,
+  "url": canonicalURL,
+  "description": pageDescription,
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
+---
+
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  canonicalURL={canonicalURL}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(rvolSchema)} />
+  </Fragment>
+
+  <div class="rvol-page-container">
+    <!-- Header -->
+    <header class="rvol-page-header">
+      <div class="section-tag">UNUSUAL VOLUME SCANNER &bull; RELATIVE LIQUIDITY</div>
+      <h1 class="page-headline">Relative Volume (RVOL) Screener</h1>
+      <p class="page-subheadline">
+        Detect high-conviction institutional accumulation before the retail crowd catches on. Filter the US equity universe by relative volume multiples ($2\times$, $5\times$, $10\times+$) to identify stocks trading with unusual participation.
+      </p>
+    </header>
+
+    <!-- Usable Interactive RVOL Screener Terminal -->
+    <section class="screener-terminal-card card">
+      <div class="terminal-toolbar">
+        <div class="toolbar-left">
+          <!-- Universe Filter -->
+          <div class="category-toggle-group">
+            <button class="cat-pill-btn active" data-category="penny" type="button">Penny Under $5</button>
+            <button class="cat-pill-btn" data-category="smallMid" type="button">Small &amp; Mid Cap</button>
+            <button class="cat-pill-btn" data-category="large" type="button">Large Cap</button>
+          </div>
+
+          <!-- RVOL Filter Thresholds -->
+          <div class="rvol-filter-group">
+            <span class="group-label">Min RVOL:</span>
+            <button class="rvol-pill-btn active" data-min-rvol="1.0" type="button">All (>1x)</button>
+            <button class="rvol-pill-btn" data-min-rvol="2.0" type="button">High (>2x)</button>
+            <button class="rvol-pill-btn" data-min-rvol="5.0" type="button">Surge (>5x)</button>
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <div class="search-input-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="rvol-search-input" placeholder="Filter ticker or sector..." />
+          </div>
+
+          <button id="rvol-refresh-btn" class="refresh-screener-btn" type="button" title="Refresh live scanner data">
+            <svg class="refresh-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6"></path>
+              <path d="M1 20v-6h6"></path>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            <span id="refresh-label">Scan Now</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Terminal Status Bar -->
+      <div class="terminal-status-bar">
+        <div class="status-left">
+          <span class="pulse-indicator"></span>
+          <span id="terminal-status-text">Scanning equity liquidity feeds...</span>
+        </div>
+        <div class="status-right">
+          <span id="results-count-badge">0 candidates matched</span>
+        </div>
+      </div>
+
+      <!-- Live RVOL Table -->
+      <div class="table-responsive-wrapper">
+        <table class="rvol-table" id="rvol-table">
+          <thead>
+            <tr>
+              <th class="th-sortable" data-sort="ticker">Asset</th>
+              <th class="th-sortable" data-sort="price">Price</th>
+              <th class="th-sortable" data-sort="changePercent">Delta (%)</th>
+              <th class="th-sortable th-rvol" data-sort="relativeVolume">RVOL Multiple &#x25BC;</th>
+              <th class="th-sortable th-hide-mobile" data-sort="volume">Session Volume</th>
+              <th class="th-hide-mobile">Sector</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="rvol-table-body">
+            <tr>
+              <td colspan="7" class="loading-cell">Loading real-time market telemetry...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Deep-Dive Educational Guide on Relative Volume -->
+    <article class="rvol-educational-guide">
+      <header class="guide-header">
+        <div class="section-tag">MATHEMATICAL FOUNDATION &bull; PRACTITIONER GUIDE</div>
+        <h2 class="guide-title">How Relative Volume (RVOL) Works: Calculation, Formulas &amp; Strategy</h2>
+        <p class="guide-lead">
+          Absolute volume alone is deceptive. 10 million shares traded in Apple ($AAPL) represents a quiet, below-average morning. In contrast, 10 million shares traded in a micro-cap stock with a 5-million-share float represents 200% float turnover—an explosive event. Relative Volume solves this by standardizing volume across individual asset characteristics.
+        </p>
+      </header>
+
+      <div class="guide-content-grid">
+        <!-- Section 1: The Formula -->
+        <div class="guide-block card">
+          <h3 class="block-heading">1. The Mathematical RVOL Formula</h3>
+          <p class="block-text">
+            True Relative Volume is calculated by dividing current cumulative volume at the specific time of day by the average volume accumulated at that exact time over a rolling historical baseline (typically 10 to 30 trading sessions):
+          </p>
+          <div class="formula-box">
+            <code>RVOL(t) = Cumulative Volume(t) &divide; Average Cumulative Volume[t, 20-Day Baseline]</code>
+          </div>
+          <p class="block-text">
+            For example, if ticker <strong>$XYZ</strong> typically trades 150,000 shares between 9:30 AM and 10:15 AM, but today prints 900,000 shares by 10:15 AM, its RVOL is:
+          </p>
+          <div class="formula-calc">
+            <code>900,000 / 150,000 = 6.0x RVOL (Extreme Volume Surge)</code>
+          </div>
+        </div>
+
+        <!-- Section 2: Time of Day Profiling -->
+        <div class="guide-block card">
+          <h3 class="block-heading">2. The Intraday "U-Shaped" Volume Profile</h3>
+          <p class="block-text">
+            Market liquidity is not uniformly distributed throughout the 6.5 hours of US market open (9:30 AM – 4:00 PM ET). Institutional volume follows a predictable <strong>U-shaped curve</strong>:
+          </p>
+          <ul class="styled-list">
+            <li><strong>Opening Rush (9:30 – 10:30 AM ET):</strong> Accounts for 30% to 45% of total daily volume as overnight orders, earnings releases, and morning news catalysts are digested.</li>
+            <li><strong>Midday Chop (11:30 AM – 1:30 PM ET):</strong> Volume contracts sharply. Spreads widen, algorithms take over, and false breakouts frequently trap impatient traders.</li>
+            <li><strong>Power Hour (3:00 – 4:00 PM ET):</strong> Massive index rebalancing, closing cross auctions, and institutional block routing cause liquidity to surge into the closing bell.</li>
+          </ul>
+          <p class="block-text">
+            A naive daily volume comparison fails because an opening gap would look "below average" compared to a full 6.5-hour day. Time-of-day profiling ensures accuracy from minute one.
+          </p>
+        </div>
+
+        <!-- Section 3: Interpreting RVOL Tiers -->
+        <div class="guide-block card">
+          <h3 class="block-heading">3. The RVOL Trader's Benchmark Matrix</h3>
+          <div class="tier-matrix">
+            <div class="tier-row">
+              <span class="tier-badge low">&lt; 1.0x</span>
+              <div class="tier-info">
+                <strong>Sub-Par / Illiquid Chop:</strong> Below normal interest. High slippage, fragile order books, and lack of follow-through. Avoid breakout trades.
+              </div>
+            </div>
+            <div class="tier-row">
+              <span class="tier-badge normal">1.0x – 2.0x</span>
+              <div class="tier-info">
+                <strong>Standard Session Participation:</strong> Baseline activity. Acceptable for range-bound mean reversion or established trend continuations.
+              </div>
+            </div>
+            <div class="tier-row">
+              <span class="tier-badge high">2.0x – 4.9x</span>
+              <div class="tier-info">
+                <strong>Institutional Confirmation:</strong> Significant accumulation or distribution underway. High probability setups when aligned with technical levels.
+              </div>
+            </div>
+            <div class="tier-row">
+              <span class="tier-badge surge">&ge; 5.0x</span>
+              <div class="tier-info">
+                <strong>Explosive Volume Surge / Float Turnover:</strong> Major news catalyst, short squeeze, or binary corporate event. Primary hunting ground for momentum day traders.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Dilution Risk Connection -->
+        <div class="guide-block card">
+          <h3 class="block-heading">4. Crucial Warning: High RVOL Without a Catalyst</h3>
+          <p class="block-text">
+            When a stock prints <strong>5x to 10x RVOL</strong> on no news or vague PR fluff, caution is essential. Often, management uses early morning spike liquidity to execute an <strong>At-The-Market (ATM) secondary offering</strong> or dump shares via <strong>Form S-3 shelf registrations</strong>.
+          </p>
+          <p class="block-text">
+            Before entering an unusual volume runner, always check the company's SEC filings for active dilution facilities:
+          </p>
+          <div class="guide-cta-row">
+            <a href="/dilution-risk" class="cta-link-btn">
+              Explore Stock Dilution &amp; SEC Risk Playbook &rarr;
+            </a>
+            <a href="/calendar" class="cta-link-btn secondary">
+              Cross-Reference with Catalyst Calendar &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <DiagnosticDrawer />
+</Layout>
+
+<style>
+  .rvol-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem 1.25rem;
+  }
+
+  .rvol-page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .section-tag {
+    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--brand-accent);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .page-headline {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+
+  .page-subheadline {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 820px;
+  }
+
+  /* Screener Terminal Card */
+  .screener-terminal-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 3.5rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .terminal-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .category-toggle-group, .rvol-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .group-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .cat-pill-btn, .rvol-pill-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 0.4rem 0.7rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .cat-pill-btn:hover, .rvol-pill-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .cat-pill-btn.active, .rvol-pill-btn.active {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: var(--brand-accent);
+    color: var(--brand-accent);
+  }
+
+  .search-input-wrap {
+    position: relative;
+  }
+
+  .search-input-wrap input {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 0.45rem 0.65rem 0.45rem 2rem;
+    color: var(--text-primary);
+    font-size: 0.78125rem;
+    outline: none;
+    width: 170px;
+    transition: width 0.2s ease, border-color 0.15s ease;
+  }
+
+  .search-input-wrap input:focus {
+    width: 210px;
+    border-color: var(--brand-accent);
+  }
+
+  .search-input-wrap .search-icon {
+    position: absolute;
+    left: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .refresh-screener-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .refresh-screener-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--brand-accent);
+  }
+
+  .refresh-screener-btn.spinning .refresh-icon {
+    animation: rvolSpin 0.8s linear infinite;
+  }
+
+  @keyframes rvolSpin {
+    100% { transform: rotate(360deg); }
+  }
+
+  .terminal-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.65rem;
+    margin-bottom: 0.85rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .pulse-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+  }
+
+  /* Table styling */
+  .table-responsive-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .rvol-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    text-align: left;
+  }
+
+  .rvol-table th {
+    background: var(--bg-surface-elevated);
+    color: var(--text-muted);
+    font-size: 0.725rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .th-sortable {
+    cursor: pointer;
+  }
+
+  .th-sortable:hover {
+    color: var(--brand-accent);
+  }
+
+  .rvol-table td {
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .rvol-table tbody tr:hover {
+    background: var(--bg-surface-elevated);
+  }
+
+  .table-symbol-cell {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .table-symbol-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 800;
+    transition: color 0.15s;
+  }
+
+  .table-symbol-link:hover {
+    color: var(--brand-accent);
+  }
+
+  .stock-name-sub {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    display: block;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: normal;
+  }
+
+  .table-price {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .table-gain {
+    font-family: var(--font-mono);
+    color: var(--gain-color, #10b981);
+    font-weight: 700;
+  }
+
+  .table-loss {
+    font-family: var(--font-mono);
+    color: var(--loss-color, #ef4444);
+    font-weight: 700;
+  }
+
+  /* RVOL Badges */
+  .rvol-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .rvol-badge.surge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+
+  .rvol-badge.elevated {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--brand-accent);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .rvol-badge.normal {
+    background: var(--bg-surface-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .table-vol-cell {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+  }
+
+  .action-btns-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .action-mini-btn {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.15s ease;
+  }
+
+  .action-mini-btn.why-btn {
+    color: var(--brand-accent);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    cursor: pointer;
+  }
+
+  .action-mini-btn.why-btn:hover {
+    background: var(--brand-accent);
+    color: #ffffff;
+  }
+
+  .action-mini-btn.chart-link {
+    color: var(--text-muted);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .action-mini-btn.chart-link:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .loading-cell, .empty-cell {
+    text-align: center;
+    padding: 2.5rem 1rem !important;
+    color: var(--text-muted);
+  }
+
+  /* Educational Guide Styling */
+  .rvol-educational-guide {
+    margin-top: 2rem;
+  }
+
+  .guide-header {
+    margin-bottom: 2rem;
+  }
+
+  .guide-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .guide-lead {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    max-width: 900px;
+  }
+
+  .guide-content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .guide-block {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.6rem;
+  }
+
+  .block-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.85rem;
+  }
+
+  .block-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .formula-box, .formula-calc {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--brand-accent);
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+
+  .formula-box code, .formula-calc code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--brand-accent);
+  }
+
+  .styled-list {
+    margin: 0 0 1rem 1.25rem;
+    padding: 0;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .styled-list li {
+    margin-bottom: 0.6rem;
+  }
+
+  .styled-list strong {
+    color: var(--text-primary);
+  }
+
+  /* Benchmark Matrix */
+  .tier-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .tier-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.75rem 0.95rem;
+  }
+
+  .tier-badge {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    min-width: 68px;
+    text-align: center;
+  }
+
+  .tier-badge.low { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+  .tier-badge.normal { background: rgba(59, 130, 246, 0.12); color: var(--brand-accent); }
+  .tier-badge.high { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+  .tier-badge.surge { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+
+  .tier-info {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  .tier-info strong {
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .guide-cta-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+
+  .cta-link-btn {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    background: var(--brand-accent);
+    color: #ffffff;
+    transition: all 0.15s ease;
+  }
+
+  .cta-link-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .cta-link-btn.secondary {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+  }
+
+  .cta-link-btn.secondary:hover {
+    border-color: var(--brand-accent);
+    color: var(--brand-accent);
+  }
+
+  /* Mobile rules: prevent horizontal column overload */
+  @media (max-width: 768px) {
+    .rvol-page-container {
+      padding: 1.5rem 1rem 3rem 1rem;
+    }
+    .th-hide-mobile {
+      display: none !important;
+    }
+    .td-hide-mobile {
+      display: none !important;
+    }
+    .guide-content-grid {
+      grid-template-columns: 1fr;
+    }
+    .terminal-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .toolbar-left, .toolbar-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .search-input-wrap {
+      flex: 1;
+    }
+    .search-input-wrap input {
+      width: 100% !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .rvol-table {
+      font-size: 0.75rem;
+    }
+    .rvol-table th, .rvol-table td {
+      padding: 0.5rem 0.4rem;
+    }
+    .action-mini-btn span {
+      display: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function initRvolScreener() {
+    let currentCategory = 'penny';
+    let minRvolThreshold = 1.0;
+    let searchQuery = '';
+    let sortColumn = 'relativeVolume';
+    let sortDirection = 'desc';
+    let isFetching = false;
+    let stockData = [];
+
+    const categoryBtns = document.querySelectorAll('.cat-pill-btn');
+    const rvolBtns = document.querySelectorAll('.rvol-pill-btn');
+    const searchInput = document.getElementById('rvol-search-input');
+    const refreshBtn = document.getElementById('rvol-refresh-btn');
+    const refreshLabel = document.getElementById('refresh-label');
+    const statusText = document.getElementById('terminal-status-text');
+    const countBadge = document.getElementById('results-count-badge');
+    const tableBody = document.getElementById('rvol-table-body');
+    const sortHeaders = document.querySelectorAll('.th-sortable');
+
+    function formatCompact(num) {
+      if (!num || isNaN(num)) return '0';
+      if (Math.abs(num) >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+      if (Math.abs(num) >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+      if (Math.abs(num) >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+      return String(num);
+    }
+
+    function sanitize(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
+    }
+
+    async function fetchScreenerData() {
+      if (isFetching) return;
+      isFetching = true;
+      refreshBtn?.classList.add('spinning');
+      if (refreshLabel) refreshLabel.textContent = 'Scanning...';
+      if (statusText) statusText.textContent = `Streaming ${currentCategory} volume telemetry...`;
+
+      try {
+        const res = await fetch(`/api/screener?category=${currentCategory}`, { cache: 'no-cache' });
+        if (!res.ok) throw new Error('Status ' + res.status);
+        const json = await res.json();
+
+        stockData = json.data || [];
+        if (statusText) statusText.textContent = `Live session synced at ${new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York' })} ET`;
+        renderTable();
+      } catch (err) {
+        console.warn('RVOL screener fetch error:', err);
+        if (statusText) statusText.textContent = 'Sync issue: unable to refresh upstream scanner.';
+        if (tableBody) tableBody.innerHTML = '<tr><td colspan="7" class="empty-cell">Failed to stream screener feed. Please retry.</td></tr>';
+      } finally {
+        isFetching = false;
+        refreshBtn?.classList.remove('spinning');
+        if (refreshLabel) refreshLabel.textContent = 'Scan Now';
+      }
+    }
+
+    function renderTable() {
+      if (!tableBody) return;
+
+      const q = searchQuery.toLowerCase().trim();
+      let filtered = stockData.filter(stock => {
+        const rvol = typeof stock.relativeVolume === 'number' ? stock.relativeVolume : parseFloat(stock.relativeVolume) || 1.0;
+        if (rvol < minRvolThreshold) return false;
+
+        if (q) {
+          const matchTicker = stock.ticker.toLowerCase().includes(q);
+          const matchName = stock.name ? stock.name.toLowerCase().includes(q) : false;
+          const matchSector = stock.sector ? stock.sector.toLowerCase().includes(q) : false;
+          if (!matchTicker && !matchName && !matchSector) return false;
+        }
+
+        return true;
+      });
+
+      // Sorting
+      filtered.sort((a, b) => {
+        let valA = a[sortColumn];
+        let valB = b[sortColumn];
+
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      if (countBadge) {
+        countBadge.textContent = `${filtered.length} candidates matched`;
+      }
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-cell">
+              No stocks found with RVOL &ge; ${minRvolThreshold}x matching "${sanitize(searchQuery)}".
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const rowsHtml = filtered.map(item => {
+        const rvol = typeof item.relativeVolume === 'number' ? item.relativeVolume : parseFloat(item.relativeVolume) || 1.0;
+        const change = typeof item.changePercent === 'number' ? item.changePercent : parseFloat(item.changePercent) || 0;
+        const price = typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0;
+        const isPos = change >= 0;
+
+        let badgeClass = 'normal';
+        if (rvol >= 5.0) badgeClass = 'surge';
+        else if (rvol >= 2.0) badgeClass = 'elevated';
+
+        return `
+          <tr>
+            <td class="table-symbol-cell">
+              <a href="/ticker/${encodeURIComponent(item.ticker.toLowerCase())}/" class="table-symbol-link" title="Open ${sanitize(item.ticker)} breakout hub">
+                $${sanitize(item.ticker)}
+              </a>
+              <span class="stock-name-sub">${sanitize(item.name || item.ticker)}</span>
+            </td>
+            <td class="table-price">$${price.toFixed(2)}</td>
+            <td class="${isPos ? 'table-gain' : 'table-loss'}">
+              ${isPos ? '+' : ''}${change.toFixed(2)}%
+            </td>
+            <td>
+              <span class="rvol-badge ${badgeClass}">${rvol.toFixed(2)}x</span>
+            </td>
+            <td class="table-vol-cell th-hide-mobile td-hide-mobile">${formatCompact(item.volume)}</td>
+            <td class="th-hide-mobile td-hide-mobile" style="font-size: 0.75rem; color: var(--text-muted);">${sanitize(item.sector || 'Equities')}</td>
+            <td>
+              <div class="action-btns-cell">
+                <button type="button" class="action-mini-btn why-btn" data-open-diagnostic="${sanitize(item.ticker)}" title="Run 5-layer diagnostic on ${sanitize(item.ticker)}">
+                  <span>Why?</span> &rarr;
+                </button>
+                <a href="https://www.tradingview.com/symbols/${encodeURIComponent(item.ticker)}/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="action-mini-btn chart-link" title="Inspect Volume Profile on TradingView">
+                  TV &nearr;
+                </a>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tableBody.innerHTML = rowsHtml;
+    }
+
+    // Category Buttons
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        categoryBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.getAttribute('data-category') || 'penny';
+        fetchScreenerData();
+      });
+    });
+
+    // RVOL Threshold Buttons
+    rvolBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        rvolBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        minRvolThreshold = parseFloat(btn.getAttribute('data-min-rvol') || '1.0');
+        renderTable();
+      });
+    });
+
+    // Search
+    searchInput?.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderTable();
+    });
+
+    // Refresh
+    refreshBtn?.addEventListener('click', fetchScreenerData);
+
+    // Sorting
+    sortHeaders.forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.getAttribute('data-sort');
+        if (!col) return;
+
+        if (sortColumn === col) {
+          sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortColumn = col;
+          sortDirection = (col === 'ticker') ? 'asc' : 'desc';
+        }
+        renderTable();
+      });
+    });
+
+    // Initial Load
+    fetchScreenerData();
+  })();
+</script>

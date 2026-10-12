@@ -45,6 +45,7 @@ export async function GET(context) {
       media: 'http://search.yahoo.com/mrss/',
       atom: 'http://www.w3.org/2005/Atom',
     },
+    stylesheet: '/rss-style.xsl',
     items,
     customData: `<language>en-us</language>`,
   });

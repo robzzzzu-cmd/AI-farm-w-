@@ -1,0 +1,703 @@
+---
+// short-series/src/pages/dilution-risk.astro
+import Layout from '../layouts/Layout.astro';
+
+const canonicalURL = new URL('/dilution-risk/', Astro.site ?? 'https://tradeopportunities.trade').href;
+const pageTitle = "Stock Dilution & Offering Risk Research | SEC Filings Guide | Trade Opportunities";
+const pageDescription = "Learn how Form S-3 shelf registrations, 424B5 ATM offerings, warrants overhang, and reverse stock splits ruin momentum setups. Complete guide to SEC EDGAR dilution analysis.";
+
+const dilutionSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Stock Dilution, Shelf Registrations & Offering Risk: The Practitioner's Guide",
+  "url": canonicalURL,
+  "description": pageDescription,
+  "author": {
+    "@type": "Organization",
+    "name": "Trade Opportunities Quantitative Research"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
+---
+
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  canonicalURL={canonicalURL}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(dilutionSchema)} />
+  </Fragment>
+
+  <div class="dilution-page-container">
+    <!-- Header -->
+    <header class="dilution-page-header">
+      <div class="section-tag">RISK METHODOLOGY &bull; SEC EDGAR RESEARCH</div>
+      <h1 class="page-headline">Stock Dilution &amp; Capital Structure Risk</h1>
+      <p class="page-subheadline">
+        An apparently strong momentum breakout can collapse from +80% to red within minutes if management executes a secondary offering into the bid. Here is the practitioner’s guide to identifying Form S-3 shelf registrations, 424B5 ATM dumps, warrant overhang, and reverse split death spirals.
+      </p>
+    </header>
+
+    <!-- Quick Navigation Hub -->
+    <div class="quick-nav-bar card">
+      <span class="quick-nav-label">JUMP TO SECTION:</span>
+      <div class="quick-nav-links">
+        <a href="#shelf-registrations" class="nav-pill">1. Form S-3 Shelves</a>
+        <a href="#atm-offerings" class="nav-pill">2. 424B5 ATM Offerings</a>
+        <a href="#warrants-overhang" class="nav-pill">3. Warrants &amp; Debt</a>
+        <a href="#reverse-splits" class="nav-pill">4. Reverse Split Spirals</a>
+        <a href="#edgar-checklist" class="nav-pill">5. 60-Second EDGAR Checklist</a>
+      </div>
+    </div>
+
+    <!-- Core Content Container -->
+    <article class="dilution-article">
+      <!-- Section 1: Form S-3 & F-3 Shelf Registrations -->
+      <section id="shelf-registrations" class="content-section card">
+        <div class="section-badge">CRITICAL MECHANISM</div>
+        <h2 class="section-title">1. Form S-3 &amp; Form F-3 Shelf Registrations (Rule 415)</h2>
+        <p class="section-intro">
+          Under SEC Rule 415, a <strong>shelf registration statement</strong> allows a public company to register a predetermined dollar amount of new securities (common stock, preferred stock, warrants, or debt) in advance without issuing them immediately. The securities sit "on the shelf" ready to be sold at any time.
+        </p>
+
+        <div class="comparison-grid">
+          <div class="detail-box">
+            <h3 class="detail-heading">Registration Stages to Monitor:</h3>
+            <ul class="filing-list">
+              <li>
+                <strong>Form S-3 / F-3 (Initial Filing):</strong> The company files its intent to register securities. <em>Not yet effective.</em> Management cannot sell common shares until the SEC approves or declares it effective.
+              </li>
+              <li>
+                <strong>Form S-3/A (Pre-Effective Amendment):</strong> Amendments addressing SEC accounting or legal comments.
+              </li>
+              <li>
+                <strong>Notice of Effectiveness (EFFECT):</strong> The formal SEC acceleration order. Once EFFECT is stamped, <strong>dilution risk is live and immediate</strong>.
+              </li>
+            </ul>
+          </div>
+
+          <div class="detail-box alert-box">
+            <h3 class="detail-heading">The "Baby Shelf" Rule (Instruction I.B.6)</h3>
+            <p>
+              If a company's public float is less than <strong>$75,000,000</strong>, it is classified as a "baby shelf" filer. Under SEC Instruction I.B.6 of Form S-3:
+            </p>
+            <div class="callout-formula">
+              <code>Max Secondary Sales &le; 33.3% (One-Third) of Non-Affiliate Public Float in Any 12 Months</code>
+            </div>
+            <p>
+              When a micro-cap stock surges 300% on a morning gap, its market capitalization often temporarily exceeds the $75M threshold, freeing the company from baby shelf restrictions and unlocking unlimited share issuance!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: 424B5 Prospectus Supplements & ATM Offerings -->
+      <section id="atm-offerings" class="content-section card">
+        <div class="section-badge">THE INTRADAY AMBUSH</div>
+        <h2 class="section-title">2. At-The-Market (ATM) Offerings &amp; Prospectus Supplement 424B5</h2>
+        <p class="section-intro">
+          An <strong>At-The-Market (ATM) offering</strong> is the single most common reason why an intraday momentum runner suddenly stalls at resistance and rolls over into a severe multi-hour selloff.
+        </p>
+
+        <div class="mechanic-breakdown">
+          <h3 class="detail-heading">How Investment Banks Dump Into Retail Bids:</h3>
+          <p>
+            Rather than conducting a traditional underwritten overnight secondary offering at a fixed discount, the company enters into an equity distribution agreement with an investment bank (e.g., <em>Maxim Group, H.C. Wainwright, Aegis Capital, ThinkEquity</em>).
+          </p>
+          <div class="step-progression">
+            <div class="step-card">
+              <span class="step-number">STEP 01</span>
+              <h4>Morning PR Gap</h4>
+              <p>Company issues an eye-catching press release (e.g. AI partnership, patent grant, or clinical trial update). Retail and algorithm order flow bids the stock up +80%.</p>
+            </div>
+            <div class="step-card">
+              <span class="step-number">STEP 02</span>
+              <h4>ATM Tap Turned On</h4>
+              <p>The sales agent begins executing ATM orders, issuing brand new common shares straight into the Level 2 bids at prevailing market prices.</p>
+            </div>
+            <div class="step-card">
+              <span class="step-number">STEP 03</span>
+              <h4>Liquidity Absorption</h4>
+              <p>Traders wonder why the stock cannot break above VWAP despite 50M volume. The answer: the agent is supplying endless shares, absorbing all buying power.</p>
+            </div>
+            <div class="step-card">
+              <span class="step-number">STEP 04</span>
+              <h4>Cascading Liquidation</h4>
+              <p>Once buyers exhaust their capital, the artificial support vanishes. The stock crashes back toward pre-market levels, trapping late buyers.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="filing-callout">
+          <strong>SEC EDGAR Filing Code to Watch:</strong>
+          <span>Form 424B5 (Prospectus Supplement filed pursuant to Rule 424(b)(5)). Always search the 424B5 filing text for terms like <em>"At-the-Market Offering"</em>, <em>"Sales Agreement"</em>, or <em>"Aggregate Offering Price"</em>.</span>
+        </div>
+      </section>
+
+      <!-- Section 3: Warrants, Convertible Notes & Overhang -->
+      <section id="warrants-overhang" class="content-section card">
+        <div class="section-badge">HIDDEN FLOAT EXPANSION</div>
+        <h2 class="section-title">3. Warrant Overhang, Series A/B Warrants &amp; Toxic Convertibles</h2>
+        <p class="section-intro">
+          Many distressed micro-caps fund operations by issuing debt paired with sweeteners called <strong>warrants</strong>. Even if the reported free float appears tiny (e.g., 2 million shares), millions of unexercised warrants may be lurking behind the scenes.
+        </p>
+
+        <div class="detail-grid">
+          <div class="detail-box">
+            <h3 class="detail-heading">The Cashless Exercise Danger</h3>
+            <p>
+              Institutional lenders negotiate <em>cashless exercise</em> provisions under Rule 144. If the market price rallies above the exercise price, the warrant holder can convert without paying cash, receive newly minted unrestricted common shares within hours, and sell them instantly via electronic clearing (DTC).
+            </p>
+          </div>
+          <div class="detail-box">
+            <h3 class="detail-heading">Full Ratchet &amp; Price Reset Clauses</h3>
+            <p>
+              "Death spiral" preferred stock contains anti-dilution ratchet clauses. If the company subsequently raises capital at a lower share price, the conversion price of existing warrants automatically resets lower, multiplying the number of shares that can be dumped onto the market.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Reverse Stock Split Spirals -->
+      <section id="reverse-splits" class="content-section card">
+        <div class="section-badge">DEATH SPIRAL PATTERN</div>
+        <h2 class="section-title">4. The Reverse Stock Split Dilution Cycle</h2>
+        <p class="section-intro">
+          When a stock trades below $1.00 for 30 consecutive business days, NASDAQ issues a deficiency notice under Listing Rule 5550(a)(2). To prevent delisting to OTC, management proposes a <strong>reverse stock split</strong> (e.g., 1-for-10, 1-for-20, or 1-for-50).
+        </p>
+
+        <div class="cycle-timeline card">
+          <div class="cycle-stage">
+            <span class="cycle-badge">PHASE 1</span>
+            <h4>Reverse Split Executed</h4>
+            <p>A 1-for-20 split turns 20 million shares at $0.20 into 1 million shares at $4.00. The float is temporarily microscopic.</p>
+          </div>
+          <div class="cycle-arrow">&rarr;</div>
+          <div class="cycle-stage">
+            <span class="cycle-badge">PHASE 2</span>
+            <h4>Artificial Low-Float Spike</h4>
+            <p>Momentum traders jump in because the tiny float moves violently on minimal volume. The stock spikes from $4 to $9 on high relative volume.</p>
+          </div>
+          <div class="cycle-arrow">&rarr;</div>
+          <div class="cycle-stage">
+            <span class="cycle-badge">PHASE 3</span>
+            <h4>Offering / Dilution Dump</h4>
+            <p>Management exploits the high share price to file a new S-1/S-3 offering or trigger their ATM, raising $10M and multiplying the share count.</p>
+          </div>
+          <div class="cycle-arrow">&rarr;</div>
+          <div class="cycle-stage">
+            <span class="cycle-badge">PHASE 4</span>
+            <h4>Collapse &amp; Repeat</h4>
+            <p>The share price tumbles back below $1.00 within 6 months, repeating the cycle until shareholders are wiped out.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: The 60-Second EDGAR Checklist -->
+      <section id="edgar-checklist" class="content-section card">
+        <div class="section-badge">PRACTITIONER PLAYBOOK</div>
+        <h2 class="section-title">5. The 60-Second SEC EDGAR Dilution Checklist</h2>
+        <p class="section-intro">
+          Before taking size on a high-momentum runner, perform this rapid diagnostic on the official SEC EDGAR database:
+        </p>
+
+        <div class="checklist-container">
+          <div class="checklist-item">
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <h4>Step 1: Check Form 8-K (Item 3.02 &amp; Item 1.01)</h4>
+              <p>Search recent 8-K filings for "Unregistered Sales of Equity Securities" or "Entry into a Material Definitive Agreement". If the company signed a securities purchase agreement within the last 30 days, dilution is actively clearing.</p>
+            </div>
+          </div>
+
+          <div class="checklist-item">
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <h4>Step 2: Inspect Form 424B5 for Active ATM Facilities</h4>
+              <p>Check if a 424B5 prospectus supplement is active. Look for the maximum dollar ceiling remaining on the offering facility.</p>
+            </div>
+          </div>
+
+          <div class="checklist-item">
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <h4>Step 3: Calculate Cash Runway in Latest 10-Q / 10-K</h4>
+              <p>Locate the Balance Sheet: take <strong>Cash and Cash Equivalents</strong> and divide by the quarterly <strong>Net Operating Cash Outflow</strong> from the Statement of Cash Flows. If cash runway is under 3 to 6 months, a capital raise is mathematically mandatory.</p>
+            </div>
+          </div>
+
+          <div class="checklist-item">
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <h4>Step 4: Check Outstanding Share Count vs. Authorized Shares</h4>
+              <p>In the Cover Page of the latest 10-Q, check "Shares of common stock outstanding as of [Date]". Compare with the corporate charter's "Authorized Shares". If millions of authorized shares remain unissued, management has the legal room to dilute without needing a shareholder vote.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Quick Links -->
+      <section class="research-tools-footer">
+        <h3 class="footer-promo-title">Connect Dilution Research With Live Market Feeds</h3>
+        <p class="footer-promo-desc">
+          Combine SEC dilution risk analysis with real-time volume surge scans and scheduled catalyst tracking:
+        </p>
+        <div class="footer-links-grid">
+          <a href="/rvol-screener" class="hub-link-card">
+            <span class="link-tag">VOLUME ANALYSIS</span>
+            <h4>Relative Volume (RVOL) Screener</h4>
+            <p>Scan stocks printing 2x to 10x volume multiples in real time &rarr;</p>
+          </a>
+          <a href="/calendar" class="hub-link-card">
+            <span class="link-tag">EVENT HORIZON</span>
+            <h4>Earnings &amp; Catalyst Calendar</h4>
+            <p>Search corporate earnings, FDA approvals, and SEC announcements &rarr;</p>
+          </a>
+          <a href="/screener" class="hub-link-card">
+            <span class="link-tag">LIVE EXECUTION</span>
+            <h4>Breakout Screener &amp; Diagnostic</h4>
+            <p>Run 5-layer diagnostic attribution on any US equity ticker &rarr;</p>
+          </a>
+        </div>
+      </section>
+    </article>
+  </div>
+</Layout>
+
+<style>
+  .dilution-page-container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem 1.25rem;
+  }
+
+  .dilution-page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .section-tag {
+    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--brand-accent);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .page-headline {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+
+  .page-subheadline {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 860px;
+  }
+
+  /* Quick Nav */
+  .quick-nav-bar {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 2.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: var(--card-shadow);
+  }
+
+  .quick-nav-label {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .quick-nav-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .nav-pill {
+    font-size: 0.78125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.35rem 0.7rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .nav-pill:hover {
+    color: var(--brand-accent);
+    border-color: var(--brand-accent);
+  }
+
+  /* Sections */
+  .dilution-article {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .content-section {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .section-badge {
+    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  .section-intro {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+  }
+
+  .comparison-grid, .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .detail-box {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1.4rem;
+  }
+
+  .detail-box.alert-box {
+    border-color: rgba(234, 179, 8, 0.3);
+    background: linear-gradient(180deg, rgba(234, 179, 8, 0.03) 0%, var(--bg-surface-elevated) 100%);
+  }
+
+  .detail-heading {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.85rem;
+  }
+
+  .detail-box p {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .filing-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .filing-list li {
+    padding-left: 1.2rem;
+    position: relative;
+    margin-bottom: 0.75rem;
+  }
+
+  .filing-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--brand-accent);
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .callout-formula {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid #eab308;
+    padding: 0.65rem 0.85rem;
+    border-radius: 4px;
+    margin: 0.85rem 0;
+  }
+
+  .callout-formula code {
+    font-family: var(--font-mono);
+    font-size: 0.78125rem;
+    color: #eab308;
+  }
+
+  /* Step progression for ATM */
+  .step-progression {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .step-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1.15rem;
+  }
+
+  .step-number {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    color: var(--brand-accent);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  .step-card h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.45rem;
+  }
+
+  .step-card p {
+    font-size: 0.78125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .filing-callout {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--brand-accent);
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    margin-top: 1.5rem;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  .filing-callout strong {
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Cycle timeline */
+  .cycle-timeline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .cycle-stage {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .cycle-badge {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    color: #ef4444;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .cycle-stage h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+  }
+
+  .cycle-stage p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .cycle-arrow {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  /* Checklist */
+  .checklist-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .checklist-item {
+    display: flex;
+    gap: 1rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1.15rem 1.35rem;
+    align-items: flex-start;
+  }
+
+  .check-icon {
+    width: 28px;
+    height: 28px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .check-content h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+  }
+
+  .check-content p {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* Footer quick tools */
+  .research-tools-footer {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .footer-promo-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-promo-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .hub-link-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1.25rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .hub-link-card:hover {
+    border-color: var(--brand-accent);
+    transform: translateY(-2px);
+  }
+
+  .link-tag {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--brand-accent);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .hub-link-card h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+  }
+
+  .hub-link-card p {
+    font-size: 0.78125rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .dilution-page-container {
+      padding: 1.5rem 1rem 3rem 1rem;
+    }
+    .content-section {
+      padding: 1.25rem;
+    }
+    .cycle-arrow {
+      display: none;
+    }
+    .cycle-timeline {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>

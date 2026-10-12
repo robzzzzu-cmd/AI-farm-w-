@@ -1234,19 +1234,33 @@ const websiteSchema = {
       .table-loss { color: var(--loss-color); font-weight: 600; font-family: var(--font-mono); }
       .table-vol { font-family: var(--font-mono); color: var(--text-secondary); }
 
-      /* Section 03 Tools Split Layout */
-      .tools-split-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-        gap: 1.5rem;
-        align-items: stretch;
+      @media (max-width: 640px) {
+        .data-table {
+          min-width: 100%;
+          font-size: 0.78125rem;
+        }
+        .data-table th, .data-table td {
+          padding: 0.55rem 0.5rem;
+        }
+        .th-hide-mobile, .td-hide-mobile {
+          display: none !important;
+        }
+        .compact-table th:nth-child(4),
+        .compact-table td:nth-child(4) {
+          display: none !important;
+        }
+      }
+
+      /* Sector Performance Container */
+      .sector-performance-container {
+        width: 100%;
       }
 
       .sector-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 6px;
-        padding: 1.15rem;
+        border-radius: 8px;
+        padding: 1.25rem 1.4rem;
         box-shadow: var(--card-shadow);
         box-sizing: border-box;
         display: flex;
@@ -1274,10 +1288,10 @@ const websiteSchema = {
         font-family: var(--font-mono);
       }
       .sector-table {
-        display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
-        margin: 0.4rem 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 0.75rem 1.5rem;
+        margin: 0.5rem 0;
       }
       .sector-row {
         display: grid;
@@ -1523,7 +1537,7 @@ const websiteSchema = {
       </div>
 
       <div class="sidebar-body">
-        <div class="sidebar-group-label">WORKSPACE HUBS</div>
+        <div class="sidebar-group-label">Navigation</div>
         <nav class="sidebar-nav">
           <a href="#top" class="sidebar-nav-item active">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
@@ -1537,21 +1551,25 @@ const websiteSchema = {
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             <span>Live Screener</span>
           </a>
+          <a href="/rvol-screener" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>RVOL Screener</span>
+          </a>
           <a href="#opportunities" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-            <span>Opportunities</span>
+            <span>Monitored Breakouts</span>
           </a>
-          <a href="#tools" class="sidebar-nav-item">
+          <a href="/calendar" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Earnings &amp; Catalyst Calendar</span>
+          </a>
+          <a href="/dilution-risk" class="sidebar-nav-item">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span>Stock Dilution &amp; Risk</span>
+          </a>
+          <a href="/tools" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <span>Tools</span>
-          </a>
-          <a href="#catalyst-wire" class="sidebar-nav-item">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
-            <span>Catalysts &amp; Calendar</span>
-          </a>
-          <a href="#platforms" class="sidebar-nav-item">
-            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <span>Platforms</span>
+            <span>Trading Tools &amp; Swaps</span>
           </a>
           <a href="/track-record" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
@@ -1596,10 +1614,11 @@ const websiteSchema = {
           <ul class="nav-links">
             <li><a href="#news-feed" class="active">News Feed</a></li>
             <li><a href="/screener">Live Screener</a></li>
-            <li><a href="#opportunities">Opportunities</a></li>
-            <li><a href="#tools">Tools</a></li>
-            <li><a href="#catalyst-wire">Catalysts</a></li>
-            <li><a href="#platforms">Platforms</a></li>
+            <li><a href="/rvol-screener">RVOL Scanner</a></li>
+            <li><a href="#opportunities">Breakouts</a></li>
+            <li><a href="/calendar">Calendar</a></li>
+            <li><a href="/dilution-risk">Dilution Risk</a></li>
+            <li><a href="/tools">Tools</a></li>
             <li><a href="/track-record">Track Record</a></li>
           </ul>
         </div>
@@ -1722,28 +1741,28 @@ const websiteSchema = {
         <!-- The 3-Pillar Operational Architecture -->
         <div class="hero-pillars-grid">
           <div class="hero-pillar-card">
-            <span class="pillar-tag">01 // FIND &bull; DISCOVERY</span>
+            <span class="pillar-tag">Discovery</span>
             <div class="pillar-title">Algorithmic Anomaly Scan</div>
             <p class="pillar-desc">Continuous real-time scanning across 10,000+ tickers flags explosive RVOL (&ge; 3.0x), opening drive volume, and multi-week range breakouts.</p>
           </div>
 
           <div class="hero-pillar-card">
-            <span class="pillar-tag">02 // UNDERSTAND &bull; CONTEXT</span>
+            <span class="pillar-tag">Context &bull; Risk</span>
             <div class="pillar-title">Instant Causal Attribution</div>
             <p class="pillar-desc">5-layer "Why Is It Moving?" diagnostic unpacks SEC 8-K filings, earnings surprises, float turnover, and S-3 dilution risk in under 3 seconds.</p>
           </div>
 
           <div class="hero-pillar-card">
-            <span class="pillar-tag">03 // ACT &bull; EXECUTION</span>
+            <span class="pillar-tag">Execution &bull; Levels</span>
             <div class="pillar-title">Invalidation &amp; Risk Rules</div>
             <p class="pillar-desc">Every setup features an actionable trigger, Target 1, Target 2, and hard invalidation stop levels tracked continuously via MFE/MAE telemetry.</p>
           </div>
         </div>
       </section>
 
-      <!-- Section 01: News Feed -->
+      <!-- Section: News Feed -->
       <section id="news-feed">
-        <div class="section-label">01 // News Feed &bull; Intraday Dispatches</div>
+        <div class="section-label">Market Dispatches &bull; Intraday Wire</div>
         <div class="grid-main">
           {featuredPost ? (
             <article class="card dispatch-card">
@@ -1863,25 +1882,9 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Dedicated Live Stock Screener Button -->
-      <section id="screener" style="margin-bottom: 2.5rem;">
-        <a href="/screener" class="big-screener-cta-btn">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-          </svg>
-          <span>Open Live Stock Screener</span>
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
-        </a>
-      </section>
-
-      <!-- Section 02: Opportunities Table -->
+      <!-- Section: Opportunities Table -->
       <section id="opportunities">
-        <div class="section-label">02 // Opportunities &bull; Monitored Breakouts</div>
+        <div class="section-label">Monitored Breakouts &bull; Active Volume Setups</div>
         <div class="table-card">
           <table class="data-table">
             <thead>
@@ -1889,7 +1892,7 @@ const websiteSchema = {
                 <th>Asset</th>
                 <th>Price</th>
                 <th>Delta (%)</th>
-                <th>Volume (Compact)</th>
+                <th class="th-hide-mobile">Session Volume</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -1898,26 +1901,50 @@ const websiteSchema = {
                 <>
                   {displayGainers.map((stock: StockItem) => (
                     <tr>
-                      <td class="table-symbol">${stock.ticker}</td>
+                      <td class="table-symbol">
+                        <a href={`/ticker/${stock.ticker.toLowerCase()}/`} style="color: inherit; text-decoration: none;">
+                          ${stock.ticker}
+                        </a>
+                      </td>
                       <td>${parseFloat(stock.price).toFixed(2)}</td>
                       <td class="table-gain">+{parseFloat(stock.change_percentage).toFixed(2)}%</td>
-                      <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
+                      <td class="table-vol th-hide-mobile td-hide-mobile">{formatCompactNumber(stock.volume)}</td>
                       <td>
-                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
-                          Analyze Setup &rarr;
+                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="table-action-pill"
+                           title={`Analyze ${stock.ticker} on TradingView`}>
+                          <span>Analyze</span>
+                          <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                            <line x1="7" y1="17" x2="17" y2="7"></line>
+                            <polyline points="7 7 17 7 17 17"></polyline>
+                          </svg>
                         </a>
                       </td>
                     </tr>
                   ))}
                   {displayLosers.slice(0, 2).map((stock: StockItem) => (
                     <tr>
-                      <td class="table-symbol">${stock.ticker}</td>
+                      <td class="table-symbol">
+                        <a href={`/ticker/${stock.ticker.toLowerCase()}/`} style="color: inherit; text-decoration: none;">
+                          ${stock.ticker}
+                        </a>
+                      </td>
                       <td>${parseFloat(stock.price).toFixed(2)}</td>
                       <td class="table-loss">{parseFloat(stock.change_percentage).toFixed(2)}%</td>
-                      <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
+                      <td class="table-vol th-hide-mobile td-hide-mobile">{formatCompactNumber(stock.volume)}</td>
                       <td>
-                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" style="color: var(--brand-accent); text-decoration: none; font-weight: 600;">
-                          Analyze Setup &rarr;
+                        <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="table-action-pill"
+                           title={`Analyze ${stock.ticker} on TradingView`}>
+                          <span>Analyze</span>
+                          <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                            <line x1="7" y1="17" x2="17" y2="7"></line>
+                            <polyline points="7 7 17 7 17 17"></polyline>
+                          </svg>
                         </a>
                       </td>
                     </tr>
@@ -1935,37 +1962,16 @@ const websiteSchema = {
         </div>
       </section>
 
-      <!-- Section 03: Tools (Spot Swap Utility + Live Dynamic Sector Performance) -->
+      <!-- Section: Sector Performance & Market Breadth -->
       <section id="tools" style="margin-bottom: 2.5rem;">
-        <div class="section-label">03 // Tools &bull; Analytical Utilities</div>
-        <div class="tools-split-grid">
-          <!-- Left: Spot Swap Utility -->
-          <div class="card" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">
-                Third-Party Non-Custodial Crypto Swap Utility
-              </div>
-              <p style="font-size: 0.78125rem; color: var(--text-secondary); margin-bottom: 0.85rem; line-height: 1.45;">
-                Trade Opportunities does not operate a brokerage. Fast direct crypto swap execution at current market rates.
-              </p>
-              <iframe
-                id="changenow-widget"
-                src="https://changenow.io/embeds/exchange-widget/v2/widget.html?amount=0.1&backgroundColor=111622&darkMode=true&from=btc&horizontal=false&isFiat=false&lang=en&link_id=1c434a8e93e8ff&locales=false&logo=false&primaryColor=3b82f6&to=eth"
-                style="height: 356px; width: 100%; max-width: 100%; border: none; border-radius: 6px;"
-                loading="lazy">
-              </iframe>
-            </div>
-            <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle); font-size: 0.75rem; color: var(--text-muted);">
-              Instant Non-Custodial Cross-Chain Settlement
-            </div>
-          </div>
-
-          <!-- Right: Live Sector Performance (Rendered server-side + client poll) -->
+        <div class="section-label">Sector Performance &bull; Market Breadth</div>
+        <div class="sector-performance-container">
+          <!-- Live Sector Performance (Rendered server-side + client poll) -->
           <div class="sector-card" id="sector-matrix">
             <div>
               <div class="sector-header">
-                <span class="sector-title">SECTOR PERFORMANCE</span>
-                <span class="sector-context-note" id="sector-status">S&amp;P 500 Sub-Indices</span>
+                <span class="sector-title">S&amp;P 500 SECTOR PULSE</span>
+                <span class="sector-context-note" id="sector-status">Real-Time SPDR® Sub-Indices</span>
               </div>
 
               <div class="sector-table" id="live-sector-table">
@@ -1988,7 +1994,7 @@ const websiteSchema = {
 
             <div class="sector-footer-note">
               <span id="sector-footer-status">Live Benchmarks • SPDR® S&amp;P Sectors</span>
-              <a href="#opportunities">View All Breakouts &rarr;</a>
+              <a href="/screener">Launch Full Screener &rarr;</a>
             </div>
           </div>
         </div>
@@ -2023,15 +2029,15 @@ const websiteSchema = {
         </form>
       </div>
 
-      <!-- Section 05: Platforms -->
+      <!-- Section: Platforms & Resources -->
       <section id="platforms">
-        <div class="section-label">05 // Platforms &bull; Trading Tools &amp; Execution</div>
+        <div class="section-label">Trading Resources &amp; Platform Gateways</div>
         <div class="tools-grid">
           <div class="tool-card">
             <div>
               <span class="tool-badge">Technical Suite</span>
-              <h3 class="tool-name">TradingView</h3>
-              <p class="tool-desc">Multi-timeframe technical workspaces with volume profiling and order flow analytics.</p>
+              <h3 class="tool-name">TradingView Charting</h3>
+              <p class="tool-desc">Multi-timeframe technical workspaces with volume profiling, anchored VWAP, and order flow analytics.</p>
             </div>
             <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="tool-btn">
               Open Charting Workspace &rarr;
@@ -2040,23 +2046,23 @@ const websiteSchema = {
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Spot Swaps</span>
-              <h3 class="tool-name">ChangeNOW</h3>
-              <p class="tool-desc">Non-custodial crypto swaps with instant best-rate execution across multiple blockchains.</p>
+              <span class="tool-badge">Unusual Volume</span>
+              <h3 class="tool-name">RVOL Screener</h3>
+              <p class="tool-desc">Scan equities with unusual trading volume, time-of-day participation multiples, and breakout triggers.</p>
             </div>
-            <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Open Swap Tool &rarr;
+            <a href="/rvol-screener" class="tool-btn">
+              Launch RVOL Screener &rarr;
             </a>
           </div>
 
           <div class="tool-card">
             <div>
-              <span class="tool-badge">Asset Pairs</span>
-              <h3 class="tool-name">SimpleSwap</h3>
-              <p class="tool-desc">Fast crypto swaps across 1,500+ coin pairs without account signups or custodial lockup.</p>
+              <span class="tool-badge">Multi-Asset</span>
+              <h3 class="tool-name">Tools &amp; Spot Swaps</h3>
+              <p class="tool-desc">Dedicated non-custodial cross-chain crypto swap terminal and analytical utilities.</p>
             </div>
-            <a href="https://simpleswap.io/?ref=566becc568f4" target="_blank" rel="noopener noreferrer" class="tool-btn">
-              Launch SimpleSwap &rarr;
+            <a href="/tools" class="tool-btn">
+              Open Trading Tools &rarr;
             </a>
           </div>
         </div>

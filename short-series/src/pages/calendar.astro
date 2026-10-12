@@ -1,0 +1,912 @@
+---
+// short-series/src/pages/calendar.astro
+import Layout from '../layouts/Layout.astro';
+import DiagnosticDrawer from '../components/DiagnosticDrawer.astro';
+
+const canonicalURL = new URL('/calendar/', Astro.site ?? 'https://tradeopportunities.trade').href;
+const pageTitle = "Earnings & Catalyst Calendar | Live Corporate & Macro Events | Trade Opportunities";
+const pageDescription = "Searchable corporate earnings calendar, FDA biotech catalysts, SEC filings, and macroeconomic event tracking with ticker hubs and original announcement verification.";
+
+const calendarSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemPage",
+  "name": pageTitle,
+  "url": canonicalURL,
+  "description": pageDescription,
+  "publisher": {
+    "@type": "Organization",
+    "name": "Trade Opportunities",
+    "url": "https://tradeopportunities.trade",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tradeopportunities.trade/favicon.svg"
+    }
+  }
+};
+---
+
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  canonicalURL={canonicalURL}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(calendarSchema)} />
+  </Fragment>
+
+  <div class="calendar-page-container">
+    <!-- Header -->
+    <header class="calendar-page-header">
+      <div class="section-tag">EVENT HORIZON &bull; SESSION CATALYSTS</div>
+      <h1 class="page-headline">Earnings &amp; Catalyst Calendar</h1>
+      <p class="page-subheadline">
+        Track scheduled corporate earnings releases, macroeconomic prints, and binary news events. Every catalyst is linked to ticker breakout hubs, TradingView volume profiles, and verified SEC filing sources.
+      </p>
+    </header>
+
+    <!-- Calendar Interactive Controls Toolbar -->
+    <div class="calendar-toolbar card">
+      <div class="search-filter-row">
+        <div class="calendar-search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="calendar-search-input" 
+            class="calendar-search-field" 
+            placeholder="Search ticker (e.g. NVDA, AAPL) or catalyst keyword..."
+          />
+          <button id="clear-search-btn" class="clear-search-btn" type="button" style="display: none;">&times;</button>
+        </div>
+
+        <div class="filter-pills-row">
+          <button class="filter-pill-btn active" data-filter="all" type="button">
+            All Events
+          </button>
+          <button class="filter-pill-btn" data-filter="earnings" type="button">
+            Earnings Schedule
+            <span class="pill-count" id="count-earnings-badge">0</span>
+          </button>
+          <button class="filter-pill-btn" data-filter="macro" type="button">
+            Macro Prints
+            <span class="pill-count" id="count-macro-badge">0</span>
+          </button>
+          <button class="filter-pill-btn" data-filter="news" type="button">
+            News Catalysts
+            <span class="pill-count" id="count-news-badge">0</span>
+          </button>
+        </div>
+
+        <button id="calendar-sync-btn" class="sync-calendar-btn" type="button" title="Sync live catalyst feeds">
+          <svg class="sync-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          <span id="sync-label">Sync Calendar</span>
+        </button>
+      </div>
+
+      <div class="toolbar-status-row">
+        <div class="status-left">
+          <span class="live-dot"></span>
+          <span id="calendar-status-text">Synchronizing event pipeline...</span>
+        </div>
+        <div class="status-right">
+          <span id="results-count-text">Showing 0 scheduled events</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar Event Grid -->
+    <div class="events-grid-container" id="events-grid">
+      <!-- Loading Skeleton Cards -->
+      <div class="event-card-skeleton">
+        <div class="skeleton-line title"></div>
+        <div class="skeleton-line meta"></div>
+        <div class="skeleton-line body"></div>
+      </div>
+      <div class="event-card-skeleton">
+        <div class="skeleton-line title"></div>
+        <div class="skeleton-line meta"></div>
+        <div class="skeleton-line body"></div>
+      </div>
+      <div class="event-card-skeleton">
+        <div class="skeleton-line title"></div>
+        <div class="skeleton-line meta"></div>
+        <div class="skeleton-line body"></div>
+      </div>
+    </div>
+
+    <!-- Educational Catalyst Guide -->
+    <section class="catalyst-guide-section">
+      <div class="guide-header">
+        <div class="section-tag">TRADING PLAYBOOK</div>
+        <h2 class="guide-title">How to Trade Around Major Market Catalysts</h2>
+        <p class="guide-desc">Catalysts create explosive liquidity by invalidating prior pricing consensus. Here is how institutional momentum desks navigate event volatility:</p>
+      </div>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <div class="guide-num">01</div>
+          <h3 class="guide-heading">Earnings Releases (BMO vs. AMC)</h3>
+          <p class="guide-body">
+            <strong>Before Market Open (BMO):</strong> Earnings reported before 9:30 AM ET dictate pre-market opening gaps. Look for opening range breakout (ORB) confirmation above the first 5-minute bar high.<br/><br/>
+            <strong>After Market Close (AMC):</strong> High spreads and low liquidity can distort post-market reactions. Focus on forward guidance rather than backward-looking EPS surprises.
+          </p>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-num">02</div>
+          <h3 class="guide-heading">Biotech &amp; Binary Clinical Catalysts</h3>
+          <p class="guide-body">
+            FDA PDUFA approval dates, Phase 2/3 topline readouts, and advisory committee meetings (AdCom) produce 50% to 300%+ gap potential. Beware of secondary offerings or Form S-3 shelf registrations immediately following positive approvals.
+          </p>
+          <a href="/dilution-risk" class="guide-link">Read Dilution &amp; Offering Guide &rarr;</a>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-num">03</div>
+          <h3 class="guide-heading">Macro Prints (CPI, Jobs, FOMC)</h3>
+          <p class="guide-body">
+            Macro data drops (8:30 AM ET for CPI/NFP, 2:00 PM ET for FOMC statements) shift broad index liquidity. Small-caps and high-beta momentum stocks often pause or whipsaw during the initial 15 minutes of macro prints before establishing trend direction.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <DiagnosticDrawer />
+</Layout>
+
+<style>
+  .calendar-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem 1.25rem;
+  }
+
+  .calendar-page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .section-tag {
+    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--brand-accent);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .page-headline {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+
+  .page-subheadline {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 820px;
+  }
+
+  /* Toolbar */
+  .calendar-toolbar {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .search-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .calendar-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+  }
+
+  .calendar-search-field {
+    width: 100%;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.6rem 2.2rem 0.6rem 2.2rem;
+    color: var(--text-primary);
+    font-size: 0.84rem;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .calendar-search-field:focus {
+    border-color: var(--brand-accent);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .clear-search-btn {
+    position: absolute;
+    right: 0.65rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  .filter-pills-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-pill-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 0.45rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.78125rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s ease;
+  }
+
+  .filter-pill-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  .filter-pill-btn.active {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: var(--brand-accent);
+    color: var(--brand-accent);
+  }
+
+  .pill-count {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    background: var(--bg-surface);
+    padding: 0.1rem 0.35rem;
+    border-radius: 9999px;
+  }
+
+  .sync-calendar-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.78125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .sync-calendar-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--brand-accent);
+  }
+
+  .sync-calendar-btn.spinning .sync-icon {
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    100% { transform: rotate(360deg); }
+  }
+
+  .toolbar-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+  }
+
+  /* Events Grid */
+  .events-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.15rem;
+    margin-bottom: 3.5rem;
+  }
+
+  /* Event Cards */
+  .calendar-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    box-shadow: var(--card-shadow);
+  }
+
+  .calendar-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+
+  .card-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.65rem;
+  }
+
+  .card-symbol-link {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .card-symbol-link:hover {
+    color: var(--brand-accent);
+  }
+
+  .event-timing-tag {
+    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .event-timing-tag.bmo {
+    background: rgba(234, 179, 8, 0.12);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.25);
+  }
+
+  .event-timing-tag.amc {
+    background: rgba(99, 102, 241, 0.12);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+  }
+
+  .event-timing-tag.macro {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+
+  .event-timing-tag.news {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--brand-accent);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .card-description {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-metrics-box {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.55rem 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.85rem;
+  }
+
+  .card-metrics-box strong {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+  }
+
+  .card-date-meta {
+    font-size: 0.71875rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+  }
+
+  .card-action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 0.65rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .card-btn {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+  }
+
+  .card-btn.why-btn {
+    color: var(--brand-accent);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    cursor: pointer;
+  }
+
+  .card-btn.why-btn:hover {
+    background: var(--brand-accent);
+    color: #ffffff;
+  }
+
+  .card-btn.source-link {
+    color: var(--text-muted);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .card-btn.source-link:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+  }
+
+  /* Skeletons */
+  .event-card-skeleton {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.25rem;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .skeleton-line {
+    background: var(--bg-surface-elevated);
+    border-radius: 4px;
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+
+  .skeleton-line.title { height: 24px; width: 45%; }
+  .skeleton-line.meta { height: 16px; width: 80%; }
+  .skeleton-line.body { height: 40px; width: 100%; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+  }
+
+  .empty-state-card {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3.5rem 1.5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    color: var(--text-muted);
+  }
+
+  /* Playbook section */
+  .catalyst-guide-section {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: var(--card-shadow);
+  }
+
+  .guide-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .guide-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-desc {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    max-width: 800px;
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .guide-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1.4rem;
+  }
+
+  .guide-num {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--brand-accent);
+    margin-bottom: 0.4rem;
+  }
+
+  .guide-heading {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.65rem;
+  }
+
+  .guide-body {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .guide-link {
+    display: inline-block;
+    margin-top: 0.85rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--brand-accent);
+    text-decoration: none;
+  }
+
+  .guide-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .calendar-page-container {
+      padding: 1.5rem 1rem 3rem 1rem;
+    }
+    .search-filter-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .filter-pills-row {
+      overflow-x: auto;
+      padding-bottom: 0.35rem;
+    }
+    .events-grid-container {
+      grid-template-columns: 1fr;
+    }
+    .catalyst-guide-section {
+      padding: 1.25rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function initDedicatedCalendar() {
+    let allEvents = [];
+    let activeFilter = 'all';
+    let searchQuery = '';
+    let isSyncing = false;
+
+    const searchInput = document.getElementById('calendar-search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    const filterBtns = document.querySelectorAll('.filter-pill-btn');
+    const syncBtn = document.getElementById('calendar-sync-btn');
+    const syncLabel = document.getElementById('sync-label');
+    const statusText = document.getElementById('calendar-status-text');
+    const resultsCountText = document.getElementById('results-count-text');
+    const eventsGrid = document.getElementById('events-grid');
+    const earningsBadge = document.getElementById('count-earnings-badge');
+    const macroBadge = document.getElementById('count-macro-badge');
+    const newsBadge = document.getElementById('count-news-badge');
+
+    function sanitize(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
+    }
+
+    function extractTicker(title) {
+      if (!title) return null;
+      const cashMatch = title.match(/\$([A-Z]{1,5})\b/);
+      if (cashMatch) return cashMatch[1];
+      const parenMatch = title.match(/\(([A-Z]{1,5})\)/);
+      if (parenMatch && !['US', 'ETF', 'CEO', 'IPO', 'SEC', 'FED', 'AI'].includes(parenMatch[1])) {
+        return parenMatch[1];
+      }
+      const colonMatch = title.match(/\b([A-Z]{2,5}):/);
+      if (colonMatch && !['NEWS', 'POST', 'LIVE'].includes(colonMatch[1])) {
+        return colonMatch[1];
+      }
+      return null;
+    }
+
+    async function loadCalendarData() {
+      if (isSyncing) return;
+      isSyncing = true;
+      syncBtn?.classList.add('spinning');
+      if (syncLabel) syncLabel.textContent = 'Syncing...';
+      if (statusText) statusText.textContent = 'Querying live corporate & macro wire...';
+
+      try {
+        const res = await fetch('/api/catalysts', { cache: 'no-cache' });
+        if (!res.ok) throw new Error('API status ' + res.status);
+        const data = await res.json();
+
+        allEvents = [];
+
+        // 1. Ingest earnings
+        if (Array.isArray(data.earnings)) {
+          if (earningsBadge) earningsBadge.textContent = String(data.earnings.length);
+          data.earnings.forEach(item => {
+            allEvents.push({
+              type: 'earnings',
+              ticker: item.ticker,
+              title: item.ticker + ' Corporate Earnings Release',
+              description: `Q1-Q4 corporate financial results and management call. EPS Est: ${item.epsEstimate !== undefined ? '$' + item.epsEstimate.toFixed(2) : 'N/A'}, Revenue Est: ${item.revenueEstimate !== undefined ? (item.revenueEstimate >= 1e9 ? '$' + (item.revenueEstimate / 1e9).toFixed(1) + 'B' : '$' + (item.revenueEstimate / 1e6).toFixed(0) + 'M') : 'N/A'}.`,
+              date: item.date || 'Upcoming',
+              hour: item.hour || 'bmo',
+              epsEstimate: item.epsEstimate,
+              revenueEstimate: item.revenueEstimate,
+              sourceLink: `https://www.sec.gov/edgar/searchedgar/companysearch?companyName=${encodeURIComponent(item.ticker)}`,
+              sourceLabel: 'SEC Filings'
+            });
+          });
+        }
+
+        // 2. Ingest macro
+        if (Array.isArray(data.economic)) {
+          if (macroBadge) macroBadge.textContent = String(data.economic.length);
+          data.economic.forEach(item => {
+            allEvents.push({
+              type: 'macro',
+              ticker: 'US_MACRO',
+              title: item.event || 'Macroeconomic Data Print',
+              description: `US Economic Indicator. Impact: ${item.impact ? item.impact.toUpperCase() : 'MEDIUM'}. Previous print: ${item.prev !== undefined ? item.prev : 'N/A'}, Forecast: ${item.estimate !== undefined ? item.estimate : 'N/A'}.`,
+              date: item.date || 'Scheduled',
+              hour: 'dmh',
+              actual: item.actual,
+              estimate: item.estimate,
+              prev: item.prev,
+              sourceLink: 'https://www.federalreserve.gov/monetarypolicy.htm',
+              sourceLabel: 'Federal Reserve'
+            });
+          });
+        }
+
+        // 3. Ingest news catalysts
+        if (Array.isArray(data.breakingNews)) {
+          if (newsBadge) newsBadge.textContent = String(data.breakingNews.length);
+          data.breakingNews.forEach(item => {
+            const detected = extractTicker(item.title);
+            allEvents.push({
+              type: 'news',
+              ticker: detected || 'MARKET',
+              title: item.title,
+              description: item.summary || 'Real-time corporate announcement or breaking market headline with volume catalyst potential.',
+              date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Live Wire',
+              hour: 'dmh',
+              sourceLink: item.link || `https://www.tradingview.com/symbols/${detected || 'SPY'}/?aff_id=170147`,
+              sourceLabel: item.source || 'Original Wire'
+            });
+          });
+        }
+
+        if (statusText) statusText.textContent = `Synchronized at ${new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York' })} ET`;
+        renderEvents();
+      } catch (err) {
+        console.warn('Calendar sync error:', err);
+        if (statusText) statusText.textContent = 'Sync issue: displaying cached session catalysts.';
+      } finally {
+        isSyncing = false;
+        syncBtn?.classList.remove('spinning');
+        if (syncLabel) syncLabel.textContent = 'Sync Calendar';
+      }
+    }
+
+    function renderEvents() {
+      if (!eventsGrid) return;
+
+      const q = searchQuery.toLowerCase().trim();
+      const filtered = allEvents.filter(ev => {
+        // Type filter
+        if (activeFilter !== 'all' && ev.type !== activeFilter) return false;
+        // Search filter
+        if (q) {
+          const matchTicker = ev.ticker.toLowerCase().includes(q);
+          const matchTitle = ev.title.toLowerCase().includes(q);
+          const matchDesc = ev.description.toLowerCase().includes(q);
+          if (!matchTicker && !matchTitle && !matchDesc) return false;
+        }
+        return true;
+      });
+
+      if (resultsCountText) {
+        resultsCountText.textContent = `Showing ${filtered.length} scheduled event${filtered.length === 1 ? '' : 's'}`;
+      }
+
+      if (filtered.length === 0) {
+        eventsGrid.innerHTML = `
+          <div class="empty-state-card">
+            <h3>No catalysts found matching "${sanitize(searchQuery)}"</h3>
+            <p style="margin-top: 0.5rem;">Try refining your search keyword or toggle to "All Events".</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = filtered.map(item => {
+        const isEarnings = item.type === 'earnings';
+        const isMacro = item.type === 'macro';
+        const isStock = item.ticker && item.ticker !== 'US_MACRO' && item.ticker !== 'MARKET';
+
+        const timingClass = isEarnings ? (item.hour === 'amc' ? 'amc' : 'bmo') : (isMacro ? 'macro' : 'news');
+        const timingLabel = isEarnings 
+          ? (item.hour === 'amc' ? '🌙 After Close' : '☀️ Before Open')
+          : (isMacro ? '📊 Macro Print' : '⚡ News Wire');
+
+        const tickerLink = isStock 
+          ? `<a href="/ticker/${encodeURIComponent(item.ticker.toLowerCase())}/" class="card-symbol-link" title="Open $${sanitize(item.ticker)} breakout hub">$${sanitize(item.ticker)}</a>`
+          : `<span class="card-symbol-link" style="color: var(--brand-accent);">${sanitize(item.ticker)}</span>`;
+
+        let metricsHtml = '';
+        if (isEarnings) {
+          const eps = (item.epsEstimate !== undefined && item.epsEstimate !== null) ? `$${item.epsEstimate.toFixed(2)}` : 'N/A';
+          const rev = (item.revenueEstimate !== undefined && item.revenueEstimate !== null)
+            ? (item.revenueEstimate >= 1e9 ? `$${(item.revenueEstimate / 1e9).toFixed(1)}B` : `$${(item.revenueEstimate / 1e6).toFixed(0)}M`)
+            : 'N/A';
+          metricsHtml = `
+            <div class="card-metrics-box">
+              <span>EPS Est: <strong>${eps}</strong></span>
+              <span>Rev Est: <strong>${rev}</strong></span>
+            </div>
+          `;
+        } else if (isMacro && (item.estimate !== undefined || item.prev !== undefined)) {
+          metricsHtml = `
+            <div class="card-metrics-box">
+              <span>Prev: <strong>${item.prev !== undefined ? item.prev : 'N/A'}</strong></span>
+              <span>Est: <strong>${item.estimate !== undefined ? item.estimate : 'N/A'}</strong></span>
+            </div>
+          `;
+        }
+
+        const diagnosticTicker = isStock ? item.ticker : 'SPY';
+
+        return `
+          <div class="calendar-card">
+            <div>
+              <div class="card-top-row">
+                ${tickerLink}
+                <span class="event-timing-tag ${timingClass}">${timingLabel}</span>
+              </div>
+              <h3 class="card-title">${sanitize(item.title)}</h3>
+              <p class="card-description">${sanitize(item.description)}</p>
+              ${metricsHtml}
+              <div class="card-date-meta">Date / Session: <strong>${sanitize(item.date)}</strong></div>
+            </div>
+            <div class="card-action-bar">
+              <button type="button" class="card-btn why-btn" data-open-diagnostic="${sanitize(diagnosticTicker)}">
+                Why Is It Moving? &rarr;
+              </button>
+              ${item.sourceLink ? `
+                <a href="${item.sourceLink}" target="_blank" rel="noopener noreferrer" class="card-btn source-link">
+                  ${sanitize(item.sourceLabel || 'Original Source')} &nearr;
+                </a>
+              ` : ''}
+              ${isStock ? `
+                <a href="https://www.tradingview.com/symbols/${item.ticker}/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="card-btn source-link" title="Analyze volume on TradingView">
+                  Chart &nearr;
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      eventsGrid.innerHTML = html;
+    }
+
+    // Event Listeners
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.getAttribute('data-filter') || 'all';
+        renderEvents();
+      });
+    });
+
+    searchInput?.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      if (clearSearchBtn) {
+        clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+      }
+      renderEvents();
+    });
+
+    clearSearchBtn?.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        searchQuery = '';
+        clearSearchBtn.style.display = 'none';
+        renderEvents();
+      }
+    });
+
+    syncBtn?.addEventListener('click', loadCalendarData);
+
+    // Initial load
+    loadCalendarData();
+  })();
+</script>

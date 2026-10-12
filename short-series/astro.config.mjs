@@ -31,8 +31,18 @@ export default defineConfig({
         } else if (item.url.includes('/category/')) {
           item.priority = 0.7;
           item.changefreq = 'daily';
+        } else if (
+          item.url.includes('/screener/') ||
+          item.url.includes('/rvol-screener/') ||
+          item.url.includes('/calendar/') ||
+          item.url.includes('/dilution-risk/') ||
+          item.url.includes('/tools/')
+        ) {
+          item.priority = 0.9;
+          item.changefreq = 'daily';
+          item.lastmod = new Date().toISOString();
         } else {
-          item.priority = 0.3;
+          item.priority = 0.4;
           item.changefreq = 'monthly';
         }
         return item;
