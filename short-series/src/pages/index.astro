@@ -3,6 +3,7 @@
 import MarketTicker from '../components/MarketTicker.astro';
 import DiagnosticDrawer from '../components/DiagnosticDrawer.astro';
 import LiveCatalystWire from '../components/LiveCatalystWire.astro';
+import { formatMarketDate } from '../utils/dateFormat';
 
 interface StockItem {
   ticker: string;
@@ -1033,6 +1034,54 @@ const websiteSchema = {
         color: var(--text-primary) !important;
       }
 
+      .table-action-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--brand-accent) !important;
+        background: rgba(59, 130, 246, 0.08);
+        border: 1px solid rgba(59, 130, 246, 0.22);
+        text-decoration: none !important;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+      }
+      .table-action-pill:hover {
+        background: var(--brand-accent);
+        border-color: var(--brand-accent);
+        color: #ffffff !important;
+        text-decoration: none !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+      }
+      .table-action-pill svg {
+        transition: transform 0.15s ease;
+      }
+      .table-action-pill:hover svg {
+        transform: translate(1px, -1px);
+      }
+      [data-theme="light"] .table-action-pill {
+        color: var(--brand-accent) !important;
+        background: rgba(37, 99, 235, 0.08);
+        border-color: rgba(37, 99, 235, 0.22);
+      }
+      [data-theme="light"] .table-action-pill:hover {
+        background: var(--brand-accent);
+        color: #ffffff !important;
+      }
+      .compact-table td a,
+      .card-body td a {
+        color: var(--brand-accent);
+        text-decoration: none;
+      }
+      .compact-table td a:hover,
+      .card-body td a:hover {
+        text-decoration: underline;
+      }
+
       .ticker-tags {
         display: flex;
         flex-wrap: wrap;
@@ -1700,7 +1749,7 @@ const websiteSchema = {
             <article class="card dispatch-card">
               <div class="card-meta">
                 <span class="pill pill-gain">{featuredPost.frontmatter.category || 'Equities'}</span>
-                <span style="font-family: var(--font-mono);">{featuredPost.frontmatter.displayDate || featuredPost.frontmatter.date?.slice(0, 10)}</span>
+                <span style="font-family: var(--font-mono);">{formatMarketDate(featuredPost.frontmatter.date || featuredPost.frontmatter.pubDate || featuredPost.frontmatter.displayDate)}</span>
               </div>
               
               <h2 class="card-title">
@@ -1734,8 +1783,16 @@ const websiteSchema = {
                           <td><code>+{parseFloat(stock.change_percentage).toFixed(2)}%</code></td>
                           <td class="table-vol">{formatCompactNumber(stock.volume)}</td>
                           <td>
-                            <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer">
-                              Analyze {stock.ticker}
+                            <a href={`https://www.tradingview.com/symbols/${stock.ticker}/?aff_id=170147`} 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="table-action-pill"
+                               title={`Analyze ${stock.ticker} on TradingView`}>
+                              <span>Analyze {stock.ticker}</span>
+                              <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                <polyline points="7 7 17 7 17 17"></polyline>
+                              </svg>
                             </a>
                           </td>
                         </tr>
@@ -1779,7 +1836,7 @@ const websiteSchema = {
           <div class="stream-list">
             {secondaryPosts.map(post => (
               <article class="stream-item dispatch-card">
-                <div class="stream-date">{post.frontmatter.displayDate || post.frontmatter.date?.slice(0, 10)}</div>
+                <div class="stream-date">{formatMarketDate(post.frontmatter.date || post.frontmatter.pubDate || post.frontmatter.displayDate)}</div>
                 <h3 class="stream-title">
                   <a href={`/blog/${post.slug}/`} style="color: inherit; text-decoration: none;">
                     {post.frontmatter.title}

@@ -172,9 +172,17 @@ async function run() {
       fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    // Identify posts already published today
-    const todayPrefix = now.toISOString().split('T')[0];
-    const existingPostsToday = fs.readdirSync(folderPath).filter((file) => file.includes(todayPrefix));
+    // Identify posts already published today (anchored to US Eastern market session)
+    const nySessionDate = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(now);
+    const todayPrefixUtc = now.toISOString().split('T')[0];
+    const existingPostsToday = fs.readdirSync(folderPath).filter((file) => 
+      file.includes(nySessionDate) || file.includes(todayPrefixUtc)
+    );
     
     // Check if this specific scheduled brief has already been generated today
     const briefAlreadyPublished = existingPostsToday.some((file) => {
@@ -465,9 +473,20 @@ FORMATTING RULES:
     }
 
     console.log('3. Assembling structured brief markdown post...');
-    const date = now.toISOString().split('T')[0];
     const timestamp = now.toISOString().replace(/[:.]/g, '-');
-    const displayTime = now.toTimeString().split(' ')[0].slice(0, 5) + ' UTC';
+    const etDateStr = now.toLocaleDateString('en-US', {
+      timeZone: 'America/New_York',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    const etTimeStr = now.toLocaleTimeString('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+    const displayDate = `${etDateStr} · ${etTimeStr} ET`;
 
     const fileName = `brief-${briefType.toLowerCase()}-${timestamp}.md`;
     const compactTable = buildCompactTable('Session Top Movers & Liquidity', topGainers);
@@ -491,7 +510,7 @@ briefType: "${briefType}"
 date: "${now.toISOString()}"
 pubDate: "${now.toISOString()}"
 updatedDate: "${now.toISOString()}"
-displayDate: "${date} ${displayTime}"
+displayDate: "${displayDate}"
 category: "Equities"
 categories: ["Equities", "Momentum", "${briefCategory}"]
 image: "https://tradeopportunities.trade/favicon.svg"

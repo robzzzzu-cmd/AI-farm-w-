@@ -2,6 +2,7 @@
 // short-series/src/pages/blog/[...slug].astro
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { formatMarketDate } from '../../utils/dateFormat';
 
 export const prerender = true;
 
@@ -43,7 +44,7 @@ const modDateObj = rawModDate ? new Date(rawModDate) : pubDateObj;
 const isoPubDate = !isNaN(pubDateObj.getTime()) ? pubDateObj.toISOString() : new Date().toISOString();
 const isoModDate = !isNaN(modDateObj.getTime()) ? modDateObj.toISOString() : isoPubDate;
 
-const displayDate = post.data?.displayDate || pubDateObj.toLocaleDateString('en-US', { dateStyle: 'long' });
+const displayDate = formatMarketDate(rawPubDate || post.data?.displayDate);
 
 const slug = post.id.replace(/\.md$/, '').toLowerCase();
 const canonicalURL = new URL(`/blog/${slug}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
@@ -185,7 +186,7 @@ const newsArticleSchema = {
           {relatedPosts.map((related) => (
             <a href={`/blog/${related.id.replace(/\.md$/, '').toLowerCase()}/`} class="related-card">
               <span class="related-date">
-                {related.data?.displayDate || (related.data?.date ? new Date(related.data.date).toISOString().slice(0, 10) : 'Recent')}
+                {formatMarketDate(related.data?.pubDate || related.data?.date || related.data?.displayDate)}
               </span>
               <span class="related-title">{related.data?.title}</span>
               {related.data?.leadTicker && (
@@ -395,6 +396,27 @@ const newsArticleSchema = {
   .article-body a:hover {
     text-decoration: underline;
     filter: brightness(1.12);
+  }
+  .article-body table td a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--brand-accent);
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+  }
+  .article-body table td a:hover {
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
   }
   .ticker-tags {
     display: flex;

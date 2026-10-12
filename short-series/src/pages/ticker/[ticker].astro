@@ -2,6 +2,7 @@
 // short-series/src/pages/ticker/[ticker].astro
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { formatMarketDate } from '../../utils/dateFormat';
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog');
@@ -183,7 +184,7 @@ const tickerSchema = {
         {posts.map((post: any) => (
           <article class="post-item">
             <div class="post-meta">
-              <time>{post.data?.displayDate || (post.data?.date ? new Date(post.data.date).toISOString().slice(0, 10) : 'Recent')}</time>
+              <time>{formatMarketDate(post.data?.pubDate || post.data?.date || post.data?.displayDate)}</time>
               <span class="pill pill-category">{post.data?.category || 'Equities'}</span>
               {post.data?.leadTicker === ticker && (
                 <span class="pill pill-lead">Lead Runner ({post.data?.leadGain || 'Breakout'})</span>

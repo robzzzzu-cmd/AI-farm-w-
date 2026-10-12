@@ -423,6 +423,16 @@ const isAbout = currentPath.startsWith('/about');
     min-width: 0;
   }
 
+  a {
+    color: var(--brand-accent);
+    text-decoration: none;
+    transition: color 0.15s ease, opacity 0.15s ease;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
   img, iframe, embed, object {
     max-width: 100%;
   }

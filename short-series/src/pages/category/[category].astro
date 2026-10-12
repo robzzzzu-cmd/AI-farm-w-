@@ -2,6 +2,7 @@
 // short-series/src/pages/category/[category].astro
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import { formatMarketDate } from '../../utils/dateFormat';
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog');
@@ -101,12 +102,7 @@ const categorySchema = {
         {posts.map((post) => (
           <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
             <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-              <span>
-                {post.data.displayDate ||
-                  (post.data.pubDate || post.data.date
-                    ? new Date(post.data.pubDate || post.data.date!).toISOString().split('T')[0]
-                    : 'Recent')}
-              </span>
+              <span>{formatMarketDate(post.data.pubDate || post.data.date || post.data.displayDate)}</span>
               {post.data.leadTicker && (
                 <>
                   <span>•</span>
