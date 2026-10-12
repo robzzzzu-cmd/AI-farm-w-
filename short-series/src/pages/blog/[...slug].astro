@@ -140,10 +140,6 @@ const newsArticleSchema = {
       </div>
     </header>
 
-    <div class="risk-callout">
-      <span><strong>Notice:</strong> Algorithmic market tracking for informational purposes only. Sourced via Alpha Vantage & TradingView. Not financial advice.</span>
-    </div>
-
     <div class="article-body">
       <Content />
     </div>
@@ -163,21 +159,6 @@ const newsArticleSchema = {
         {post.data.refLabel || "Access Liquidity Terminal"} &rarr;
       </a>
     )}
-
-    <div class="eeat-box">
-      <div class="eeat-header">
-        <span class="eeat-badge">Verified Model</span>
-        <span class="eeat-title">Quantitative Model Architecture</span>
-      </div>
-      <p class="eeat-desc">
-        This dispatch was compiled programmatically via the <strong>Trade Opportunities Anomaly Engine</strong> utilizing tier-1 data ingestion from Alpha Vantage and verified against a 50,000 share minimum session liquidity filter. Review our complete <a href="/about/">Quantitative Methodology & Verification Guidelines</a>.
-      </p>
-      <div class="eeat-sources">
-        <span>Primary Verification Sources:</span>
-        <a href="https://www.sec.gov/edgar/searchedgar/companysearch" target="_blank" rel="noopener noreferrer">SEC EDGAR ↗</a>
-        <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer">TradingView Feeds ↗</a>
-      </div>
-    </div>
 
     {relatedPosts.length > 0 && (
       <section class="related-intel-section">
