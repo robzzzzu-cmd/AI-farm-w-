@@ -12,6 +12,7 @@ export interface NormalizedNewsItem {
   source: string;
   summary?: string;
   imageUrl?: string;
+  ticker?: string;
 }
 
 export interface NormalizedEarningsEvent {
@@ -83,13 +84,15 @@ export async function fetchLiveNews(ticker?: string, limit: number = 8): Promise
         if (Array.isArray(data) && data.length > 0) {
           for (const item of data.slice(0, limit)) {
             if (item.headline) {
+              const relTicker = cleanTicker || (typeof item.related === 'string' && /^[A-Z]{1,5}$/.test(item.related.split(',')[0].trim()) ? item.related.split(',')[0].trim() : undefined);
               articles.push({
                 title: item.headline,
                 link: item.url || '#',
                 pubDate: item.datetime ? new Date(item.datetime * 1000).toISOString() : new Date().toISOString(),
                 source: item.source || 'Finnhub Live Wire',
                 summary: item.summary || '',
-                imageUrl: item.image || undefined
+                imageUrl: item.image || undefined,
+                ticker: relTicker
               });
             }
           }
@@ -117,13 +120,15 @@ export async function fetchLiveNews(ticker?: string, limit: number = 8): Promise
           for (const item of data.results) {
             // Avoid duplicate titles
             if (item.title && !articles.some(a => a.title.toLowerCase() === item.title.toLowerCase())) {
+              const polyTicker = cleanTicker || (Array.isArray(item.tickers) && item.tickers.length > 0 && /^[A-Z]{1,5}$/.test(item.tickers[0]) ? item.tickers[0] : undefined);
               articles.push({
                 title: item.title,
                 link: item.article_url || '#',
                 pubDate: item.published_utc || new Date().toISOString(),
                 source: item.publisher?.name || 'Polygon Market Intelligence',
                 summary: item.description || '',
-                imageUrl: item.image_url || undefined
+                imageUrl: item.image_url || undefined,
+                ticker: polyTicker
               });
             }
           }
@@ -139,8 +144,8 @@ export async function fetchLiveNews(ticker?: string, limit: number = 8): Promise
 
   // 3. Fallback: Google News Financial RSS
   try {
-    const query = cleanTicker ? `${cleanTicker} stock` : 'US stock market momentum';
-    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}+when:3d&hl=en-US&gl=US&ceid=US:en`;
+    const query = cleanTicker ? `${cleanTicker} stock` : '(NASDAQ OR NYSE) stock shares (earnings OR surge OR guidance OR upgrade)';
+    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}+when:2d&hl=en-US&gl=US&ceid=US:en`;
     const res = await fetch(rssUrl, {
       signal: AbortSignal.timeout(2800),
       headers: {
@@ -168,7 +173,8 @@ export async function fetchLiveNews(ticker?: string, limit: number = 8): Promise
               title: rawTitle,
               link: rawLink,
               pubDate: rawPubDate,
-              source: rawSource
+              source: rawSource,
+              ticker: cleanTicker || undefined
             });
           }
         }

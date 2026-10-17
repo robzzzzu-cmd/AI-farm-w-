@@ -750,7 +750,7 @@
       return null;
     }
 
-    // Render News Wire (headlines & source buttons open the news article; Why Is It Moving opens diagnostic drawer)
+    // Render News Wire (headlines & source buttons open the news article; Why Is It Moving only shown when a specific stock ticker is detected)
     function renderNews(news) {
       if (!newsContainer) return;
       if (!news || news.length === 0) {
@@ -761,9 +761,8 @@
       if (countNews) countNews.textContent = String(news.length);
 
       const html = news.map(item => {
-        const detectedTicker = extractTicker(item.title);
-        const diagnosticTicker = detectedTicker || 'SPY';
-        const sourceLink = item.link || `https://www.tradingview.com/symbols/${diagnosticTicker}/?aff_id=170147`;
+        const detectedTicker = (item.ticker && /^[A-Z]{1,5}$/.test(item.ticker)) ? item.ticker : extractTicker(item.title);
+        const sourceLink = item.link || (detectedTicker ? `https://www.tradingview.com/symbols/${detectedTicker}/?aff_id=170147` : '/calendar/');
         const rawSummary = item.summary && typeof item.summary === 'string' ? item.summary.trim() : '';
         const isBoilerplate = rawSummary.toLowerCase().includes('real-time corporate announcement') || 
                               rawSummary.toLowerCase().includes('volume catalyst potential') ||
@@ -773,6 +772,12 @@
         const tickerTagHtml = detectedTicker
           ? `<a href="/ticker/${encodeURIComponent(detectedTicker.toLowerCase())}/" class="wire-time-tag" style="color: var(--brand-accent); font-weight: 700; text-decoration: none;" title="Open $${sanitize(detectedTicker)} Hub">$${sanitize(detectedTicker)}</a>`
           : `<span class="wire-time-tag">Market Catalyst</span>`;
+
+        const whyBtnHtml = detectedTicker
+          ? `<button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(detectedTicker)}" title="Run 5-Layer Diagnostic on $${sanitize(detectedTicker)}">
+              Why Is $${sanitize(detectedTicker)} Moving? &rarr;
+            </button>`
+          : '';
 
         return `
           <div class="wire-card-item">
@@ -790,11 +795,9 @@
               ${tickerTagHtml}
               <div class="wire-action-btns">
                 <a href="${sanitize(sourceLink)}" target="_blank" rel="noopener noreferrer" class="wire-source-btn" title="Open original news article">
-                  Read News &nearr;
+                  Read Article &nearr;
                 </a>
-                <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(diagnosticTicker)}" title="Run 5-Layer Diagnostic on $${sanitize(diagnosticTicker)}">
-                  Why Is It Moving? &rarr;
-                </button>
+                ${whyBtnHtml}
               </div>
             </div>
           </div>
@@ -843,7 +846,7 @@
                   SEC Filings &nearr;
                 </a>
                 <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(item.ticker)}">
-                  Why Is It Moving? &rarr;
+                  Why Is $${sanitize(item.ticker)} Moving? &rarr;
                 </button>
               </div>
             </div>
@@ -888,9 +891,6 @@
                 <a href="https://www.federalreserve.gov/monetarypolicy.htm" target="_blank" rel="noopener noreferrer" class="wire-source-btn">
                   Fed Release &nearr;
                 </a>
-                <button type="button" class="wire-why-btn" data-open-diagnostic="SPY">
-                  Why Is It Moving? &rarr;
-                </button>
               </div>
             </div>
           </div>

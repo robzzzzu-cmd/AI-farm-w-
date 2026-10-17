@@ -802,7 +802,7 @@ const calendarSchema = {
         if (Array.isArray(data.breakingNews)) {
           if (newsBadge) newsBadge.textContent = String(data.breakingNews.length);
           data.breakingNews.forEach(item => {
-            const detected = extractTicker(item.title);
+            const detected = (item.ticker && /^[A-Z]{1,5}$/.test(item.ticker)) ? item.ticker : extractTicker(item.title);
             const rawSummary = item.summary && typeof item.summary === 'string' ? item.summary.trim() : '';
             const isBoilerplate = rawSummary.toLowerCase().includes('real-time corporate announcement') || 
                                   rawSummary.toLowerCase().includes('volume catalyst potential') ||
@@ -816,8 +816,8 @@ const calendarSchema = {
               description: summaryText,
               date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Live Wire',
               hour: 'dmh',
-              sourceLink: item.link || `https://www.tradingview.com/symbols/${detected || 'SPY'}/?aff_id=170147`,
-              sourceLabel: item.source || 'Original Wire'
+              sourceLink: item.link || (detected ? `https://www.tradingview.com/symbols/${detected}/?aff_id=170147` : ''),
+              sourceLabel: item.source || 'Read Article'
             });
           });
         }
@@ -877,7 +877,7 @@ const calendarSchema = {
 
         const tickerLink = isStock 
           ? `<a href="/ticker/${encodeURIComponent(item.ticker.toLowerCase())}/" class="card-symbol-link" title="Open $${sanitize(item.ticker)} breakout hub">$${sanitize(item.ticker)}</a>`
-          : `<span class="card-symbol-link" style="color: var(--brand-accent);">${sanitize(item.ticker)}</span>`;
+          : `<span class="card-symbol-link" style="color: var(--brand-accent); font-size: 0.85rem;">${isMacro ? 'US MACRO' : 'MARKET WIRE'}</span>`;
 
         let metricsHtml = '';
         if (isEarnings) {
@@ -900,7 +900,6 @@ const calendarSchema = {
           `;
         }
 
-        const diagnosticTicker = isStock ? item.ticker : 'SPY';
         const titleHtml = item.sourceLink
           ? `<a href="${sanitize(item.sourceLink)}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;" title="Open ${sanitize(item.sourceLabel || 'Original Source')}">${sanitize(item.title)}</a>`
           : sanitize(item.title);
@@ -918,12 +917,14 @@ const calendarSchema = {
               <div class="card-date-meta">Date / Session: <strong>${sanitize(item.date)}</strong></div>
             </div>
             <div class="card-action-bar">
-              <button type="button" class="card-btn why-btn" data-open-diagnostic="${sanitize(diagnosticTicker)}">
-                Why Is It Moving? &rarr;
-              </button>
+              ${isStock ? `
+                <button type="button" class="card-btn why-btn" data-open-diagnostic="${sanitize(item.ticker)}">
+                  Why Is $${sanitize(item.ticker)} Moving? &rarr;
+                </button>
+              ` : ''}
               ${item.sourceLink ? `
                 <a href="${item.sourceLink}" target="_blank" rel="noopener noreferrer" class="card-btn source-link">
-                  ${sanitize(item.sourceLabel || 'Original Source')} &nearr;
+                  ${sanitize(item.sourceLabel || 'Read Article')} &nearr;
                 </a>
               ` : ''}
               ${isStock ? `
