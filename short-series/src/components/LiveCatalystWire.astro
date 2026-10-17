@@ -103,10 +103,10 @@
         <span id="wire-last-updated">Synchronized with live market stream</span>
       </div>
       <div class="wire-footer-right">
-        <a href="/calendar" class="screener-quick-link" style="margin-right: 1.25rem;">
+        <a href="/calendar/" class="screener-quick-link" style="margin-right: 1.25rem;">
           Dedicated Calendar &rarr;
         </a>
-        <a href="/screener" class="screener-quick-link">
+        <a href="/screener/" class="screener-quick-link">
           Open Live Screener &rarr;
         </a>
       </div>
@@ -284,13 +284,12 @@
     color: var(--text-muted);
   }
 
-  .wire-headline-btn {
+  .wire-headline-link {
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-primary);
     text-align: left;
-    background: none;
-    border: none;
+    text-decoration: none;
     padding: 0;
     margin: 0 0 0.5rem 0;
     cursor: pointer;
@@ -303,8 +302,9 @@
     transition: color 0.15s ease;
   }
 
-  .wire-headline-btn:hover {
+  .wire-headline-link:hover {
     color: var(--brand-accent);
+    text-decoration: underline;
   }
 
   .wire-summary-text {
@@ -324,8 +324,17 @@
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid var(--border-subtle);
-    padding-top: 0.5rem;
+    padding-top: 0.55rem;
     margin-top: 0.25rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .wire-action-btns {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
   .wire-why-btn {
@@ -342,11 +351,34 @@
     cursor: pointer;
     transition: all 0.12s ease;
     font-family: inherit;
+    text-decoration: none;
   }
 
   .wire-why-btn:hover {
     background: var(--brand-accent);
     color: #ffffff;
+  }
+
+  .wire-source-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  .wire-source-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--brand-accent);
   }
 
   /* Earnings Card Item */
@@ -381,6 +413,7 @@
     padding: 0;
     cursor: pointer;
     text-align: left;
+    text-decoration: none;
     transition: color 0.15s ease;
   }
 
@@ -437,6 +470,8 @@
     font-size: 0.6875rem;
     font-family: var(--font-mono, monospace);
     color: var(--text-muted);
+    gap: 0.4rem;
+    flex-wrap: wrap;
   }
 
   /* Macro Card Item */
@@ -645,36 +680,77 @@
       }
     }
 
+    function decodeHtml(html) {
+      if (!html) return '';
+      const txt = document.createElement('textarea');
+      txt.innerHTML = String(html);
+      return txt.value;
+    }
+
     function sanitize(str) {
       if (!str) return '';
+      const decoded = decodeHtml(str);
       const div = document.createElement('div');
-      div.textContent = str;
+      div.textContent = decoded;
       return div.innerHTML;
     }
 
-    // Known common tickers to match safely without grabbing words like 'US' or 'ETF'
+    const COMPANY_TICKER_MAP = [
+      [/\bnvidia\b/i, 'NVDA'],
+      [/\btesla\b/i, 'TSLA'],
+      [/\bapple\b/i, 'AAPL'],
+      [/\bmicrosoft\b/i, 'MSFT'],
+      [/\bamazon\b/i, 'AMZN'],
+      [/\bmeta\b|\bfacebook\b/i, 'META'],
+      [/\balphabet\b|\bgoogle\b/i, 'GOOGL'],
+      [/\bbroadcom\b/i, 'AVGO'],
+      [/\bpalantir\b/i, 'PLTR'],
+      [/\bamd\b|\badvanced micro\b/i, 'AMD'],
+      [/\bintel\b/i, 'INTC'],
+      [/\bmicron\b/i, 'MU'],
+      [/\bsuper micro\b|\bsmci\b/i, 'SMCI'],
+      [/\bnetflix\b/i, 'NFLX'],
+      [/\btaiwan semi|\btsmc\b/i, 'TSM'],
+      [/\bmorgan stanley\b/i, 'MS'],
+      [/\bgoldman sachs\b/i, 'GS'],
+      [/\bjpmorgan\b|\bjp morgan\b/i, 'JPM'],
+      [/\bbank of america\b/i, 'BAC'],
+      [/\bcitigroup\b/i, 'C'],
+      [/\bcoinbase\b/i, 'COIN'],
+      [/\bmicrostrategy\b/i, 'MSTR'],
+      [/\bboeing\b/i, 'BA'],
+      [/\beli lilly\b/i, 'LLY'],
+      [/\bnovo nordisk\b/i, 'NVO'],
+      [/\boracle\b/i, 'ORCL'],
+      [/\bsalesforce\b/i, 'CRM'],
+      [/\barm holdings\b/i, 'ARM'],
+      [/\bqualcomm\b/i, 'QCOM'],
+      [/\bchip stocks\b|\bsemiconductor/i, 'SOXX']
+    ];
+
     function extractTicker(title) {
       if (!title) return null;
-      // Check for explicit $TICKER
       const cashMatch = title.match(/\$([A-Z]{1,5})\b/);
       if (cashMatch) return cashMatch[1];
 
-      // Check for (TICKER)
       const parenMatch = title.match(/\(([A-Z]{1,5})\)/);
-      if (parenMatch && !['US', 'ETF', 'CEO', 'IPO', 'SEC', 'FED', 'AI'].includes(parenMatch[1])) {
+      if (parenMatch && !['US', 'ETF', 'CEO', 'IPO', 'SEC', 'FED', 'AI', 'IMF', 'GDP', 'CPI'].includes(parenMatch[1])) {
         return parenMatch[1];
       }
 
-      // Check for ticker before colon, e.g. "NVDA: Q3 earnings"
       const colonMatch = title.match(/\b([A-Z]{2,5}):/);
-      if (colonMatch && !['NEWS', 'POST', 'LIVE'].includes(colonMatch[1])) {
+      if (colonMatch && !['NEWS', 'POST', 'LIVE', 'IMF', 'CNBC'].includes(colonMatch[1])) {
         return colonMatch[1];
+      }
+
+      for (const [regex, sym] of COMPANY_TICKER_MAP) {
+        if (regex.test(title)) return sym;
       }
 
       return null;
     }
 
-    // Render News Wire (all clicks trigger internal diagnostic drawer, keeping users on site)
+    // Render News Wire (headlines & source buttons open the news article; Why Is It Moving opens diagnostic drawer)
     function renderNews(news) {
       if (!newsContainer) return;
       if (!news || news.length === 0) {
@@ -687,6 +763,16 @@
       const html = news.map(item => {
         const detectedTicker = extractTicker(item.title);
         const diagnosticTicker = detectedTicker || 'SPY';
+        const sourceLink = item.link || `https://www.tradingview.com/symbols/${diagnosticTicker}/?aff_id=170147`;
+        const rawSummary = item.summary && typeof item.summary === 'string' ? item.summary.trim() : '';
+        const isBoilerplate = rawSummary.toLowerCase().includes('real-time corporate announcement') || 
+                              rawSummary.toLowerCase().includes('volume catalyst potential') ||
+                              rawSummary.toLowerCase() === (item.title || '').toLowerCase();
+        const summaryText = isBoilerplate ? '' : rawSummary;
+
+        const tickerTagHtml = detectedTicker
+          ? `<a href="/ticker/${encodeURIComponent(detectedTicker.toLowerCase())}/" class="wire-time-tag" style="color: var(--brand-accent); font-weight: 700; text-decoration: none;" title="Open $${sanitize(detectedTicker)} Hub">$${sanitize(detectedTicker)}</a>`
+          : `<span class="wire-time-tag">Market Catalyst</span>`;
 
         return `
           <div class="wire-card-item">
@@ -695,16 +781,21 @@
                 <span class="wire-source-tag">${sanitize(item.source || 'Market Wire')}</span>
                 <span class="wire-time-tag">${formatTimeDelta(item.pubDate)}</span>
               </div>
-              <button type="button" class="wire-headline-btn" data-open-diagnostic="${sanitize(diagnosticTicker)}" title="Inspect catalyst in diagnostic drawer">
+              <a href="${sanitize(sourceLink)}" target="_blank" rel="noopener noreferrer" class="wire-headline-link" title="Read full article from ${sanitize(item.source || 'source')}">
                 ${sanitize(item.title)}
-              </button>
-              ${item.summary ? `<p class="wire-summary-text">${sanitize(item.summary)}</p>` : ''}
+              </a>
+              ${summaryText ? `<p class="wire-summary-text">${sanitize(summaryText)}</p>` : ''}
             </div>
             <div class="wire-action-row">
-              <span class="wire-time-tag">${detectedTicker ? '$' + sanitize(detectedTicker) : 'Market Catalyst'}</span>
-              <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(diagnosticTicker)}">
-                Why Is It Moving? &rarr;
-              </button>
+              ${tickerTagHtml}
+              <div class="wire-action-btns">
+                <a href="${sanitize(sourceLink)}" target="_blank" rel="noopener noreferrer" class="wire-source-btn" title="Open original news article">
+                  Read News &nearr;
+                </a>
+                <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(diagnosticTicker)}" title="Run 5-Layer Diagnostic on $${sanitize(diagnosticTicker)}">
+                  Why Is It Moving? &rarr;
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -731,13 +822,14 @@
         const revEst = (item.revenueEstimate !== undefined && item.revenueEstimate !== null) 
           ? (item.revenueEstimate >= 1e9 ? `$${(item.revenueEstimate / 1e9).toFixed(1)}B` : `$${(item.revenueEstimate / 1e6).toFixed(0)}M`) 
           : 'N/A';
+        const secUrl = `https://www.sec.gov/edgar/searchedgar/companysearch?companyName=${encodeURIComponent(item.ticker)}`;
 
         return `
           <div class="earnings-card-item">
             <div class="earnings-header-row">
-              <button type="button" class="earnings-symbol-btn" data-open-diagnostic="${sanitize(item.ticker)}" title="Run 5-layer diagnostic on $${sanitize(item.ticker)}">
+              <a href="/ticker/${encodeURIComponent(item.ticker.toLowerCase())}/" class="earnings-symbol-btn" title="Open $${sanitize(item.ticker)} breakout hub">
                 $${sanitize(item.ticker)}
-              </button>
+              </a>
               <span class="timing-badge ${timingClass}">${timingLabel}</span>
             </div>
             <div class="earnings-stats-table">
@@ -746,9 +838,14 @@
             </div>
             <div class="earnings-date-meta">
               <span>Date: ${sanitize(item.date)}</span>
-              <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(item.ticker)}">
-                Inspect
-              </button>
+              <div class="wire-action-btns">
+                <a href="${secUrl}" target="_blank" rel="noopener noreferrer" class="wire-source-btn">
+                  SEC Filings &nearr;
+                </a>
+                <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(item.ticker)}">
+                  Why Is It Moving? &rarr;
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -787,6 +884,14 @@
             </div>
             <div class="earnings-date-meta">
               <span>${sanitize(item.country || 'US')} &bull; ${sanitize(item.date)}</span>
+              <div class="wire-action-btns">
+                <a href="https://www.federalreserve.gov/monetarypolicy.htm" target="_blank" rel="noopener noreferrer" class="wire-source-btn">
+                  Fed Release &nearr;
+                </a>
+                <button type="button" class="wire-why-btn" data-open-diagnostic="SPY">
+                  Why Is It Moving? &rarr;
+                </button>
+              </div>
             </div>
           </div>
         `;

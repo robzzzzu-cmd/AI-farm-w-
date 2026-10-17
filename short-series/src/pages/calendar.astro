@@ -694,17 +694,53 @@ const calendarSchema = {
       return div.innerHTML;
     }
 
+    const COMPANY_TICKER_MAP = [
+      [/\bnvidia\b/i, 'NVDA'],
+      [/\btesla\b/i, 'TSLA'],
+      [/\bapple\b/i, 'AAPL'],
+      [/\bmicrosoft\b/i, 'MSFT'],
+      [/\bamazon\b/i, 'AMZN'],
+      [/\bmeta\b|\bfacebook\b/i, 'META'],
+      [/\balphabet\b|\bgoogle\b/i, 'GOOGL'],
+      [/\bbroadcom\b/i, 'AVGO'],
+      [/\bpalantir\b/i, 'PLTR'],
+      [/\bamd\b|\badvanced micro\b/i, 'AMD'],
+      [/\bintel\b/i, 'INTC'],
+      [/\bmicron\b/i, 'MU'],
+      [/\bsuper micro\b|\bsmci\b/i, 'SMCI'],
+      [/\bnetflix\b/i, 'NFLX'],
+      [/\btaiwan semi|\btsmc\b/i, 'TSM'],
+      [/\bmorgan stanley\b/i, 'MS'],
+      [/\bgoldman sachs\b/i, 'GS'],
+      [/\bjpmorgan\b|\bjp morgan\b/i, 'JPM'],
+      [/\bbank of america\b/i, 'BAC'],
+      [/\bcitigroup\b/i, 'C'],
+      [/\bcoinbase\b/i, 'COIN'],
+      [/\bmicrostrategy\b/i, 'MSTR'],
+      [/\bboeing\b/i, 'BA'],
+      [/\beli lilly\b/i, 'LLY'],
+      [/\bnovo nordisk\b/i, 'NVO'],
+      [/\boracle\b/i, 'ORCL'],
+      [/\bsalesforce\b/i, 'CRM'],
+      [/\barm holdings\b/i, 'ARM'],
+      [/\bqualcomm\b/i, 'QCOM'],
+      [/\bchip stocks\b|\bsemiconductor/i, 'SOXX']
+    ];
+
     function extractTicker(title) {
       if (!title) return null;
       const cashMatch = title.match(/\$([A-Z]{1,5})\b/);
       if (cashMatch) return cashMatch[1];
       const parenMatch = title.match(/\(([A-Z]{1,5})\)/);
-      if (parenMatch && !['US', 'ETF', 'CEO', 'IPO', 'SEC', 'FED', 'AI'].includes(parenMatch[1])) {
+      if (parenMatch && !['US', 'ETF', 'CEO', 'IPO', 'SEC', 'FED', 'AI', 'IMF', 'GDP', 'CPI'].includes(parenMatch[1])) {
         return parenMatch[1];
       }
       const colonMatch = title.match(/\b([A-Z]{2,5}):/);
-      if (colonMatch && !['NEWS', 'POST', 'LIVE'].includes(colonMatch[1])) {
+      if (colonMatch && !['NEWS', 'POST', 'LIVE', 'IMF', 'CNBC'].includes(colonMatch[1])) {
         return colonMatch[1];
+      }
+      for (const [regex, sym] of COMPANY_TICKER_MAP) {
+        if (regex.test(title)) return sym;
       }
       return null;
     }
@@ -865,6 +901,9 @@ const calendarSchema = {
         }
 
         const diagnosticTicker = isStock ? item.ticker : 'SPY';
+        const titleHtml = item.sourceLink
+          ? `<a href="${sanitize(item.sourceLink)}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;" title="Open ${sanitize(item.sourceLabel || 'Original Source')}">${sanitize(item.title)}</a>`
+          : sanitize(item.title);
 
         return `
           <div class="calendar-card">
@@ -873,7 +912,7 @@ const calendarSchema = {
                 ${tickerLink}
                 <span class="event-timing-tag ${timingClass}">${timingLabel}</span>
               </div>
-              <h3 class="card-title">${sanitize(item.title)}</h3>
+              <h3 class="card-title">${titleHtml}</h3>
               ${item.description ? `<p class="card-description">${sanitize(item.description)}</p>` : ''}
               ${metricsHtml}
               <div class="card-date-meta">Date / Session: <strong>${sanitize(item.date)}</strong></div>
