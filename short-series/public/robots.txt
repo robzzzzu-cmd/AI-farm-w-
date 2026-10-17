@@ -1,6 +1,8 @@
 # short-series/public/robots.txt
 User-agent: *
 Allow: /
-Disallow: /api/
+Allow: /api/
+Disallow: /api/subscribe
 
 Sitemap: https://tradeopportunities.trade/sitemap-index.xml
+

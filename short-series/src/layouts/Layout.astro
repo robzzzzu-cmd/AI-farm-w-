@@ -93,6 +93,11 @@ const isAbout = currentPath.startsWith('/about');
       </div>
 
       <div class="sidebar-body">
+        <div class="sidebar-search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="sidebar-search-input" class="search-input" style="width: 100%;" placeholder="Jump to $TICKER (e.g. NVDA)..." />
+        </div>
+
         <div class="sidebar-group-label">Main Pages</div>
         <nav class="sidebar-nav">
           <a href="/" class:list={['sidebar-nav-item', { active: isHome }]}>
@@ -103,7 +108,7 @@ const isAbout = currentPath.startsWith('/about');
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
             <span>News Feed</span>
           </a>
-          <a href="/screener" class:list={['sidebar-nav-item', { active: isScreener }]}>
+          <a href="/screener/" class:list={['sidebar-nav-item', { active: isScreener }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
             <span>Live Screener</span>
           </a>
@@ -115,23 +120,23 @@ const isAbout = currentPath.startsWith('/about');
 
         <div class="sidebar-group-label">Research &amp; Analytics</div>
         <nav class="sidebar-nav">
-          <a href="/rvol-screener" class:list={['sidebar-nav-item', { active: isRvol }]}>
+          <a href="/rvol-screener/" class:list={['sidebar-nav-item', { active: isRvol }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             <span>RVOL Screener</span>
           </a>
-          <a href="/calendar" class:list={['sidebar-nav-item', { active: isCalendar }]}>
+          <a href="/calendar/" class:list={['sidebar-nav-item', { active: isCalendar }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             <span>Earnings &amp; Catalyst Calendar</span>
           </a>
-          <a href="/dilution-risk" class:list={['sidebar-nav-item', { active: isDilution }]}>
+          <a href="/dilution-risk/" class:list={['sidebar-nav-item', { active: isDilution }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             <span>Stock Dilution &amp; Risk</span>
           </a>
-          <a href="/tools" class:list={['sidebar-nav-item', { active: isTools }]}>
+          <a href="/tools/" class:list={['sidebar-nav-item', { active: isTools }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Trading Tools &amp; Swaps</span>
           </a>
-          <a href="/track-record" class:list={['sidebar-nav-item', { active: isTrackRecord }]}>
+          <a href="/track-record/" class:list={['sidebar-nav-item', { active: isTrackRecord }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
             <span>Track Record</span>
           </a>
@@ -146,7 +151,7 @@ const isAbout = currentPath.startsWith('/about');
             </svg>
             <span>Weekly News</span>
           </a>
-          <a href="/about" class:list={['sidebar-nav-item', { active: isAbout }]}>
+          <a href="/about/" class:list={['sidebar-nav-item', { active: isAbout }]}>
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
             <span>Methodology</span>
           </a>
@@ -180,15 +185,16 @@ const isAbout = currentPath.startsWith('/about');
 
           <ul class="nav-links">
             <li><a href="/#news-feed" class:list={[{ active: isHome }]}>News Feed</a></li>
-            <li><a href="/screener" class:list={[{ active: isScreener }]}>Live Screener</a></li>
-            <li><a href="/#opportunities">Breakouts</a></li>
+            <li><a href="/screener/" class:list={[{ active: isScreener }]}>Live Screener</a></li>
+            <li><a href="/rvol-screener/" class:list={[{ active: isRvol }]}>RVOL</a></li>
+            <li><a href="/calendar/" class:list={[{ active: isCalendar }]}>Calendar</a></li>
           </ul>
         </div>
 
         <div class="nav-actions">
           <div class="search-box">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="filter-input" class="search-input" placeholder="Search ticker..." />
+            <input type="text" id="filter-input" class="search-input" placeholder="Search $TICKER..." />
           </div>
 
           <button id="theme-toggle-btn" class="icon-action-btn" aria-label="Toggle light / dark mode" title="Switch Theme">
@@ -227,7 +233,7 @@ const isAbout = currentPath.startsWith('/about');
     <!-- Cookie Consent Banner -->
     <div id="cookie-banner" class="cookie-banner hidden">
       <div class="cookie-content">
-        <p>We use cookies to ensure proper analytics, security, and market feed synchronization. Review our <a href="/privacy">Privacy Policy</a>.</p>
+        <p>We use cookies to ensure proper analytics, security, and market feed synchronization. Review our <a href="/privacy/">Privacy Policy</a>.</p>
         <div class="cookie-actions">
           <button id="accept-cookies" class="cookie-btn accept">Accept All</button>
           <button id="decline-cookies" class="cookie-btn decline">Essential Only</button>
@@ -247,13 +253,27 @@ const isAbout = currentPath.startsWith('/about');
         <div class="footer-meta">
           <p>&copy; {new Date().getFullYear()} Trade Opportunities. All rights reserved.</p>
           <div class="legal-links">
-            <a href="/about">Methodology &amp; E-E-A-T</a>
+            <a href="/screener/">Live Screener</a>
             <span>&bull;</span>
-            <a href="/privacy">Privacy Policy</a>
+            <a href="/rvol-screener/">RVOL Screener</a>
             <span>&bull;</span>
-            <a href="/terms">Terms of Service</a>
+            <a href="/calendar/">Catalyst Calendar</a>
             <span>&bull;</span>
-            <a href="/rss.xml">RSS Feed</a>
+            <a href="/dilution-risk/">Dilution Risk</a>
+            <span>&bull;</span>
+            <a href="/track-record/">Track Record</a>
+            <span>&bull;</span>
+            <a href="/tools/">Trading Tools</a>
+            <span>&bull;</span>
+            <a href="/category/equities/">Equities Archive</a>
+            <span>&bull;</span>
+            <a href="/about/">Methodology</a>
+            <span>&bull;</span>
+            <a href="/privacy/">Privacy</a>
+            <span>&bull;</span>
+            <a href="/terms/">Terms</a>
+            <span>&bull;</span>
+            <a href="/rss.xml">RSS</a>
           </div>
         </div>
       </div>
@@ -320,19 +340,30 @@ const isAbout = currentPath.startsWith('/about');
         });
       })();
 
-      // 3. Search Field Redirect
+      // 3. Search Field Redirect (supports direct $TICKER lookup)
       (function initSearchRedirect() {
-        const searchInput = document.getElementById('filter-input');
-        if (!searchInput) return;
-
-        searchInput.addEventListener('keydown', (e) => {
+        function handleSearchKeydown(e, inputEl) {
           if (e.key === 'Enter') {
-            const q = searchInput.value.trim();
-            if (q) {
-              window.location.href = `/?search=${encodeURIComponent(q)}#news-feed`;
+            const raw = inputEl.value.trim();
+            if (!raw) return;
+            const cleanTicker = raw.replace(/^\$/, '').trim();
+            if (/^[A-Za-z]{1,5}(\.[A-Za-z]{1,2})?$/.test(cleanTicker)) {
+              window.location.href = `/ticker/${cleanTicker.toLowerCase()}/`;
+            } else {
+              window.location.href = `/?search=${encodeURIComponent(raw)}#news-feed`;
             }
           }
-        });
+        }
+
+        const searchInput = document.getElementById('filter-input');
+        if (searchInput) {
+          searchInput.addEventListener('keydown', (e) => handleSearchKeydown(e, searchInput));
+        }
+
+        const sidebarSearch = document.getElementById('sidebar-search-input');
+        if (sidebarSearch) {
+          sidebarSearch.addEventListener('keydown', (e) => handleSearchKeydown(e, sidebarSearch));
+        }
       })();
 
       // 4. Cookie Banner
@@ -522,6 +553,12 @@ const isAbout = currentPath.startsWith('/about');
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+  }
+  .sidebar-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
   }
   .sidebar-group-label {
     font-size: 0.65rem;

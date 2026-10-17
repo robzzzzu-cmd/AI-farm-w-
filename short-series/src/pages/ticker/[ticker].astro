@@ -2,86 +2,105 @@
 // short-series/src/pages/ticker/[ticker].astro
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import DiagnosticDrawer from '../../components/DiagnosticDrawer.astro';
 import { formatMarketDate } from '../../utils/dateFormat';
 
-export async function getStaticPaths() {
-  const allPosts = await getCollection('blog');
-  const tickerMap = new Map();
+export const prerender = false;
 
-  for (const post of allPosts) {
-    const mentioned = new Set([
-      ...(post.data?.tickers || []),
-      ...(post.data?.leadTicker ? [post.data.leadTicker] : []),
-      ...(post.data?.gainers?.map((g: any) => g.ticker) || []),
-      ...(post.data?.losers?.map((l: any) => l.ticker) || []),
-      ...(post.data?.active?.map((a: any) => a.ticker) || []),
-    ]);
+const rawParam = (Astro.params.ticker || '').trim().toUpperCase().replace(/^\$/, '');
+if (!rawParam || !/^[A-Z0-9.-]{1,10}$/.test(rawParam) || /[\^#+/?&=%]/.test(rawParam)) {
+  return Astro.redirect('/screener/');
+}
 
-    for (const rawTicker of mentioned) {
-      if (!rawTicker || typeof rawTicker !== 'string') continue;
-      const cleanTicker = rawTicker.trim().toUpperCase().replace(/^\$/, '');
-      // Only permit clean standard ticker symbols (letters, digits, dots, hyphens)
-      // Exclude invalid URL characters like ^, #, +, /, ?, &
-      if (!cleanTicker || !/^[A-Z0-9.-]{1,8}$/.test(cleanTicker) || /[\^#+/?&=%]/.test(cleanTicker)) continue;
+const ticker = rawParam;
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
 
-      if (!tickerMap.has(cleanTicker)) {
-        tickerMap.set(cleanTicker, {
-          ticker: cleanTicker,
-          posts: [],
-          latestStats: null,
-        });
-      }
+const allPosts = await getCollection('blog');
+const matchingPosts: any[] = [];
+let latestStats: any = null;
 
-      const entry = tickerMap.get(cleanTicker);
-      entry.posts.push(post);
+const sortedAllPosts = allPosts.sort((a: any, b: any) => {
+  const dateA = new Date(a.data?.pubDate || a.data?.date || 0).getTime();
+  const dateB = new Date(b.data?.pubDate || b.data?.date || 0).getTime();
+  return dateB - dateA;
+});
 
-      if (!entry.latestStats) {
-        const foundItem = 
-          post.data?.gainers?.find((g: any) => g.ticker.toUpperCase() === cleanTicker) ||
-          post.data?.losers?.find((l: any) => l.ticker.toUpperCase() === cleanTicker) ||
-          post.data?.active?.find((a: any) => a.ticker.toUpperCase() === cleanTicker);
+for (const post of sortedAllPosts) {
+  const mentioned = new Set([
+    ...(post.data?.tickers || []),
+    ...(post.data?.leadTicker ? [post.data.leadTicker] : []),
+    ...(post.data?.gainers?.map((g: any) => g.ticker) || []),
+    ...(post.data?.losers?.map((l: any) => l.ticker) || []),
+    ...(post.data?.active?.map((a: any) => a.ticker) || []),
+  ]);
 
-        if (foundItem) {
-          entry.latestStats = foundItem;
-        }
+  const hasMatch = Array.from(mentioned).some(
+    (t) => typeof t === 'string' && t.trim().toUpperCase().replace(/^\$/, '') === ticker
+  );
+
+  if (hasMatch) {
+    matchingPosts.push(post);
+    if (!latestStats) {
+      const foundItem =
+        post.data?.gainers?.find((g: any) => String(g.ticker).toUpperCase() === ticker) ||
+        post.data?.losers?.find((l: any) => String(l.ticker).toUpperCase() === ticker) ||
+        post.data?.active?.find((a: any) => String(a.ticker).toUpperCase() === ticker);
+      if (foundItem) {
+        latestStats = {
+          price: parseFloat(foundItem.price) || 0,
+          change_percentage: parseFloat(foundItem.change_percentage) || 0,
+          volume: parseInt(foundItem.volume || '0', 10) || 0,
+          rvol: null,
+          name: ticker
+        };
       }
     }
   }
-
-  return Array.from(tickerMap.entries()).map(([ticker, data]) => {
-    const sortedPosts = data.posts.sort((a: any, b: any) => {
-      const dateA = new Date(a.data?.pubDate || a.data?.date || 0).getTime();
-      const dateB = new Date(b.data?.pubDate || b.data?.date || 0).getTime();
-      return dateB - dateA;
-    });
-
-    return {
-      params: { ticker: ticker.toLowerCase() },
-      props: {
-        ticker,
-        posts: sortedPosts,
-        latestStats: data.latestStats
-      }
-    };
-  });
 }
 
-const { ticker, posts, latestStats } = Astro.props;
+// Fetch live market quote from TradingView scanner so ANY ticker has real-time SSR metrics
+try {
+  const tvRes = await fetch('https://scanner.tradingview.com/america/scan', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    },
+    body: JSON.stringify({
+      filter: [{ left: 'name', operation: 'equal', right: ticker }],
+      columns: ['name', 'description', 'close', 'change', 'volume', 'relative_volume_10d_calc']
+    })
+  });
+  if (tvRes.ok) {
+    const tvJson = await tvRes.json();
+    const row = tvJson?.data?.[0]?.d;
+    if (Array.isArray(row) && row.length >= 5) {
+      latestStats = {
+        name: String(row[1] || ticker),
+        price: typeof row[2] === 'number' ? row[2] : (latestStats?.price || 0),
+        change_percentage: typeof row[3] === 'number' ? row[3] : (latestStats?.change_percentage || 0),
+        volume: typeof row[4] === 'number' ? row[4] : (latestStats?.volume || 0),
+        rvol: typeof row[5] === 'number' ? parseFloat(row[5].toFixed(2)) : null
+      };
+    }
+  }
+} catch (_) {}
 
+const posts = matchingPosts;
+const companyName = latestStats?.name && latestStats.name !== ticker ? latestStats.name : `${ticker} Equity`;
 const canonicalURL = new URL(`/ticker/${ticker.toLowerCase()}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
 const tvSymbolUrl = `https://www.tradingview.com/symbols/${ticker}/?aff_id=170147`;
-const latestPost = posts[0];
 const totalMentions = posts.length;
 
 const tickerSchema = {
   "@context": "https://schema.org",
   "@type": "ItemPage",
-  "name": `$${ticker} Stock Momentum & Liquidity Scan Hub`,
-  "description": `Quantitative breakout analysis, trading volume metrics, and algorithmic intelligence reports for $${ticker}.`,
+  "name": `$${ticker} (${companyName}) Stock Momentum & Liquidity Scan Hub`,
+  "description": `Quantitative breakout analysis, relative volume (RVOL) metrics, SEC dilution diagnostics, and market intelligence for $${ticker}.`,
   "url": canonicalURL,
   "mainEntity": {
     "@type": "FinancialProduct",
-    "name": `$${ticker} Equity Asset`,
+    "name": `$${ticker} - ${companyName}`,
     "tickerSymbol": ticker
   },
   "publisher": {
@@ -93,8 +112,8 @@ const tickerSchema = {
 ---
 
 <Layout 
-  title={`$${ticker} Stock Breakout Analysis & Technical Profile | Trade Opportunities`}
-  description={`Quantitative tracking, volume distributions, and historical momentum intelligence scans for $${ticker}.`}
+  title={`$${ticker} Stock Breakout Analysis, RVOL & SEC Diagnostic | Trade Opportunities`}
+  description={`Live relative volume (RVOL), technical breakout profile, SEC dilution risk check, and historical momentum scans for $${ticker} (${companyName}).`}
   canonicalURL={canonicalURL}
 >
   <Fragment slot="head">
@@ -105,8 +124,8 @@ const tickerSchema = {
     <!-- Breadcrumb & Header -->
     <header class="ticker-header">
       <div class="breadcrumb">
-        <a href="/">Terminal</a> &rsaquo; 
-        <a href="/category/equities/">Equities</a> &rsaquo; 
+        <a href="/">Dashboard</a> &rsaquo; 
+        <a href="/screener/">Live Screener</a> &rsaquo; 
         <span>${ticker}</span>
       </div>
 
@@ -114,17 +133,30 @@ const tickerSchema = {
         <div class="header-left">
           <div class="symbol-badge">${ticker}</div>
           <div>
-            <h1>${ticker} Breakout Profile</h1>
-            <p class="header-sub">Tracked across {totalMentions} quantitative market scan(s)</p>
+            <h1>${ticker} Breakout &amp; Liquidity Hub</h1>
+            <p class="header-sub">
+              {companyName !== `${ticker} Equity` ? `${companyName} • ` : ''}
+              {totalMentions > 0 ? `Tracked across ${totalMentions} quantitative market dispatch(es)` : 'Live US Equity Momentum & Catalyst Telemetry'}
+            </p>
           </div>
         </div>
 
         <div class="header-actions">
-          <a href={tvSymbolUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-            Trade ${ticker} on TradingView ↗
-          </a>
-          <a href="https://changenow.app.link/referral?link_id=1c434a8e93e8ff" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-            Execute Spot Swap ↗
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-open-diagnostic={ticker}
+            data-name={encodeURIComponent(companyName)}
+            data-price={latestStats?.price || ''}
+            data-change={latestStats?.change_percentage || ''}
+            data-volume={latestStats?.volume || ''}
+            data-rvol={latestStats?.rvol || ''}
+            style="border: none; cursor: pointer; font-family: inherit;"
+          >
+            Why Is ${ticker} Moving? (5-Layer Diagnostic) &rarr;
+          </button>
+          <a href={tvSymbolUrl} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            Analyze ${ticker} on TradingView ↗
           </a>
         </div>
       </div>
@@ -134,7 +166,9 @@ const tickerSchema = {
         <div class="metrics-grid">
           <div class="metric-card">
             <span class="m-label">Last Observed Price</span>
-            <span class="m-value">${parseFloat(latestStats.price).toFixed(2)}</span>
+            <span class="m-value">
+              ${latestStats.price < 1 && latestStats.price > 0 ? parseFloat(latestStats.price).toFixed(4) : parseFloat(latestStats.price).toFixed(2)}
+            </span>
           </div>
           <div class="metric-card">
             <span class="m-label">Intraday Delta</span>
@@ -143,12 +177,12 @@ const tickerSchema = {
             </span>
           </div>
           <div class="metric-card">
-            <span class="m-label">Monitored Session Volume</span>
+            <span class="m-label">Session Volume</span>
             <span class="m-value">{Number(latestStats.volume || 0).toLocaleString()}</span>
           </div>
           <div class="metric-card">
-            <span class="m-label">Model Verification</span>
-            <span class="m-value text-accent">&gt; 50k Volume Floor</span>
+            <span class="m-label">Relative Volume (RVOL)</span>
+            <span class="m-value text-accent">{latestStats.rvol ? `${latestStats.rvol}x Baseline` : 'Active Scan'}</span>
           </div>
         </div>
       )}
@@ -158,66 +192,95 @@ const tickerSchema = {
     <section class="chart-section">
       <h2 class="section-heading">01 // Multi-Timeframe Technical Workspace</h2>
       <div class="tv-embed-box">
-        <div class="tradingview-widget-container" style="height: 480px; width: 100%;">
+        <div class="tradingview-widget-container" id="ticker-tv-chart-container" data-symbol={ticker} style="height: 480px; width: 100%;">
           <div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async is:inline set:html={JSON.stringify({
+        </div>
+      </div>
+      <script is:inline>
+        (function initTickerTvChart() {
+          const container = document.getElementById('ticker-tv-chart-container');
+          if (!container) return;
+          const sym = container.getAttribute('data-symbol') || 'SPY';
+          const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+          const script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+          script.async = true;
+          script.innerHTML = JSON.stringify({
             "autosize": true,
-            "symbol": `${ticker}`,
+            "symbol": sym,
             "interval": "D",
             "timezone": "Etc/UTC",
-            "theme": "dark",
+            "theme": theme,
             "style": "1",
             "locale": "en",
             "enable_publishing": false,
             "allow_symbol_change": true,
             "support_host": "https://www.tradingview.com"
-          })}>
-          </script>
-        </div>
-      </div>
+          });
+          container.appendChild(script);
+        })();
+      </script>
     </section>
 
     <!-- Intelligence Dispatches Timeline -->
     <section class="dispatches-section">
-      <h2 class="section-heading">02 // Market Intelligence & Anomaly Scans</h2>
-      <div class="posts-list">
-        {posts.map((post: any) => (
-          <article class="post-item">
-            <div class="post-meta">
-              <time>{formatMarketDate(post.data?.pubDate || post.data?.date || post.data?.displayDate)}</time>
-              <span class="pill pill-category">{post.data?.category || 'Equities'}</span>
-              {post.data?.leadTicker === ticker && (
-                <span class="pill pill-lead">Lead Runner ({post.data?.leadGain || 'Breakout'})</span>
+      <h2 class="section-heading">02 // Market Intelligence &amp; Anomaly Scans</h2>
+      {posts.length > 0 ? (
+        <div class="posts-list">
+          {posts.map((post: any) => (
+            <article class="post-item">
+              <div class="post-meta">
+                <time>{formatMarketDate(post.data?.pubDate || post.data?.date || post.data?.displayDate)}</time>
+                <span class="pill pill-category">{post.data?.category || 'Equities'}</span>
+                {post.data?.leadTicker === ticker && (
+                  <span class="pill pill-lead">Lead Runner ({post.data?.leadGain || 'Breakout'})</span>
+                )}
+              </div>
+
+              <h3 class="post-title">
+                <a href={`/blog/${post.id.replace(/\.md$/, '').toLowerCase()}/`}>
+                  {post.data?.title}
+                </a>
+              </h3>
+
+              {post.data?.description && (
+                <p class="post-desc">{post.data.description}</p>
               )}
-            </div>
 
-            <h3 class="post-title">
-              <a href={`/blog/${post.id.replace(/\.md$/, '').toLowerCase()}/`}>
-                {post.data?.title}
-              </a>
-            </h3>
-
-            {post.data?.description && (
-              <p class="post-desc">{post.data.description}</p>
-            )}
-
-            <div class="post-foot">
-              <a href={`/blog/${post.id.replace(/\.md$/, '').toLowerCase()}/`} class="read-link">
-                Read Full Intelligence Dispatch &rarr;
-              </a>
-            </div>
-          </article>
-        ))}
-      </div>
+              <div class="post-foot">
+                <a href={`/blog/${post.id.replace(/\.md$/, '').toLowerCase()}/`} class="read-link">
+                  Read Full Intelligence Dispatch &rarr;
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="post-item">
+          <h3 class="post-title">Live Telemetry Active for ${ticker}</h3>
+          <p class="post-desc">
+            <strong>${ticker}</strong> ({companyName}) is actively monitored by our real-time volume and catalyst engines. Click <strong>"Why Is ${ticker} Moving?"</strong> above to run a live 5-layer attribution scan across SEC EDGAR filings (Form 8-K, S-3 shelf registrations, 424B5 ATM offerings), news catalysts, and relative volume anomalies.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem;">
+            <a href="/screener/" class="read-link">Open Live Breakout Screener &rarr;</a>
+            <a href="/rvol-screener/" class="read-link">Scan Relative Volume (RVOL) &rarr;</a>
+            <a href="/calendar/" class="read-link">Check Earnings &amp; Catalyst Calendar &rarr;</a>
+            <a href="/dilution-risk/" class="read-link">SEC Dilution Risk Playbook &rarr;</a>
+          </div>
+        </div>
+      )}
     </section>
 
     <!-- Primary Research Citation Footer -->
     <div class="research-footer">
       <p>
-        <strong>Compliance & Verification:</strong> Intraday price expansions and volume profiles for <strong>${ticker}</strong> are ingested via Alpha Vantage API and TradingView. For official corporate disclosures, prospectuses, and proxy statements, consult the <a href="https://www.sec.gov/edgar/searchedgar/companysearch" target="_blank" rel="noopener noreferrer">U.S. SEC EDGAR Database</a>.
+        <strong>Compliance &amp; Verification:</strong> Intraday price expansions and volume profiles for <strong>${ticker}</strong> are ingested via consolidated US exchange feeds and TradingView. For official corporate disclosures, prospectuses, and proxy statements, consult the <a href={`https://www.sec.gov/edgar/searchedgar/companysearch?companyName=${encodeURIComponent(ticker)}`} target="_blank" rel="noopener noreferrer">U.S. SEC EDGAR Database</a>.
       </p>
     </div>
   </div>
+
+  <DiagnosticDrawer />
 </Layout>
 
 <style>

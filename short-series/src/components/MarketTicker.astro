@@ -43,6 +43,7 @@ const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
     const container = document.getElementById('tv-ticker-tape-container');
     if (!container) return;
 
+    const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('to_theme') || 'dark';
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
@@ -61,7 +62,7 @@ const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
       "showSymbolLogo": false,
       "isTransparent": true,
       "displayMode": "compact",
-      "colorTheme": "dark",
+      "colorTheme": activeTheme === 'light' ? 'light' : 'dark',
       "locale": "en"
     });
 

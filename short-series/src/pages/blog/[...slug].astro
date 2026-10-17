@@ -2,6 +2,7 @@
 // short-series/src/pages/blog/[...slug].astro
 import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import DiagnosticDrawer from '../../components/DiagnosticDrawer.astro';
 import { formatMarketDate } from '../../utils/dateFormat';
 
 export const prerender = true;
@@ -147,18 +148,36 @@ const newsArticleSchema = {
     {post.data?.tickers && (
       <div class="ticker-tags">
         {post.data.tickers.map((t: string) => (
-          <a href={`https://www.tradingview.com/symbols/${t}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="ticker-pill">
+          <a href={`/ticker/${t.toLowerCase()}/`} class="ticker-pill" title={`Open $${t} Breakout & Liquidity Hub`}>
             ${t}
           </a>
         ))}
       </div>
     )}
 
-    {post.data?.refUrl && (
-      <a href={post.data.refUrl} target="_blank" rel="noopener noreferrer" class="card-action-btn">
-        {post.data.refLabel || "Access Liquidity Terminal"} &rarr;
-      </a>
-    )}
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+      {post.data?.leadTicker && (
+        <button
+          type="button"
+          class="card-action-btn"
+          data-open-diagnostic={post.data.leadTicker}
+          style="flex: 1; min-width: 220px; margin-top: 0; border: none; cursor: pointer; font-family: inherit;"
+        >
+          Why Is ${post.data.leadTicker} Moving? (5-Layer Diagnostic) &rarr;
+        </button>
+      )}
+      {post.data?.refUrl && (
+        <a
+          href={post.data.refUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card-action-btn"
+          style="flex: 1; min-width: 220px; margin-top: 0; background: var(--bg-surface-elevated); color: var(--text-primary) !important; border: 1px solid var(--border-subtle);"
+        >
+          {post.data.refLabel || "Access Liquidity Terminal"} &rarr;
+        </a>
+      )}
+    </div>
 
     {relatedPosts.length > 0 && (
       <section class="related-intel-section">
@@ -185,6 +204,8 @@ const newsArticleSchema = {
       </p>
     </footer>
   </article>
+
+  <DiagnosticDrawer />
 
   <script is:inline>
     (function() {
