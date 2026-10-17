@@ -30,9 +30,9 @@
 
     <!-- Tab Selector -->
     <div class="wire-tabs-bar" role="tablist">
-      <button class="wire-tab-btn active" data-wire-tab="news" type="button" role="tab" aria-selected="true">
-        <span>Breaking News Wire</span>
-        <span class="tab-count-pill" id="count-news">--</span>
+      <button class="wire-tab-btn active" data-wire-tab="all" type="button" role="tab" aria-selected="true">
+        <span>All Catalysts</span>
+        <span class="tab-count-pill" id="count-all">--</span>
       </button>
       <button class="wire-tab-btn" data-wire-tab="earnings" type="button" role="tab" aria-selected="false">
         <span>Earnings Schedule</span>
@@ -42,12 +42,37 @@
         <span>Macroeconomic Prints</span>
         <span class="tab-count-pill" id="count-macro">--</span>
       </button>
+      <button class="wire-tab-btn" data-wire-tab="news" type="button" role="tab" aria-selected="false">
+        <span>Breaking News Wire</span>
+        <span class="tab-count-pill" id="count-news">--</span>
+      </button>
     </div>
 
     <!-- Tab Panels -->
     <div class="wire-panels-wrap">
+      <!-- Panel 0: All Catalysts -->
+      <div class="wire-panel active" id="wire-panel-all" role="tabpanel">
+        <div class="wire-items-grid" id="wire-all-container">
+          <div class="wire-skeleton-card">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line meta"></div>
+            <div class="skeleton-line text"></div>
+          </div>
+          <div class="wire-skeleton-card">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line meta"></div>
+            <div class="skeleton-line text"></div>
+          </div>
+          <div class="wire-skeleton-card">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line meta"></div>
+            <div class="skeleton-line text"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Panel 1: News Wire -->
-      <div class="wire-panel active" id="wire-panel-news" role="tabpanel">
+      <div class="wire-panel" id="wire-panel-news" role="tabpanel" style="display: none;">
         <div class="wire-items-grid" id="wire-news-container">
           <div class="wire-skeleton-card">
             <div class="skeleton-line title"></div>
@@ -638,10 +663,12 @@
     const refreshLabel = document.getElementById('wire-refresh-label');
     const lastUpdatedLabel = document.getElementById('wire-last-updated');
     const tabBtns = document.querySelectorAll('.wire-tab-btn');
+    const countAll = document.getElementById('count-all');
     const countNews = document.getElementById('count-news');
     const countEarnings = document.getElementById('count-earnings');
     const countMacro = document.getElementById('count-macro');
 
+    const allContainer = document.getElementById('wire-all-container');
     const newsContainer = document.getElementById('wire-news-container');
     const earningsContainer = document.getElementById('wire-earnings-container');
     const macroContainer = document.getElementById('wire-macro-container');
@@ -657,7 +684,7 @@
         btn.classList.add('active');
         btn.setAttribute('aria-selected', 'true');
 
-        ['news', 'earnings', 'macro'].forEach(t => {
+        ['all', 'news', 'earnings', 'macro'].forEach(t => {
           const panel = document.getElementById('wire-panel-' + t);
           if (panel) {
             panel.style.display = (t === targetTab) ? 'block' : 'none';
@@ -914,9 +941,26 @@
         const data = await res.json();
 
         if (data.success) {
-          renderNews(data.breakingNews || []);
-          renderEarnings(data.earnings || []);
-          renderMacro(data.economic || []);
+          const newsList = data.breakingNews || [];
+          const earningsList = data.earnings || [];
+          const macroList = data.economic || [];
+
+          renderNews(newsList);
+          renderEarnings(earningsList);
+          renderMacro(macroList);
+
+          const totalCount = earningsList.length + macroList.length + newsList.length;
+          if (countAll) countAll.textContent = String(totalCount);
+
+          if (allContainer) {
+            const combinedHtml = [
+              earningsList.length > 0 && earningsContainer ? earningsContainer.innerHTML : '',
+              macroList.length > 0 && macroContainer ? macroContainer.innerHTML : '',
+              newsList.length > 0 && newsContainer ? newsContainer.innerHTML : ''
+            ].filter(Boolean).join('');
+
+            allContainer.innerHTML = combinedHtml || '<div class="wire-empty-state">Market wire is actively monitoring session flow.</div>';
+          }
 
           if (lastUpdatedLabel) {
             const now = new Date();

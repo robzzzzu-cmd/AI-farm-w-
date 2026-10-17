@@ -144,8 +144,8 @@ export async function fetchLiveNews(ticker?: string, limit: number = 8): Promise
 
   // 3. Fallback: Google News Financial RSS
   try {
-    const query = cleanTicker ? `${cleanTicker} stock` : '(NASDAQ OR NYSE) stock shares (earnings OR surge OR guidance OR upgrade)';
-    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}+when:2d&hl=en-US&gl=US&ceid=US:en`;
+    const query = cleanTicker ? `${cleanTicker} stock` : 'US stock market momentum OR earnings OR catalyst';
+    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}+when:3d&hl=en-US&gl=US&ceid=US:en`;
     const res = await fetch(rssUrl, {
       signal: AbortSignal.timeout(2800),
       headers: {

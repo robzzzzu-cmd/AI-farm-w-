@@ -25,7 +25,7 @@ export const GET: APIRoute = async () => {
     const [earnings, economic, breakingNews] = await Promise.all([
       fetchFinnhubEarnings(7),
       fetchFinnhubEconomicCalendar(),
-      fetchLiveNews(undefined, 6)
+      fetchLiveNews(undefined, 12)
     ]);
 
     const payload = {
