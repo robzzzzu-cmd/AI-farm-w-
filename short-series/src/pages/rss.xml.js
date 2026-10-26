@@ -6,7 +6,7 @@ export const prerender = true;
 
 export async function GET(context) {
   const blogPosts = await getCollection('blog');
-  const siteUrl = (context.site ? context.site.href : 'https://tradeopportunities.trade').replace(/\/$/, '');
+  const siteUrl = (context.site ? context.site.href : 'https://www.tradeopportunities.trade').replace(/\/$/, '');
 
   const items = blogPosts.map((post) => {
     const slug = post.id.replace(/\.md$/, '').toLowerCase();

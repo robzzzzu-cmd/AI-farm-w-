@@ -4,5 +4,5 @@ Allow: /
 Allow: /api/
 Disallow: /api/subscribe
 
-Sitemap: https://tradeopportunities.trade/sitemap-index.xml
+Sitemap: https://www.tradeopportunities.trade/sitemap-index.xml
 

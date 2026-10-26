@@ -88,7 +88,7 @@ try {
 
 const posts = matchingPosts;
 const companyName = latestStats?.name && latestStats.name !== ticker ? latestStats.name : `${ticker} Equity`;
-const canonicalURL = new URL(`/ticker/${ticker.toLowerCase()}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
+const canonicalURL = new URL(`/ticker/${ticker.toLowerCase()}/`, Astro.site ?? 'https://www.tradeopportunities.trade').href;
 const tvSymbolUrl = `https://www.tradingview.com/symbols/${ticker}/?aff_id=170147`;
 const totalMentions = posts.length;
 
@@ -106,7 +106,7 @@ const tickerSchema = {
   "publisher": {
     "@type": "Organization",
     "name": "Trade Opportunities",
-    "url": "https://tradeopportunities.trade"
+    "url": "https://www.tradeopportunities.trade"
   }
 };
 ---

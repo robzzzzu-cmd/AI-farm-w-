@@ -27,11 +27,11 @@ function getBlogTickerUrls() {
       }
     }
   } catch (_) {}
-  return Array.from(tickerSet).map((t) => `https://tradeopportunities.trade/ticker/${t}/`);
+  return Array.from(tickerSet).map((t) => `https://www.tradeopportunities.trade/ticker/${t}/`);
 }
 
 export default defineConfig({
-  site: 'https://tradeopportunities.trade',
+  site: 'https://www.tradeopportunities.trade',
   trailingSlash: 'always',
   adapter: vercel(),
   redirects: {
@@ -44,7 +44,7 @@ export default defineConfig({
       priority: 0.8,
       serialize(item) {
         // High priority for market feed home
-        if (item.url === 'https://tradeopportunities.trade/') {
+        if (item.url === 'https://www.tradeopportunities.trade/') {
           item.priority = 1.0;
           item.changefreq = 'hourly';
           item.lastmod = new Date().toISOString();

@@ -48,12 +48,12 @@ const isoModDate = !isNaN(modDateObj.getTime()) ? modDateObj.toISOString() : iso
 const displayDate = formatMarketDate(rawPubDate || post.data?.displayDate);
 
 const slug = post.id.replace(/\.md$/, '').toLowerCase();
-const canonicalURL = new URL(`/blog/${slug}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
+const canonicalURL = new URL(`/blog/${slug}/`, Astro.site ?? 'https://www.tradeopportunities.trade').href;
 
 // Dynamic Image URL
 const postImage = post.data?.image && post.data.image.startsWith('http') && !post.data.image.includes('favicon.svg')
   ? post.data.image
-  : `https://tradeopportunities.trade/og/${slug}.svg`;
+  : `https://www.tradeopportunities.trade/og/${slug}.svg`;
 
 const postCategory = post.data?.category || 'Equities';
 const categorySlug = postCategory.toLowerCase().replace(/\s+/g, '-');
@@ -92,14 +92,14 @@ const newsArticleSchema = {
   "author": {
     "@type": "Organization",
     "name": "Trade Opportunities Intelligence Desk",
-    "url": "https://tradeopportunities.trade/about"
+    "url": "https://www.tradeopportunities.trade/about/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "Trade Opportunities",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://tradeopportunities.trade/favicon.svg"
+      "url": "https://www.tradeopportunities.trade/favicon.svg"
     }
   }
 };

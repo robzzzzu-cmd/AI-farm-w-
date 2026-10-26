@@ -7,6 +7,12 @@ import { formatMarketDate } from '../../utils/dateFormat';
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog');
 
+  const sortedAllPosts = [...allPosts].sort((a, b) => {
+    const dateA = new Date(a.data.pubDate || a.data.date || 0).getTime();
+    const dateB = new Date(b.data.pubDate || b.data.date || 0).getTime();
+    return dateB - dateA;
+  });
+
   // Helper to extract all categories assigned to a post across legacy and new schemas
   const getPostCategories = (post: (typeof allPosts)[number]): string[] => {
     if (Array.isArray(post.data.categories) && post.data.categories.length > 0) {
@@ -20,7 +26,7 @@ export async function getStaticPaths() {
 
   const categoryMap = new Map<string, { name: string; posts: typeof allPosts }>();
 
-  for (const post of allPosts) {
+  for (const post of sortedAllPosts) {
     const cats = getPostCategories(post);
     for (const cat of cats) {
       const slug = cat.toLowerCase().replace(/\s+/g, '-');
@@ -31,7 +37,7 @@ export async function getStaticPaths() {
     }
   }
 
-  // Ensure standard asset hubs exist even if no posts are tagged yet
+  // Keep standard hubs resolvable so existing indexed/validated URLs return 200 OK with rich content
   const defaultHubs = ['equities', 'forex', 'crypto', 'commodities'];
   for (const slug of defaultHubs) {
     if (!categoryMap.has(slug)) {
@@ -40,23 +46,41 @@ export async function getStaticPaths() {
     }
   }
 
+  const allCategoryLinks = Array.from(categoryMap.entries()).map(([slug, data]) => ({
+    slug,
+    name: data.name,
+    count: data.posts.length
+  }));
+
   return Array.from(categoryMap.entries()).map(([slug, data]) => ({
     params: { category: slug },
     props: {
       categorySlug: slug,
       categoryName: data.name,
-      posts: data.posts.sort((a, b) => {
-        const dateA = new Date(a.data.pubDate || a.data.date || 0).getTime();
-        const dateB = new Date(b.data.pubDate || b.data.date || 0).getTime();
-        return dateB - dateA;
-      })
+      posts: data.posts,
+      fallbackPosts: sortedAllPosts.slice(0, 8),
+      allCategories: allCategoryLinks
     }
   }));
 }
 
-const { categorySlug, categoryName, posts } = Astro.props;
-const canonicalURL = new URL(`/category/${categorySlug}/`, Astro.site ?? 'https://tradeopportunities.trade').href;
-const pageDescription = `Curated ${categoryName} market intelligence reports, momentum breakout tracking, and quantitative liquidity scans on Trade Opportunities.`;
+const { categorySlug, categoryName, posts, fallbackPosts = [], allCategories = [] } = Astro.props;
+const canonicalURL = new URL(`/category/${categorySlug}/`, Astro.site ?? 'https://www.tradeopportunities.trade').href;
+const hasDirectPosts = posts.length > 0;
+const displayPosts = hasDirectPosts ? posts : fallbackPosts;
+
+const hubSummaries: Record<string, string> = {
+  'equities': 'Quantitative US equities momentum briefs, unusual relative volume (RVOL) breakout tracking, and SEC filing catalyst attribution.',
+  'market-brief': 'Comprehensive daily market intelligence dispatches covering high-RVOL equities, sector rotation, and macroeconomic catalysts.',
+  'morning-brief': 'Pre-market and opening-bell quantitative briefings tracking overnight gaps, earnings reactions, and early session liquidity.',
+  'midday-update': 'Intraday momentum checkpoints analyzing relative volume expansion, VWAP trend continuation, and midday sector leadership.',
+  'closing-report': 'End-of-day institutional flow wrap-ups, closing bell volume distributions, and after-hours earnings movers.',
+  'forex': 'Cross-asset currency volatility context, DXY dollar index liquidity trends, and macro rate-differential impacts on US equities.',
+  'crypto': 'Digital asset liquidity tracking, crypto-correlated equity momentum ($COIN, $MSTR, $MARA), and cross-market risk appetite.',
+  'commodities': 'Energy, precious metals, and industrial commodity cycle diagnostics alongside high-beta resource equity breakouts.'
+};
+
+const pageDescription = hubSummaries[categorySlug] || `Curated ${categoryName} market intelligence reports, momentum breakout tracking, and quantitative liquidity scans on Trade Opportunities.`;
 
 const categorySchema = {
   "@context": "https://schema.org",
@@ -67,10 +91,10 @@ const categorySchema = {
   "publisher": {
     "@type": "Organization",
     "name": "Trade Opportunities",
-    "url": "https://tradeopportunities.trade",
+    "url": "https://www.tradeopportunities.trade",
     "logo": {
       "@type": "ImageObject",
-      "url": "https://tradeopportunities.trade/favicon.svg"
+      "url": "https://www.tradeopportunities.trade/favicon.svg"
     }
   }
 };
@@ -84,56 +108,414 @@ const categorySchema = {
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(categorySchema)} />
   </Fragment>
-  <main class="max-w-4xl mx-auto px-4 py-10">
-    <header class="border-b border-gray-200 dark:border-gray-800 pb-6 mb-8">
-      <span class="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 rounded">
-        Topic Hub
-      </span>
-      <h1 class="text-3xl font-extrabold tracking-tight mt-2">{categoryName} Intelligence</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">
-        Archived quantitative scans, volume distributions, and momentum updates.
-      </p>
+
+  <div class="category-hub-wrapper">
+    <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+      <a href="/">Terminal Home</a>
+      <span class="sep">/</span>
+      <span class="current">Topic Hub: {categoryName}</span>
+    </nav>
+
+    <header class="hub-header">
+      <div class="hub-badge-row">
+        <span class="hub-pill">INTELLIGENCE ARCHIVE &bull; TOPIC HUB</span>
+        <span class="hub-count-badge">
+          {hasDirectPosts ? `${posts.length} ${posts.length === 1 ? 'Dispatch' : 'Dispatches'}` : `Cross-Asset Feed (${displayPosts.length} Latest Dispatches)`}
+        </span>
+      </div>
+      <h1 class="hub-title">{categoryName} Intelligence Hub</h1>
+      <p class="hub-subtitle">{pageDescription}</p>
+
+      <!-- Live Terminal Tool Links for Crawler & Trader Navigation -->
+      <div class="hub-tools-bar">
+        <a href="/screener/" class="tool-chip">Live Momentum Screener &rarr;</a>
+        <a href="/rvol-screener/" class="tool-chip">RVOL Scanner &rarr;</a>
+        <a href="/calendar/" class="tool-chip">Earnings &amp; Catalyst Calendar &rarr;</a>
+        <a href="/track-record/" class="tool-chip">Signal Track Record &rarr;</a>
+        <a href="/dilution-risk/" class="tool-chip">SEC Dilution Guide &rarr;</a>
+      </div>
+
+      <!-- Category Hub Switcher -->
+      {allCategories.length > 0 && (
+        <div class="category-switcher" aria-label="Browse Intelligence Hubs">
+          {allCategories.map((cat) => (
+            <a
+              href={`/category/${cat.slug}/`}
+              class:list={['cat-tab', { active: cat.slug === categorySlug }]}
+            >
+              <span>{cat.name}</span>
+              {cat.count > 0 && <span class="cat-count">{cat.count}</span>}
+            </a>
+          ))}
+        </div>
+      )}
     </header>
 
-    {posts.length === 0 ? (
-      <p class="text-gray-500 py-8">No updates currently cataloged under {categoryName}.</p>
-    ) : (
-      <div class="space-y-6">
-        {posts.map((post) => (
-          <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-              <span>{formatMarketDate(post.data.pubDate || post.data.date || post.data.displayDate)}</span>
+    {!hasDirectPosts && (
+      <section class="cross-asset-notice">
+        <div class="notice-header">
+          <span class="notice-dot"></span>
+          <strong>Cross-Asset Intelligence Feed Active</strong>
+        </div>
+        <p>
+          Direct standalone dispatches under <strong>{categoryName}</strong> are currently consolidated into our primary institutional market briefs. Below are the most recent quantitative market intelligence reports, high-RVOL equity breakouts, and macro catalyst analyses across the terminal.
+        </p>
+      </section>
+    )}
+
+    <section class="dispatch-list" aria-label={`${categoryName} Market Dispatches`}>
+      {displayPosts.map((post) => {
+        const slug = post.id.replace(/\.md$/, '').toLowerCase();
+        const postDate = formatMarketDate(post.data.pubDate || post.data.date || post.data.displayDate);
+        const tickers: string[] = Array.isArray(post.data.tickers) ? post.data.tickers.slice(0, 6) : [];
+        return (
+          <article class="dispatch-card">
+            <div class="dispatch-meta">
+              <span class="dispatch-date">{postDate}</span>
+              {post.data.category && (
+                <span class="dispatch-cat">{post.data.category}</span>
+              )}
               {post.data.leadTicker && (
-                <>
-                  <span>•</span>
-                  <span class="font-semibold text-emerald-600 dark:text-emerald-400">
-                    Lead: ${post.data.leadTicker} {post.data.leadGain ? `(${post.data.leadGain})` : ''}
-                  </span>
-                </>
+                <a href={`/ticker/${String(post.data.leadTicker).toLowerCase()}/`} class="dispatch-lead-ticker">
+                  Lead: ${post.data.leadTicker} {post.data.leadGain ? `(${post.data.leadGain})` : ''}
+                </a>
               )}
             </div>
-            <h2 class="text-xl font-bold">
-              <a href={`/blog/${post.id.replace(/\.md$/, '').toLowerCase()}/`} class="hover:text-blue-600 dark:hover:text-blue-400 transition">
+
+            <h2 class="dispatch-title">
+              <a href={`/blog/${slug}/`}>
                 {post.data.title}
               </a>
             </h2>
+
             {post.data.description && (
-              <p class="text-gray-600 dark:text-gray-300 mt-2 text-sm leading-relaxed">
-                {post.data.description}
-              </p>
+              <p class="dispatch-desc">{post.data.description}</p>
             )}
-            {post.data.tags && post.data.tags.length > 0 && (
-              <div class="flex flex-wrap gap-2 mt-4">
-                {post.data.tags.map((tag) => (
-                  <span class="text-xs px-2.5 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
+
+            <div class="dispatch-footer">
+              {tickers.length > 0 && (
+                <div class="ticker-chips">
+                  {tickers.map((sym) => (
+                    <a href={`/ticker/${String(sym).toLowerCase()}/`} class="ticker-chip">
+                      ${sym}
+                    </a>
+                  ))}
+                </div>
+              )}
+              <a href={`/blog/${slug}/`} class="read-report-link">
+                Read Full Report &rarr;
+              </a>
+            </div>
           </article>
-        ))}
-      </div>
-    )}
-  </main>
+        );
+      })}
+    </section>
+  </div>
 </Layout>
+
+<style>
+  .category-hub-wrapper {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .breadcrumb-nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .breadcrumb-nav a:hover {
+    color: var(--brand-accent);
+  }
+
+  .breadcrumb-nav .current {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .hub-header {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .hub-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hub-pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand-accent);
+    background: rgba(59, 130, 246, 0.12);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+  }
+
+  .hub-count-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.22rem 0.6rem;
+    border-radius: 6px;
+  }
+
+  .hub-title {
+    font-size: clamp(1.65rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .hub-subtitle {
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0 0 1.25rem 0;
+    max-width: 780px;
+  }
+
+  .hub-tools-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+    margin-bottom: 1rem;
+  }
+
+  .tool-chip {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.38rem 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .tool-chip:hover {
+    border-color: var(--brand-accent);
+    color: var(--brand-accent);
+  }
+
+  .category-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--border-subtle);
+  }
+
+  .cat-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .cat-tab:hover {
+    color: var(--text-primary);
+    border-color: var(--text-muted);
+  }
+
+  .cat-tab.active {
+    color: #fff;
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+  }
+
+  .cat-count {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    opacity: 0.85;
+  }
+
+  .cross-asset-notice {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--brand-accent);
+    border-radius: 10px;
+    padding: 1.1rem 1.35rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .notice-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+  }
+
+  .notice-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    display: inline-block;
+  }
+
+  .cross-asset-notice p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .dispatch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .dispatch-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.35rem 1.5rem;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .dispatch-card:hover {
+    border-color: rgba(59, 130, 246, 0.45);
+  }
+
+  .dispatch-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-bottom: 0.55rem;
+  }
+
+  .dispatch-cat {
+    color: var(--text-secondary);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.12rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .dispatch-lead-ticker {
+    font-weight: 700;
+    color: var(--gain-color);
+    text-decoration: none;
+  }
+
+  .dispatch-lead-ticker:hover {
+    text-decoration: underline;
+  }
+
+  .dispatch-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .dispatch-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .dispatch-title a:hover {
+    color: var(--brand-accent);
+  }
+
+  .dispatch-desc {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0 0 1rem 0;
+  }
+
+  .dispatch-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .ticker-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .ticker-chip {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 0.2rem 0.55rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+
+  .ticker-chip:hover {
+    border-color: var(--brand-accent);
+    color: var(--brand-accent);
+  }
+
+  .read-report-link {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brand-accent);
+    text-decoration: none;
+    margin-left: auto;
+  }
+
+  .read-report-link:hover {
+    text-decoration: underline;
+  }
+</style>
