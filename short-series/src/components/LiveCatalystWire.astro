@@ -1,101 +1,68 @@
 ---
 // short-series/src/components/LiveCatalystWire.astro
-// Clean, seamless market catalyst & macro calendar
-// Kept internal to prevent off-site redirects
+// Compact Macro & Earnings Radar + Demoted Third-Party RSS Drawer
 ---
 
-<section class="catalyst-wire-section" id="catalyst-wire">
-  <div class="section-label">Market Catalysts &bull; Earnings &amp; Macro Calendar</div>
-
-  <div class="wire-container card">
+<section class="catalyst-wire-section text-xs font-mono tabular-nums tracking-tight" id="catalyst-wire">
+  <div class="wire-container card bg-[#111726] border border-[#1E293B] rounded-lg p-3.5">
     <div class="wire-top-bar">
       <div>
-        <h3 class="wire-heading">Real-Time Catalysts &amp; Market Calendar</h3>
-        <p class="wire-desc">
-          Scheduled corporate earnings releases, upcoming macroeconomic prints, and real-time market catalysts with integrated 5-layer attribution.
-        </p>
+        <div class="wire-kicker font-mono tabular-nums tracking-tight">MACRO &amp; EARNINGS RADAR</div>
+        <h3 class="wire-heading font-sans">Scheduled Catalysts &amp; Prints</h3>
       </div>
 
       <div class="wire-controls">
-        <button id="wire-refresh-btn" class="wire-refresh-btn" type="button" title="Sync live market calendar">
-          <svg class="refresh-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+        <button id="wire-refresh-btn" class="wire-refresh-btn font-mono tabular-nums tracking-tight" type="button" title="Sync live market calendar">
+          <svg class="refresh-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 4v6h-6"></path>
             <path d="M1 20v-6h6"></path>
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
           </svg>
-          <span id="wire-refresh-label">Sync Calendar</span>
+          <span id="wire-refresh-label">Sync</span>
         </button>
       </div>
     </div>
 
-    <!-- Tab Selector -->
-    <div class="wire-tabs-bar" role="tablist">
+    <!-- Tab Selector (Compact Radar Tabs) -->
+    <div class="wire-tabs-bar font-mono tabular-nums tracking-tight" role="tablist">
       <button class="wire-tab-btn active" data-wire-tab="all" type="button" role="tab" aria-selected="true">
-        <span>All Catalysts</span>
-        <span class="tab-count-pill" id="count-all">--</span>
+        <span>Radar</span>
+        <span class="tab-count-pill font-mono tabular-nums" id="count-all">--</span>
       </button>
       <button class="wire-tab-btn" data-wire-tab="earnings" type="button" role="tab" aria-selected="false">
-        <span>Earnings Schedule</span>
-        <span class="tab-count-pill" id="count-earnings">--</span>
+        <span>Earnings</span>
+        <span class="tab-count-pill font-mono tabular-nums" id="count-earnings">--</span>
       </button>
       <button class="wire-tab-btn" data-wire-tab="macro" type="button" role="tab" aria-selected="false">
-        <span>Macroeconomic Prints</span>
-        <span class="tab-count-pill" id="count-macro">--</span>
+        <span>Macro</span>
+        <span class="tab-count-pill font-mono tabular-nums" id="count-macro">--</span>
       </button>
-      <button class="wire-tab-btn" data-wire-tab="news" type="button" role="tab" aria-selected="false">
-        <span>Breaking News Wire</span>
-        <span class="tab-count-pill" id="count-news">--</span>
+      <button class="wire-tab-btn wire-tab-demoted" data-wire-tab="news" type="button" role="tab" aria-selected="false" title="Raw Third-Party RSS Headlines">
+        <span>RSS</span>
+        <span class="tab-count-pill font-mono tabular-nums" id="count-news">--</span>
       </button>
     </div>
 
     <!-- Compact Horizontal Date-Strip Filter Bar -->
-    <div class="wire-date-strip" id="wire-date-strip" aria-label="Filter calendar catalysts by date">
-      <span class="wire-date-label">SESSION DATES:</span>
+    <div class="wire-date-strip font-mono tabular-nums tracking-tight" id="wire-date-strip" aria-label="Filter calendar catalysts by date">
+      <span class="wire-date-label">DATES:</span>
       <div class="wire-date-pills" id="wire-date-pills">
-        <button type="button" class="wire-date-pill active" data-wire-date="all">All Dates</button>
+        <button type="button" class="wire-date-pill active font-mono tabular-nums" data-wire-date="all">All</button>
       </div>
     </div>
 
-    <!-- Tab Panels -->
+    <!-- Tab Panels (Compact Stacked Radar List) -->
     <div class="wire-panels-wrap">
-      <!-- Panel 0: All Catalysts -->
+      <!-- Panel 0: All Radar Catalysts (Earnings + Macro) -->
       <div class="wire-panel active" id="wire-panel-all" role="tabpanel">
         <div class="wire-items-grid" id="wire-all-container">
           <div class="wire-skeleton-card">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line meta"></div>
-            <div class="skeleton-line text"></div>
           </div>
           <div class="wire-skeleton-card">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line meta"></div>
-            <div class="skeleton-line text"></div>
-          </div>
-          <div class="wire-skeleton-card">
-            <div class="skeleton-line title"></div>
-            <div class="skeleton-line meta"></div>
-            <div class="skeleton-line text"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Panel 1: News Wire -->
-      <div class="wire-panel" id="wire-panel-news" role="tabpanel" style="display: none;">
-        <div class="wire-items-grid" id="wire-news-container">
-          <div class="wire-skeleton-card">
-            <div class="skeleton-line title"></div>
-            <div class="skeleton-line meta"></div>
-            <div class="skeleton-line text"></div>
-          </div>
-          <div class="wire-skeleton-card">
-            <div class="skeleton-line title"></div>
-            <div class="skeleton-line meta"></div>
-            <div class="skeleton-line text"></div>
-          </div>
-          <div class="wire-skeleton-card">
-            <div class="skeleton-line title"></div>
-            <div class="skeleton-line meta"></div>
-            <div class="skeleton-line text"></div>
           </div>
         </div>
       </div>
@@ -103,10 +70,6 @@
       <!-- Panel 2: Earnings Schedule -->
       <div class="wire-panel" id="wire-panel-earnings" role="tabpanel" style="display: none;">
         <div class="wire-items-grid" id="wire-earnings-container">
-          <div class="wire-skeleton-card">
-            <div class="skeleton-line title"></div>
-            <div class="skeleton-line meta"></div>
-          </div>
           <div class="wire-skeleton-card">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line meta"></div>
@@ -121,34 +84,43 @@
             <div class="skeleton-line title"></div>
             <div class="skeleton-line meta"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- Compact View Expand / Collapse Control Bar -->
+      <div class="wire-expand-bar" id="wire-expand-bar" style="display: none;">
+        <button type="button" class="wire-expand-btn font-mono tabular-nums" id="wire-expand-btn" aria-expanded="false">
+          <span id="wire-expand-label">Show All Events &darr;</span>
+        </button>
+        <a href="/calendar/" class="wire-full-cal-link font-mono tabular-nums">Full Calendar &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Demoted Third-Party RSS News Drawer (Never competes with proprietary Gemini AI content) -->
+    <details class="demoted-rss-drawer" id="demoted-rss-details">
+      <summary class="demoted-rss-summary font-mono tabular-nums tracking-tight">
+        <span>Third-Party Wire / Raw RSS Headlines (Yahoo &bull; WSJ &bull; CNBC)</span>
+        <span class="demoted-rss-chevron">&darr;</span>
+      </summary>
+      <div class="wire-panel demoted-rss-panel" id="wire-panel-news" role="tabpanel">
+        <div class="wire-items-grid" id="wire-news-container">
           <div class="wire-skeleton-card">
             <div class="skeleton-line title"></div>
             <div class="skeleton-line meta"></div>
           </div>
         </div>
       </div>
-
-      <!-- Compact View Expand / Collapse Control Bar -->
-      <div class="wire-expand-bar" id="wire-expand-bar" style="display: none;">
-        <button type="button" class="wire-expand-btn" id="wire-expand-btn" aria-expanded="false">
-          <span id="wire-expand-label">Show All Calendar Events &darr;</span>
-        </button>
-        <a href="/calendar/" class="wire-full-cal-link">Open Full Calendar &rarr;</a>
-      </div>
-    </div>
+    </details>
 
     <!-- Footer Note -->
-    <div class="wire-footer-bar">
+    <div class="wire-footer-bar font-mono tabular-nums tracking-tight">
       <div class="wire-footer-left">
         <span class="status-indicator"></span>
-        <span id="wire-last-updated">Synchronized with live market stream</span>
+        <span id="wire-last-updated">Live calendar synced</span>
       </div>
       <div class="wire-footer-right">
-        <a href="/calendar/" class="screener-quick-link" style="margin-right: 1.25rem;">
-          Dedicated Calendar &rarr;
-        </a>
-        <a href="/screener/" class="screener-quick-link">
-          Open Live Screener &rarr;
+        <a href="/calendar/" class="screener-quick-link">
+          Calendar &rarr;
         </a>
       </div>
     </div>
@@ -157,65 +129,66 @@
 
 <style is:global>
   .catalyst-wire-section {
-    margin-bottom: 2.5rem;
+    margin-bottom: 0;
   }
 
   .wire-container.card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    padding: 0.95rem 1.15rem;
+    background: #111726;
+    border: 1px solid #1E293B;
+    border-radius: 0.5rem;
+    padding: 0.875rem;
     box-shadow: var(--card-shadow);
   }
 
   .wire-top-bar {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.85rem;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .wire-kicker {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #38BDF8;
+    text-transform: uppercase;
   }
 
   .wire-heading {
-    font-size: 1.1rem;
+    font-size: 0.875rem;
     font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 0.2rem 0;
+    color: #F8FAFC;
+    margin: 0.1rem 0 0 0;
     letter-spacing: -0.01em;
-  }
-
-  .wire-desc {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.4;
   }
 
   .wire-controls {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .wire-refresh-btn {
-    background: var(--bg-surface-elevated, #161a24);
-    border: 1px solid var(--border-subtle, #252c3e);
-    color: var(--text-secondary, #94a3b8);
+    background: #090D16;
+    border: 1px solid #1E293B;
+    color: #94A3B8;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.65rem;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s ease;
   }
 
   .wire-refresh-btn:hover {
-    color: var(--text-primary, #ffffff);
-    border-color: var(--brand-accent, #3b82f6);
+    color: #F8FAFC;
+    border-color: #38BDF8;
+    background: #1A2234;
   }
 
   .wire-refresh-btn.spinning .refresh-icon {
@@ -226,81 +199,87 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Tabs */
+  /* Compact Tabs */
   .wire-tabs-bar {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: 0.55rem;
-    margin-bottom: 0.75rem;
+    gap: 0.25rem;
+    border-bottom: 1px solid #1E293B;
+    padding-bottom: 0.45rem;
+    margin-bottom: 0.55rem;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .wire-tabs-bar::-webkit-scrollbar {
+    display: none;
   }
 
   .wire-tab-btn {
     background: transparent;
     border: 1px solid transparent;
-    color: var(--text-secondary);
+    color: #94A3B8;
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0.32rem 0.65rem;
+    gap: 0.3rem;
+    padding: 0.22rem 0.48rem;
     border-radius: 4px;
-    font-size: 0.78125rem;
+    font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.15s ease;
-    font-family: inherit;
+    font-family: var(--font-mono, monospace);
+    font-variant-numeric: tabular-nums;
   }
 
   .wire-tab-btn:hover {
-    color: var(--text-primary);
-    background: var(--bg-surface-elevated);
+    color: #F8FAFC;
+    background: #1A2234;
   }
 
   .wire-tab-btn.active {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.25);
-    color: var(--brand-accent);
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.25);
+    color: #38BDF8;
   }
 
   .tab-count-pill {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-family: var(--font-mono, monospace);
-    background: var(--bg-surface-elevated);
-    color: var(--text-muted);
-    padding: 0.1rem 0.35rem;
-    border-radius: 9999px;
+    font-variant-numeric: tabular-nums;
+    background: #090D16;
+    color: #94A3B8;
+    padding: 0.05rem 0.3rem;
+    border-radius: 4px;
   }
 
   .wire-tab-btn.active .tab-count-pill {
-    background: var(--brand-accent);
-    color: #ffffff;
+    background: rgba(56, 189, 248, 0.2);
+    color: #38BDF8;
   }
 
   /* Sleek Horizontal Date-Strip Filter Bar */
   .wire-date-strip {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
-    margin-bottom: 0.75rem;
-    padding: 0.35rem 0.55rem;
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
+    gap: 0.4rem;
+    margin-bottom: 0.55rem;
+    padding: 0.28rem 0.45rem;
+    background: #090D16;
+    border: 1px solid #1E293B;
+    border-radius: 4px;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+  }
+  .wire-date-strip::-webkit-scrollbar {
+    display: none;
   }
 
   .wire-date-label {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-family: var(--font-mono, monospace);
     font-weight: 700;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
+    color: #64748B;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -308,48 +287,49 @@
   .wire-date-pills {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.25rem;
     flex-wrap: nowrap;
   }
 
   .wire-date-pill {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
+    background: #111726;
+    border: 1px solid #1E293B;
+    color: #94A3B8;
     font-family: var(--font-mono, monospace);
-    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.65rem;
     font-weight: 600;
-    padding: 0.22rem 0.55rem;
-    border-radius: 9999px;
+    padding: 0.14rem 0.42rem;
+    border-radius: 4px;
     cursor: pointer;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.2rem;
     transition: all 0.15s ease;
   }
 
   .wire-date-pill:hover {
-    color: var(--text-primary);
-    border-color: var(--brand-accent);
+    color: #F8FAFC;
+    border-color: #38BDF8;
   }
 
   .wire-date-pill.active {
-    background: var(--brand-accent);
-    border-color: var(--brand-accent);
-    color: #ffffff;
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38BDF8;
+    color: #38BDF8;
   }
 
   .wire-date-pill-count {
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     opacity: 0.85;
   }
 
-  /* Items Grid */
+  /* Compact Stacked Items List */
   .wire-items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
-    gap: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
   }
 
   .wire-card-collapsed,
@@ -362,151 +342,174 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-    padding: 0.55rem 0.75rem;
-    background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
+    gap: 0.5rem;
+    margin-top: 0.55rem;
+    padding: 0.4rem 0.55rem;
+    background: #090D16;
+    border: 1px solid #1E293B;
+    border-radius: 4px;
     flex-wrap: wrap;
   }
 
   .wire-expand-btn {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.28);
-    color: var(--brand-accent);
-    font-family: inherit;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.38rem 0.85rem;
-    border-radius: 5px;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: #38BDF8;
+    font-family: var(--font-mono, monospace);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.22rem 0.55rem;
+    border-radius: 4px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.3rem;
     transition: all 0.15s ease;
   }
 
   .wire-expand-btn:hover {
-    background: var(--brand-accent);
-    border-color: var(--brand-accent);
-    color: #ffffff;
-    transform: translateY(-1px);
+    background: #38BDF8;
+    color: #090D16;
   }
 
   .wire-full-cal-link {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: #94A3B8;
     text-decoration: none;
     transition: color 0.15s ease;
   }
 
   .wire-full-cal-link:hover {
-    color: var(--brand-accent);
-    text-decoration: underline;
+    color: #38BDF8;
   }
 
   .wire-reset-date-btn {
-    margin-left: 0.5rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--brand-accent);
-    font-size: 0.72rem;
+    margin-left: 0.4rem;
+    background: #111726;
+    border: 1px solid #1E293B;
+    color: #38BDF8;
+    font-size: 0.68rem;
     font-weight: 600;
-    padding: 0.2rem 0.55rem;
+    padding: 0.15rem 0.45rem;
     border-radius: 4px;
     cursor: pointer;
-    transition: all 0.15s ease;
   }
 
-  .wire-reset-date-btn:hover {
-    background: var(--brand-accent);
-    color: #ffffff;
-    border-color: var(--brand-accent);
+  /* Demoted RSS Drawer */
+  .demoted-rss-drawer {
+    margin-top: 0.65rem;
+    border-top: 1px solid #1E293B;
+    padding-top: 0.55rem;
   }
 
-  /* News Card Item */
-  .wire-card-item {
-    background: var(--bg-surface-elevated, #141721);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 0.7rem 0.85rem;
+  .demoted-rss-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    list-style: none;
+    padding: 0.25rem 0.4rem;
+    border-radius: 4px;
+    background: #090D16;
+    border: 1px solid #1E293B;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .demoted-rss-summary::-webkit-details-marker {
+    display: none;
+  }
+  .demoted-rss-summary:hover {
+    color: #94A3B8;
+    border-color: #334155;
+  }
+  .demoted-rss-panel {
+    margin-top: 0.5rem;
+  }
+
+  /* News, Earnings & Macro Compact Rows */
+  .wire-card-item,
+  .earnings-card-item,
+  .macro-card-item {
+    background: #090D16;
+    border: 1px solid #1E293B;
+    border-radius: 5px;
+    padding: 0.5rem 0.65rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    gap: 0.3rem;
+    font-family: var(--font-mono, monospace);
+    font-variant-numeric: tabular-nums;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
   }
 
-  .wire-card-item:hover {
-    border-color: var(--brand-accent);
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
+  .wire-card-item:hover,
+  .earnings-card-item:hover,
+  .macro-card-item:hover {
+    background: #1A2234;
+    border-color: #334155;
   }
 
-  .wire-meta-row {
+  .wire-meta-row,
+  .earnings-header-row,
+  .macro-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.35rem;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   .wire-source-tag {
-    font-size: 0.6875rem;
-    font-family: var(--font-mono, monospace);
+    font-size: 0.65rem;
     font-weight: 600;
-    color: var(--brand-accent);
+    color: #38BDF8;
   }
 
   .wire-time-tag {
-    font-size: 0.6875rem;
-    font-family: var(--font-mono, monospace);
-    color: var(--text-muted);
+    font-size: 0.65rem;
+    color: #94A3B8;
+    font-variant-numeric: tabular-nums;
   }
 
   .wire-headline-link {
-    font-size: 0.84rem;
+    font-family: var(--font-sans, sans-serif);
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--text-primary);
-    text-align: left;
+    color: #F8FAFC;
     text-decoration: none;
-    padding: 0;
-    margin: 0 0 0.4rem 0;
-    cursor: pointer;
-    line-height: 1.38;
+    line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    font-family: inherit;
-    transition: color 0.15s ease;
   }
 
   .wire-headline-link:hover {
-    color: var(--brand-accent);
-    text-decoration: underline;
+    color: #38BDF8;
   }
 
   .wire-summary-text {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    margin: 0 0 0.55rem 0;
+    font-family: var(--font-sans, sans-serif);
+    font-size: 0.7rem;
+    color: #94A3B8;
+    line-height: 1.35;
+    margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    flex: 1;
   }
 
-  .wire-action-row {
+  .wire-action-row,
+  .earnings-date-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid var(--border-subtle);
-    padding-top: 0.45rem;
-    margin-top: 0.2rem;
+    font-size: 0.65rem;
+    color: #94A3B8;
     gap: 0.35rem;
     flex-wrap: wrap;
   }
@@ -514,289 +517,193 @@
   .wire-action-btns {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    flex-wrap: wrap;
+    gap: 0.3rem;
   }
 
   .wire-why-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
-    color: var(--brand-accent);
-    background: rgba(59, 130, 246, 0.08);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
     cursor: pointer;
-    transition: all 0.12s ease;
-    font-family: inherit;
+    font-family: var(--font-mono, monospace);
     text-decoration: none;
   }
 
   .wire-why-btn:hover {
-    background: var(--brand-accent);
-    color: #ffffff;
+    background: #38BDF8;
+    color: #090D16;
   }
 
   .wire-source-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.12s ease;
-    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #94A3B8;
+    background: #111726;
+    border: 1px solid #1E293B;
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
     text-decoration: none;
   }
 
   .wire-source-btn:hover {
-    color: var(--text-primary);
-    border-color: var(--brand-accent);
-  }
-
-  /* Earnings Card Item */
-  .earnings-card-item {
-    background: var(--bg-surface-elevated, #141721);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 0.7rem 0.85rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.42rem;
-    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .earnings-card-item:hover {
-    border-color: var(--brand-accent);
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
-  }
-
-  .earnings-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    color: #F8FAFC;
+    border-color: #38BDF8;
   }
 
   .earnings-symbol-btn {
-    font-size: 0.98rem;
+    font-size: 0.8rem;
     font-family: var(--font-mono, monospace);
-    font-weight: 800;
-    color: var(--text-primary);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    text-align: left;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: #F8FAFC;
     text-decoration: none;
-    transition: color 0.15s ease;
   }
 
   .earnings-symbol-btn:hover {
-    color: var(--brand-accent);
+    color: #38BDF8;
   }
 
   .timing-badge {
-    font-size: 0.625rem;
+    font-size: 0.6rem;
     font-family: var(--font-mono, monospace);
-    font-weight: 700;
-    padding: 0.12rem 0.4rem;
-    border-radius: 4px;
+    font-weight: 600;
+    padding: 0.08rem 0.35rem;
+    border-radius: 3px;
   }
 
   .timing-badge.bmo {
-    background: rgba(234, 179, 8, 0.12);
-    color: #eab308;
-    border: 1px solid rgba(234, 179, 8, 0.25);
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.2);
   }
 
   .timing-badge.amc {
-    background: rgba(99, 102, 241, 0.12);
-    color: #818cf8;
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    background: rgba(56, 189, 248, 0.1);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.2);
   }
 
   .timing-badge.general {
-    background: rgba(100, 116, 139, 0.12);
-    color: #94a3b8;
-    border: 1px solid rgba(100, 116, 139, 0.25);
+    background: rgba(148, 163, 184, 0.1);
+    color: #94A3B8;
+    border: 1px solid rgba(148, 163, 184, 0.2);
   }
 
-  .earnings-stats-table {
+  .earnings-stats-table,
+  .macro-stats-row {
     display: flex;
     justify-content: space-between;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    padding: 0.3rem 0.55rem;
-    border-radius: 4px;
-    font-size: 0.72rem;
-    color: var(--text-secondary);
-  }
-
-  .earnings-stats-table strong {
+    background: #111726;
+    border: 1px solid #1E293B;
+    padding: 0.22rem 0.45rem;
+    border-radius: 3px;
+    font-size: 0.68rem;
     font-family: var(--font-mono, monospace);
-    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    color: #94A3B8;
   }
 
-  .earnings-date-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.675rem;
+  .earnings-stats-table strong,
+  .macro-stats-row strong {
     font-family: var(--font-mono, monospace);
-    color: var(--text-muted);
-    gap: 0.35rem;
-    flex-wrap: wrap;
-  }
-
-  /* Macro Card Item */
-  .macro-card-item {
-    background: var(--bg-surface-elevated, #141721);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 0.7rem 0.85rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.42rem;
-    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .macro-card-item:hover {
-    border-color: var(--brand-accent);
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
-  }
-
-  .macro-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.5rem;
+    font-variant-numeric: tabular-nums;
+    color: #F8FAFC;
   }
 
   .macro-name {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.32;
+    font-family: var(--font-sans, sans-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #F8FAFC;
+    line-height: 1.3;
   }
 
   .macro-impact-badge {
-    font-size: 0.625rem;
+    font-size: 0.6rem;
     font-family: var(--font-mono, monospace);
     font-weight: 700;
-    padding: 0.12rem 0.4rem;
-    border-radius: 4px;
+    padding: 0.08rem 0.35rem;
+    border-radius: 3px;
     flex-shrink: 0;
   }
 
   .macro-impact-badge.high {
-    background: rgba(239, 68, 68, 0.12);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.25);
+    background: rgba(244, 63, 94, 0.1);
+    color: #F43F5E;
+    border: 1px solid rgba(244, 63, 94, 0.2);
   }
 
   .macro-impact-badge.medium {
-    background: rgba(234, 179, 8, 0.12);
-    color: #eab308;
-    border: 1px solid rgba(234, 179, 8, 0.25);
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.2);
   }
 
   .macro-impact-badge.low {
-    background: rgba(59, 130, 246, 0.12);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.25);
+    background: rgba(56, 189, 248, 0.1);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.2);
   }
 
-  .macro-stats-row {
-    display: flex;
-    justify-content: space-between;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    padding: 0.3rem 0.55rem;
-    border-radius: 4px;
-    font-size: 0.72rem;
-    font-family: var(--font-mono, monospace);
-    color: var(--text-secondary);
-  }
-
-  .macro-stats-row strong {
-    color: var(--text-primary);
-  }
-
-  /* Skeleton Loading */
   .wire-skeleton-card {
-    background: var(--bg-surface-elevated, #141721);
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    padding: 0.75rem 0.85rem;
-    min-height: 88px;
+    background: #090D16;
+    border: 1px solid #1E293B;
+    border-radius: 5px;
+    padding: 0.55rem;
+    min-height: 54px;
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 0.35rem;
   }
 
   .skeleton-line {
-    background: linear-gradient(90deg, var(--bg-surface-elevated) 25%, var(--border-subtle) 50%, var(--bg-surface-elevated) 75%);
-    background-size: 200% 100%;
-    animation: wireSkeleton 1.5s infinite;
-    border-radius: 4px;
+    background: #1E293B;
+    border-radius: 3px;
   }
-
-  .skeleton-line.title { height: 15px; width: 75%; }
-  .skeleton-line.meta { height: 11px; width: 40%; }
-  .skeleton-line.text { height: 11px; width: 90%; }
-
-  @keyframes wireSkeleton {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
+  .skeleton-line.title { height: 12px; width: 70%; }
+  .skeleton-line.meta { height: 10px; width: 45%; }
 
   .wire-empty-state {
     text-align: center;
-    padding: 1.35rem 1rem;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    grid-column: 1 / -1;
+    padding: 0.85rem 0.5rem;
+    color: #94A3B8;
+    font-size: 0.72rem;
   }
 
-  /* Footer */
   .wire-footer-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 0.85rem;
-    padding-top: 0.65rem;
-    border-top: 1px solid var(--border-subtle);
-    font-size: 0.71875rem;
-    color: var(--text-muted);
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    margin-top: 0.6rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #1E293B;
+    font-size: 0.68rem;
+    color: #94A3B8;
   }
 
   .wire-footer-left {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.35rem;
   }
 
   .status-indicator {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #10b981;
+    background: #10B981;
   }
 
   .screener-quick-link {
-    color: var(--brand-accent);
+    color: #38BDF8;
     text-decoration: none;
     font-weight: 600;
   }
@@ -804,28 +711,11 @@
   .screener-quick-link:hover {
     text-decoration: underline;
   }
-
-  @media (max-width: 768px) {
-    .wire-container.card {
-      padding: 0.85rem;
-    }
-    .wire-items-grid {
-      grid-template-columns: 1fr;
-    }
-    .wire-expand-bar {
-      flex-direction: column;
-      align-items: stretch;
-      text-align: center;
-    }
-    .wire-expand-btn {
-      justify-content: center;
-    }
-  }
 </style>
 
 <script is:inline>
   (function initLiveCatalystWire() {
-    const COMPACT_LIMIT = 6;
+    const COMPACT_LIMIT = 4;
     let isFetching = false;
     let activeTab = 'all';
     let activeDate = 'all';
@@ -839,6 +729,7 @@
     const expandBar = document.getElementById('wire-expand-bar');
     const expandBtn = document.getElementById('wire-expand-btn');
     const expandLabel = document.getElementById('wire-expand-label');
+    const rssDetails = document.getElementById('demoted-rss-details');
 
     const countAll = document.getElementById('count-all');
     const countNews = document.getElementById('count-news');
@@ -918,7 +809,7 @@
         if (matchIndex === 0 && activeDate !== 'all') {
           const emptyEl = document.createElement('div');
           emptyEl.className = 'wire-empty-state wire-date-empty';
-          emptyEl.innerHTML = `No catalysts scheduled on <strong>${sanitize(formatShortDateLabel(activeDate))}</strong> in this tab. <button type="button" class="wire-reset-date-btn">Show All Dates</button>`;
+          emptyEl.innerHTML = `No catalysts on <strong>${sanitize(formatShortDateLabel(activeDate))}</strong>. <button type="button" class="wire-reset-date-btn">Reset</button>`;
           const resetBtn = emptyEl.querySelector('.wire-reset-date-btn');
           if (resetBtn) {
             resetBtn.addEventListener('click', () => {
@@ -942,8 +833,8 @@
           expandBtn.style.display = 'inline-flex';
           expandBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
           expandLabel.innerHTML = isExpanded
-            ? `Collapse to Compact View (${COMPACT_LIMIT}) &uarr;`
-            : `Show All ${totalMatching} Calendar Events &darr;`;
+            ? `Collapse (${COMPACT_LIMIT}) &uarr;`
+            : `Show All ${totalMatching} &darr;`;
         } else if (totalMatching > 0) {
           expandBar.style.display = 'flex';
           expandBtn.style.display = 'none';
@@ -981,17 +872,17 @@
         }
       });
 
-      const sortedDates = Array.from(dateCounts.keys()).sort().slice(0, 7);
+      const sortedDates = Array.from(dateCounts.keys()).sort().slice(0, 6);
       if (activeDate !== 'all' && !sortedDates.includes(activeDate)) {
         activeDate = 'all';
       }
 
       const pillsHtml = [
-        `<button type="button" class="wire-date-pill ${activeDate === 'all' ? 'active' : ''}" data-wire-date="all">All Dates</button>`,
+        `<button type="button" class="wire-date-pill font-mono tabular-nums ${activeDate === 'all' ? 'active' : ''}" data-wire-date="all">All</button>`,
         ...sortedDates.map(dateKey => {
           const count = dateCounts.get(dateKey) || 0;
           const isAct = activeDate === dateKey ? 'active' : '';
-          return `<button type="button" class="wire-date-pill ${isAct}" data-wire-date="${sanitize(dateKey)}">
+          return `<button type="button" class="wire-date-pill font-mono tabular-nums ${isAct}" data-wire-date="${sanitize(dateKey)}">
             <span>${sanitize(formatShortDateLabel(dateKey))}</span>
             <span class="wire-date-pill-count">(${count})</span>
           </button>`;
@@ -1021,7 +912,11 @@
         btn.classList.add('active');
         btn.setAttribute('aria-selected', 'true');
 
-        ['all', 'news', 'earnings', 'macro'].forEach(t => {
+        if (targetTab === 'news' && rssDetails) {
+          rssDetails.open = true;
+        }
+
+        ['all', 'earnings', 'macro'].forEach(t => {
           const panel = document.getElementById('wire-panel-' + t);
           if (panel) {
             panel.style.display = (t === targetTab) ? 'block' : 'none';
@@ -1040,7 +935,7 @@
     }
 
     function formatTimeDelta(isoString) {
-      if (!isoString) return 'Just now';
+      if (!isoString) return 'Now';
       try {
         const diffMs = Date.now() - new Date(isoString).getTime();
         const diffMins = Math.max(1, Math.floor(diffMs / 60000));
@@ -1084,50 +979,28 @@
       [/\bsuper micro\b|\bsmci\b/i, 'SMCI'],
       [/\bnetflix\b/i, 'NFLX'],
       [/\btaiwan semi|\btsmc\b/i, 'TSM'],
-      [/\bmorgan stanley\b/i, 'MS'],
-      [/\bgoldman sachs\b/i, 'GS'],
-      [/\bjpmorgan\b|\bjp morgan\b/i, 'JPM'],
-      [/\bbank of america\b/i, 'BAC'],
-      [/\bcitigroup\b/i, 'C'],
       [/\bcoinbase\b/i, 'COIN'],
-      [/\bmicrostrategy\b/i, 'MSTR'],
-      [/\bboeing\b/i, 'BA'],
-      [/\beli lilly\b/i, 'LLY'],
-      [/\bnovo nordisk\b/i, 'NVO'],
-      [/\boracle\b/i, 'ORCL'],
-      [/\bsalesforce\b/i, 'CRM'],
-      [/\barm holdings\b/i, 'ARM'],
-      [/\bqualcomm\b/i, 'QCOM'],
-      [/\bchip stocks\b|\bsemiconductor/i, 'SOXX']
+      [/\bmicrostrategy\b/i, 'MSTR']
     ];
 
     function extractTicker(title) {
       if (!title) return null;
       const cashMatch = title.match(/\$([A-Z]{1,5})\b/);
       if (cashMatch) return cashMatch[1];
-
       const parenMatch = title.match(/\(([A-Z]{1,5})\)/);
       if (parenMatch && !['US', 'ETF', 'CEO', 'IPO', 'SEC', 'FED', 'AI', 'IMF', 'GDP', 'CPI'].includes(parenMatch[1])) {
         return parenMatch[1];
       }
-
-      const colonMatch = title.match(/\b([A-Z]{2,5}):/);
-      if (colonMatch && !['NEWS', 'POST', 'LIVE', 'IMF', 'CNBC'].includes(colonMatch[1])) {
-        return colonMatch[1];
-      }
-
       for (const [regex, sym] of COMPANY_TICKER_MAP) {
         if (regex.test(title)) return sym;
       }
-
       return null;
     }
 
-    // Render News Wire (headlines & source buttons open the news article; Why $TICKER? only shown when a specific stock ticker is detected)
     function renderNews(news) {
       if (!newsContainer) return;
       if (!news || news.length === 0) {
-        newsContainer.innerHTML = '<div class="wire-empty-state">Market wire is actively monitoring session flow.</div>';
+        newsContainer.innerHTML = '<div class="wire-empty-state">RSS wire idle.</div>';
         if (countNews) countNews.textContent = '0';
         return;
       }
@@ -1136,41 +1009,31 @@
       const html = news.map(item => {
         const detectedTicker = (item.ticker && /^[A-Z]{1,5}$/.test(item.ticker)) ? item.ticker : extractTicker(item.title);
         const sourceLink = item.link || (detectedTicker ? `https://www.tradingview.com/symbols/${detectedTicker}/?aff_id=170147` : '/calendar/');
-        const rawSummary = item.summary && typeof item.summary === 'string' ? item.summary.trim() : '';
-        const isBoilerplate = rawSummary.toLowerCase().includes('real-time corporate announcement') || 
-                              rawSummary.toLowerCase().includes('volume catalyst potential') ||
-                              rawSummary.toLowerCase() === (item.title || '').toLowerCase();
-        const summaryText = isBoilerplate ? '' : rawSummary;
         const normDate = normalizeDateKey(item.pubDate);
 
         const tickerTagHtml = detectedTicker
-          ? `<a href="/ticker/${encodeURIComponent(detectedTicker.toLowerCase())}/" class="wire-time-tag" style="color: var(--brand-accent); font-weight: 700; text-decoration: none;" title="Open $${sanitize(detectedTicker)} Hub">$${sanitize(detectedTicker)}</a>`
-          : `<span class="wire-time-tag">Market Catalyst</span>`;
+          ? `<a href="/ticker/${encodeURIComponent(detectedTicker.toLowerCase())}/" class="wire-time-tag font-mono tabular-nums" style="color: #38BDF8; font-weight: 700; text-decoration: none;">$${sanitize(detectedTicker)}</a>`
+          : `<span class="wire-time-tag">Wire</span>`;
 
         const whyBtnHtml = detectedTicker
-          ? `<button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(detectedTicker)}" title="Run 5-Layer Diagnostic on $${sanitize(detectedTicker)}">
-              Why $${sanitize(detectedTicker)}? &rarr;
+          ? `<button type="button" class="wire-why-btn font-mono tabular-nums" data-open-diagnostic="${sanitize(detectedTicker)}">
+              Why $${sanitize(detectedTicker)}?
             </button>`
           : '';
 
         return `
           <div class="wire-card-item" data-event-date="${sanitize(normDate)}">
-            <div>
-              <div class="wire-meta-row">
-                <span class="wire-source-tag">${sanitize(item.source || 'Market Wire')}</span>
-                <span class="wire-time-tag">${formatTimeDelta(item.pubDate)}</span>
-              </div>
-              <a href="${sanitize(sourceLink)}" target="_blank" rel="noopener noreferrer" class="wire-headline-link" title="Read full article from ${sanitize(item.source || 'source')}">
-                ${sanitize(item.title)}
-              </a>
-              ${summaryText ? `<p class="wire-summary-text">${sanitize(summaryText)}</p>` : ''}
+            <div class="wire-meta-row">
+              <span class="wire-source-tag">${sanitize(item.source || 'RSS')}</span>
+              <span class="wire-time-tag font-mono tabular-nums">${formatTimeDelta(item.pubDate)}</span>
             </div>
+            <a href="${sanitize(sourceLink)}" target="_blank" rel="noopener noreferrer" class="wire-headline-link">
+              ${sanitize(item.title)}
+            </a>
             <div class="wire-action-row">
               ${tickerTagHtml}
               <div class="wire-action-btns">
-                <a href="${sanitize(sourceLink)}" target="_blank" rel="noopener noreferrer" class="wire-source-btn" title="Open original news article">
-                  Read Article &nearr;
-                </a>
+                <a href="${sanitize(sourceLink)}" target="_blank" rel="noopener noreferrer" class="wire-source-btn">Source &nearr;</a>
                 ${whyBtnHtml}
               </div>
             </div>
@@ -1181,11 +1044,10 @@
       newsContainer.innerHTML = html;
     }
 
-    // Render Earnings Schedule
     function renderEarnings(earnings) {
       if (!earningsContainer) return;
       if (!earnings || earnings.length === 0) {
-        earningsContainer.innerHTML = '<div class="wire-empty-state">No upcoming earnings releases scheduled for this cycle.</div>';
+        earningsContainer.innerHTML = '<div class="wire-empty-state">No earnings scheduled in immediate window.</div>';
         if (countEarnings) countEarnings.textContent = '0';
         return;
       }
@@ -1194,36 +1056,27 @@
       const html = earnings.map(item => {
         const hour = item.hour ? item.hour.toLowerCase() : 'bmo';
         const timingClass = hour === 'bmo' ? 'bmo' : (hour === 'amc' ? 'amc' : 'general');
-        const timingLabel = hour === 'bmo' ? '☀️ Before Open' : (hour === 'amc' ? '🌙 After Close' : 'Market Hours');
+        const timingLabel = hour === 'bmo' ? 'BMO' : (hour === 'amc' ? 'AMC' : 'MKT');
         const epsEst = (item.epsEstimate !== undefined && item.epsEstimate !== null) ? `$${item.epsEstimate.toFixed(2)}` : 'N/A';
-        const revEst = (item.revenueEstimate !== undefined && item.revenueEstimate !== null) 
-          ? (item.revenueEstimate >= 1e9 ? `$${(item.revenueEstimate / 1e9).toFixed(1)}B` : `$${(item.revenueEstimate / 1e6).toFixed(0)}M`) 
+        const revEst = (item.revenueEstimate !== undefined && item.revenueEstimate !== null)
+          ? (item.revenueEstimate >= 1e9 ? `$${(item.revenueEstimate / 1e9).toFixed(1)}B` : `$${(item.revenueEstimate / 1e6).toFixed(0)}M`)
           : 'N/A';
-        const secUrl = `https://www.sec.gov/edgar/searchedgar/companysearch?companyName=${encodeURIComponent(item.ticker)}`;
         const normDate = normalizeDateKey(item.date);
 
         return `
-          <div class="earnings-card-item" data-event-date="${sanitize(normDate)}">
+          <div class="earnings-card-item font-mono tabular-nums" data-event-date="${sanitize(normDate)}">
             <div class="earnings-header-row">
-              <a href="/ticker/${encodeURIComponent(item.ticker.toLowerCase())}/" class="earnings-symbol-btn" title="Open $${sanitize(item.ticker)} breakout hub">
+              <a href="/ticker/${encodeURIComponent(item.ticker.toLowerCase())}/" class="earnings-symbol-btn font-mono tabular-nums">
                 $${sanitize(item.ticker)}
               </a>
-              <span class="timing-badge ${timingClass}">${timingLabel}</span>
+              <span class="timing-badge ${timingClass} font-mono tabular-nums">${timingLabel} &bull; ${sanitize(item.date)}</span>
             </div>
-            <div class="earnings-stats-table">
+            <div class="earnings-stats-table font-mono tabular-nums">
               <span>EPS Est: <strong>${epsEst}</strong></span>
               <span>Rev Est: <strong>${revEst}</strong></span>
-            </div>
-            <div class="earnings-date-meta">
-              <span>Date: ${sanitize(item.date)}</span>
-              <div class="wire-action-btns">
-                <a href="${secUrl}" target="_blank" rel="noopener noreferrer" class="wire-source-btn">
-                  SEC Filings &nearr;
-                </a>
-                <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(item.ticker)}" title="Run 5-Layer Diagnostic on $${sanitize(item.ticker)}">
-                  Why $${sanitize(item.ticker)}? &rarr;
-                </button>
-              </div>
+              <button type="button" class="wire-why-btn font-mono tabular-nums" data-open-diagnostic="${sanitize(item.ticker)}">
+                Audit &rarr;
+              </button>
             </div>
           </div>
         `;
@@ -1232,11 +1085,10 @@
       earningsContainer.innerHTML = html;
     }
 
-    // Render Macroeconomic Prints
     function renderMacro(events) {
       if (!macroContainer) return;
       if (!events || events.length === 0) {
-        macroContainer.innerHTML = '<div class="wire-empty-state">No high-impact economic prints scheduled in the immediate horizon.</div>';
+        macroContainer.innerHTML = '<div class="wire-empty-state">No high-impact macro prints scheduled.</div>';
         if (countMacro) countMacro.textContent = '0';
         return;
       }
@@ -1251,23 +1103,18 @@
         const normDate = normalizeDateKey(item.date);
 
         return `
-          <div class="macro-card-item" data-event-date="${sanitize(normDate)}">
+          <div class="macro-card-item font-mono tabular-nums" data-event-date="${sanitize(normDate)}">
             <div class="macro-header-row">
               <span class="macro-name">${sanitize(item.event)}</span>
-              <span class="macro-impact-badge ${impact}">${impactLabel}</span>
+              <span class="macro-impact-badge ${impact} font-mono tabular-nums">${impactLabel}</span>
             </div>
-            <div class="macro-stats-row">
+            <div class="macro-stats-row font-mono tabular-nums">
               <span>Act: <strong>${actStr}</strong></span>
               <span>Est: <strong>${estStr}</strong></span>
               <span>Prev: <strong>${prevStr}</strong></span>
             </div>
-            <div class="earnings-date-meta">
+            <div class="earnings-date-meta font-mono tabular-nums">
               <span>${sanitize(item.country || 'US')} &bull; ${sanitize(item.date)}</span>
-              <div class="wire-action-btns">
-                <a href="https://www.federalreserve.gov/monetarypolicy.htm" target="_blank" rel="noopener noreferrer" class="wire-source-btn">
-                  Fed Release &nearr;
-                </a>
-              </div>
             </div>
           </div>
         `;
@@ -1276,13 +1123,12 @@
       macroContainer.innerHTML = html;
     }
 
-    // Load Data from internal SSR API
     async function loadCatalysts() {
       if (isFetching) return;
       isFetching = true;
 
       if (refreshBtn) refreshBtn.classList.add('spinning');
-      if (refreshLabel) refreshLabel.textContent = 'Syncing...';
+      if (refreshLabel) refreshLabel.textContent = 'Syncing';
 
       try {
         const res = await fetch('/api/catalysts');
@@ -1299,24 +1145,23 @@
           renderMacro(macroList);
           renderDateStrip(earningsList, macroList, newsList);
 
-          const totalCount = earningsList.length + macroList.length + newsList.length;
-          if (countAll) countAll.textContent = String(totalCount);
+          const radarCount = earningsList.length + macroList.length;
+          if (countAll) countAll.textContent = String(radarCount || newsList.length);
 
           if (allContainer) {
             const combinedHtml = [
               earningsList.length > 0 && earningsContainer ? earningsContainer.innerHTML : '',
-              macroList.length > 0 && macroContainer ? macroContainer.innerHTML : '',
-              newsList.length > 0 && newsContainer ? newsContainer.innerHTML : ''
+              macroList.length > 0 && macroContainer ? macroContainer.innerHTML : ''
             ].filter(Boolean).join('');
 
-            allContainer.innerHTML = combinedHtml || '<div class="wire-empty-state">Market wire is actively monitoring session flow.</div>';
+            allContainer.innerHTML = combinedHtml || (newsContainer ? newsContainer.innerHTML : '<div class="wire-empty-state">Radar monitoring session flow.</div>');
           }
 
           applyWireFiltersAndCollapse();
 
           if (lastUpdatedLabel) {
             const now = new Date();
-            lastUpdatedLabel.textContent = `Market Calendar Synchronized (${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`;
+            lastUpdatedLabel.textContent = `Synced ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
           }
         }
       } catch (err) {
@@ -1324,7 +1169,7 @@
       } finally {
         isFetching = false;
         if (refreshBtn) refreshBtn.classList.remove('spinning');
-        if (refreshLabel) refreshLabel.textContent = 'Sync Calendar';
+        if (refreshLabel) refreshLabel.textContent = 'Sync';
       }
     }
 
