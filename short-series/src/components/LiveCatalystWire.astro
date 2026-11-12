@@ -48,6 +48,14 @@
       </button>
     </div>
 
+    <!-- Compact Horizontal Date-Strip Filter Bar -->
+    <div class="wire-date-strip" id="wire-date-strip" aria-label="Filter calendar catalysts by date">
+      <span class="wire-date-label">SESSION DATES:</span>
+      <div class="wire-date-pills" id="wire-date-pills">
+        <button type="button" class="wire-date-pill active" data-wire-date="all">All Dates</button>
+      </div>
+    </div>
+
     <!-- Tab Panels -->
     <div class="wire-panels-wrap">
       <!-- Panel 0: All Catalysts -->
@@ -119,6 +127,14 @@
           </div>
         </div>
       </div>
+
+      <!-- Compact View Expand / Collapse Control Bar -->
+      <div class="wire-expand-bar" id="wire-expand-bar" style="display: none;">
+        <button type="button" class="wire-expand-btn" id="wire-expand-btn" aria-expanded="false">
+          <span id="wire-expand-label">Show All Calendar Events &darr;</span>
+        </button>
+        <a href="/calendar/" class="wire-full-cal-link">Open Full Calendar &rarr;</a>
+      </div>
     </div>
 
     <!-- Footer Note -->
@@ -148,7 +164,7 @@
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
-    padding: 1.25rem 1.4rem;
+    padding: 0.95rem 1.15rem;
     box-shadow: var(--card-shadow);
   }
 
@@ -156,24 +172,24 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.2rem;
+    gap: 0.85rem;
+    margin-bottom: 0.75rem;
     flex-wrap: wrap;
   }
 
   .wire-heading {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin: 0 0 0.3rem 0;
+    margin: 0 0 0.2rem 0;
     letter-spacing: -0.01em;
   }
 
   .wire-desc {
-    font-size: 0.8125rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
     margin: 0;
-    line-height: 1.45;
+    line-height: 1.4;
   }
 
   .wire-controls {
@@ -199,7 +215,7 @@
 
   .wire-refresh-btn:hover {
     color: var(--text-primary, #ffffff);
-    border-color: var(--border-strong, #3b82f6);
+    border-color: var(--brand-accent, #3b82f6);
   }
 
   .wire-refresh-btn.spinning .refresh-icon {
@@ -216,8 +232,8 @@
     align-items: center;
     gap: 0.45rem;
     border-bottom: 1px solid var(--border-subtle);
-    padding-bottom: 0.65rem;
-    margin-bottom: 1.15rem;
+    padding-bottom: 0.55rem;
+    margin-bottom: 0.75rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -229,7 +245,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    padding: 0.35rem 0.7rem;
+    padding: 0.32rem 0.65rem;
     border-radius: 4px;
     font-size: 0.78125rem;
     font-weight: 600;
@@ -241,7 +257,7 @@
 
   .wire-tab-btn:hover {
     color: var(--text-primary);
-    background: var(--bg-surface-elevated, #181d29);
+    background: var(--bg-surface-elevated);
   }
 
   .wire-tab-btn.active {
@@ -253,8 +269,8 @@
   .tab-count-pill {
     font-size: 0.65rem;
     font-family: var(--font-mono, monospace);
-    background: var(--bg-surface-elevated, #202636);
-    color: var(--text-muted, #64748b);
+    background: var(--bg-surface-elevated);
+    color: var(--text-muted);
     padding: 0.1rem 0.35rem;
     border-radius: 9999px;
   }
@@ -264,11 +280,150 @@
     color: #ffffff;
   }
 
+  /* Sleek Horizontal Date-Strip Filter Bar */
+  .wire-date-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.75rem;
+    padding: 0.35rem 0.55rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .wire-date-label {
+    font-size: 0.65rem;
+    font-family: var(--font-mono, monospace);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .wire-date-pills {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+  }
+
+  .wire-date-pill {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.22rem 0.55rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.15s ease;
+  }
+
+  .wire-date-pill:hover {
+    color: var(--text-primary);
+    border-color: var(--brand-accent);
+  }
+
+  .wire-date-pill.active {
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #ffffff;
+  }
+
+  .wire-date-pill-count {
+    font-size: 0.62rem;
+    opacity: 0.85;
+  }
+
   /* Items Grid */
   .wire-items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 0.85rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 0.65rem;
+  }
+
+  .wire-card-collapsed,
+  .wire-card-date-hidden {
+    display: none !important;
+  }
+
+  /* Expand / Collapse Control Bar */
+  .wire-expand-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    flex-wrap: wrap;
+  }
+
+  .wire-expand-btn {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.28);
+    color: var(--brand-accent);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.38rem 0.85rem;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s ease;
+  }
+
+  .wire-expand-btn:hover {
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .wire-full-cal-link {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .wire-full-cal-link:hover {
+    color: var(--brand-accent);
+    text-decoration: underline;
+  }
+
+  .wire-reset-date-btn {
+    margin-left: 0.5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--brand-accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .wire-reset-date-btn:hover {
+    background: var(--brand-accent);
+    color: #ffffff;
+    border-color: var(--brand-accent);
   }
 
   /* News Card Item */
@@ -276,23 +431,24 @@
     background: var(--bg-surface-elevated, #141721);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
-    padding: 0.95rem 1.05rem;
+    padding: 0.7rem 0.85rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: border-color 0.15s ease, transform 0.15s ease;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .wire-card-item:hover {
-    border-color: var(--border-strong, #3b82f6);
-    transform: translateY(-1px);
+    border-color: var(--brand-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
   }
 
   .wire-meta-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.35rem;
     gap: 0.5rem;
   }
 
@@ -310,15 +466,15 @@
   }
 
   .wire-headline-link {
-    font-size: 0.875rem;
+    font-size: 0.84rem;
     font-weight: 600;
     color: var(--text-primary);
     text-align: left;
     text-decoration: none;
     padding: 0;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.4rem 0;
     cursor: pointer;
-    line-height: 1.4;
+    line-height: 1.38;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -333,10 +489,10 @@
   }
 
   .wire-summary-text {
-    font-size: 0.78125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
-    line-height: 1.45;
-    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+    margin: 0 0 0.55rem 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -349,29 +505,29 @@
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid var(--border-subtle);
-    padding-top: 0.55rem;
-    margin-top: 0.25rem;
-    gap: 0.4rem;
+    padding-top: 0.45rem;
+    margin-top: 0.2rem;
+    gap: 0.35rem;
     flex-wrap: wrap;
   }
 
   .wire-action-btns {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     flex-wrap: wrap;
   }
 
   .wire-why-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.72rem;
+    gap: 0.25rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--brand-accent);
     background: rgba(59, 130, 246, 0.08);
     border: 1px solid rgba(59, 130, 246, 0.2);
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.12s ease;
@@ -388,12 +544,12 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-secondary);
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.12s ease;
@@ -411,15 +567,17 @@
     background: var(--bg-surface-elevated, #141721);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
-    padding: 0.95rem 1.05rem;
+    padding: 0.7rem 0.85rem;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    transition: border-color 0.15s ease;
+    gap: 0.42rem;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .earnings-card-item:hover {
-    border-color: var(--border-strong, #3b82f6);
+    border-color: var(--brand-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
   }
 
   .earnings-header-row {
@@ -429,7 +587,7 @@
   }
 
   .earnings-symbol-btn {
-    font-size: 1.05rem;
+    font-size: 0.98rem;
     font-family: var(--font-mono, monospace);
     font-weight: 800;
     color: var(--text-primary);
@@ -447,10 +605,10 @@
   }
 
   .timing-badge {
-    font-size: 0.65rem;
+    font-size: 0.625rem;
     font-family: var(--font-mono, monospace);
     font-weight: 700;
-    padding: 0.15rem 0.45rem;
+    padding: 0.12rem 0.4rem;
     border-radius: 4px;
   }
 
@@ -477,9 +635,9 @@
     justify-content: space-between;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    padding: 0.45rem 0.65rem;
+    padding: 0.3rem 0.55rem;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--text-secondary);
   }
 
@@ -492,10 +650,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.6875rem;
+    font-size: 0.675rem;
     font-family: var(--font-mono, monospace);
     color: var(--text-muted);
-    gap: 0.4rem;
+    gap: 0.35rem;
     flex-wrap: wrap;
   }
 
@@ -504,15 +662,17 @@
     background: var(--bg-surface-elevated, #141721);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
-    padding: 0.95rem 1.05rem;
+    padding: 0.7rem 0.85rem;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    transition: border-color 0.15s ease;
+    gap: 0.42rem;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .macro-card-item:hover {
-    border-color: var(--border-strong, #3b82f6);
+    border-color: var(--brand-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
   }
 
   .macro-header-row {
@@ -523,10 +683,10 @@
   }
 
   .macro-name {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 700;
     color: var(--text-primary);
-    line-height: 1.35;
+    line-height: 1.32;
   }
 
   .macro-impact-badge {
@@ -561,9 +721,9 @@
     justify-content: space-between;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
-    padding: 0.45rem 0.65rem;
+    padding: 0.3rem 0.55rem;
     border-radius: 4px;
-    font-size: 0.71875rem;
+    font-size: 0.72rem;
     font-family: var(--font-mono, monospace);
     color: var(--text-secondary);
   }
@@ -577,23 +737,23 @@
     background: var(--bg-surface-elevated, #141721);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
-    padding: 1rem;
-    min-height: 100px;
+    padding: 0.75rem 0.85rem;
+    min-height: 88px;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.45rem;
   }
 
   .skeleton-line {
-    background: linear-gradient(90deg, #181d29 25%, #232a3b 50%, #181d29 75%);
+    background: linear-gradient(90deg, var(--bg-surface-elevated) 25%, var(--border-subtle) 50%, var(--bg-surface-elevated) 75%);
     background-size: 200% 100%;
     animation: wireSkeleton 1.5s infinite;
     border-radius: 4px;
   }
 
-  .skeleton-line.title { height: 16px; width: 75%; }
-  .skeleton-line.meta { height: 12px; width: 40%; }
-  .skeleton-line.text { height: 12px; width: 90%; }
+  .skeleton-line.title { height: 15px; width: 75%; }
+  .skeleton-line.meta { height: 11px; width: 40%; }
+  .skeleton-line.text { height: 11px; width: 90%; }
 
   @keyframes wireSkeleton {
     0% { background-position: 200% 0; }
@@ -602,9 +762,9 @@
 
   .wire-empty-state {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: 1.35rem 1rem;
     color: var(--text-muted);
-    font-size: 0.8125rem;
+    font-size: 0.8rem;
     grid-column: 1 / -1;
   }
 
@@ -613,8 +773,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 1.15rem;
-    padding-top: 0.75rem;
+    margin-top: 0.85rem;
+    padding-top: 0.65rem;
     border-top: 1px solid var(--border-subtle);
     font-size: 0.71875rem;
     color: var(--text-muted);
@@ -647,22 +807,39 @@
 
   @media (max-width: 768px) {
     .wire-container.card {
-      padding: 1rem;
+      padding: 0.85rem;
     }
     .wire-items-grid {
       grid-template-columns: 1fr;
+    }
+    .wire-expand-bar {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+    }
+    .wire-expand-btn {
+      justify-content: center;
     }
   }
 </style>
 
 <script is:inline>
   (function initLiveCatalystWire() {
+    const COMPACT_LIMIT = 6;
     let isFetching = false;
+    let activeTab = 'all';
+    let activeDate = 'all';
+    let isExpanded = false;
 
     const refreshBtn = document.getElementById('wire-refresh-btn');
     const refreshLabel = document.getElementById('wire-refresh-label');
     const lastUpdatedLabel = document.getElementById('wire-last-updated');
     const tabBtns = document.querySelectorAll('.wire-tab-btn');
+    const datePillsContainer = document.getElementById('wire-date-pills');
+    const expandBar = document.getElementById('wire-expand-bar');
+    const expandBtn = document.getElementById('wire-expand-btn');
+    const expandLabel = document.getElementById('wire-expand-label');
+
     const countAll = document.getElementById('count-all');
     const countNews = document.getElementById('count-news');
     const countEarnings = document.getElementById('count-earnings');
@@ -673,10 +850,170 @@
     const earningsContainer = document.getElementById('wire-earnings-container');
     const macroContainer = document.getElementById('wire-macro-container');
 
+    function normalizeDateKey(rawDate) {
+      if (!rawDate) return '';
+      const str = String(rawDate).trim();
+      const isoMatch = str.match(/^(\d{4}-\d{2}-\d{2})/);
+      if (isoMatch) return isoMatch[1];
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) {
+        return parsed.toISOString().slice(0, 10);
+      }
+      return str;
+    }
+
+    function formatShortDateLabel(dateKey) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+        const dt = new Date(dateKey + 'T12:00:00Z');
+        if (!isNaN(dt.getTime())) {
+          return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+        }
+      }
+      return dateKey;
+    }
+
+    function getContainerForTab(tabName) {
+      if (tabName === 'earnings') return earningsContainer;
+      if (tabName === 'macro') return macroContainer;
+      if (tabName === 'news') return newsContainer;
+      return allContainer;
+    }
+
+    function applyWireFiltersAndCollapse() {
+      const panels = [
+        { tab: 'all', container: allContainer },
+        { tab: 'earnings', container: earningsContainer },
+        { tab: 'macro', container: macroContainer },
+        { tab: 'news', container: newsContainer }
+      ];
+
+      panels.forEach(({ container }) => {
+        if (!container) return;
+        const oldEmpty = container.querySelector('.wire-date-empty');
+        if (oldEmpty) oldEmpty.remove();
+
+        const cards = Array.from(
+          container.querySelectorAll(':scope > .wire-card-item, :scope > .earnings-card-item, :scope > .macro-card-item')
+        );
+        if (cards.length === 0) return;
+
+        let matchIndex = 0;
+        cards.forEach(card => {
+          const cardDate = card.getAttribute('data-event-date') || '';
+          const dateMatches = (activeDate === 'all') || (cardDate === activeDate);
+          if (!dateMatches) {
+            card.classList.add('wire-card-date-hidden');
+            card.classList.remove('wire-card-collapsed');
+          } else {
+            card.classList.remove('wire-card-date-hidden');
+            if (!isExpanded && matchIndex >= COMPACT_LIMIT) {
+              card.classList.add('wire-card-collapsed');
+            } else {
+              card.classList.remove('wire-card-collapsed');
+            }
+            matchIndex++;
+          }
+        });
+
+        if (matchIndex === 0 && activeDate !== 'all') {
+          const emptyEl = document.createElement('div');
+          emptyEl.className = 'wire-empty-state wire-date-empty';
+          emptyEl.innerHTML = `No catalysts scheduled on <strong>${sanitize(formatShortDateLabel(activeDate))}</strong> in this tab. <button type="button" class="wire-reset-date-btn">Show All Dates</button>`;
+          const resetBtn = emptyEl.querySelector('.wire-reset-date-btn');
+          if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+              activeDate = 'all';
+              syncDatePillActiveState();
+              applyWireFiltersAndCollapse();
+            });
+          }
+          container.appendChild(emptyEl);
+        }
+      });
+
+      const currentContainer = getContainerForTab(activeTab);
+      if (currentContainer && expandBar && expandBtn && expandLabel) {
+        const matchingCards = currentContainer.querySelectorAll(
+          ':scope > .wire-card-item:not(.wire-card-date-hidden), :scope > .earnings-card-item:not(.wire-card-date-hidden), :scope > .macro-card-item:not(.wire-card-date-hidden)'
+        );
+        const totalMatching = matchingCards.length;
+        if (totalMatching > COMPACT_LIMIT) {
+          expandBar.style.display = 'flex';
+          expandBtn.style.display = 'inline-flex';
+          expandBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+          expandLabel.innerHTML = isExpanded
+            ? `Collapse to Compact View (${COMPACT_LIMIT}) &uarr;`
+            : `Show All ${totalMatching} Calendar Events &darr;`;
+        } else if (totalMatching > 0) {
+          expandBar.style.display = 'flex';
+          expandBtn.style.display = 'none';
+        } else {
+          expandBar.style.display = 'none';
+        }
+      }
+    }
+
+    function syncDatePillActiveState() {
+      if (!datePillsContainer) return;
+      const pills = datePillsContainer.querySelectorAll('.wire-date-pill');
+      pills.forEach(p => {
+        const d = p.getAttribute('data-wire-date');
+        p.classList.toggle('active', d === activeDate);
+      });
+    }
+
+    function renderDateStrip(earningsList, macroList, newsList) {
+      if (!datePillsContainer) return;
+      const dateCounts = new Map();
+
+      (earningsList || []).forEach(item => {
+        const key = normalizeDateKey(item.date);
+        if (key) dateCounts.set(key, (dateCounts.get(key) || 0) + 1);
+      });
+      (macroList || []).forEach(item => {
+        const key = normalizeDateKey(item.date);
+        if (key) dateCounts.set(key, (dateCounts.get(key) || 0) + 1);
+      });
+      (newsList || []).forEach(item => {
+        const key = normalizeDateKey(item.pubDate);
+        if (key && dateCounts.has(key)) {
+          dateCounts.set(key, (dateCounts.get(key) || 0) + 1);
+        }
+      });
+
+      const sortedDates = Array.from(dateCounts.keys()).sort().slice(0, 7);
+      if (activeDate !== 'all' && !sortedDates.includes(activeDate)) {
+        activeDate = 'all';
+      }
+
+      const pillsHtml = [
+        `<button type="button" class="wire-date-pill ${activeDate === 'all' ? 'active' : ''}" data-wire-date="all">All Dates</button>`,
+        ...sortedDates.map(dateKey => {
+          const count = dateCounts.get(dateKey) || 0;
+          const isAct = activeDate === dateKey ? 'active' : '';
+          return `<button type="button" class="wire-date-pill ${isAct}" data-wire-date="${sanitize(dateKey)}">
+            <span>${sanitize(formatShortDateLabel(dateKey))}</span>
+            <span class="wire-date-pill-count">(${count})</span>
+          </button>`;
+        })
+      ].join('');
+
+      datePillsContainer.innerHTML = pillsHtml;
+
+      datePillsContainer.querySelectorAll('.wire-date-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          activeDate = pill.getAttribute('data-wire-date') || 'all';
+          syncDatePillActiveState();
+          applyWireFiltersAndCollapse();
+        });
+      });
+    }
+
     // Tab Navigation
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        const targetTab = btn.getAttribute('data-wire-tab');
+        const targetTab = btn.getAttribute('data-wire-tab') || 'all';
+        activeTab = targetTab;
         tabBtns.forEach(b => {
           b.classList.remove('active');
           b.setAttribute('aria-selected', 'false');
@@ -690,8 +1027,17 @@
             panel.style.display = (t === targetTab) ? 'block' : 'none';
           }
         });
+
+        applyWireFiltersAndCollapse();
       });
     });
+
+    if (expandBtn) {
+      expandBtn.addEventListener('click', () => {
+        isExpanded = !isExpanded;
+        applyWireFiltersAndCollapse();
+      });
+    }
 
     function formatTimeDelta(isoString) {
       if (!isoString) return 'Just now';
@@ -777,7 +1123,7 @@
       return null;
     }
 
-    // Render News Wire (headlines & source buttons open the news article; Why Is It Moving only shown when a specific stock ticker is detected)
+    // Render News Wire (headlines & source buttons open the news article; Why $TICKER? only shown when a specific stock ticker is detected)
     function renderNews(news) {
       if (!newsContainer) return;
       if (!news || news.length === 0) {
@@ -795,6 +1141,7 @@
                               rawSummary.toLowerCase().includes('volume catalyst potential') ||
                               rawSummary.toLowerCase() === (item.title || '').toLowerCase();
         const summaryText = isBoilerplate ? '' : rawSummary;
+        const normDate = normalizeDateKey(item.pubDate);
 
         const tickerTagHtml = detectedTicker
           ? `<a href="/ticker/${encodeURIComponent(detectedTicker.toLowerCase())}/" class="wire-time-tag" style="color: var(--brand-accent); font-weight: 700; text-decoration: none;" title="Open $${sanitize(detectedTicker)} Hub">$${sanitize(detectedTicker)}</a>`
@@ -802,12 +1149,12 @@
 
         const whyBtnHtml = detectedTicker
           ? `<button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(detectedTicker)}" title="Run 5-Layer Diagnostic on $${sanitize(detectedTicker)}">
-              Why Is $${sanitize(detectedTicker)} Moving? &rarr;
+              Why $${sanitize(detectedTicker)}? &rarr;
             </button>`
           : '';
 
         return `
-          <div class="wire-card-item">
+          <div class="wire-card-item" data-event-date="${sanitize(normDate)}">
             <div>
               <div class="wire-meta-row">
                 <span class="wire-source-tag">${sanitize(item.source || 'Market Wire')}</span>
@@ -853,9 +1200,10 @@
           ? (item.revenueEstimate >= 1e9 ? `$${(item.revenueEstimate / 1e9).toFixed(1)}B` : `$${(item.revenueEstimate / 1e6).toFixed(0)}M`) 
           : 'N/A';
         const secUrl = `https://www.sec.gov/edgar/searchedgar/companysearch?companyName=${encodeURIComponent(item.ticker)}`;
+        const normDate = normalizeDateKey(item.date);
 
         return `
-          <div class="earnings-card-item">
+          <div class="earnings-card-item" data-event-date="${sanitize(normDate)}">
             <div class="earnings-header-row">
               <a href="/ticker/${encodeURIComponent(item.ticker.toLowerCase())}/" class="earnings-symbol-btn" title="Open $${sanitize(item.ticker)} breakout hub">
                 $${sanitize(item.ticker)}
@@ -872,8 +1220,8 @@
                 <a href="${secUrl}" target="_blank" rel="noopener noreferrer" class="wire-source-btn">
                   SEC Filings &nearr;
                 </a>
-                <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(item.ticker)}">
-                  Why Is $${sanitize(item.ticker)} Moving? &rarr;
+                <button type="button" class="wire-why-btn" data-open-diagnostic="${sanitize(item.ticker)}" title="Run 5-Layer Diagnostic on $${sanitize(item.ticker)}">
+                  Why $${sanitize(item.ticker)}? &rarr;
                 </button>
               </div>
             </div>
@@ -900,9 +1248,10 @@
         const actStr = (item.actual !== undefined && item.actual !== null) ? String(item.actual) : 'Pending';
         const estStr = (item.estimate !== undefined && item.estimate !== null) ? String(item.estimate) : '---';
         const prevStr = (item.prev !== undefined && item.prev !== null) ? String(item.prev) : '---';
+        const normDate = normalizeDateKey(item.date);
 
         return `
-          <div class="macro-card-item">
+          <div class="macro-card-item" data-event-date="${sanitize(normDate)}">
             <div class="macro-header-row">
               <span class="macro-name">${sanitize(item.event)}</span>
               <span class="macro-impact-badge ${impact}">${impactLabel}</span>
@@ -948,6 +1297,7 @@
           renderNews(newsList);
           renderEarnings(earningsList);
           renderMacro(macroList);
+          renderDateStrip(earningsList, macroList, newsList);
 
           const totalCount = earningsList.length + macroList.length + newsList.length;
           if (countAll) countAll.textContent = String(totalCount);
@@ -961,6 +1311,8 @@
 
             allContainer.innerHTML = combinedHtml || '<div class="wire-empty-state">Market wire is actively monitoring session flow.</div>';
           }
+
+          applyWireFiltersAndCollapse();
 
           if (lastUpdatedLabel) {
             const now = new Date();

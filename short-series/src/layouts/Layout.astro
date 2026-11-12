@@ -386,7 +386,33 @@ const isAbout = currentPath.startsWith('/about');
           banner?.classList.add('hidden');
         });
       })();
+
+      // 5. Floating Back-to-Top Button
+      (function initBackToTop() {
+        const bttBtn = document.getElementById('back-to-top-btn');
+        if (!bttBtn) return;
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+          if (!ticking) {
+            window.requestAnimationFrame(() => {
+              if (window.scrollY > 350) {
+                bttBtn.classList.add('visible');
+              } else {
+                bttBtn.classList.remove('visible');
+              }
+              ticking = false;
+            });
+            ticking = true;
+          }
+        }, { passive: true });
+
+        bttBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
     </script>
+    <button id="back-to-top-btn" class="back-to-top-btn" aria-label="Back to top" title="Back to top">&uarr;</button>
   </body>
 </html>
 
@@ -655,11 +681,50 @@ const isAbout = currentPath.startsWith('/about');
     top: 0;
     z-index: 1000;
     background: var(--bg-page);
+    background: color-mix(in srgb, var(--bg-page) 86%, transparent);
     border-bottom: 1px solid var(--border-subtle);
     width: 100%;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--brand-accent);
+    outline-offset: 2px;
+  }
+  .back-to-top-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    z-index: 999;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+  .back-to-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .back-to-top-btn:hover {
+    background: var(--brand-accent);
+    color: #ffffff;
+    border-color: var(--brand-accent);
+    transform: translateY(-2px);
   }
   .nav-inner {
     display: flex;

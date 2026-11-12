@@ -357,7 +357,7 @@ const calendarSchema = {
   /* Events Grid */
   .events-grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
     gap: 1.15rem;
     margin-bottom: 3.5rem;
   }
@@ -371,12 +371,13 @@ const calendarSchema = {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     box-shadow: var(--card-shadow);
   }
 
   .calendar-card:hover {
-    border-color: var(--border-strong);
+    border-color: var(--brand-accent);
+    transform: translateY(-2px);
   }
 
   .card-top-row {
@@ -504,27 +505,27 @@ const calendarSchema = {
   }
 
   .card-btn.why-btn {
-    color: #60a5fa;
+    color: var(--brand-accent);
     background: rgba(59, 130, 246, 0.1);
     border: 1px solid rgba(59, 130, 246, 0.28);
   }
 
   .card-btn.why-btn:hover {
-    background: rgba(59, 130, 246, 0.22);
-    border-color: rgba(59, 130, 246, 0.5);
-    color: #93c5fd;
+    background: var(--brand-accent);
+    border-color: var(--brand-accent);
+    color: #ffffff;
   }
 
   .card-btn.source-link {
     color: var(--text-secondary);
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
   }
 
   .card-btn.source-link:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--border-strong);
+    background: var(--bg-surface);
+    border-color: var(--brand-accent);
   }
 
   /* Skeletons */
@@ -593,7 +594,7 @@ const calendarSchema = {
 
   .guide-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: 1.5rem;
   }
 
