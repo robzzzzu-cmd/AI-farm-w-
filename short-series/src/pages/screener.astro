@@ -39,13 +39,13 @@ const screenerSchema = {
 
   <div class="screener-page-container">
     <header class="page-intro-header">
-      <div class="breadcrumb">
+      <div class="breadcrumb font-mono tabular-nums tracking-tight">
         <a href="/">Dashboard</a> &rsaquo; <span>Live Screener</span>
       </div>
-      <span class="hub-pill">REAL-TIME MOMENTUM MATRIX</span>
+      <span class="hub-pill font-mono tabular-nums tracking-tight">REAL-TIME MOMENTUM MATRIX</span>
       <h1>Live Breakout Screener</h1>
       <p class="subtitle">
-        Scan volume explosions (RVOL &ge; 3.0x), technical consolidation breaches, and instant 5-layer "Why Is It Moving?" diagnostics on US equities.
+        Scan volume explosions (<span class="font-mono tabular-nums tracking-tight">RVOL &ge; 3.0x</span>), technical consolidation breaches, and instant 5-layer "Why Is It Moving?" diagnostics on US equities.
       </p>
     </header>
 
@@ -53,20 +53,20 @@ const screenerSchema = {
     <LiveStockScreener />
 
     <!-- Quantitative Framework Documentation -->
-    <section class="methodology-note-card">
+    <section class="methodology-note-card bg-[#111726] border border-[#1E293B] rounded-lg">
       <h2>Screener Architecture &amp; Execution Parameters</h2>
       <div class="framework-grid">
         <div class="framework-item">
-          <strong>Penny Stocks (&lt;$5)</strong>
-          <p>Equities trading below $5.00/share. Filtered against a 25,000 share minimum session volume floor to minimize illiquid quotation anomalies.</p>
+          <strong class="font-mono tabular-nums tracking-tight">Penny Stocks (&lt;$5)</strong>
+          <p>Equities trading below <span class="font-mono tabular-nums tracking-tight">$5.00</span>/share. Filtered against a <span class="font-mono tabular-nums tracking-tight">25,000</span> share minimum session volume floor to minimize illiquid quotation anomalies.</p>
         </div>
         <div class="framework-item">
-          <strong>Small &amp; Mid Cap ($300M–$10B)</strong>
-          <p>Equities between $300M and $10B market capitalization. Targets growth breakouts, relative volume surges, and institutional accumulation.</p>
+          <strong class="font-mono tabular-nums tracking-tight">Small &amp; Mid Cap ($300M–$10B)</strong>
+          <p>Equities between <span class="font-mono tabular-nums tracking-tight">$300M</span> and <span class="font-mono tabular-nums tracking-tight">$10B</span> market capitalization. Targets growth breakouts, relative volume surges, and institutional accumulation.</p>
         </div>
         <div class="framework-item">
-          <strong>Large Cap (&gt;$10B)</strong>
-          <p>Established liquid market anchors with market capitalization exceeding $10B, index drivers, and macro rotation benchmarks.</p>
+          <strong class="font-mono tabular-nums tracking-tight">Large Cap (&gt;$10B)</strong>
+          <p>Established liquid market anchors with market capitalization exceeding <span class="font-mono tabular-nums tracking-tight">$10B</span>, index drivers, and macro rotation benchmarks.</p>
         </div>
       </div>
       <p class="footer-clarification">
@@ -77,10 +77,13 @@ const screenerSchema = {
 </Layout>
 
 <style>
+  .font-mono { font-family: 'JetBrains Mono', var(--font-mono, monospace); }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .tracking-tight { letter-spacing: -0.025em; }
   .screener-page-container {
-    max-width: 1240px;
-    margin: 2rem auto 4rem auto;
-    padding: 0 1.25rem;
+    max-width: 1600px;
+    margin: 1rem auto 3rem auto;
+    padding: 0 1rem;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;

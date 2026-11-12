@@ -2,38 +2,38 @@
 // short-series/src/components/MarketRadar.astro
 ---
 
-<div class="market-radar-hud" id="market-radar">
+<div class="market-radar-hud bg-[#111726] border border-[#1E293B] rounded-lg" id="market-radar">
   <!-- Top Telemetry Header -->
   <div class="radar-top-row">
     <div class="radar-brand-meta">
       <div class="radar-live-badge">
         <span class="pulse-core"></span>
-        <span class="live-label">LIVE RADAR HUD</span>
+        <span class="live-label font-mono tabular-nums tracking-tight">LIVE RADAR HUD</span>
       </div>
-      <span class="session-clock" id="radar-session-clock">SYNCING MARKET CLOCK...</span>
+      <span class="session-clock font-mono tabular-nums tracking-tight" id="radar-session-clock">SYNCING MARKET CLOCK...</span>
     </div>
 
     <!-- Macro Regime Gauge -->
     <div class="macro-regime-wrap" id="macro-regime-wrap">
-      <span class="regime-title">MACRO REGIME:</span>
-      <span class="regime-badge RISK-ON" id="radar-regime-badge">RISK-ON</span>
-      <span class="regime-metrics" id="radar-regime-metrics">SPY +0.0% &bull; QQQ +0.0%</span>
+      <span class="regime-title font-mono tabular-nums tracking-tight">MACRO REGIME:</span>
+      <span class="regime-badge RISK-ON font-mono tabular-nums tracking-tight" id="radar-regime-badge">RISK-ON</span>
+      <span class="regime-metrics font-mono tabular-nums tracking-tight" id="radar-regime-metrics">SPY -- &bull; QQQ --</span>
     </div>
   </div>
 
   <!-- Radar HUD Cards Grid -->
   <div class="radar-grid">
     <!-- Card 1: Top Conviction Setup -->
-    <div class="radar-card top-setup-card">
+    <div class="radar-card top-setup-card bg-[#090D16] border border-[#1E293B] rounded-lg">
       <div class="card-header-mini">
-        <span class="card-tag">TOP CONVICTION SETUP</span>
-        <span class="card-conviction" id="radar-top-conviction">Score: 92/100</span>
+        <span class="card-tag font-mono">TOP CONVICTION SETUP</span>
+        <span class="card-conviction font-mono tabular-nums tracking-tight" id="radar-top-conviction">Score: 92/100</span>
       </div>
       <div class="setup-content">
         <div class="setup-symbol-row">
-          <span class="setup-symbol" id="radar-top-ticker">---</span>
-          <span class="setup-price" id="radar-top-price">$0.00</span>
-          <span class="setup-delta gain" id="radar-top-delta">+0.00%</span>
+          <span class="setup-symbol font-mono tabular-nums tracking-tight" id="radar-top-ticker">---</span>
+          <span class="setup-price font-mono tabular-nums tracking-tight" id="radar-top-price"><span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span></span>
+          <span class="setup-delta gain font-mono tabular-nums tracking-tight" id="radar-top-delta"><span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span></span>
         </div>
         <p class="setup-note" id="radar-top-note">Leading volume expansion on session tape.</p>
         <button type="button" class="radar-action-btn" id="radar-top-inspect-btn" data-open-diagnostic="" style="display: none;">
@@ -47,10 +47,10 @@
     </div>
 
     <!-- Card 2: Breakout Surges -->
-    <div class="radar-card">
+    <div class="radar-card bg-[#090D16] border border-[#1E293B] rounded-lg">
       <div class="card-header-mini">
-        <span class="card-tag">BREAKOUT SURGES</span>
-        <span class="card-hint">RVOL &ge; 2.5x</span>
+        <span class="card-tag font-mono">BREAKOUT SURGES</span>
+        <span class="card-hint font-mono tabular-nums tracking-tight">RVOL &ge; 2.5x</span>
       </div>
       <div class="candidates-list" id="radar-breakout-list">
         <div class="candidate-row loading">Synchronizing live breakout tape...</div>
@@ -58,10 +58,10 @@
     </div>
 
     <!-- Card 3: Reversal / Exhaustion Risks -->
-    <div class="radar-card">
+    <div class="radar-card bg-[#090D16] border border-[#1E293B] rounded-lg">
       <div class="card-header-mini">
-        <span class="card-tag">REVERSAL RISKS</span>
-        <span class="card-hint">Fade / VWAP Loss</span>
+        <span class="card-tag font-mono">REVERSAL RISKS</span>
+        <span class="card-hint font-mono tabular-nums tracking-tight">Fade / VWAP Loss</span>
       </div>
       <div class="candidates-list" id="radar-reversal-list">
         <div class="candidate-row loading">Evaluating overextended runners...</div>
@@ -69,16 +69,16 @@
     </div>
 
     <!-- Card 4: Large-Cap Anchor -->
-    <div class="radar-card anchor-card">
+    <div class="radar-card anchor-card bg-[#090D16] border border-[#1E293B] rounded-lg">
       <div class="card-header-mini">
-        <span class="card-tag">LARGE-CAP ANCHOR</span>
-        <span class="card-hint">Megacap Tape</span>
+        <span class="card-tag font-mono">LARGE-CAP ANCHOR</span>
+        <span class="card-hint font-mono">Megacap Tape</span>
       </div>
       <div class="anchor-content">
         <div class="anchor-symbol-row">
-          <span class="anchor-symbol" id="radar-anchor-ticker">---</span>
-          <span class="anchor-price" id="radar-anchor-price">$0.00</span>
-          <span class="anchor-delta gain" id="radar-anchor-delta">0.00%</span>
+          <span class="anchor-symbol font-mono tabular-nums tracking-tight" id="radar-anchor-ticker">---</span>
+          <span class="anchor-price font-mono tabular-nums tracking-tight" id="radar-anchor-price"><span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span></span>
+          <span class="anchor-delta gain font-mono tabular-nums tracking-tight" id="radar-anchor-delta"><span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span></span>
         </div>
         <p class="anchor-desc" id="radar-anchor-desc">Primary market liquidity leader.</p>
         <button type="button" class="radar-action-btn" id="radar-anchor-inspect-btn" data-open-diagnostic="" style="display: none;">
@@ -94,18 +94,18 @@
 
   <!-- Scheduled Briefs Navigation Strip -->
   <div class="radar-briefs-strip">
-    <span class="briefs-label">SCHEDULED BRIEFS:</span>
+    <span class="briefs-label font-mono">SCHEDULED BRIEFS:</span>
     <div class="briefs-links">
       <a href="#news-feed" class="brief-chip">
-        <span class="brief-time">08:45 EST</span>
+        <span class="brief-time font-mono tabular-nums tracking-tight">08:45 EST</span>
         <span>Morning Momentum Brief</span>
       </a>
       <a href="#news-feed" class="brief-chip">
-        <span class="brief-time">12:00 EST</span>
+        <span class="brief-time font-mono tabular-nums tracking-tight">12:00 EST</span>
         <span>Midday Market Update</span>
       </a>
       <a href="#news-feed" class="brief-chip">
-        <span class="brief-time">16:15 EST</span>
+        <span class="brief-time font-mono tabular-nums tracking-tight">16:15 EST</span>
         <span>Closing Momentum Report</span>
       </a>
     </div>
@@ -113,14 +113,24 @@
 </div>
 
 <style>
+  .font-mono { font-family: 'JetBrains Mono', var(--font-mono, monospace); }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .tracking-tight { letter-spacing: -0.025em; }
+  .inline-block { display: inline-block; }
+  .h-6 { height: 1.5rem; }
+  .w-24 { width: 6rem; }
+  .rounded { border-radius: 0.25rem; }
+  .bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.8); }
+  .animate-pulse { animation: radar-skel 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  @keyframes radar-skel { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
   .market-radar-hud {
-    background: #0f131c;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 1.15rem 1.35rem;
-    margin-bottom: 1.5rem;
+    background: #111726;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    padding: 0.9rem 1.15rem;
+    margin-bottom: 1.25rem;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -629,7 +639,7 @@
           topTickerEl.textContent = '$' + ts.ticker;
           topPriceEl.textContent = '$' + (ts.price < 1 ? ts.price.toFixed(4) : ts.price.toFixed(2));
           topDeltaEl.textContent = (ts.change >= 0 ? '+' : '') + ts.change.toFixed(2) + '%';
-          topDeltaEl.className = 'setup-delta ' + (ts.change >= 0 ? 'gain' : 'loss');
+          topDeltaEl.className = 'setup-delta font-mono tabular-nums tracking-tight ' + (ts.change >= 0 ? 'gain' : 'loss');
           topNoteEl.textContent = `RVOL ${ts.rvol.toFixed(1)}x surge • Leading high conviction expansion tape.`;
           if (topConvictionEl && ts.convictionScore) {
             topConvictionEl.textContent = `Score: ${ts.convictionScore}/100`;
@@ -644,9 +654,9 @@
         if (breakoutList && Array.isArray(data.breakoutSurges) && data.breakoutSurges.length > 0) {
           breakoutList.innerHTML = data.breakoutSurges.map(b => `
             <div class="candidate-row">
-              <span class="candidate-sym" data-open-diagnostic="${b.ticker}" data-change="${b.change}" data-rvol="${b.rvol}">$${b.ticker}</span>
-              <span class="candidate-rvol">${b.rvol.toFixed(1)}x</span>
-              <span class="candidate-delta gain">+${b.change.toFixed(1)}%</span>
+              <span class="candidate-sym font-mono tabular-nums tracking-tight" data-open-diagnostic="${b.ticker}" data-change="${b.change}" data-rvol="${b.rvol}">$${b.ticker}</span>
+              <span class="candidate-rvol font-mono tabular-nums tracking-tight">${b.rvol.toFixed(1)}x</span>
+              <span class="candidate-delta gain font-mono tabular-nums tracking-tight">+${b.change.toFixed(1)}%</span>
             </div>
           `).join('');
         }
@@ -656,17 +666,17 @@
           if (data.reversalRisks[0]?.status) {
             reversalList.innerHTML = `
               <div class="candidate-row">
-                <span class="candidate-sym">SPY / QQQ</span>
-                <span class="candidate-rvol" style="color: #22c55e;">Clean Holds</span>
-                <span class="candidate-delta gain">Low Fades</span>
+                <span class="candidate-sym font-mono tabular-nums tracking-tight">SPY / QQQ</span>
+                <span class="candidate-rvol font-mono tabular-nums tracking-tight" style="color: #22c55e;">Clean Holds</span>
+                <span class="candidate-delta gain font-mono tabular-nums tracking-tight">Low Fades</span>
               </div>
             `;
           } else {
             reversalList.innerHTML = data.reversalRisks.map(r => `
               <div class="candidate-row">
-                <span class="candidate-sym" data-open-diagnostic="${r.ticker}">$${r.ticker}</span>
-                <span class="candidate-rvol" style="color: #ef4444;">VWAP Fade</span>
-                <span class="candidate-delta loss">${r.vwapDiff}%</span>
+                <span class="candidate-sym font-mono tabular-nums tracking-tight" data-open-diagnostic="${r.ticker}">$${r.ticker}</span>
+                <span class="candidate-rvol font-mono tabular-nums tracking-tight" style="color: #ef4444;">VWAP Fade</span>
+                <span class="candidate-delta loss font-mono tabular-nums tracking-tight">${r.vwapDiff}%</span>
               </div>
             `).join('');
           }
@@ -680,7 +690,7 @@
             anchorPriceEl.textContent = '$' + (lca.price < 1 ? lca.price.toFixed(4) : lca.price.toFixed(2));
           }
           anchorDeltaEl.textContent = (lca.change >= 0 ? '+' : '') + lca.change.toFixed(2) + '%';
-          anchorDeltaEl.className = 'anchor-delta ' + (lca.change >= 0 ? 'gain' : 'loss');
+          anchorDeltaEl.className = 'anchor-delta font-mono tabular-nums tracking-tight ' + (lca.change >= 0 ? 'gain' : 'loss');
           anchorDescEl.textContent = `Institutional tape benchmark (${lca.name || lca.ticker}).`;
           if (anchorInspectBtn) {
             anchorInspectBtn.setAttribute('data-open-diagnostic', lca.ticker);

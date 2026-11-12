@@ -11,10 +11,10 @@
       <div class="header-main">
         <span class="diagnostic-kicker">PROPRIETARY 5-LAYER ATTRIBUTION</span>
         <div class="header-ticker-row">
-          <h2 id="diagnostic-title" class="drawer-symbol">---</h2>
-          <span id="diagnostic-name" class="drawer-company-name">Analyzing Asset</span>
-          <span id="diagnostic-price-pill" class="drawer-price-pill">$0.00</span>
-          <span id="diagnostic-delta-pill" class="drawer-delta-pill">0.00%</span>
+          <h2 id="diagnostic-title" class="drawer-symbol font-mono tabular-nums tracking-tight">---</h2>
+          <span id="diagnostic-name" class="drawer-company-name"><span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span></span>
+          <span id="diagnostic-price-pill" class="drawer-price-pill font-mono tabular-nums tracking-tight"><span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span></span>
+          <span id="diagnostic-delta-pill" class="drawer-delta-pill font-mono tabular-nums tracking-tight"><span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span></span>
         </div>
       </div>
       <button id="diagnostic-close-btn" class="drawer-close-btn" aria-label="Close diagnostic">&times;</button>
@@ -71,19 +71,19 @@
         <div class="layer-grid-2">
           <div class="metric-cell">
             <span class="metric-label">Relative Volume (RVOL)</span>
-            <span class="metric-value" id="tech-rvol">1.0x</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="tech-rvol">1.0x</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">VWAP Divergence</span>
-            <span class="metric-value" id="tech-vwap-delta">0.0%</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="tech-vwap-delta">+0.0%</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">52-Week High Pivot</span>
-            <span class="metric-value" id="tech-52w-status">Below Range</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="tech-52w-status">Below Range</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">RSI Momentum</span>
-            <span class="metric-value" id="tech-rsi">50</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="tech-rsi">50</span>
           </div>
         </div>
       </div>
@@ -97,19 +97,19 @@
         <div class="layer-grid-2">
           <div class="metric-cell">
             <span class="metric-label">Free Float Structure</span>
-            <span class="metric-value" id="liq-float-tier">---</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="liq-float-tier">---</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">Float Turnover %</span>
-            <span class="metric-value" id="liq-float-turnover">0.0%</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="liq-float-turnover">---</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">Dollar Volume Traded</span>
-            <span class="metric-value" id="liq-dollar-volume">$0</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="liq-dollar-volume">---</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">Session vs 30D ADV</span>
-            <span class="metric-value" id="liq-adv-ratio">Normal</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="liq-adv-ratio">Normal</span>
           </div>
         </div>
       </div>
@@ -123,19 +123,19 @@
         <div class="layer-grid-2">
           <div class="metric-cell">
             <span class="metric-label">Order Flow Bias</span>
-            <span class="metric-value" id="flow-bias">Balanced</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="flow-bias">Balanced</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">Ask Lifting Aggression</span>
-            <span class="metric-value" id="flow-ask-lift">50%</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="flow-ask-lift">50%</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">Short Interest (% Float)</span>
-            <span class="metric-value" id="flow-short-interest">---</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="flow-short-interest">---</span>
           </div>
           <div class="metric-cell">
             <span class="metric-label">Squeeze Vulnerability</span>
-            <span class="metric-value" id="flow-squeeze-rating">Low</span>
+            <span class="metric-value font-mono tabular-nums tracking-tight" id="flow-squeeze-rating">Low</span>
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@
         <div class="layer-header">
           <span class="layer-num">LAYER 05</span>
           <span class="layer-title">Risk Rating &amp; Dilution Hazard</span>
-          <span class="risk-score-badge" id="risk-score-badge">Risk: 30/100</span>
+          <span class="risk-score-badge font-mono tabular-nums tracking-tight" id="risk-score-badge">Risk: 30/100</span>
         </div>
         <div class="risk-flags-list" id="risk-flags-container">
           <!-- Dynamic Risk Notices -->
@@ -191,8 +191,8 @@
     width: 100%;
     max-width: 580px;
     height: 100%;
-    background: var(--bg-surface, #12141a);
-    border-left: 1px solid var(--border-subtle, #222632);
+    background: #111726;
+    border-left: 1px solid #1E293B;
     display: flex;
     flex-direction: column;
     box-shadow: -8px 0 32px rgba(0, 0, 0, 0.6);
@@ -205,12 +205,22 @@
   }
   .drawer-header {
     padding: 1.2rem 1.4rem;
-    border-bottom: 1px solid var(--border-subtle, #222632);
+    border-bottom: 1px solid #1E293B;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    background: var(--bg-page, #0b0c10);
+    background: #090D16;
   }
+  .font-mono { font-family: 'JetBrains Mono', var(--font-mono, monospace); }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .tracking-tight { letter-spacing: -0.025em; }
+  .inline-block { display: inline-block; }
+  .h-6 { height: 1.5rem; }
+  .w-24 { width: 6rem; }
+  .rounded { border-radius: 0.25rem; }
+  .bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.8); }
+  .animate-pulse { animation: pulse-skel 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  @keyframes pulse-skel { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
   .diagnostic-kicker {
     font-size: 0.65rem;
     font-family: var(--font-mono, monospace);
@@ -596,21 +606,22 @@
       const deltaPillEl = document.getElementById('diagnostic-delta-pill');
 
       if (titleEl) titleEl.textContent = '$' + currentTicker;
-      if (seedData && seedData.price !== undefined && seedData.price !== '') {
+      const skelMarkup = '<span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>';
+      if (seedData && seedData.price !== undefined && seedData.price !== '' && parseFloat(seedData.price) > 0) {
         const seedPrice = parseFloat(seedData.price) || 0;
         const seedChange = parseFloat(seedData.changePercent || seedData.change || 0) || 0;
         if (nameEl) nameEl.textContent = seedData.name || currentTicker;
         if (pricePillEl) pricePillEl.textContent = '$' + (seedPrice < 0.01 && seedPrice > 0 ? seedPrice.toFixed(4) : (seedPrice < 1 && seedPrice > 0 ? seedPrice.toFixed(4) : seedPrice.toFixed(2)));
         if (deltaPillEl) {
           deltaPillEl.textContent = (seedChange >= 0 ? '+' : '') + seedChange.toFixed(2) + '%';
-          deltaPillEl.className = 'drawer-delta-pill' + (seedChange >= 0 ? '' : ' neg');
+          deltaPillEl.className = 'drawer-delta-pill font-mono tabular-nums tracking-tight' + (seedChange >= 0 ? '' : ' neg');
         }
       } else {
-        if (nameEl) nameEl.textContent = 'Loading company...';
-        if (pricePillEl) pricePillEl.textContent = '$--';
+        if (nameEl) nameEl.innerHTML = skelMarkup;
+        if (pricePillEl) pricePillEl.innerHTML = skelMarkup;
         if (deltaPillEl) {
-          deltaPillEl.textContent = '0.00%';
-          deltaPillEl.className = 'drawer-delta-pill';
+          deltaPillEl.innerHTML = skelMarkup;
+          deltaPillEl.className = 'drawer-delta-pill font-mono tabular-nums tracking-tight';
         }
       }
 
@@ -642,12 +653,23 @@
 
         const d = json.data;
         if (nameEl) nameEl.textContent = d.name || currentTicker;
-        if (pricePillEl) pricePillEl.textContent = '$' + (d.price < 0.01 && d.price > 0 ? d.price.toFixed(4) : (d.price < 1 && d.price > 0 ? d.price.toFixed(4) : d.price.toFixed(2)));
+        if (pricePillEl) {
+          if (d.price && d.price > 0) {
+            pricePillEl.textContent = '$' + (d.price < 0.01 && d.price > 0 ? d.price.toFixed(4) : (d.price < 1 && d.price > 0 ? d.price.toFixed(4) : d.price.toFixed(2)));
+          } else {
+            pricePillEl.innerHTML = skelMarkup;
+          }
+        }
         
         if (deltaPillEl) {
-          const isGain = d.changePercent >= 0;
-          deltaPillEl.textContent = (isGain ? '+' : '') + d.changePercent.toFixed(2) + '%';
-          deltaPillEl.className = 'drawer-delta-pill' + (isGain ? '' : ' neg');
+          if (d.price && d.price > 0) {
+            const isGain = d.changePercent >= 0;
+            deltaPillEl.textContent = (isGain ? '+' : '') + d.changePercent.toFixed(2) + '%';
+            deltaPillEl.className = 'drawer-delta-pill font-mono tabular-nums tracking-tight' + (isGain ? '' : ' neg');
+          } else {
+            deltaPillEl.innerHTML = skelMarkup;
+            deltaPillEl.className = 'drawer-delta-pill font-mono tabular-nums tracking-tight';
+          }
         }
 
         // Synthesis Verdict

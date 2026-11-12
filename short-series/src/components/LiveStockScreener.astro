@@ -148,7 +148,7 @@ for (const p of sortedPosts.slice(0, 4)) {
   </div>
 
   <!-- Search & Fast Multi-Filtering Toolbar -->
-  <div class="screener-toolbar">
+  <div class="screener-toolbar bg-[#111726] border border-[#1E293B] rounded-lg p-2.5 flex flex-wrap items-center gap-2">
     <div class="toolbar-primary">
       <div class="search-field">
         <svg class="search-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -158,7 +158,7 @@ for (const p of sortedPosts.slice(0, 4)) {
         <input 
           type="text" 
           id="screener-search-input" 
-          class="screener-input" 
+          class="screener-input font-mono" 
           placeholder="Filter by Ticker or Company name..." 
           autocomplete="off"
         />
@@ -210,7 +210,7 @@ for (const p of sortedPosts.slice(0, 4)) {
       <div class="filter-grid">
         <div class="filter-cell">
           <span class="cell-label">Min % Gain</span>
-          <select id="filter-min-gain" class="screener-select">
+          <select id="filter-min-gain" class="screener-select font-mono tabular-nums tracking-tight">
             <option value="0">Any Gain</option>
             <option value="3">&gt; +3%</option>
             <option value="5">&gt; +5%</option>
@@ -221,7 +221,7 @@ for (const p of sortedPosts.slice(0, 4)) {
 
         <div class="filter-cell">
           <span class="cell-label">Decliners / % Loss</span>
-          <select id="filter-max-loss" class="screener-select">
+          <select id="filter-max-loss" class="screener-select font-mono tabular-nums tracking-tight">
             <option value="0">All Stocks</option>
             <option value="-1">Decliners (&lt; 0%)</option>
             <option value="-5">Loss &gt; 5%</option>
@@ -231,7 +231,7 @@ for (const p of sortedPosts.slice(0, 4)) {
 
         <div class="filter-cell">
           <span class="cell-label">Min Session Volume</span>
-          <select id="filter-min-volume" class="screener-select">
+          <select id="filter-min-volume" class="screener-select font-mono tabular-nums tracking-tight">
             <option value="0">Any Volume</option>
             <option value="100000">&gt; 100K Shares</option>
             <option value="500000">&gt; 500K Shares</option>
@@ -242,7 +242,7 @@ for (const p of sortedPosts.slice(0, 4)) {
 
         <div class="filter-cell">
           <span class="cell-label">Relative Volume (RVOL)</span>
-          <select id="filter-min-rvol" class="screener-select">
+          <select id="filter-min-rvol" class="screener-select font-mono tabular-nums tracking-tight">
             <option value="0">Any RVOL</option>
             <option value="1.2">&gt; 1.2x (Above Avg)</option>
             <option value="1.5">&gt; 1.5x (Elevated)</option>
@@ -252,7 +252,7 @@ for (const p of sortedPosts.slice(0, 4)) {
 
         <div class="filter-cell">
           <span class="cell-label">Momentum Score</span>
-          <select id="filter-min-momentum" class="screener-select">
+          <select id="filter-min-momentum" class="screener-select font-mono tabular-nums tracking-tight">
             <option value="0">Any Score</option>
             <option value="60">&gt; 60 (Positive)</option>
             <option value="75">&gt; 75 (High Momentum)</option>
@@ -262,7 +262,7 @@ for (const p of sortedPosts.slice(0, 4)) {
 
         <div class="filter-cell">
           <span class="cell-label">Conviction Rating</span>
-          <select id="filter-conviction" class="screener-select">
+          <select id="filter-conviction" class="screener-select font-mono tabular-nums tracking-tight">
             <option value="ALL">All Scores</option>
             <option value="65">Bullish Setup+ (&ge;65)</option>
             <option value="80">High Conviction (&ge;80)</option>
@@ -289,21 +289,21 @@ for (const p of sortedPosts.slice(0, 4)) {
 
   <!-- Stock Screener Table Container -->
   <div class="screener-table-card">
-    <div class="table-responsive-viewport">
+    <div class="table-responsive-viewport overflow-x-auto rounded-lg border border-[#1E293B] bg-[#111726]">
       <table class="screener-table" id="screener-live-table">
         <thead>
           <tr>
-            <th data-sort="name" class="cell-symbol">Ticker<span class="desktop-company-label"> / Company</span></th>
-            <th data-sort="price" class="text-right">Price</th>
-            <th data-sort="change_abs" class="text-right">Change ($)</th>
-            <th data-sort="change_desc" class="text-center">Change (%)</th>
-            <th data-sort="volume_desc" class="text-right">Volume</th>
-            <th data-sort="rvol_desc" class="text-right">Rel Vol</th>
-            <th data-sort="market_cap_desc" class="text-right">Market Cap</th>
-            <th class="text-center">Day Range</th>
-            <th data-sort="momentum" class="text-center">Momentum</th>
-            <th data-sort="conviction_desc" class="text-center">Conviction</th>
-            <th class="text-center">Action</th>
+            <th data-sort="name" class="cell-symbol sticky top-0 left-0 z-30 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Ticker<span class="desktop-company-label"> / Company</span></th>
+            <th data-sort="price" class="text-right sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Price</th>
+            <th data-sort="change_abs" class="text-right sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Change ($)</th>
+            <th data-sort="change_desc" class="text-center sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Change (%)</th>
+            <th data-sort="volume_desc" class="text-right sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Volume</th>
+            <th data-sort="rvol_desc" class="text-right sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Rel Vol</th>
+            <th data-sort="market_cap_desc" class="text-right sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Market Cap</th>
+            <th class="text-center sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Day Range</th>
+            <th data-sort="momentum" class="text-center sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Momentum</th>
+            <th data-sort="conviction_desc" class="text-center sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Conviction</th>
+            <th class="text-center sticky top-0 z-20 bg-[#090D16] text-[11px] uppercase tracking-wider text-[#94A3B8] font-mono tabular-nums">Action</th>
           </tr>
         </thead>
         <tbody id="screener-table-body">
@@ -312,25 +312,25 @@ for (const p of sortedPosts.slice(0, 4)) {
             const sign = isPos ? '+' : '';
             return (
               <tr class="stock-data-row">
-                <td class="cell-symbol">
+                <td class="cell-symbol sticky left-0 z-10 bg-[#111726]/95 backdrop-blur-sm font-mono font-bold">
                   <div class="symbol-flex">
-                    <a href={`/ticker/${s.ticker.toLowerCase()}/`} class="ticker-link" title={`View $${s.ticker} Breakout Hub`}>
+                    <a href={`/ticker/${s.ticker.toLowerCase()}/`} class="ticker-link font-mono tabular-nums tracking-tight" title={`View $${s.ticker} Breakout Hub`}>
                       ${s.ticker}
                     </a>
                     <span class="company-subname">{s.ticker} Equity</span>
                   </div>
                 </td>
-                <td class="cell-price text-right font-mono">${s.price < 1 ? s.price.toFixed(3) : s.price.toFixed(2)}</td>
-                <td class="cell-change-abs text-right font-mono text-muted">--</td>
+                <td class="cell-price text-right font-mono tabular-nums tracking-tight">${s.price < 1 ? s.price.toFixed(3) : s.price.toFixed(2)}</td>
+                <td class="cell-change-abs text-right font-mono tabular-nums tracking-tight text-muted">--</td>
                 <td class="cell-change-pct text-center">
-                  <span class={`delta-pill ${isPos ? 'delta-pill-gain' : 'delta-pill-loss'}`}>{sign}{s.changePct.toFixed(2)}%</span>
+                  <span class={`delta-pill font-mono tabular-nums tracking-tight ${isPos ? 'delta-pill-gain' : 'delta-pill-loss'}`}>{sign}{s.changePct.toFixed(2)}%</span>
                 </td>
-                <td class="cell-volume text-right font-mono">{s.vol >= 1e6 ? (s.vol / 1e6).toFixed(2) + 'M' : s.vol.toLocaleString()}</td>
-                <td class="cell-rvol text-right font-mono"><span class="rvol-surge">3.20x</span></td>
-                <td class="cell-market-cap text-right font-mono">--</td>
-                <td class="cell-range text-center font-mono">--</td>
-                <td class="cell-momentum text-center"><div class="momentum-pill mom-high"><span class="mom-score">84</span></div></td>
-                <td class="cell-conviction text-center"><span class="conviction-badge conv-high">82 &bull; High Conviction</span></td>
+                <td class="cell-volume text-right font-mono tabular-nums tracking-tight">{s.vol >= 1e6 ? (s.vol / 1e6).toFixed(2) + 'M' : s.vol.toLocaleString()}</td>
+                <td class="cell-rvol text-right font-mono tabular-nums tracking-tight"><span class="rvol-surge font-mono tabular-nums tracking-tight">3.20x</span></td>
+                <td class="cell-market-cap text-right font-mono tabular-nums tracking-tight">--</td>
+                <td class="cell-range text-center font-mono tabular-nums tracking-tight">--</td>
+                <td class="cell-momentum text-center"><div class="momentum-pill mom-high"><span class="mom-score font-mono tabular-nums tracking-tight">84</span></div></td>
+                <td class="cell-conviction text-center"><span class="conviction-badge conv-high font-mono tabular-nums tracking-tight">82 &bull; High Conviction</span></td>
                 <td class="cell-action text-center">
                   <div class="row-btn-group">
                     <button class="row-why-btn" data-open-diagnostic={s.ticker} title="Why Is It Moving?">Why?</button>
@@ -732,52 +732,52 @@ for (const p of sortedPosts.slice(0, 4)) {
 
         return `
           <tr class="stock-data-row">
-            <td class="cell-symbol">
+            <td class="cell-symbol sticky left-0 z-10 bg-[#111726]/95 backdrop-blur-sm font-mono font-bold">
               <div class="symbol-flex">
-                <a href="/ticker/${encodeURIComponent(stock.ticker.toLowerCase())}/" class="ticker-link" title="Open $${stock.ticker} Breakout Hub">
+                <a href="/ticker/${encodeURIComponent(stock.ticker.toLowerCase())}/" class="ticker-link font-mono tabular-nums tracking-tight" title="Open $${stock.ticker} Breakout Hub">
                   $${stock.ticker}
                 </a>
                 <span class="company-subname" title="${stock.name}">${stock.name}</span>
               </div>
             </td>
 
-            <td class="cell-price text-right font-mono">${formatPrice(stock.price)}</td>
+            <td class="cell-price text-right font-mono tabular-nums tracking-tight">${formatPrice(stock.price)}</td>
 
-            <td class="cell-change-abs text-right font-mono text-muted">
+            <td class="cell-change-abs text-right font-mono tabular-nums tracking-tight text-muted">
               ${sign}${formatPrice(stock.changeAbs)}
             </td>
 
             <td class="cell-change-pct text-center">
-              <span class="delta-pill ${badgeClass}">${sign}${stock.changePercent.toFixed(2)}%</span>
+              <span class="delta-pill font-mono tabular-nums tracking-tight ${badgeClass}">${sign}${stock.changePercent.toFixed(2)}%</span>
             </td>
 
-            <td class="cell-volume text-right font-mono">${formatNumber(stock.volume)}</td>
+            <td class="cell-volume text-right font-mono tabular-nums tracking-tight">${formatNumber(stock.volume)}</td>
 
-            <td class="cell-rvol text-right font-mono">
-              <span class="${stock.relativeVolume >= 1.5 ? 'rvol-surge' : ''}">${stock.relativeVolume.toFixed(2)}x</span>
+            <td class="cell-rvol text-right font-mono tabular-nums tracking-tight">
+              <span class="font-mono tabular-nums tracking-tight ${stock.relativeVolume >= 1.5 ? 'rvol-surge' : ''}">${stock.relativeVolume.toFixed(2)}x</span>
             </td>
 
-            <td class="cell-market-cap text-right font-mono">${formatNumber(stock.marketCap)}</td>
+            <td class="cell-market-cap text-right font-mono tabular-nums tracking-tight">${formatNumber(stock.marketCap)}</td>
 
             <td class="cell-range">
               <div class="range-wrapper">
-                <span class="range-val">${formatPrice(stock.low)}</span>
+                <span class="range-val font-mono tabular-nums tracking-tight">${formatPrice(stock.low)}</span>
                 <div class="range-track">
                   <div class="range-marker" style="left: ${rangePos.toFixed(1)}%;"></div>
                 </div>
-                <span class="range-val">${formatPrice(stock.high)}</span>
+                <span class="range-val font-mono tabular-nums tracking-tight">${formatPrice(stock.high)}</span>
               </div>
             </td>
 
             <td class="cell-momentum text-center">
               <div class="momentum-pill ${momTierClass}" title="Algorithmic Momentum Score: ${stock.momentumScore}/100">
-                <span class="mom-score">${stock.momentumScore}</span>
+                <span class="mom-score font-mono tabular-nums tracking-tight">${stock.momentumScore}</span>
                 <div class="mom-bar-mini" style="width: ${stock.momentumScore}%;"></div>
               </div>
             </td>
 
             <td class="cell-conviction text-center">
-              <span class="conviction-badge ${convTierClass}" title="${stock.convictionLabel}">
+              <span class="conviction-badge font-mono tabular-nums tracking-tight ${convTierClass}" title="${stock.convictionLabel}">
                 ${stock.convictionScore} &bull; ${stock.convictionLabel}
               </span>
             </td>
@@ -998,14 +998,14 @@ for (const p of sortedPosts.slice(0, 4)) {
 
 <style is:inline>
   .screener-wrapper {
-    --bg-surface: #12141a;
-    --bg-surface-elevated: #181b22;
-    --border-subtle: #222632;
-    --brand-accent: #3b82f6;
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
-    margin-bottom: 3rem;
+    --bg-surface: #111726;
+    --bg-surface-elevated: #090D16;
+    --border-subtle: #1E293B;
+    --brand-accent: #38BDF8;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    margin-bottom: 2.5rem;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -1316,10 +1316,15 @@ for (const p of sortedPosts.slice(0, 4)) {
   }
 
   .screener-toolbar {
-    background: var(--bg-surface-elevated);
-    border-left: 1px solid var(--border-subtle);
-    border-right: 1px solid var(--border-subtle);
-    padding: 0.85rem 1.25rem;
+    background: #111726;
+    border: 1px solid #1E293B;
+    border-radius: 0.5rem;
+    padding: 0.625rem;
+    margin: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .toolbar-primary {
@@ -1327,7 +1332,8 @@ for (const p of sortedPosts.slice(0, 4)) {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    width: 100%;
   }
 
   .search-field {
@@ -1558,51 +1564,57 @@ for (const p of sortedPosts.slice(0, 4)) {
   .screener-table th {
     position: sticky;
     top: 0;
-    z-index: 4;
-    background: var(--bg-surface-elevated);
-    color: var(--text-muted);
-    font-size: 0.675rem;
+    z-index: 20;
+    background: #090D16;
+    color: #94A3B8;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     padding: 0.65rem 0.6rem;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid #1E293B;
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
   }
 
   .screener-table th:hover {
-    color: var(--text-primary);
+    color: #F8FAFC;
   }
 
   .screener-table td {
     padding: 0.55rem 0.6rem;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid #1E293B;
     color: var(--text-secondary);
     white-space: nowrap;
   }
 
   .stock-data-row:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(56, 189, 248, 0.04);
   }
 
   /* Sticky first column */
   .cell-symbol {
     position: sticky;
     left: 0;
-    background: var(--bg-surface);
-    z-index: 2;
+    background: rgba(17, 23, 38, 0.95);
+    backdrop-filter: blur(4px);
+    z-index: 10;
     min-width: 120px;
+    font-family: 'JetBrains Mono', var(--font-mono, monospace);
+    font-weight: 700;
   }
 
   .screener-table th.cell-symbol {
     position: sticky;
     left: 0;
     top: 0;
-    z-index: 6;
-    background: var(--bg-surface-elevated);
+    z-index: 30;
+    background: #090D16;
   }
+
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .tracking-tight { letter-spacing: -0.025em; }
 
   .symbol-flex {
     display: flex;

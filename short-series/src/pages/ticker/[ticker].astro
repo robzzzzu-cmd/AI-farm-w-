@@ -87,6 +87,7 @@ try {
 } catch (_) {}
 
 const posts = matchingPosts;
+const hasValidPrice = Boolean(latestStats && typeof latestStats.price === 'number' && latestStats.price > 0);
 const companyName = latestStats?.name && latestStats.name !== ticker ? latestStats.name : `${ticker} Equity`;
 const canonicalURL = new URL(`/ticker/${ticker.toLowerCase()}/`, Astro.site ?? 'https://www.tradeopportunities.trade').href;
 const tvSymbolUrl = `https://www.tradingview.com/symbols/${ticker}/?aff_id=170147`;
@@ -131,10 +132,10 @@ const tickerSchema = {
 
       <div class="header-main">
         <div class="header-left">
-          <div class="symbol-badge">${ticker}</div>
+          <div class="symbol-badge font-mono tabular-nums tracking-tight">${ticker}</div>
           <div>
             <h1>${ticker} Breakout &amp; Liquidity Hub</h1>
-            <p class="header-sub">
+            <p class="header-sub" id="ticker-company-sub">
               {companyName !== `${ticker} Equity` ? `${companyName} • ` : ''}
               {totalMentions > 0 ? `Tracked across ${totalMentions} quantitative market dispatch(es)` : 'Live US Equity Momentum & Catalyst Telemetry'}
             </p>
@@ -144,12 +145,13 @@ const tickerSchema = {
         <div class="header-actions">
           <button
             type="button"
+            id="ticker-open-diagnostic-btn"
             class="btn btn-primary"
             data-open-diagnostic={ticker}
             data-name={encodeURIComponent(companyName)}
-            data-price={latestStats?.price || ''}
-            data-change={latestStats?.change_percentage || ''}
-            data-volume={latestStats?.volume || ''}
+            data-price={hasValidPrice ? latestStats.price : ''}
+            data-change={hasValidPrice ? latestStats.change_percentage : ''}
+            data-volume={hasValidPrice ? latestStats.volume : ''}
             data-rvol={latestStats?.rvol || ''}
             style="border: none; cursor: pointer; font-family: inherit;"
           >
@@ -161,37 +163,169 @@ const tickerSchema = {
         </div>
       </div>
 
-      <!-- Quick Metrics Ribbon -->
-      {latestStats && (
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <span class="m-label">Last Observed Price</span>
-            <span class="m-value">
-              ${latestStats.price < 1 && latestStats.price > 0 ? parseFloat(latestStats.price).toFixed(4) : parseFloat(latestStats.price).toFixed(2)}
+      <!-- Quick Metrics Ribbon (SSR Immediate Render or Clean Skeleton Hydration) -->
+      <div class="metrics-grid">
+        <div class="metric-card bg-[#111726] border border-[#1E293B] rounded-lg">
+          <span class="m-label font-mono">Last Observed Price</span>
+          <span class="m-value font-mono tabular-nums tracking-tight" id="ticker-stat-price">
+            {hasValidPrice ? (
+              `$${latestStats.price < 1 ? parseFloat(latestStats.price).toFixed(4) : parseFloat(latestStats.price).toFixed(2)}`
+            ) : (
+              <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+            )}
+          </span>
+        </div>
+        <div class="metric-card bg-[#111726] border border-[#1E293B] rounded-lg">
+          <span class="m-label font-mono">Intraday Delta</span>
+          <span class={`m-value font-mono tabular-nums tracking-tight ${hasValidPrice ? (parseFloat(latestStats.change_percentage) >= 0 ? 'text-gain' : 'text-loss') : ''}`} id="ticker-stat-delta">
+            {hasValidPrice ? (
+              `${parseFloat(latestStats.change_percentage) >= 0 ? '+' : ''}${parseFloat(latestStats.change_percentage).toFixed(2)}%`
+            ) : (
+              <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+            )}
+          </span>
+        </div>
+        <div class="metric-card bg-[#111726] border border-[#1E293B] rounded-lg">
+          <span class="m-label font-mono">Session Volume</span>
+          <span class="m-value font-mono tabular-nums tracking-tight" id="ticker-stat-volume">
+            {hasValidPrice && Number(latestStats.volume) > 0 ? (
+              Number(latestStats.volume).toLocaleString()
+            ) : (
+              <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+            )}
+          </span>
+        </div>
+        <div class="metric-card bg-[#111726] border border-[#1E293B] rounded-lg">
+          <span class="m-label font-mono">Relative Volume (RVOL)</span>
+          <span class="m-value text-accent font-mono tabular-nums tracking-tight" id="ticker-stat-rvol">
+            {latestStats?.rvol ? (
+              `${latestStats.rvol}x Baseline`
+            ) : (
+              <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+            )}
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 5-Layer AI Audit & SEC Dilution 2-Column Bento Grid -->
+    <section class="bento-audit-section">
+      <div class="bento-section-header">
+        <h2 class="section-heading" style="margin: 0;">01 // 5-Layer AI Attribution &amp; SEC Dilution Audit</h2>
+        <span class="bento-live-tag font-mono tabular-nums tracking-tight">EDGAR + TAPE TELEMETRY</span>
+      </div>
+
+      <div class="bento-grid-2col grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Card 1: Synthesis Verdict & Layer 01 Catalyst Attribution -->
+        <div class="bento-card bg-[#111726] border border-[#1E293B] rounded-lg p-4">
+          <div class="bento-card-head">
+            <span class="bento-layer-tag font-mono tabular-nums tracking-tight">LAYER 01 // CATALYST &amp; VERDICT</span>
+            <span id="bento-verdict-badge" class="bento-status-pill pill-emerald font-mono tabular-nums tracking-tight">
+              <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
             </span>
           </div>
-          <div class="metric-card">
-            <span class="m-label">Intraday Delta</span>
-            <span class={`m-value ${parseFloat(latestStats.change_percentage) >= 0 ? 'text-gain' : 'text-loss'}`}>
-              {parseFloat(latestStats.change_percentage) > 0 ? '+' : ''}{parseFloat(latestStats.change_percentage).toFixed(2)}%
-            </span>
-          </div>
-          <div class="metric-card">
-            <span class="m-label">Session Volume</span>
-            <span class="m-value">{Number(latestStats.volume || 0).toLocaleString()}</span>
-          </div>
-          <div class="metric-card">
-            <span class="m-label">Relative Volume (RVOL)</span>
-            <span class="m-value text-accent">{latestStats.rvol ? `${latestStats.rvol}x Baseline` : 'Active Scan'}</span>
+          <p id="bento-catalyst-summary" class="bento-summary-text">
+            Synchronizing SEC EDGAR 8-K filings, press wires, and real-time catalyst attribution for ${ticker}...
+          </p>
+          <div class="bento-meta-foot">
+            <span id="bento-catalyst-source" class="bento-meta-label font-mono tabular-nums tracking-tight">Source: Consolidated Exchange Wire</span>
+            <button type="button" class="bento-inline-trigger font-mono" data-open-diagnostic={ticker}>Open Full Drawer &rarr;</button>
           </div>
         </div>
-      )}
-    </header>
+
+        <!-- Card 2: Layer 05 SEC Dilution & Offering Risk Audit -->
+        <div class="bento-card bg-[#111726] border border-[#1E293B] rounded-lg p-4">
+          <div class="bento-card-head">
+            <span class="bento-layer-tag font-mono tabular-nums tracking-tight">LAYER 05 // SEC DILUTION &amp; SHELF RISK</span>
+            <span id="bento-dilution-badge" class="bento-status-pill text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20 font-mono tabular-nums tracking-tight">
+              LOW DILUTION
+            </span>
+          </div>
+          <div class="bento-risk-row">
+            <span class="bento-metric-label">Composite SEC Risk Rating</span>
+            <span id="bento-risk-score" class="bento-metric-val font-mono tabular-nums tracking-tight">
+              <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+            </span>
+          </div>
+          <div id="bento-risk-flags" class="bento-flags-box">
+            <div class="bento-flag-line">Scanning S-3 shelf registrations, 424B5 ATM capacity, and listing compliance...</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Layer 02 Technical Structure & RVOL Pivots -->
+        <div class="bento-card bg-[#111726] border border-[#1E293B] rounded-lg p-4">
+          <div class="bento-card-head">
+            <span class="bento-layer-tag font-mono tabular-nums tracking-tight">LAYER 02 // TECHNICAL PIVOTS &amp; RVOL</span>
+            <span class="bento-sub-hint font-mono tabular-nums tracking-tight">INTRADAY TAPE</span>
+          </div>
+          <div class="bento-kv-grid">
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">Relative Volume</span>
+              <span id="bento-tech-rvol" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                {latestStats?.rvol ? `${latestStats.rvol}x` : <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>}
+              </span>
+            </div>
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">VWAP Divergence</span>
+              <span id="bento-tech-vwap" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+              </span>
+            </div>
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">52W High Structure</span>
+              <span id="bento-tech-52w" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+              </span>
+            </div>
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">RSI (14) Momentum</span>
+              <span id="bento-tech-rsi" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Layer 03 & 04 Liquidity, Float Turnover & Order Flow -->
+        <div class="bento-card bg-[#111726] border border-[#1E293B] rounded-lg p-4">
+          <div class="bento-card-head">
+            <span class="bento-layer-tag font-mono tabular-nums tracking-tight">LAYERS 03–04 // LIQUIDITY &amp; ORDER FLOW</span>
+            <span id="bento-flow-bias" class="bento-sub-hint font-mono tabular-nums tracking-tight">FLOW SCAN</span>
+          </div>
+          <div class="bento-kv-grid">
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">Free Float Tier</span>
+              <span id="bento-liq-float" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+              </span>
+            </div>
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">Float Turnover %</span>
+              <span id="bento-liq-turnover" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+              </span>
+            </div>
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">Dollar Volume</span>
+              <span id="bento-liq-dollar" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+              </span>
+            </div>
+            <div class="bento-kv-cell">
+              <span class="bento-kv-label">Short Interest (% Float)</span>
+              <span id="bento-flow-short" class="bento-kv-val font-mono tabular-nums tracking-tight">
+                <span class="inline-block h-6 w-24 animate-pulse rounded bg-slate-800/80"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Embedded Live TradingView Chart Widget -->
     <section class="chart-section">
-      <h2 class="section-heading">01 // Multi-Timeframe Technical Workspace</h2>
-      <div class="tv-embed-box">
+      <h2 class="section-heading">02 // Multi-Timeframe Technical Workspace</h2>
+      <div class="tv-embed-box bg-[#111726] border border-[#1E293B] rounded-lg">
         <div class="tradingview-widget-container" id="ticker-tv-chart-container" data-symbol={ticker} style="height: 480px; width: 100%;">
           <div class="tradingview-widget-container__widget" style="height: calc(100% - 32px); width: 100%;"></div>
         </div>
@@ -225,7 +359,7 @@ const tickerSchema = {
 
     <!-- Intelligence Dispatches Timeline -->
     <section class="dispatches-section">
-      <h2 class="section-heading">02 // Market Intelligence &amp; Anomaly Scans</h2>
+      <h2 class="section-heading">03 // Market Intelligence &amp; Anomaly Scans</h2>
       {posts.length > 0 ? (
         <div class="posts-list">
           {posts.map((post: any) => (
@@ -281,13 +415,343 @@ const tickerSchema = {
   </div>
 
   <DiagnosticDrawer />
+
+  <script is:inline define:vars={{ activeTicker: ticker }}>
+    (function initTickerPageHydration() {
+      const sym = (activeTicker || '').trim().toUpperCase();
+      if (!sym) return;
+
+      const openBtn = document.getElementById('ticker-open-diagnostic-btn');
+      const priceEl = document.getElementById('ticker-stat-price');
+      const deltaEl = document.getElementById('ticker-stat-delta');
+      const volEl = document.getElementById('ticker-stat-volume');
+      const rvolEl = document.getElementById('ticker-stat-rvol');
+
+      const verdictBadgeEl = document.getElementById('bento-verdict-badge');
+      const catSummaryEl = document.getElementById('bento-catalyst-summary');
+      const catSourceEl = document.getElementById('bento-catalyst-source');
+      const dilutionBadgeEl = document.getElementById('bento-dilution-badge');
+      const riskScoreEl = document.getElementById('bento-risk-score');
+      const riskFlagsEl = document.getElementById('bento-risk-flags');
+      const techRvolEl = document.getElementById('bento-tech-rvol');
+      const techVwapEl = document.getElementById('bento-tech-vwap');
+      const tech52wEl = document.getElementById('bento-tech-52w');
+      const techRsiEl = document.getElementById('bento-tech-rsi');
+      const liqFloatEl = document.getElementById('bento-liq-float');
+      const liqTurnoverEl = document.getElementById('bento-liq-turnover');
+      const liqDollarEl = document.getElementById('bento-liq-dollar');
+      const flowBiasEl = document.getElementById('bento-flow-bias');
+      const flowShortEl = document.getElementById('bento-flow-short');
+
+      async function hydrateTickerBento() {
+        try {
+          const params = new URLSearchParams({ ticker: sym });
+          if (openBtn) {
+            const p = openBtn.getAttribute('data-price');
+            const c = openBtn.getAttribute('data-change');
+            const v = openBtn.getAttribute('data-volume');
+            const r = openBtn.getAttribute('data-rvol');
+            if (p) params.append('price', p);
+            if (c) params.append('change', c);
+            if (v) params.append('volume', v);
+            if (r) params.append('rvol', r);
+          }
+
+          const res = await fetch(`/api/diagnostic?${params.toString()}`);
+          if (!res.ok) return;
+          const json = await res.json();
+          if (!json.success || !json.data) return;
+
+          const d = json.data;
+
+          // Hydrate header stats if skeleton or fresh quote available
+          if (d.price && d.price > 0) {
+            if (priceEl) {
+              priceEl.textContent = '$' + (d.price < 1 ? d.price.toFixed(4) : d.price.toFixed(2));
+            }
+            if (deltaEl) {
+              const isPos = d.changePercent >= 0;
+              deltaEl.textContent = (isPos ? '+' : '') + d.changePercent.toFixed(2) + '%';
+              deltaEl.className = 'm-value font-mono tabular-nums tracking-tight ' + (isPos ? 'text-gain' : 'text-loss');
+            }
+            if (openBtn) {
+              openBtn.setAttribute('data-price', String(d.price));
+              openBtn.setAttribute('data-change', String(d.changePercent));
+              if (d.name) openBtn.setAttribute('data-name', encodeURIComponent(d.name));
+            }
+          }
+          if (volEl && d.volume && d.volume > 0) {
+            volEl.textContent = Number(d.volume).toLocaleString();
+          }
+          if (rvolEl && d.technical && d.technical.rvolMultiplier) {
+            rvolEl.textContent = d.technical.rvolMultiplier.toFixed(2) + 'x Baseline';
+          }
+
+          // Card 1: Verdict & Catalyst
+          if (verdictBadgeEl && d.synthesisVerdict) {
+            verdictBadgeEl.textContent = d.synthesisVerdict;
+            const isBearish = d.verdictColor === 'RED';
+            verdictBadgeEl.className = 'bento-status-pill font-mono tabular-nums tracking-tight ' + (isBearish ? 'pill-rose' : 'pill-emerald');
+          }
+          if (catSummaryEl && d.catalyst?.summary) {
+            catSummaryEl.textContent = d.catalyst.summary;
+          }
+          if (catSourceEl && d.catalyst?.source) {
+            catSourceEl.textContent = 'Source: ' + d.catalyst.source;
+          }
+
+          // Card 2: SEC Dilution & Risk Audit
+          if (d.riskRating) {
+            const hasDilution = Boolean(d.riskRating.hasActiveS3Shelf || d.riskRating.overallRiskScore >= 65);
+            if (dilutionBadgeEl) {
+              if (hasDilution) {
+                dilutionBadgeEl.textContent = 'HIGH DILUTION / ATM ACTIVE';
+                dilutionBadgeEl.className = 'bento-status-pill text-[#F43F5E] bg-[#F43F5E]/10 border border-[#F43F5E]/20 font-mono tabular-nums tracking-tight';
+              } else {
+                dilutionBadgeEl.textContent = 'LOW DILUTION';
+                dilutionBadgeEl.className = 'bento-status-pill text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20 font-mono tabular-nums tracking-tight';
+              }
+            }
+            if (riskScoreEl) {
+              riskScoreEl.textContent = `${d.riskRating.overallRiskScore}/100`;
+            }
+            if (riskFlagsEl) {
+              if (Array.isArray(d.riskRating.flags) && d.riskRating.flags.length > 0) {
+                riskFlagsEl.innerHTML = d.riskRating.flags.slice(0, 2).map(f => {
+                  const icon = f.severity === 'safe' ? '✓' : '⚠';
+                  return `<div class="bento-flag-line"><strong>${icon} ${f.label}:</strong> ${f.description}</div>`;
+                }).join('');
+              } else if (d.riskRating.hasActiveS3Shelf) {
+                riskFlagsEl.innerHTML = `<div class="bento-flag-line"><strong>⚠ Active S-3 / 424B Shelf:</strong> Financing or ATM capacity registered on EDGAR. Monitor supply overhang on spikes.</div>`;
+              } else {
+                riskFlagsEl.innerHTML = `<div class="bento-flag-line"><strong>✓ Clean SEC Filing Structure:</strong> No active toxic S-3 ATM dilution flags detected in recent EDGAR disclosures.</div>`;
+              }
+            }
+          }
+
+          // Card 3: Technical Structure
+          if (d.technical) {
+            if (techRvolEl) techRvolEl.textContent = d.technical.rvolMultiplier.toFixed(2) + 'x';
+            if (techVwapEl) {
+              const vwap = d.technical.pctFromVWAP;
+              techVwapEl.textContent = (vwap >= 0 ? '+' : '') + vwap.toFixed(2) + '%';
+            }
+            if (tech52wEl) {
+              tech52wEl.textContent = d.technical.is52WeekHighBreach ? '52W High Breach' : 'Within Range';
+            }
+            if (techRsiEl) {
+              techRsiEl.textContent = String(d.technical.rsi || 50);
+            }
+          }
+
+          // Card 4: Liquidity & Order Flow
+          if (d.liquidity) {
+            if (liqFloatEl) liqFloatEl.textContent = d.liquidity.floatCategory.replace(/_/g, ' ');
+            if (liqTurnoverEl) liqTurnoverEl.textContent = d.liquidity.floatTurnoverPct.toFixed(1) + '%';
+            if (liqDollarEl) {
+              const dv = d.liquidity.dollarVolume || 0;
+              liqDollarEl.textContent = '$' + (dv >= 1e6 ? (dv / 1e6).toFixed(1) + 'M' : (dv >= 1e3 ? (dv / 1e3).toFixed(1) + 'K' : String(dv)));
+            }
+          }
+          if (d.marketBehavior) {
+            if (flowBiasEl) flowBiasEl.textContent = d.marketBehavior.orderFlowBias.replace(/_/g, ' ');
+            if (flowShortEl) {
+              flowShortEl.textContent = d.marketBehavior.shortInterestPct > 0 ? d.marketBehavior.shortInterestPct.toFixed(1) + '% Float' : 'Low / Unreported';
+            }
+          }
+        } catch (_) {}
+      }
+
+      hydrateTickerBento();
+    })();
+  </script>
 </Layout>
 
 <style>
+  .font-mono { font-family: 'JetBrains Mono', var(--font-mono, monospace); }
+  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .tracking-tight { letter-spacing: -0.025em; }
+  .inline-block { display: inline-block; }
+  .h-6 { height: 1.5rem; }
+  .w-24 { width: 6rem; }
+  .rounded { border-radius: 0.25rem; }
+  .bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.8); }
+  .animate-pulse { animation: ticker-skel 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  @keyframes ticker-skel { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
   .ticker-page-wrapper {
-    max-width: 980px;
-    margin: 2rem auto 4rem auto;
+    max-width: 1180px;
+    margin: 1.5rem auto 4rem auto;
     padding: 0 1.25rem;
+  }
+  .bento-audit-section {
+    margin-bottom: 2.25rem;
+  }
+  .bento-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    flex-wrap: wrap;
+  }
+  .bento-live-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+  }
+  .bento-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 768px) {
+    .bento-grid-2col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .bento-card {
+    background: #111726;
+    border: 1px solid #1E293B;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .bento-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid #1E293B;
+  }
+  .bento-layer-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #94A3B8;
+    letter-spacing: 0.05em;
+  }
+  .bento-sub-hint {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #38BDF8;
+  }
+  .bento-status-pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .pill-emerald,
+  .text-\[\#10B981\] {
+    color: #10B981;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  .pill-rose,
+  .text-\[\#F43F5E\] {
+    color: #F43F5E;
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.2);
+  }
+  .bento-summary-text {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #F8FAFC;
+    margin: 0;
+  }
+  .bento-meta-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-top: 0.35rem;
+  }
+  .bento-meta-label {
+    font-size: 0.72rem;
+    color: #94A3B8;
+  }
+  .bento-inline-trigger {
+    background: transparent;
+    border: none;
+    color: #38BDF8;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+  .bento-inline-trigger:hover {
+    text-decoration: underline;
+  }
+  .bento-risk-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #090D16;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+  }
+  .bento-metric-label {
+    font-size: 0.75rem;
+    color: #94A3B8;
+  }
+  .bento-metric-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+  .bento-flags-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .bento-flag-line {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: #94A3B8;
+    background: #090D16;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 0.5rem 0.65rem;
+  }
+  .bento-flag-line strong {
+    color: #F8FAFC;
+  }
+  .bento-kv-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+  .bento-kv-cell {
+    background: #090D16;
+    border: 1px solid #1E293B;
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .bento-kv-label {
+    font-size: 0.68rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+  }
+  .bento-kv-val {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #F8FAFC;
   }
   .breadcrumb {
     font-size: 0.8rem;
