@@ -1,42 +1,99 @@
 ---
 // src/components/MarketTicker.astro
-const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
 ---
 
-<div class="ticker-ribbon-container" aria-label="Live Market Overview">
-  <div class="session-badge">
-    <span class="pulse-dot"></span>
-    <span class="session-text" id="market-session">SYNCING...</span>
-  </div>
+<div class="ticker-ribbon-container h-9 bg-[#090D16] border-b border-[#1E293B] text-xs font-mono tabular-nums tracking-tight" aria-label="Live Market Pulse Telemetry">
+  <div class="telemetry-inner app-wrapper">
+    <div class="telemetry-left">
+      <div class="session-badge">
+        <span class="pulse-dot"></span>
+        <span class="session-text" id="market-session">US SESSION</span>
+      </div>
 
-  <div class="tradingview-widget-container" id="tv-ticker-tape-container">
-    <div class="tradingview-widget-container__widget"></div>
-  </div>
+      <span class="telemetry-divider" aria-hidden="true">|</span>
 
-  <a href={TV_REFERRAL_URL} target="_blank" rel="noopener noreferrer" class="tv-ref-pill" title="Open TradingView with Referral">
-    TV Live ↗
-  </a>
+      <div class="telemetry-clock font-mono tabular-nums tracking-tight" id="utc-est-clock">
+        <span id="live-clock">SYNCING CLOCK...</span>
+      </div>
+
+      <span class="telemetry-divider hide-mobile" aria-hidden="true">|</span>
+
+      <div class="macro-regime-pill text-[#38BDF8] bg-[#38BDF8]/10 border border-[#38BDF8]/20 font-mono tabular-nums tracking-tight" id="macro-regime-badge">
+        REGIME: RVOL EXPANSION
+      </div>
+    </div>
+
+    <div class="tradingview-widget-container" id="tv-ticker-tape-container" aria-hidden="true">
+      <div class="tradingview-widget-container__widget"></div>
+    </div>
+
+    <div class="telemetry-right">
+      <a href="/#alerts" class="dispatch-trigger-link font-mono tabular-nums tracking-tight">
+        ⚡ Daily 8:30 AM Pre-Market Dispatch (Free) &rarr;
+      </a>
+    </div>
+  </div>
 </div>
 
 <script is:inline>
-  // 1. Update Market Session Status
+  // 1. Update Market Session Status & Live UTC/EST Clock
   function updateSession() {
     const now = new Date();
     const utcHour = now.getUTCHours();
     const sessionEl = document.getElementById('market-session');
-    if (!sessionEl) return;
+    const regimeEl = document.getElementById('macro-regime-badge');
 
-    if (utcHour >= 13 && utcHour < 21) {
-      sessionEl.textContent = "US SESSION";
-    } else if (utcHour >= 7 && utcHour < 15) {
-      sessionEl.textContent = "EU SESSION";
-    } else if (utcHour >= 0 && utcHour < 8) {
-      sessionEl.textContent = "ASIA SESSION";
-    } else {
-      sessionEl.textContent = "OFF-HOURS SCAN";
+    if (sessionEl) {
+      if (utcHour >= 13 && utcHour < 21) {
+        sessionEl.textContent = "US SESSION";
+      } else if (utcHour >= 7 && utcHour < 13) {
+        sessionEl.textContent = "EU / PRE-MKT";
+      } else if (utcHour >= 0 && utcHour < 7) {
+        sessionEl.textContent = "ASIA SESSION";
+      } else {
+        sessionEl.textContent = "AFTER-HOURS SCAN";
+      }
+    }
+
+    if (regimeEl && !regimeEl.dataset.locked) {
+      if (utcHour >= 13 && utcHour < 21) {
+        regimeEl.textContent = "REGIME: ACTIVE RVOL SURGE";
+      } else {
+        regimeEl.textContent = "REGIME: HIGH DISPERSION SCAN";
+      }
     }
   }
+
+  function updateTelemetryClock() {
+    const now = new Date();
+    const utcStr = now.toISOString().slice(11, 19) + ' UTC';
+    let estStr = '';
+    try {
+      const estTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).format(now);
+      estStr = estTime + ' ET';
+    } catch {
+      estStr = '';
+    }
+    const label = estStr ? `${estStr} · ${utcStr}` : utcStr;
+    const clockEl = document.getElementById('live-clock');
+    const outerClockEl = document.getElementById('utc-est-clock');
+    if (clockEl) {
+      clockEl.textContent = label;
+    } else if (outerClockEl) {
+      outerClockEl.textContent = label;
+    }
+  }
+
   updateSession();
+  updateTelemetryClock();
+  setInterval(updateTelemetryClock, 1000);
+  setInterval(updateSession, 60000);
 
   // 2. Safely Inject TradingView Ticker Tape Widget
   (function initTradingViewTicker() {
@@ -53,9 +110,6 @@ const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
         { "proName": "FOREXCOM:SPXUSD", "title": "S&P 500" },
         { "proName": "FOREXCOM:NSXUSD", "title": "US 100 (NASDAQ)" },
         { "proName": "FOREXCOM:DJI", "title": "Dow 30" },
-        { "proName": "INDEX:FTSE", "title": "FTSE 100" },
-        { "proName": "INDEX:DAX", "title": "DAX 40" },
-        { "proName": "INDEX:NKY", "title": "Nikkei 225" },
         { "proName": "BINANCE:BTCUSDT", "title": "BTC/USDT" },
         { "proName": "BINANCE:ETHUSDT", "title": "ETH/USDT" }
       ],
@@ -74,100 +128,147 @@ const TV_REFERRAL_URL = "https://www.tradingview.com/?aff_id=170147";
   .ticker-ribbon-container {
     display: flex;
     align-items: center;
-    background: var(--bg-surface-elevated, #070a0f);
-    border-bottom: 1px solid var(--border-subtle, #1e2638);
-    height: 46px;
+    background: #090D16;
+    border-bottom: 1px solid #1E293B;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
     overflow: hidden;
     width: 100%;
     max-width: 100%;
     min-width: 0;
     box-sizing: border-box;
     position: relative;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.015em;
   }
-  .session-badge {
+
+  .telemetry-inner {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary, #94a3b8);
-    white-space: nowrap;
-    padding: 0 0.75rem;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
     height: 100%;
-    border-right: 1px solid var(--border-subtle, #1e2638);
-    background: var(--bg-surface, #0b0e14);
-    z-index: 2;
-    flex-shrink: 0;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    gap: 0.75rem;
   }
+
+  .telemetry-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  .session-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    color: #F8FAFC;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   .pulse-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--gain-color, #22c55e);
-    box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    background: #10B981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.75);
     animation: pulse 2s infinite ease-in-out;
+    flex-shrink: 0;
   }
+
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.85); }
   }
-  .tradingview-widget-container {
-    flex: 1;
-    min-width: 0;
-    height: 46px;
-    overflow: hidden;
+
+  .telemetry-divider {
+    color: #1E293B;
+    user-select: none;
   }
-  .tv-ref-pill {
+
+  .telemetry-clock {
+    color: #94A3B8;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .macro-regime-pill {
     display: inline-flex;
     align-items: center;
-    background: var(--bg-surface, #1e2638);
-    color: var(--brand-accent, #38bdf8);
-    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 0.25rem 0.5rem;
-    margin-right: 0.5rem;
+    padding: 0.1rem 0.45rem;
     border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    white-space: nowrap;
+  }
+
+  /* Keep TradingView container in DOM for script compatibility without bloating Tier 1 height */
+  .tradingview-widget-container {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .telemetry-right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .dispatch-trigger-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #94A3B8;
+    font-size: 0.72rem;
+    font-weight: 500;
     text-decoration: none;
     white-space: nowrap;
-    z-index: 2;
-    flex-shrink: 0;
-    border: 1px solid var(--border-subtle, rgba(56, 189, 248, 0.2));
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition: color 0.15s ease;
   }
-  .tv-ref-pill:hover {
-    background: var(--brand-accent, #38bdf8);
-    color: #ffffff;
+
+  .dispatch-trigger-link:hover {
+    color: #38BDF8;
   }
-  @media (max-width: 768px) {
-    .ticker-ribbon-container {
-      height: 46px;
-      min-height: 46px;
-    }
-    .session-badge {
-      height: 100%;
-      padding: 0 0.5rem;
-      border-right: 1px solid var(--border-subtle, #1e2638);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .session-text {
+
+  @media (max-width: 900px) {
+    .macro-regime-pill,
+    .hide-mobile {
       display: none;
     }
-    .tv-ref-pill {
-      font-size: 0.65rem;
-      padding: 0.22rem 0.45rem;
-      margin-right: 0.35rem;
-      align-self: center;
+  }
+
+  @media (max-width: 768px) {
+    .telemetry-inner {
+      padding: 0 0.75rem;
     }
-    .tradingview-widget-container {
-      height: 46px;
-      min-height: 46px;
+    .dispatch-trigger-link {
+      font-size: 0.68rem;
+    }
+    .telemetry-clock {
+      font-size: 0.68rem;
+    }
+  }
+
+  @media (max-width: 540px) {
+    .dispatch-trigger-link {
+      display: none;
     }
   }
 </style>
