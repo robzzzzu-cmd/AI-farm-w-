@@ -3,6 +3,7 @@
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import DiagnosticDrawer from '../../components/DiagnosticDrawer.astro';
+import EquityExecutionCTA from '../../components/EquityExecutionCTA.astro';
 import { formatMarketDate } from '../../utils/dateFormat';
 
 export const prerender = false;
@@ -206,6 +207,9 @@ const tickerSchema = {
           </span>
         </div>
       </div>
+
+      <!-- Above-the-Fold Equity Execution & Multi-Timeframe Charting CTA -->
+      <EquityExecutionCTA symbol={ticker} dilutionRisk="LOW DILUTION" />
     </header>
 
     <!-- 5-Layer AI Audit & SEC Dilution 2-Column Bento Grid -->

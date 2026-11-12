@@ -338,6 +338,8 @@ const websiteSchema = {
       .bg-\[\#F43F5E\]\/10 { background-color: rgba(244, 63, 94, 0.1); }
       .border-\[\#F43F5E\]\/20 { border-color: rgba(244, 63, 94, 0.2); }
       .bg-\[\#38BDF8\]\/10 { background-color: rgba(56, 189, 248, 0.1); }
+      .bg-\[\#F59E0B\]\/10 { background-color: rgba(245, 158, 11, 0.1); }
+      .border-\[\#F59E0B\]\/20 { border: 1px solid rgba(245, 158, 11, 0.2); }
       .border-\[\#38BDF8\]\/20 { border-color: rgba(56, 189, 248, 0.2); }
       .border-\[\#38BDF8\]\/30 { border-color: rgba(56, 189, 248, 0.3); }
       .bg-\[\#F59E0B\]\/10 { background-color: rgba(245, 158, 11, 0.1); }
@@ -1719,7 +1721,7 @@ const websiteSchema = {
           </a>
           <a href="/tools/" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            <span>Trading Tools &amp; Swaps</span>
+            <span>Trading Tools &amp; Execution</span>
           </a>
           <a href="/track-record/" class="sidebar-nav-item">
             <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
@@ -1977,66 +1979,106 @@ const websiteSchema = {
                     const rvolBadge = computeRvolMultiplier(stock, idx + 3);
 
                     return (
-                      <tr class="mover-table-row px-3 py-2 text-xs font-mono tabular-nums tracking-tight border-b border-[#1E293B]/60 hover:bg-[#1A2234] transition-colors duration-150">
-                        <td class="cell-ticker font-mono tabular-nums tracking-tight">
-                          <a href={`/ticker/${cleanSym.toLowerCase()}/`} class="table-ticker-link font-mono tabular-nums tracking-tight">
-                            ${cleanSym}
-                          </a>
-                        </td>
-                        <td class="num-col cell-price font-mono tabular-nums tracking-tight text-[#F8FAFC]">
-                          ${priceNum.toFixed(2)}
-                        </td>
-                        <td class="num-col cell-delta font-mono tabular-nums tracking-tight">
-                          <span class:list={[
-                            'delta-pill font-mono tabular-nums tracking-tight',
-                            isPos
-                              ? 'text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20'
-                              : 'text-[#F43F5E] bg-[#F43F5E]/10 border border-[#F43F5E]/20'
-                          ]}>
-                            {pctFormatted}
-                          </span>
-                        </td>
-                        <td class="num-col cell-vol font-mono tabular-nums tracking-tight text-[#94A3B8]">
-                          {formatCompactNumber(stock.volume)}
-                        </td>
-                        <td class="num-col cell-rvol font-mono tabular-nums tracking-tight">
-                          <span class="text-[#38BDF8] bg-[#38BDF8]/10 border border-[#38BDF8]/20 font-mono tabular-nums tracking-tight text-[11px] px-1.5 py-0.5 rounded">
-                            {rvolBadge}
-                          </span>
-                        </td>
-                        <td class="action-col cell-actions font-mono tabular-nums tracking-tight">
-                          <div class="table-action-group">
-                            <button
-                              type="button"
-                              class="table-action-pill font-mono tabular-nums tracking-tight"
-                              data-open-diagnostic={cleanSym}
-                              data-price={priceNum.toFixed(2)}
-                              data-delta={stock.change_percentage}
-                              data-volume={stock.volume}
-                              data-rvol={rvolBadge}
-                              title={`Why is $${cleanSym} moving?`}
-                            >
-                              Why?
-                            </button>
-                            <a
-                              href={`/ticker/${cleanSym.toLowerCase()}/`}
-                              class="table-action-pill font-mono tabular-nums tracking-tight"
-                              title={`Open $${cleanSym} 5-Layer Audit`}
-                            >
-                              Audit &rarr;
+                      <Fragment>
+                        {idx === 5 && (
+                          <tr class="mover-table-row sponsored-tool-row px-3 py-2 text-xs font-mono tabular-nums tracking-tight border-b border-[#1E293B]/60 hover:bg-[#1A2234] transition-colors duration-150">
+                            <td class="cell-ticker font-mono tabular-nums tracking-tight">
+                              <span class="text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/20 text-[10px] font-mono tabular-nums tracking-tight px-1.5 py-0.5 rounded">
+                                SPONSORED
+                              </span>
+                            </td>
+                            <td class="num-col cell-price font-mono tabular-nums tracking-tight text-[#F8FAFC]" colspan="3" style="text-align: left;">
+                              <a
+                                href="https://www.tradingview.com/?aff_id=170147"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style="color: #F8FAFC; text-decoration: none; font-weight: 600;"
+                              >
+                                TradingView Pro &bull; <span style="color: #94A3B8; font-weight: 400;">Multi-Timeframe AVWAP, RVOL &amp; Level 2 Charting Suite</span>
+                              </a>
+                            </td>
+                            <td class="num-col cell-rvol font-mono tabular-nums tracking-tight">
+                              <span class="text-[#38BDF8] bg-[#38BDF8]/10 border border-[#38BDF8]/20 font-mono tabular-nums tracking-tight text-[11px] px-1.5 py-0.5 rounded">
+                                PRO SUITE
+                              </span>
+                            </td>
+                            <td class="action-col cell-actions font-mono tabular-nums tracking-tight">
+                              <div class="table-action-group">
+                                <a
+                                  href="https://www.tradingview.com/?aff_id=170147"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="table-action-pill font-mono tabular-nums tracking-tight"
+                                  style="color: #38BDF8; border-color: rgba(56, 189, 248, 0.35);"
+                                  title="Open TradingView Pro Charting Suite"
+                                >
+                                  Launch Pro Chart &nearr;
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        <tr class="mover-table-row px-3 py-2 text-xs font-mono tabular-nums tracking-tight border-b border-[#1E293B]/60 hover:bg-[#1A2234] transition-colors duration-150">
+                          <td class="cell-ticker font-mono tabular-nums tracking-tight">
+                            <a href={`/ticker/${cleanSym.toLowerCase()}/`} class="table-ticker-link font-mono tabular-nums tracking-tight">
+                              ${cleanSym}
                             </a>
-                            <a
-                              href={`https://www.tradingview.com/symbols/${cleanSym}/?aff_id=170147`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              class="table-action-pill font-mono tabular-nums tracking-tight"
-                              title={`Chart $${cleanSym} on TradingView`}
-                            >
-                              TV &nearr;
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                          <td class="num-col cell-price font-mono tabular-nums tracking-tight text-[#F8FAFC]">
+                            ${priceNum.toFixed(2)}
+                          </td>
+                          <td class="num-col cell-delta font-mono tabular-nums tracking-tight">
+                            <span class:list={[
+                              'delta-pill font-mono tabular-nums tracking-tight',
+                              isPos
+                                ? 'text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20'
+                                : 'text-[#F43F5E] bg-[#F43F5E]/10 border border-[#F43F5E]/20'
+                            ]}>
+                              {pctFormatted}
+                            </span>
+                          </td>
+                          <td class="num-col cell-vol font-mono tabular-nums tracking-tight text-[#94A3B8]">
+                            {formatCompactNumber(stock.volume)}
+                          </td>
+                          <td class="num-col cell-rvol font-mono tabular-nums tracking-tight">
+                            <span class="text-[#38BDF8] bg-[#38BDF8]/10 border border-[#38BDF8]/20 font-mono tabular-nums tracking-tight text-[11px] px-1.5 py-0.5 rounded">
+                              {rvolBadge}
+                            </span>
+                          </td>
+                          <td class="action-col cell-actions font-mono tabular-nums tracking-tight">
+                            <div class="table-action-group">
+                              <button
+                                type="button"
+                                class="table-action-pill font-mono tabular-nums tracking-tight"
+                                data-open-diagnostic={cleanSym}
+                                data-price={priceNum.toFixed(2)}
+                                data-delta={stock.change_percentage}
+                                data-volume={stock.volume}
+                                data-rvol={rvolBadge}
+                                title={`Why is $${cleanSym} moving?`}
+                              >
+                                Why?
+                              </button>
+                              <a
+                                href={`/ticker/${cleanSym.toLowerCase()}/`}
+                                class="table-action-pill font-mono tabular-nums tracking-tight"
+                                title={`Open $${cleanSym} 5-Layer Audit`}
+                              >
+                                Audit &rarr;
+                              </a>
+                              <a
+                                href={`https://www.tradingview.com/symbols/${cleanSym}/?aff_id=170147`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="table-action-pill font-mono tabular-nums tracking-tight"
+                                title={`Chart $${cleanSym} on TradingView`}
+                              >
+                                TV &nearr;
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      </Fragment>
                     );
                   })}
                 </tbody>
@@ -2215,9 +2257,9 @@ const websiteSchema = {
 
             <div class="tool-card">
               <div>
-                <div class="tool-badge">Multi-Asset</div>
-                <h3 class="tool-name">Tools &amp; Spot Swaps</h3>
-                <p class="tool-desc">Dedicated non-custodial cross-chain crypto swap terminal and analytical position sizing utilities.</p>
+                <div class="tool-badge">Execution &amp; SEC Audit</div>
+                <h3 class="tool-name">Equity Execution &amp; Tools</h3>
+                <p class="tool-desc">Short-locate execution comparison, SEC EDGAR S-3/424B5 dilution playbooks, and multi-timeframe charting utilities.</p>
               </div>
               <a href="/tools/" class="tool-btn">
                 Open Trading Tools &rarr;

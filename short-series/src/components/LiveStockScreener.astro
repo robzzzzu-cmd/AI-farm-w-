@@ -68,49 +68,9 @@ for (const p of sortedPosts.slice(0, 4)) {
       </div>
     </div>
 
-    <!-- Ad Placement with Dynamic Auto-Scaling for Any Device -->
-    <div class="ad-leaderboard">
-      <span class="ad-sponsor-label">SPONSORED MARKET NODE</span>
-      <div class="ad-container-outer" id="adsterra-outer">
-        <div class="ad-container-inner" id="adsterra-inner">
-          <script is:inline>
-            atOptions = {
-              'key' : '069907293312bf0f2555658bc919672c',
-              'format' : 'iframe',
-              'height' : 90,
-              'width' : 728,
-              'params' : {}
-            };
-          </script>
-          <script is:inline src="https://www.highrevenueformat.com/069907293312bf0f2555658bc919672c/invoke.js"></script>
-        </div>
-      </div>
-      <script is:inline>
-        (function initAdsterraAutoScaler() {
-          function scaleAd() {
-            var outer = document.getElementById('adsterra-outer');
-            var inner = document.getElementById('adsterra-inner');
-            if (!outer || !inner) return;
-            var w = outer.clientWidth;
-            if (w <= 0) return;
-            if (w >= 728) {
-              inner.style.transform = 'none';
-              outer.style.height = '90px';
-            } else {
-              var scale = Math.min(1, Math.max(0.35, (w - 6) / 728));
-              inner.style.transform = 'scale(' + scale.toFixed(4) + ')';
-              inner.style.transformOrigin = 'center center';
-              outer.style.height = Math.ceil(90 * scale) + 'px';
-            }
-          }
-          window.addEventListener('resize', scaleAd);
-          window.addEventListener('DOMContentLoaded', scaleAd);
-          window.addEventListener('load', scaleAd);
-          setTimeout(scaleAd, 300);
-          setTimeout(scaleAd, 1000);
-          setTimeout(scaleAd, 2500);
-        })();
-      </script>
+    <!-- Preserved DOM Container Hooks (Low-RPM Adsterra Script Removed in Phase 4) -->
+    <div id="adsterra-outer" style="display: none;" aria-hidden="true">
+      <div id="adsterra-inner"></div>
     </div>
 
     <!-- UI Explanation: Platform Categories rather than universal industry definitions -->
@@ -307,37 +267,64 @@ for (const p of sortedPosts.slice(0, 4)) {
           </tr>
         </thead>
         <tbody id="screener-table-body">
-          {seedMovers.length > 0 ? seedMovers.map((s) => {
+          {seedMovers.length > 0 ? seedMovers.map((s, idx) => {
             const isPos = s.changePct >= 0;
             const sign = isPos ? '+' : '';
             return (
-              <tr class="stock-data-row">
-                <td class="cell-symbol sticky left-0 z-10 bg-[#111726]/95 backdrop-blur-sm font-mono font-bold">
-                  <div class="symbol-flex">
-                    <a href={`/ticker/${s.ticker.toLowerCase()}/`} class="ticker-link font-mono tabular-nums tracking-tight" title={`View $${s.ticker} Breakout Hub`}>
-                      ${s.ticker}
-                    </a>
-                    <span class="company-subname">{s.ticker} Equity</span>
-                  </div>
-                </td>
-                <td class="cell-price text-right font-mono tabular-nums tracking-tight">${s.price < 1 ? s.price.toFixed(3) : s.price.toFixed(2)}</td>
-                <td class="cell-change-abs text-right font-mono tabular-nums tracking-tight text-muted">--</td>
-                <td class="cell-change-pct text-center">
-                  <span class={`delta-pill font-mono tabular-nums tracking-tight ${isPos ? 'delta-pill-gain' : 'delta-pill-loss'}`}>{sign}{s.changePct.toFixed(2)}%</span>
-                </td>
-                <td class="cell-volume text-right font-mono tabular-nums tracking-tight">{s.vol >= 1e6 ? (s.vol / 1e6).toFixed(2) + 'M' : s.vol.toLocaleString()}</td>
-                <td class="cell-rvol text-right font-mono tabular-nums tracking-tight"><span class="rvol-surge font-mono tabular-nums tracking-tight">3.20x</span></td>
-                <td class="cell-market-cap text-right font-mono tabular-nums tracking-tight">--</td>
-                <td class="cell-range text-center font-mono tabular-nums tracking-tight">--</td>
-                <td class="cell-momentum text-center"><div class="momentum-pill mom-high"><span class="mom-score font-mono tabular-nums tracking-tight">84</span></div></td>
-                <td class="cell-conviction text-center"><span class="conviction-badge conv-high font-mono tabular-nums tracking-tight">82 &bull; High Conviction</span></td>
-                <td class="cell-action text-center">
-                  <div class="row-btn-group">
-                    <button class="row-why-btn" data-open-diagnostic={s.ticker} title="Why Is It Moving?">Why?</button>
-                    <a href={`https://www.tradingview.com/symbols/${s.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="row-chart-btn">Chart ↗</a>
-                  </div>
-                </td>
-              </tr>
+              <Fragment>
+                {idx === 5 && (
+                  <tr class="stock-data-row sponsored-screener-row">
+                    <td class="cell-symbol sticky left-0 z-10 bg-[#111726]/95 backdrop-blur-sm font-mono font-bold">
+                      <div class="symbol-flex">
+                        <span class="text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/20 text-[10px] font-mono tabular-nums tracking-tight px-1.5 py-0.5 rounded">
+                          SPONSORED
+                        </span>
+                        <span class="company-subname">TradingView Pro</span>
+                      </div>
+                    </td>
+                    <td colspan="8" class="cell-price font-mono tabular-nums tracking-tight" style="text-align: left;">
+                      <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" style="color: #F8FAFC; text-decoration: none; font-weight: 600;">
+                        TradingView Pro Charting Suite &bull; <span style="color: #94A3B8; font-weight: 400;">Multi-Timeframe Anchored VWAP, RVOL Alerts &amp; Level 2 Depth</span>
+                      </a>
+                    </td>
+                    <td class="cell-conviction text-center">
+                      <span class="conviction-badge conv-bull font-mono tabular-nums tracking-tight">PRO WORKSPACE</span>
+                    </td>
+                    <td class="cell-action text-center">
+                      <div class="row-btn-group">
+                        <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="row-chart-btn">Launch Pro Chart ↗</a>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                <tr class="stock-data-row">
+                  <td class="cell-symbol sticky left-0 z-10 bg-[#111726]/95 backdrop-blur-sm font-mono font-bold">
+                    <div class="symbol-flex">
+                      <a href={`/ticker/${s.ticker.toLowerCase()}/`} class="ticker-link font-mono tabular-nums tracking-tight" title={`View $${s.ticker} Breakout Hub`}>
+                        ${s.ticker}
+                      </a>
+                      <span class="company-subname">{s.ticker} Equity</span>
+                    </div>
+                  </td>
+                  <td class="cell-price text-right font-mono tabular-nums tracking-tight">${s.price < 1 ? s.price.toFixed(3) : s.price.toFixed(2)}</td>
+                  <td class="cell-change-abs text-right font-mono tabular-nums tracking-tight text-muted">--</td>
+                  <td class="cell-change-pct text-center">
+                    <span class={`delta-pill font-mono tabular-nums tracking-tight ${isPos ? 'delta-pill-gain' : 'delta-pill-loss'}`}>{sign}{s.changePct.toFixed(2)}%</span>
+                  </td>
+                  <td class="cell-volume text-right font-mono tabular-nums tracking-tight">{s.vol >= 1e6 ? (s.vol / 1e6).toFixed(2) + 'M' : s.vol.toLocaleString()}</td>
+                  <td class="cell-rvol text-right font-mono tabular-nums tracking-tight"><span class="rvol-surge font-mono tabular-nums tracking-tight">3.20x</span></td>
+                  <td class="cell-market-cap text-right font-mono tabular-nums tracking-tight">--</td>
+                  <td class="cell-range text-center font-mono tabular-nums tracking-tight">--</td>
+                  <td class="cell-momentum text-center"><div class="momentum-pill mom-high"><span class="mom-score font-mono tabular-nums tracking-tight">84</span></div></td>
+                  <td class="cell-conviction text-center"><span class="conviction-badge conv-high font-mono tabular-nums tracking-tight">82 &bull; High Conviction</span></td>
+                  <td class="cell-action text-center">
+                    <div class="row-btn-group">
+                      <button class="row-why-btn" data-open-diagnostic={s.ticker} title="Why Is It Moving?">Why?</button>
+                      <a href={`https://www.tradingview.com/symbols/${s.ticker}/?aff_id=170147`} target="_blank" rel="noopener noreferrer" class="row-chart-btn">Chart ↗</a>
+                    </div>
+                  </td>
+                </tr>
+              </Fragment>
             );
           }) : (
             <tr class="loading-skeleton-row">
@@ -713,7 +700,7 @@ for (const p of sortedPosts.slice(0, 4)) {
         return;
       }
 
-      tableBody.innerHTML = result.map((stock) => {
+      tableBody.innerHTML = result.map((stock, idx) => {
         const isPos = stock.changePercent >= 0;
         const badgeClass = isPos ? 'delta-pill-gain' : 'delta-pill-loss';
         const sign = isPos ? '+' : '';
@@ -730,7 +717,33 @@ for (const p of sortedPosts.slice(0, 4)) {
         if (stock.convictionScore >= 80) convTierClass = 'conv-high';
         else if (stock.convictionScore >= 65) convTierClass = 'conv-bull';
 
-        return `
+        const sponsoredRowHtml = idx === 5 ? `
+          <tr class="stock-data-row sponsored-screener-row">
+            <td class="cell-symbol sticky left-0 z-10 bg-[#111726]/95 backdrop-blur-sm font-mono font-bold">
+              <div class="symbol-flex">
+                <span class="text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/20 text-[10px] font-mono tabular-nums tracking-tight px-1.5 py-0.5 rounded">
+                  SPONSORED
+                </span>
+                <span class="company-subname">TradingView Pro</span>
+              </div>
+            </td>
+            <td colspan="8" class="cell-price font-mono tabular-nums tracking-tight" style="text-align: left;">
+              <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" style="color: #F8FAFC; text-decoration: none; font-weight: 600;">
+                TradingView Pro Charting Suite &bull; <span style="color: #94A3B8; font-weight: 400;">Multi-Timeframe Anchored VWAP, RVOL Alerts &amp; Level 2 Depth</span>
+              </a>
+            </td>
+            <td class="cell-conviction text-center">
+              <span class="conviction-badge conv-bull font-mono tabular-nums tracking-tight">PRO WORKSPACE</span>
+            </td>
+            <td class="cell-action text-center">
+              <div class="row-btn-group">
+                <a href="https://www.tradingview.com/?aff_id=170147" target="_blank" rel="noopener noreferrer" class="row-chart-btn">Launch Pro Chart ↗</a>
+              </div>
+            </td>
+          </tr>
+        ` : '';
+
+        return sponsoredRowHtml + `
           <tr class="stock-data-row">
             <td class="cell-symbol sticky left-0 z-10 bg-[#111726]/95 backdrop-blur-sm font-mono font-bold">
               <div class="symbol-flex">
@@ -1615,6 +1628,16 @@ for (const p of sortedPosts.slice(0, 4)) {
 
   .tabular-nums { font-variant-numeric: tabular-nums; }
   .tracking-tight { letter-spacing: -0.025em; }
+  .text-\[\#F59E0B\] {
+    color: #F59E0B;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    font-size: 10px;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    width: fit-content;
+  }
 
   .symbol-flex {
     display: flex;
