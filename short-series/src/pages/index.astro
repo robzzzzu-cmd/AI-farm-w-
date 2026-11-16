@@ -197,7 +197,7 @@ const websiteSchema = {
 ---
 
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="dark" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -225,12 +225,14 @@ const websiteSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 
     <script is:inline>
-      (function() {
-        try {
-          const saved = localStorage.getItem('to_theme') || 'dark';
-          document.documentElement.setAttribute('data-theme', saved);
-        } catch(e) {}
-      })();
+      const theme = localStorage.getItem('theme') || localStorage.getItem('to_theme') || 'dark';
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
     </script>
 
     <style is:inline>
@@ -255,21 +257,22 @@ const websiteSchema = {
         --nav-height: 56px;
       }
 
+      html:not(.dark),
       [data-theme="light"] {
-        --bg-page: #f0f2f5;
-        --bg-surface: #ffffff;
-        --bg-surface-elevated: #e5e8ed;
-        --border-subtle: #d0d5dd;
-        --border-strong: #98a2b3;
-        --text-primary: #111827;
-        --text-secondary: #4b5563;
-        --text-muted: #667085;
-        --brand-accent: #0284c7;
+        --bg-page: #F8FAFC;
+        --bg-surface: #FFFFFF;
+        --bg-surface-elevated: #F1F5F9;
+        --border-subtle: #E2E8F0;
+        --border-strong: #CBD5E1;
+        --text-primary: #0F172A;
+        --text-secondary: #475569;
+        --text-muted: #64748B;
+        --brand-accent: #0284C7;
         --gain-color: #10B981;
         --gain-bg: rgba(16, 185, 129, 0.12);
         --loss-color: #F43F5E;
         --loss-bg: rgba(244, 63, 94, 0.12);
-        --card-shadow: 0 2px 8px -2px rgba(16, 24, 40, 0.08), 0 1px 4px -1px rgba(16, 24, 40, 0.04);
+        --card-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.08), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
       }
 
       *, *::before, *::after { 
@@ -319,14 +322,23 @@ const websiteSchema = {
         color: #7dd3fc;
       }
 
-      .bg-\[\#090D16\] { background-color: #090D16; }
-      .bg-\[\#111726\] { background-color: #111726; }
+      .bg-slate-50 { background-color: #F8FAFC; }
+      .bg-white { background-color: #FFFFFF; }
+      .text-slate-900 { color: #0F172A; }
+      .text-slate-400 { color: #94A3B8; }
+      .border-slate-200 { border-color: #E2E8F0; }
+
+      .bg-\[\#090D16\],
+      .dark .dark\:bg-\[\#090D16\] { background-color: #090D16; }
+      .bg-\[\#111726\],
+      .dark .dark\:bg-\[\#111726\] { background-color: #111726; }
       .bg-\[\#111726\]\/90 { background-color: rgba(17, 23, 38, 0.9); }
       .bg-\[\#1A2234\] { background-color: #1A2234; }
       .hover\:bg-\[\#1A2234\]:hover { background-color: #1A2234; }
 
       .text-white { color: #FFFFFF; }
-      .text-\[\#F8FAFC\] { color: #F8FAFC; }
+      .text-\[\#F8FAFC\],
+      .dark .dark\:text-\[\#F8FAFC\] { color: #F8FAFC; }
       .text-\[\#94A3B8\] { color: #94A3B8; }
       .text-\[\#10B981\] { color: #10B981; }
       .text-\[\#F43F5E\] { color: #F43F5E; }
@@ -348,7 +360,9 @@ const websiteSchema = {
       .border { border-width: 1px; border-style: solid; }
       .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
       .border-t { border-top-width: 1px; border-top-style: solid; }
-      .border-\[\#1E293B\] { border-color: #1E293B; }
+      .border-\[\#1E293B\],
+      .dark .dark\:border-\[\#1E293B\],
+      .dark .dark\:border-slate-800 { border-color: #1E293B; }
       .border-\[\#1E293B\]\/60 { border-color: rgba(30, 41, 59, 0.6); }
       .hover\:border-slate-700:hover { border-color: #334155; }
       .focus\:border-\[\#38BDF8\]:focus { border-color: #38BDF8 !important; }
@@ -369,6 +383,7 @@ const websiteSchema = {
       .p-3 { padding: 0.75rem; }
       .p-3\.5 { padding: 0.875rem; }
       .p-4 { padding: 1rem; }
+      .p-5 { padding: 1.25rem; }
 
       .h-9 { height: 36px; }
       .h-14 { height: 56px; }
@@ -396,8 +411,11 @@ const websiteSchema = {
       .items-center { align-items: center; }
       .justify-between { justify-content: space-between; }
       .gap-3 { gap: 0.75rem; }
+      .gap-4 { gap: 1rem; }
       .gap-5 { gap: 1.25rem; }
+      .gap-6 { gap: 1.5rem; }
       .space-y-4 > * + * { margin-top: 1rem; }
+      .space-y-6 > * + * { margin-top: 1.5rem; }
 
       .grid { display: grid; }
       .grid-cols-1 { grid-template-columns: minmax(0, 1fr); }
@@ -849,7 +867,7 @@ const websiteSchema = {
         background: #111726;
         border: 1px solid #1E293B;
         border-radius: 0.5rem;
-        padding: 0.875rem;
+        padding: 1.25rem;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -944,7 +962,7 @@ const websiteSchema = {
         background: #111726;
         border: 1px solid rgba(56, 189, 248, 0.3);
         border-radius: 0.5rem;
-        padding: 0.75rem 0.9rem;
+        padding: 1.25rem;
       }
       .newsletter-copy {
         display: flex;
@@ -1132,7 +1150,7 @@ const websiteSchema = {
         border: 1px solid #1E293B;
         border-top: 2px solid #38BDF8;
         border-radius: 0.5rem;
-        padding: 1rem;
+        padding: 1.25rem;
       }
       .briefing-meta-bar {
         display: flex;
@@ -1298,7 +1316,7 @@ const websiteSchema = {
         background: #111726;
         border: 1px solid #1E293B;
         border-radius: 0.5rem;
-        padding: 0.875rem;
+        padding: 1.25rem;
       }
       .sector-header {
         display: flex;
@@ -1660,9 +1678,219 @@ const websiteSchema = {
         .newsletter-input { flex: 1; width: auto; }
         .back-to-top-btn { bottom: 4.5rem; right: 1rem; }
       }
+
+      /* Progressive Disclosure Workspace Tabs ([Market Movers] | [Macro & Earnings] | [News Feed]) */
+      .workspace-tabs-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding: 0.35rem;
+        background: #111726;
+        border: 1px solid #1E293B;
+        border-radius: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .workspace-tabs-group {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex: 1;
+      }
+      .workspace-tabs-group::-webkit-scrollbar { display: none; }
+      .workspace-tab-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: #94A3B8;
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.45rem 0.9rem;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+      }
+      .workspace-tab-btn:hover {
+        color: #F8FAFC;
+        background: #1A2234;
+      }
+      .workspace-tab-btn.active {
+        background: rgba(56, 189, 248, 0.12);
+        border-color: rgba(56, 189, 248, 0.3);
+        color: #38BDF8;
+        font-weight: 700;
+      }
+      .workspace-tab-count {
+        font-size: 0.65rem;
+        padding: 0.05rem 0.38rem;
+        border-radius: 4px;
+        background: #090D16;
+        color: #94A3B8;
+      }
+      .workspace-tab-btn.active .workspace-tab-count {
+        background: rgba(56, 189, 248, 0.2);
+        color: #38BDF8;
+      }
+      .workspace-tabs-hint {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        color: #94A3B8;
+        padding-right: 0.5rem;
+        white-space: nowrap;
+      }
+      @media (max-width: 767px) {
+        .workspace-tabs-hint { display: none; }
+        .workspace-tab-btn { padding: 0.4rem 0.65rem; font-size: 0.7rem; }
+      }
+      .workspace-disclosure-hidden {
+        display: none !important;
+      }
+
+      /* Instant Light-Mode Surface & Text Overrides */
+      html:not(.dark) body,
+      html:not(.dark) .bg-\[\#090D16\] {
+        background-color: #F8FAFC !important;
+        color: #0F172A !important;
+      }
+      html:not(.dark) .bg-\[\#111726\],
+      html:not(.dark) .mover-card,
+      html:not(.dark) .newsletter-strip,
+      html:not(.dark) .high-density-table-wrap,
+      html:not(.dark) .briefing-pinned-card,
+      html:not(.dark) .secondary-brief-item,
+      html:not(.dark) .sector-card,
+      html:not(.dark) .hero-repositioned,
+      html:not(.dark) .tool-card,
+      html:not(.dark) .disclosure-box,
+      html:not(.dark) .cookie-banner,
+      html:not(.dark) .feed-filter-empty,
+      html:not(.dark) .workspace-tabs-bar {
+        background-color: #FFFFFF !important;
+        border-color: #E2E8F0 !important;
+        box-shadow: var(--card-shadow);
+      }
+      html:not(.dark) .briefing-pinned-card {
+        border-top: 2px solid #0284C7 !important;
+      }
+      html:not(.dark) .mover-card:hover,
+      html:not(.dark) .secondary-brief-item:hover,
+      html:not(.dark) .mover-table-row:hover {
+        background-color: #F1F5F9 !important;
+      }
+      html:not(.dark) .bg-\[\#111726\]\/90,
+      html:not(.dark) .top-nav {
+        background-color: rgba(255, 255, 255, 0.94) !important;
+        border-bottom-color: #E2E8F0 !important;
+      }
+      html:not(.dark) .border-\[\#1E293B\],
+      html:not(.dark) .workspace-header,
+      html:not(.dark) .sector-header,
+      html:not(.dark) .sector-footer-note,
+      html:not(.dark) .briefing-cta-row,
+      html:not(.dark) .hero-instant-chips-bar,
+      html:not(.dark) .below-fold-wrap,
+      html:not(.dark) footer {
+        border-color: #E2E8F0 !important;
+      }
+      html:not(.dark) .mover-row-3,
+      html:not(.dark) .mover-table-row td {
+        border-color: #E2E8F0 !important;
+      }
+      html:not(.dark) .text-\[\#F8FAFC\],
+      html:not(.dark) .text-white,
+      html:not(.dark) .workspace-heading,
+      html:not(.dark) .mover-ticker-link,
+      html:not(.dark) .table-ticker-link,
+      html:not(.dark) .briefing-headline,
+      html:not(.dark) .secondary-brief-title,
+      html:not(.dark) .hero-headline,
+      html:not(.dark) .tool-name,
+      html:not(.dark) .newsletter-copy,
+      html:not(.dark) .disclosure-box strong {
+        color: #0F172A !important;
+      }
+      html:not(.dark) .text-\[\#94A3B8\],
+      html:not(.dark) .text-slate-400,
+      html:not(.dark) .briefing-summary,
+      html:not(.dark) .hero-subheadline,
+      html:not(.dark) .tool-desc,
+      html:not(.dark) .sector-name,
+      html:not(.dark) .sector-title,
+      html:not(.dark) .matrix-section-title {
+        color: #475569 !important;
+      }
+      html:not(.dark) .dashboard-toggle-btn,
+      html:not(.dark) .search-input,
+      html:not(.dark) .icon-action-btn,
+      html:not(.dark) .report-date-pill,
+      html:not(.dark) .newsletter-input,
+      html:not(.dark) .high-density-table th,
+      html:not(.dark) .ticker-pill,
+      html:not(.dark) .persona-pill-btn,
+      html:not(.dark) .hero-chip-btn,
+      html:not(.dark) .tool-btn,
+      html:not(.dark) .workspace-tab-count,
+      html:not(.dark) .feed-filter-reset-btn,
+      html:not(.dark) .back-to-top-btn {
+        background-color: #F1F5F9 !important;
+        border-color: #CBD5E1 !important;
+        color: #0F172A !important;
+      }
+      html:not(.dark) .sector-bar-bg {
+        background-color: #E2E8F0 !important;
+      }
+      html:not(.dark) .workspace-tab-btn {
+        color: #475569;
+      }
+      html:not(.dark) .workspace-tab-btn:hover {
+        color: #0F172A;
+        background-color: #F1F5F9;
+      }
+      html:not(.dark) .workspace-tab-btn.active {
+        background-color: rgba(2, 132, 199, 0.12);
+        border-color: rgba(2, 132, 199, 0.35);
+        color: #0284C7;
+      }
+      html:not(.dark) .nav-links a {
+        color: #475569;
+      }
+      html:not(.dark) .nav-links a:hover {
+        color: #0F172A;
+      }
+      html:not(.dark) .nav-links a.active {
+        color: #0284C7;
+      }
+      html:not(.dark) .mobile-bottom-bar {
+        background-color: #FFFFFF !important;
+        border-top-color: #E2E8F0 !important;
+      }
+      html:not(.dark) .mobile-tab-item {
+        color: #475569;
+      }
+      html:not(.dark) .mobile-tab-item.active,
+      html:not(.dark) .mobile-tab-item:hover {
+        color: #0284C7;
+        background-color: rgba(2, 132, 199, 0.08);
+      }
+      html:not(.dark) .diagnostic-drawer {
+        background-color: #FFFFFF !important;
+        border-left-color: #E2E8F0 !important;
+      }
+      html:not(.dark) .drawer-header {
+        background-color: #F8FAFC !important;
+        border-bottom-color: #E2E8F0 !important;
+      }
     </style>
   </head>
-  <body class="bg-[#090D16] text-[#F8FAFC] antialiased selection:bg-sky-500/20 selection:text-sky-300">
+  <body class="bg-slate-50 text-slate-900 dark:bg-[#090D16] dark:text-[#F8FAFC] bg-[#090D16] text-[#F8FAFC] antialiased selection:bg-sky-500/20 selection:text-sky-300">
     <div id="top" style="position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;"></div>
     
     <!-- Tier 1: Global Telemetry Bar (36px) -->
@@ -1832,18 +2060,62 @@ const websiteSchema = {
         )}
       </div>
 
+      <!-- 1.5 Progressive Disclosure Workspace Tabs ([Market Movers] | [Macro & Earnings] | [News Feed]) -->
+      <div class="max-w-[1440px] mx-auto px-4">
+        <div class="workspace-tabs-bar bg-white dark:bg-[#111726] bg-[#111726] border border-slate-200 dark:border-[#1E293B] border-[#1E293B]" id="workspace-disclosure-tabs" role="tablist" aria-label="Terminal Workspace Progressive Disclosure">
+          <div class="workspace-tabs-group">
+            <button
+              type="button"
+              role="tab"
+              aria-selected="true"
+              class="workspace-tab-btn active font-mono tabular-nums tracking-tight"
+              data-workspace-tab="movers"
+              id="tab-btn-movers"
+            >
+              <span>Market Movers</span>
+              <span class="workspace-tab-count font-mono tabular-nums">{topThreeMovers.length + tableMovers.length}</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              class="workspace-tab-btn font-mono tabular-nums tracking-tight"
+              data-workspace-tab="macro-earnings"
+              id="tab-btn-macro-earnings"
+            >
+              <span>Macro &amp; Earnings</span>
+              <span class="workspace-tab-count font-mono tabular-nums">RADAR</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              class="workspace-tab-btn font-mono tabular-nums tracking-tight"
+              data-workspace-tab="news-feed"
+              id="tab-btn-news-feed"
+            >
+              <span>News Feed</span>
+              <span class="workspace-tab-count font-mono tabular-nums">{posts.length}</span>
+            </button>
+          </div>
+          <span class="workspace-tabs-hint text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight">
+            FOCUS MODE: RVOL &amp; CATALYST SEPARATION
+          </span>
+        </div>
+      </div>
+
       <!-- 2. 12-Column Asymmetric Desktop Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 max-w-[1440px] mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1440px] mx-auto px-4">
         <!-- LEFT 8 COLUMNS: High-Conviction Momentum Matrix -->
-        <div class="lg:col-span-8 space-y-4">
+        <div class="lg:col-span-8 space-y-6" id="workspace-col-movers">
           <!-- 2.1 Top 3 High-RVOL Mover Cards -->
           <div>
             <div class="matrix-section-bar">
               <span class="matrix-section-title">Top 3 High-RVOL Leaders</span>
-              <span class="matrix-section-meta font-mono tabular-nums tracking-tight">5-LAYER CAUSAL ATTRIBUTION</span>
+              <span class="matrix-section-meta text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight">5-LAYER CAUSAL ATTRIBUTION</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               {topThreeMovers.map((stock: StockItem, idx: number) => {
                 const cleanSym = sanitizeTickerSymbol(stock.ticker);
                 const priceNum = parseFloat(String(stock.price || '0'));
@@ -1854,7 +2126,7 @@ const websiteSchema = {
                 const catalystText = getMoverCatalystSummary(stock, idx);
 
                 return (
-                  <article class="mover-card bg-[#111726] border border-[#1E293B] hover:border-slate-700 rounded-lg p-3.5 transition-all">
+                  <article class="mover-card bg-white dark:bg-[#111726] bg-[#111726] border border-slate-200 dark:border-[#1E293B] border-[#1E293B] hover:border-slate-700 rounded-lg p-5 transition-all">
                     <div>
                       <!-- Row 1: $TICKER + Price + % Change pill + RVOL badge -->
                       <div class="mover-row-1">
@@ -1883,7 +2155,7 @@ const websiteSchema = {
                       </div>
 
                       <!-- Row 2: 2-line clamped AI Catalyst summary -->
-                      <p class="text-xs text-[#94A3B8] line-clamp-2 my-2">
+                      <p class="text-xs text-[#94A3B8] text-slate-400 line-clamp-2 my-2">
                         {catalystText}
                       </p>
                     </div>
@@ -1910,7 +2182,7 @@ const websiteSchema = {
                           href={`https://www.tradingview.com/symbols/${cleanSym}/?aff_id=170147`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          class="mover-tv-link"
+                          class="mover-tv-link text-[#94A3B8] text-slate-400"
                           title={`Open $${cleanSym} on TradingView`}
                         >
                           TV Chart &nearr;
@@ -1924,7 +2196,7 @@ const websiteSchema = {
           </div>
 
           <!-- 2.2 Inline Email Capture Strip (Between Top 3 Cards and Table) -->
-          <div id="alerts" class="newsletter-strip bg-[#111726] border border-[#38BDF8]/30 rounded-lg p-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div id="alerts" class="newsletter-strip bg-white dark:bg-[#111726] bg-[#111726] border border-[#38BDF8]/30 rounded-lg p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="newsletter-copy">
               <span class="newsletter-bolt" aria-hidden="true">&#9889;</span>
               <span>Get the Top 5 RVOL &amp; Dilution Audits at 8:30 AM ET before the bell.</span>
@@ -1957,7 +2229,7 @@ const websiteSchema = {
               </a>
             </div>
 
-            <div class="high-density-table-wrap bg-[#111726] border border-[#1E293B] rounded-lg">
+            <div class="high-density-table-wrap bg-white dark:bg-[#111726] bg-[#111726] border border-slate-200 dark:border-[#1E293B] border-[#1E293B] rounded-lg">
               <table class="high-density-table">
                 <thead>
                   <tr>
@@ -1992,9 +2264,9 @@ const websiteSchema = {
                                 href="https://www.tradingview.com/?aff_id=170147"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                style="color: #F8FAFC; text-decoration: none; font-weight: 600;"
+                                style="color: inherit; text-decoration: none; font-weight: 600;"
                               >
-                                TradingView Pro &bull; <span style="color: #94A3B8; font-weight: 400;">Multi-Timeframe AVWAP, RVOL &amp; Level 2 Charting Suite</span>
+                                TradingView Pro &bull; <span class="text-[#94A3B8] text-slate-400" style="font-weight: 400;">Multi-Timeframe AVWAP, RVOL &amp; Level 2 Charting Suite</span>
                               </a>
                             </td>
                             <td class="num-col cell-rvol font-mono tabular-nums tracking-tight">
@@ -2037,7 +2309,7 @@ const websiteSchema = {
                               {pctFormatted}
                             </span>
                           </td>
-                          <td class="num-col cell-vol font-mono tabular-nums tracking-tight text-[#94A3B8]">
+                          <td class="num-col cell-vol font-mono tabular-nums tracking-tight text-[#94A3B8] text-slate-400">
                             {formatCompactNumber(stock.volume)}
                           </td>
                           <td class="num-col cell-rvol font-mono tabular-nums tracking-tight">
@@ -2088,7 +2360,7 @@ const websiteSchema = {
         </div>
 
         <!-- RIGHT 4 COLUMNS: AI Intelligence & Context Rail -->
-        <aside class="lg:col-span-4 space-y-4">
+        <aside class="lg:col-span-4 space-y-6" id="workspace-col-rail">
           <!-- 2.4 Pinned Gemini AI Session Briefings Card -->
           <section id="news-feed">
             <div id="feed-filter-empty" class="feed-filter-empty">
@@ -2097,10 +2369,10 @@ const websiteSchema = {
             </div>
 
             {featuredPost && (
-              <article class="briefing-pinned-card card dispatch-card bg-[#111726] border border-[#1E293B] rounded-lg p-4">
+              <article class="briefing-pinned-card card dispatch-card bg-white dark:bg-[#111726] bg-[#111726] border border-slate-200 dark:border-[#1E293B] border-[#1E293B] rounded-lg p-5">
                 <div class="briefing-meta-bar">
                   <span class="ai-badge-pill font-mono tabular-nums tracking-tight">GEMINI AI SESSION BRIEFING</span>
-                  <span class="briefing-timestamp font-mono tabular-nums tracking-tight">
+                  <span class="briefing-timestamp text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight">
                     {formatMarketDate(featuredPost.frontmatter.date || featuredPost.frontmatter.pubDate || featuredPost.frontmatter.displayDate)}
                   </span>
                 </div>
@@ -2111,7 +2383,7 @@ const websiteSchema = {
                   </a>
                 </h2>
 
-                <p class="briefing-summary max-w-[65ch] leading-[1.65] text-xs text-[#94A3B8]">
+                <p class="briefing-summary max-w-[65ch] leading-[1.65] text-xs text-[#94A3B8] text-slate-400">
                   {featuredSummary}
                 </p>
 
@@ -2132,17 +2404,17 @@ const websiteSchema = {
                   <a href={`/blog/${featuredPost.slug}/`} class="read-briefing-cta font-mono tabular-nums tracking-tight">
                     Read Full Briefing &rarr;
                   </a>
-                  <a href="/category/equities/" class="briefing-timestamp font-mono tabular-nums tracking-tight" style="text-decoration: none;">
+                  <a href="/category/equities/" class="briefing-timestamp text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight" style="text-decoration: none;">
                     All Briefings &nearr;
                   </a>
                 </div>
               </article>
             )}
 
-            <div class="secondary-briefs-list">
+            <div class="secondary-briefs-list workspace-disclosure-hidden" id="secondary-briefs-panel">
               {secondaryPosts.slice(0, 3).map((post) => (
                 <article class="secondary-brief-item dispatch-card">
-                  <div class="secondary-brief-meta font-mono tabular-nums tracking-tight">
+                  <div class="secondary-brief-meta text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight">
                     <span>{formatCompactReportDate(post)}</span>
                     <a href={`/blog/${post.slug}/`} style="color: #38BDF8; text-decoration: none;">Briefing &rarr;</a>
                   </div>
@@ -2155,14 +2427,16 @@ const websiteSchema = {
           </section>
 
           <!-- 2.5 Compact Macro & Earnings Radar (+ Demoted Third-Party RSS Drawer) -->
-          <LiveCatalystWire />
+          <div id="workspace-panel-macro-earnings" class="workspace-disclosure-hidden">
+            <LiveCatalystWire />
+          </div>
 
           <!-- 2.6 Compact Sector Breadth Pulse -->
           <section id="sector-breadth">
-            <div class="sector-card bg-[#111726] border border-[#1E293B] rounded-lg" id="sector-matrix">
+            <div class="sector-card bg-white dark:bg-[#111726] bg-[#111726] border border-slate-200 dark:border-[#1E293B] border-[#1E293B] rounded-lg p-5" id="sector-matrix">
               <div class="sector-header">
                 <span class="sector-title font-mono tabular-nums tracking-tight">S&amp;P 500 SECTOR PULSE</span>
-                <span class="sector-context-note font-mono tabular-nums tracking-tight" id="sector-status">SPDR® ETFs</span>
+                <span class="sector-context-note text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight" id="sector-status">SPDR® ETFs</span>
               </div>
 
               <div class="sector-table" id="live-sector-table">
@@ -2182,7 +2456,7 @@ const websiteSchema = {
                 })}
               </div>
 
-              <div class="sector-footer-note font-mono tabular-nums tracking-tight">
+              <div class="sector-footer-note text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight">
                 <span id="sector-footer-status">Live SPDR® Breadth</span>
                 <a href="/screener/">Screener &rarr;</a>
               </div>
@@ -2493,26 +2767,101 @@ const websiteSchema = {
         const sunIcon = document.getElementById('theme-icon-sun');
         const moonIcon = document.getElementById('theme-icon-moon');
 
-        const savedTheme = localStorage.getItem('to_theme') || 'dark';
-        applyTheme(savedTheme);
-
         function applyTheme(theme) {
-          document.documentElement.setAttribute('data-theme', theme);
-          if (theme === 'light') {
+          const isDark = theme === 'dark';
+          document.documentElement.classList.toggle('dark', isDark);
+          document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+          if (!isDark) {
             if (sunIcon) sunIcon.style.display = 'none';
             if (moonIcon) moonIcon.style.display = 'block';
           } else {
             if (sunIcon) sunIcon.style.display = 'block';
             if (moonIcon) moonIcon.style.display = 'none';
           }
-          localStorage.setItem('to_theme', theme);
+          try {
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('to_theme', isDark ? 'dark' : 'light');
+          } catch (e) {}
         }
 
+        const savedTheme = localStorage.getItem('theme') || localStorage.getItem('to_theme') || 'dark';
+        applyTheme(savedTheme);
+
         themeBtn?.addEventListener('click', () => {
-          const current = document.documentElement.getAttribute('data-theme') || 'dark';
-          const nextTheme = current === 'dark' ? 'light' : 'dark';
+          const isCurrentlyDark = document.documentElement.classList.contains('dark');
+          const nextTheme = isCurrentlyDark ? 'light' : 'dark';
           applyTheme(nextTheme);
         });
+      })();
+
+      // 3.5 Progressive Disclosure Workspace Tabs ([Market Movers] | [Macro & Earnings] | [News Feed])
+      (function initWorkspaceDisclosureTabs() {
+        const tabBtns = document.querySelectorAll('[data-workspace-tab]');
+        const moversCol = document.getElementById('workspace-col-movers');
+        const newsFeedSection = document.getElementById('news-feed');
+        const secondaryBriefsPanel = document.getElementById('secondary-briefs-panel');
+        const macroEarningsPanel = document.getElementById('workspace-panel-macro-earnings');
+        const sectorBreadthSection = document.getElementById('sector-breadth');
+        const rssDetails = document.getElementById('demoted-rss-details');
+
+        function setWorkspaceTab(tabName) {
+          tabBtns.forEach((btn) => {
+            const isMatch = btn.getAttribute('data-workspace-tab') === tabName;
+            btn.classList.toggle('active', isMatch);
+            btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+          });
+
+          const isMobile = window.innerWidth < 1024;
+
+          if (tabName === 'macro-earnings') {
+            macroEarningsPanel?.classList.remove('workspace-disclosure-hidden');
+            secondaryBriefsPanel?.classList.add('workspace-disclosure-hidden');
+            if (isMobile) {
+              moversCol?.classList.add('workspace-disclosure-hidden');
+              newsFeedSection?.classList.add('workspace-disclosure-hidden');
+            } else {
+              moversCol?.classList.remove('workspace-disclosure-hidden');
+              newsFeedSection?.classList.add('workspace-disclosure-hidden');
+            }
+            sectorBreadthSection?.classList.remove('workspace-disclosure-hidden');
+            const radarAllBtn = document.querySelector('.wire-tab-btn[data-wire-tab="all"]');
+            if (radarAllBtn instanceof HTMLElement) radarAllBtn.click();
+          } else if (tabName === 'news-feed') {
+            newsFeedSection?.classList.remove('workspace-disclosure-hidden');
+            secondaryBriefsPanel?.classList.remove('workspace-disclosure-hidden');
+            macroEarningsPanel?.classList.remove('workspace-disclosure-hidden');
+            if (rssDetails instanceof HTMLDetailsElement) rssDetails.open = true;
+            const rssTabBtn = document.querySelector('.wire-tab-btn[data-wire-tab="news"]');
+            if (rssTabBtn instanceof HTMLElement) rssTabBtn.click();
+            if (isMobile) {
+              moversCol?.classList.add('workspace-disclosure-hidden');
+              sectorBreadthSection?.classList.add('workspace-disclosure-hidden');
+            } else {
+              moversCol?.classList.remove('workspace-disclosure-hidden');
+              sectorBreadthSection?.classList.add('workspace-disclosure-hidden');
+            }
+          } else {
+            // Default: 'movers' — focused momentum workspace without stacked calendar/archive clutter
+            moversCol?.classList.remove('workspace-disclosure-hidden');
+            newsFeedSection?.classList.remove('workspace-disclosure-hidden');
+            secondaryBriefsPanel?.classList.add('workspace-disclosure-hidden');
+            macroEarningsPanel?.classList.add('workspace-disclosure-hidden');
+            sectorBreadthSection?.classList.remove('workspace-disclosure-hidden');
+          }
+        }
+
+        tabBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const tab = btn.getAttribute('data-workspace-tab') || 'movers';
+            setWorkspaceTab(tab);
+          });
+        });
+
+        if (window.location.hash === '#news-feed' || new URLSearchParams(window.location.search).has('search')) {
+          setWorkspaceTab('news-feed');
+        } else if (window.location.hash === '#catalyst-wire') {
+          setWorkspaceTab('macro-earnings');
+        }
       })();
 
       // 4. Compact Markdown Table Expander

@@ -2,7 +2,7 @@
 // src/components/MarketTicker.astro
 ---
 
-<div class="ticker-ribbon-container h-9 bg-[#090D16] border-b border-[#1E293B] text-xs font-mono tabular-nums tracking-tight" aria-label="Live Market Pulse Telemetry">
+<div class="ticker-ribbon-container h-9 bg-slate-100 dark:bg-[#090D16] bg-[#090D16] border-b border-slate-200 dark:border-[#1E293B] border-[#1E293B] text-xs font-mono tabular-nums tracking-tight" aria-label="Live Market Pulse Telemetry">
   <div class="telemetry-inner app-wrapper">
     <div class="telemetry-left">
       <div class="session-badge">
@@ -100,7 +100,7 @@
     const container = document.getElementById('tv-ticker-tape-container');
     if (!container) return;
 
-    const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('to_theme') || 'dark';
+    const activeTheme = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || localStorage.getItem('to_theme') || 'dark';
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
@@ -245,6 +245,45 @@
 
   .dispatch-trigger-link:hover {
     color: #38BDF8;
+  }
+
+  /* Light Mode Overrides for Tier 1 Telemetry Bar */
+  :global(html:not(.dark)) .ticker-ribbon-container,
+  :global([data-theme="light"]) .ticker-ribbon-container {
+    background: #F1F5F9;
+    border-bottom-color: #CBD5E1;
+  }
+
+  :global(html:not(.dark)) .session-badge,
+  :global([data-theme="light"]) .session-badge {
+    color: #0F172A;
+  }
+
+  :global(html:not(.dark)) .telemetry-divider,
+  :global([data-theme="light"]) .telemetry-divider {
+    color: #CBD5E1;
+  }
+
+  :global(html:not(.dark)) .telemetry-clock,
+  :global([data-theme="light"]) .telemetry-clock {
+    color: #475569;
+  }
+
+  :global(html:not(.dark)) .macro-regime-pill,
+  :global([data-theme="light"]) .macro-regime-pill {
+    color: #0284C7;
+    background: rgba(2, 132, 199, 0.12);
+    border-color: rgba(2, 132, 199, 0.25);
+  }
+
+  :global(html:not(.dark)) .dispatch-trigger-link,
+  :global([data-theme="light"]) .dispatch-trigger-link {
+    color: #475569;
+  }
+
+  :global(html:not(.dark)) .dispatch-trigger-link:hover,
+  :global([data-theme="light"]) .dispatch-trigger-link:hover {
+    color: #0284C7;
   }
 
   @media (max-width: 900px) {

@@ -4,7 +4,7 @@
 ---
 
 <section class="catalyst-wire-section text-xs font-mono tabular-nums tracking-tight" id="catalyst-wire">
-  <div class="wire-container card bg-[#111726] border border-[#1E293B] rounded-lg p-3.5">
+  <div class="wire-container card bg-white dark:bg-[#111726] bg-[#111726] border border-slate-200 dark:border-[#1E293B] border-[#1E293B] rounded-lg p-5">
     <div class="wire-top-bar">
       <div>
         <div class="wire-kicker font-mono tabular-nums tracking-tight">MACRO &amp; EARNINGS RADAR</div>
@@ -12,7 +12,7 @@
       </div>
 
       <div class="wire-controls">
-        <button id="wire-refresh-btn" class="wire-refresh-btn font-mono tabular-nums tracking-tight" type="button" title="Sync live market calendar">
+        <button id="wire-refresh-btn" class="wire-refresh-btn text-[#94A3B8] text-slate-400 font-mono tabular-nums tracking-tight" type="button" title="Sync live market calendar">
           <svg class="refresh-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M23 4v6h-6"></path>
             <path d="M1 20v-6h6"></path>
@@ -136,7 +136,7 @@
     background: #111726;
     border: 1px solid #1E293B;
     border-radius: 0.5rem;
-    padding: 0.875rem;
+    padding: 1.25rem;
     box-shadow: var(--card-shadow);
   }
 
@@ -710,6 +710,101 @@
 
   .screener-quick-link:hover {
     text-decoration: underline;
+  }
+
+  /* Light Mode Overrides for LiveCatalystWire */
+  html:not(.dark) .wire-container.card,
+  [data-theme="light"] .wire-container.card {
+    background: #FFFFFF !important;
+    border-color: #E2E8F0 !important;
+  }
+
+  html:not(.dark) .wire-heading,
+  [data-theme="light"] .wire-heading,
+  html:not(.dark) .wire-headline-link,
+  [data-theme="light"] .wire-headline-link,
+  html:not(.dark) .earnings-symbol-btn,
+  [data-theme="light"] .earnings-symbol-btn,
+  html:not(.dark) .macro-name,
+  [data-theme="light"] .macro-name,
+  html:not(.dark) .earnings-stats-table strong,
+  [data-theme="light"] .earnings-stats-table strong,
+  html:not(.dark) .macro-stats-row strong,
+  [data-theme="light"] .macro-stats-row strong {
+    color: #0F172A !important;
+  }
+
+  html:not(.dark) .wire-refresh-btn,
+  [data-theme="light"] .wire-refresh-btn,
+  html:not(.dark) .wire-date-strip,
+  [data-theme="light"] .wire-date-strip,
+  html:not(.dark) .wire-expand-bar,
+  [data-theme="light"] .wire-expand-bar,
+  html:not(.dark) .demoted-rss-summary,
+  [data-theme="light"] .demoted-rss-summary,
+  html:not(.dark) .wire-card-item,
+  [data-theme="light"] .wire-card-item,
+  html:not(.dark) .earnings-card-item,
+  [data-theme="light"] .earnings-card-item,
+  html:not(.dark) .macro-card-item,
+  [data-theme="light"] .macro-card-item,
+  html:not(.dark) .wire-skeleton-card,
+  [data-theme="light"] .wire-skeleton-card {
+    background: #F8FAFC !important;
+    border-color: #CBD5E1 !important;
+    color: #334155;
+  }
+
+  html:not(.dark) .wire-card-item:hover,
+  [data-theme="light"] .wire-card-item:hover,
+  html:not(.dark) .earnings-card-item:hover,
+  [data-theme="light"] .earnings-card-item:hover,
+  html:not(.dark) .macro-card-item:hover,
+  [data-theme="light"] .macro-card-item:hover {
+    background: #F1F5F9 !important;
+    border-color: #94A3B8 !important;
+  }
+
+  html:not(.dark) .wire-date-pill,
+  [data-theme="light"] .wire-date-pill,
+  html:not(.dark) .wire-source-btn,
+  [data-theme="light"] .wire-source-btn,
+  html:not(.dark) .earnings-stats-table,
+  [data-theme="light"] .earnings-stats-table,
+  html:not(.dark) .macro-stats-row,
+  [data-theme="light"] .macro-stats-row,
+  html:not(.dark) .tab-count-pill,
+  [data-theme="light"] .tab-count-pill {
+    background: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+    color: #475569 !important;
+  }
+
+  html:not(.dark) .wire-tabs-bar,
+  [data-theme="light"] .wire-tabs-bar,
+  html:not(.dark) .demoted-rss-drawer,
+  [data-theme="light"] .demoted-rss-drawer,
+  html:not(.dark) .wire-footer-bar,
+  [data-theme="light"] .wire-footer-bar {
+    border-color: #E2E8F0 !important;
+  }
+
+  html:not(.dark) .wire-tab-btn,
+  [data-theme="light"] .wire-tab-btn {
+    color: #475569;
+  }
+
+  html:not(.dark) .wire-tab-btn:hover,
+  [data-theme="light"] .wire-tab-btn:hover {
+    color: #0F172A;
+    background: #F1F5F9;
+  }
+
+  html:not(.dark) .wire-tab-btn.active,
+  [data-theme="light"] .wire-tab-btn.active {
+    background: rgba(2, 132, 199, 0.12);
+    border-color: rgba(2, 132, 199, 0.3);
+    color: #0284C7;
   }
 </style>
 

@@ -31,7 +31,7 @@ const isBriefs = currentPath.startsWith('/blog') || currentPath.startsWith('/cat
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" class="dark" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -70,15 +70,19 @@ const isBriefs = currentPath.startsWith('/blog') || currentPath.startsWith('/cat
 
     <!-- Instant Theme Synchronization to Prevent Flash -->
     <script is:inline>
-      (function() {
-        const savedTheme = localStorage.getItem('to_theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-      })();
+      const theme = localStorage.getItem('theme') || localStorage.getItem('to_theme') || 'dark';
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
     </script>
 
     <slot name="head" />
   </head>
-  <body class="bg-[#090D16] text-[#F8FAFC] antialiased selection:bg-sky-500/20 selection:text-sky-300">
+  <body class="bg-slate-50 text-slate-900 dark:bg-[#090D16] dark:text-[#F8FAFC] bg-[#090D16] text-[#F8FAFC] antialiased selection:bg-sky-500/20 selection:text-sky-300">
     <div id="top" style="position: absolute; top: 0; left: 0; width: 0; height: 0; pointer-events: none;"></div>
     
     <!-- Tier 1: Global Telemetry Bar (h-9 = 36px) -->
@@ -314,23 +318,28 @@ const isBriefs = currentPath.startsWith('/blog') || currentPath.startsWith('/cat
         const moonIcon = document.getElementById('theme-icon-moon');
 
         function applyTheme(theme) {
-          document.documentElement.setAttribute('data-theme', theme);
-          if (theme === 'light') {
+          const isDark = theme === 'dark';
+          document.documentElement.classList.toggle('dark', isDark);
+          document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+          if (!isDark) {
             if (sunIcon) sunIcon.style.display = 'none';
             if (moonIcon) moonIcon.style.display = 'block';
           } else {
             if (sunIcon) sunIcon.style.display = 'block';
             if (moonIcon) moonIcon.style.display = 'none';
           }
-          localStorage.setItem('to_theme', theme);
+          try {
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('to_theme', isDark ? 'dark' : 'light');
+          } catch (e) {}
         }
 
-        const savedTheme = localStorage.getItem('to_theme') || 'dark';
+        const savedTheme = localStorage.getItem('theme') || localStorage.getItem('to_theme') || 'dark';
         applyTheme(savedTheme);
 
         themeBtn?.addEventListener('click', () => {
-          const current = document.documentElement.getAttribute('data-theme') || 'dark';
-          const next = current === 'dark' ? 'light' : 'dark';
+          const isCurrentlyDark = document.documentElement.classList.contains('dark');
+          const next = isCurrentlyDark ? 'light' : 'dark';
           applyTheme(next);
         });
       })();
@@ -465,21 +474,22 @@ const isBriefs = currentPath.startsWith('/blog') || currentPath.startsWith('/cat
     --nav-height: 56px;
   }
 
+  html:not(.dark),
   [data-theme="light"] {
-    --bg-page: #f0f2f5;
-    --bg-surface: #ffffff;
-    --bg-surface-elevated: #e5e8ed;
-    --border-subtle: #d0d5dd;
-    --border-strong: #98a2b3;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #667085;
-    --brand-accent: #0284c7;
+    --bg-page: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-surface-elevated: #F1F5F9;
+    --border-subtle: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --brand-accent: #0284C7;
     --gain-color: #10B981;
     --gain-bg: rgba(16, 185, 129, 0.12);
     --loss-color: #F43F5E;
     --loss-bg: rgba(244, 63, 94, 0.12);
-    --card-shadow: 0 2px 8px -2px rgba(16, 24, 40, 0.08), 0 1px 4px -1px rgba(16, 24, 40, 0.04);
+    --card-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.08), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
   }
 
   /* Precision Dark-Mode Terminal & Typography Utility Rules (REVAMP_RULES.md) */
@@ -494,13 +504,22 @@ const isBriefs = currentPath.startsWith('/blog') || currentPath.startsWith('/cat
     color: #7dd3fc;
   }
 
-  .bg-\[\#090D16\] { background-color: #090D16; }
-  .bg-\[\#111726\] { background-color: #111726; }
+  .bg-slate-50 { background-color: #F8FAFC; }
+  .bg-white { background-color: #FFFFFF; }
+  .text-slate-900 { color: #0F172A; }
+  .text-slate-400 { color: #94A3B8; }
+  .border-slate-200 { border-color: #E2E8F0; }
+
+  .bg-\[\#090D16\],
+  .dark .dark\:bg-\[\#090D16\] { background-color: #090D16; }
+  .bg-\[\#111726\],
+  .dark .dark\:bg-\[\#111726\] { background-color: #111726; }
   .bg-\[\#111726\]\/90 { background-color: rgba(17, 23, 38, 0.9); }
   .bg-\[\#1A2234\] { background-color: #1A2234; }
   .hover\:bg-\[\#1A2234\]:hover { background-color: #1A2234; }
 
-  .text-\[\#F8FAFC\] { color: #F8FAFC; }
+  .text-\[\#F8FAFC\],
+  .dark .dark\:text-\[\#F8FAFC\] { color: #F8FAFC; }
   .text-\[\#94A3B8\] { color: #94A3B8; }
   .text-\[\#10B981\] { color: #10B981; }
   .text-\[\#F43F5E\] { color: #F43F5E; }
@@ -519,8 +538,82 @@ const isBriefs = currentPath.startsWith('/blog') || currentPath.startsWith('/cat
   .border { border-width: 1px; border-style: solid; }
   .border-b { border-bottom-width: 1px; border-bottom-style: solid; }
   .border-t { border-top-width: 1px; border-top-style: solid; }
-  .border-\[\#1E293B\] { border-color: #1E293B; }
+  .border-\[\#1E293B\],
+  .dark .dark\:border-\[\#1E293B\],
+  .dark .dark\:border-slate-800 { border-color: #1E293B; }
   .focus\:border-\[\#38BDF8\]:focus { border-color: #38BDF8 !important; }
+
+  .p-5 { padding: 1.25rem; }
+  .gap-6 { gap: 1.5rem; }
+  .space-y-6 > * + * { margin-top: 1.5rem; }
+
+  /* Instant Light-Mode Surface & Text Overrides */
+  html:not(.dark) body,
+  html:not(.dark) .bg-\[\#090D16\] {
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+  }
+  html:not(.dark) .bg-\[\#111726\] {
+    background-color: #FFFFFF !important;
+  }
+  html:not(.dark) .bg-\[\#111726\]\/90,
+  html:not(.dark) .top-nav {
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    border-bottom-color: #E2E8F0 !important;
+  }
+  html:not(.dark) .border-\[\#1E293B\] {
+    border-color: #E2E8F0 !important;
+  }
+  html:not(.dark) .text-\[\#F8FAFC\],
+  html:not(.dark) .text-white {
+    color: #0F172A !important;
+  }
+  html:not(.dark) .text-\[\#94A3B8\],
+  html:not(.dark) .text-slate-400 {
+    color: #475569 !important;
+  }
+  html:not(.dark) .dashboard-toggle-btn,
+  html:not(.dark) .search-input,
+  html:not(.dark) .icon-action-btn {
+    background-color: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+  }
+  html:not(.dark) .dashboard-toggle-btn:hover,
+  html:not(.dark) .icon-action-btn:hover {
+    background-color: #E2E8F0 !important;
+    border-color: #0284C7 !important;
+    color: #0F172A !important;
+  }
+  html:not(.dark) .nav-links a {
+    color: #475569;
+  }
+  html:not(.dark) .nav-links a:hover {
+    color: #0F172A;
+  }
+  html:not(.dark) .nav-links a.active {
+    color: #0284C7;
+  }
+  html:not(.dark) .mobile-bottom-bar {
+    background-color: #FFFFFF !important;
+    border-top-color: #E2E8F0 !important;
+  }
+  html:not(.dark) .mobile-tab-item {
+    color: #475569;
+  }
+  html:not(.dark) .mobile-tab-item.active,
+  html:not(.dark) .mobile-tab-item:hover {
+    color: #0284C7;
+    background-color: rgba(2, 132, 199, 0.08);
+  }
+  html:not(.dark) .diagnostic-drawer {
+    background-color: #FFFFFF !important;
+    border-left-color: #E2E8F0 !important;
+  }
+  html:not(.dark) .drawer-header {
+    background-color: #F8FAFC !important;
+    border-bottom-color: #E2E8F0 !important;
+  }
 
   .h-9 { height: 36px; }
   .h-14 { height: 56px; }
